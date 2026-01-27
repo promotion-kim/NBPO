@@ -2,6 +2,7 @@
 
 🔔 News
 
+- (2026-01) The paper has been accepted by ICLR 2026!
 - (2025-11) The codebase has been updated to include full support for HT-MNPO 
 
 ---
