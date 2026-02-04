@@ -181,3 +181,12 @@ You can find the list of datasets supported by EvalScope at [the official docume
 
 ## Support & Citation
 If you build on this codebase in academic work, please cite the MNPO methodology and link back to this repository so others can reproduce your setup.
+
+```
+@article{wu2025multiplayer,
+  title={Multiplayer Nash Preference Optimization},
+  author={Wu, Fang and Huang, Xu and Xuan, Weihao and Zhang, Zhiwei and Xiao, Yijia and Wan, Guancheng and Li, Xiaomin and Hu, Bing and Xia, Peng and Leskovec, Jure and others},
+  journal={arXiv preprint arXiv:2509.23102},
+  year={2025}
+}
+```
