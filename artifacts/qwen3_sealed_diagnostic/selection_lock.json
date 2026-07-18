@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "status": "locked",
+  "locked_at": "2026-07-14T10:23:51+09:00",
+  "selection_split": "non-sealed validation",
+  "selection_metric": "mean_primary_prompt_worst_norm_score",
+  "tie_break": "IFEval prompt-level strict percent",
+  "selected_ronpo_variant": "top-mass",
+  "selected_model_name": "ronpo_k_only",
+  "selected_model": {
+    "repo_id": "promotion/qwen3-8b-aaai27-flagship-ronpo-k-only-s42",
+    "revision": "b8fdba53b2310b8b1f40079340138c3a5622df9f",
+    "upload_commit": "https://huggingface.co/promotion/qwen3-8b-aaai27-flagship-ronpo-k-only-s42/commit/b8fdba53b2310b8b1f40079340138c3a5622df9f",
+    "seed": 42
+  },
+  "selected_validation_score": 0.28525755497549227,
+  "selected_ifeval_percent": 82.43992606,
+  "validation_ranking_used": [
+    {
+      "model": "ronpo_k_only",
+      "rank": 1,
+      "mean_primary_prompt_worst_norm_score": 0.28525755497549227,
+      "ci95_low": 0.24250432516967493,
+      "ci95_high": 0.32700136198836494,
+      "num_prompts": 128
+    },
+    {
+      "model": "sppo_avg",
+      "rank": 2,
+      "mean_primary_prompt_worst_norm_score": 0.266301502677894,
+      "ci95_low": 0.22403798090445026,
+      "ci95_high": 0.30797668796722943,
+      "num_prompts": 128
+    },
+    {
+      "model": "ipo",
+      "rank": 3,
+      "mean_primary_prompt_worst_norm_score": 0.2658440597136449,
+      "ci95_low": 0.2220391551441406,
+      "ci95_high": 0.3106612654965643,
+      "num_prompts": 128
+    },
+    {
+      "model": "base",
+      "rank": 4,
+      "mean_primary_prompt_worst_norm_score": 0.25869365194551625,
+      "ci95_low": 0.21654243833361542,
+      "ci95_high": 0.3008056712609497,
+      "num_prompts": 128
+    },
+    {
+      "model": "inpo_avg",
+      "rank": 5,
+      "mean_primary_prompt_worst_norm_score": 0.2485416920884983,
+      "ci95_low": 0.20618326733411943,
+      "ci95_high": 0.2940478958168555,
+      "num_prompts": 128
+    },
+    {
+      "model": "dpo",
+      "rank": 6,
+      "mean_primary_prompt_worst_norm_score": 0.24279580413410376,
+      "ci95_low": 0.2050688056374272,
+      "ci95_high": 0.2829986182562964,
+      "num_prompts": 128
+    },
+    {
+      "model": "ht_mnpo_helpfulness",
+      "rank": 7,
+      "mean_primary_prompt_worst_norm_score": 0.24042647936742542,
+      "ci95_low": 0.20305455121203753,
+      "ci95_high": 0.27977919323218337,
+      "num_prompts": 128
+    },
+    {
+      "model": "ronpo_full_expect",
+      "rank": 8,
+      "mean_primary_prompt_worst_norm_score": 0.2391876077352558,
+      "ci95_low": 0.20070810351972457,
+      "ci95_high": 0.28002069978492217,
+      "num_prompts": 128
+    },
+    {
+      "model": "simpo",
+      "rank": 9,
+      "mean_primary_prompt_worst_norm_score": 0.23784739451199505,
+      "ci95_low": 0.19688090364189412,
+      "ci95_high": 0.2778126598797523,
+      "num_prompts": 128
+    },
+    {
+      "model": "ht_mnpo_conciseness",
+      "rank": 10,
+      "mean_primary_prompt_worst_norm_score": 0.23685716307817706,
+      "ci95_low": 0.19670678102125952,
+      "ci95_high": 0.2784756624941898,
+      "num_prompts": 128
+    },
+    {
+      "model": "ht_mnpo_safety",
+      "rank": 11,
+      "mean_primary_prompt_worst_norm_score": 0.2253547832185967,
+      "ci95_low": 0.18472476347441347,
+      "ci95_high": 0.26652081238640757,
+      "num_prompts": 128
+    }
+  ],
+  "eligible_options": [
+    {
+      "model": "ronpo_k_only",
+      "variant": "top-mass",
+      "validation_score": 0.28525755497549227,
+      "ifeval_percent": 82.43992606,
+      "s3_passed": true,
+      "validation_prompts": 128,
+      "model_identity": {
+        "repo_id": "promotion/qwen3-8b-aaai27-flagship-ronpo-k-only-s42",
+        "revision": "b8fdba53b2310b8b1f40079340138c3a5622df9f",
+        "upload_commit": "https://huggingface.co/promotion/qwen3-8b-aaai27-flagship-ronpo-k-only-s42/commit/b8fdba53b2310b8b1f40079340138c3a5622df9f",
+        "seed": 42
+      },
+      "evidence": {
+        "validation_summary": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/revision_qwen3_8b/full_iter1/flagship_20260712/eval/p1_validation_reward_seed42/results/ranked_validation_summary.json",
+        "models_tsv": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/MNPO_rev_20260710/results/qwen3_seed42_academic_20260714/final/models.tsv",
+        "ifeval_json": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/MNPO_rev_20260710/results/qwen3_seed42_ifeval_20260713/final/results/ifeval_seed42.json"
+      }
+    },
+    {
+      "model": "ronpo_sweep_alpha050_anchor0035_lr7p5e8",
+      "variant": "alpha050_anchor0035_lr7p5e8",
+      "validation_score": 0.24827626595535787,
+      "ifeval_percent": null,
+      "s3_passed": true,
+      "validation_prompts": 128,
+      "model_identity": null,
+      "evidence": {
+        "validation_summary": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/revision_qwen3_8b/full_iter1/flagship_20260712/eval/p3_ronpo_seed42_sweep/validation_results/ranked_validation_summary.json",
+        "stability_gate": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/revision_qwen3_8b/full_iter1/flagship_20260712/eval/p3_ronpo_seed42_sweep/candidates/alpha050_anchor0035_lr7p5e8/stability/gate.json",
+        "candidate_status": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/revision_qwen3_8b/full_iter1/flagship_20260712/eval/p3_ronpo_seed42_sweep/candidates/alpha050_anchor0035_lr7p5e8/candidate_status.json",
+        "candidate_metrics": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/revision_qwen3_8b/full_iter1/flagship_20260712/eval/p3_ronpo_seed42_sweep/candidate_selection_metrics.json"
+      }
+    },
+    {
+      "model": "ronpo_sweep_alpha075_anchor005_lr5e8",
+      "variant": "alpha075_anchor005_lr5e8",
+      "validation_score": 0.2415376571340886,
+      "ifeval_percent": null,
+      "s3_passed": true,
+      "validation_prompts": 128,
+      "model_identity": null,
+      "evidence": {
+        "validation_summary": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/revision_qwen3_8b/full_iter1/flagship_20260712/eval/p3_ronpo_seed42_sweep/validation_results/ranked_validation_summary.json",
+        "stability_gate": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/revision_qwen3_8b/full_iter1/flagship_20260712/eval/p3_ronpo_seed42_sweep/candidates/alpha075_anchor005_lr5e8/stability/gate.json",
+        "candidate_status": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/revision_qwen3_8b/full_iter1/flagship_20260712/eval/p3_ronpo_seed42_sweep/candidates/alpha075_anchor005_lr5e8/candidate_status.json",
+        "candidate_metrics": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/revision_qwen3_8b/full_iter1/flagship_20260712/eval/p3_ronpo_seed42_sweep/candidate_selection_metrics.json"
+      }
+    }
+  ],
+  "excluded_p3_candidates": [],
+  "source_artifacts": {
+    "validation_summary": {
+      "path": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/revision_qwen3_8b/full_iter1/flagship_20260712/eval/p1_validation_reward_seed42/results/ranked_validation_summary.json",
+      "sha256": "4410488d75d050569a28a78c6b5fc38e01f0c81817d4242238a0fb2b4603b6ea"
+    },
+    "p3_status": {
+      "path": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/revision_qwen3_8b/full_iter1/flagship_20260712/eval/p3_ronpo_seed42_sweep/status.json",
+      "sha256": "cd590386fa9795ab96bdc97b21d3d29659942e70d0004eb49389964b7b31e0a5"
+    },
+    "p3_protocol": {
+      "path": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/MNPO_rev_20260710/results/p3_ronpo_seed42_sweep_protocol_v2_20260714.json",
+      "sha256": "cb10a9f4342493638daad29c9d4c09ff9d9f12aa57087f4db451c48e01c9f001"
+    },
+    "models_tsv": {
+      "path": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/MNPO_rev_20260710/results/qwen3_seed42_academic_20260714/final/models.tsv",
+      "sha256": "15b3da106400115d3a7f29b7ad433367f8385fd1f8414e6ab57b7509fed48557"
+    },
+    "ifeval_json": {
+      "path": "/NHNHOME/26msit001_A/BASE/AIPR/sjkim/MNPO_rev_20260710/results/qwen3_seed42_ifeval_20260713/final/results/ifeval_seed42.json",
+      "sha256": "c24f18a70c1f5bc06df0f276bce08488a654d8f974dfd1f56c726a9345e40e3a"
+    }
+  },
+  "selection_rule": "Highest eligible 128-prompt validation mean_prompt_worst_norm_score; exact ties broken by measured IFEval. The current top-mass estimator remains selected unless an eligible P3 candidate exceeds it.",
+  "sealed_data_consulted_for_selection": false,
+  "statement": "Selection was finalized exclusively on non-sealed validation evidence; no sealed prompt or sealed score was consulted.",
+  "p1_sealed_test_opened": false
+}

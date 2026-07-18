@@ -1,0 +1,6 @@
+# Install a CUDA- and PyTorch-compatible vLLM wheel for the target machine.
+vllm==0.5.1
+datasets==2.18.0
+numpy==1.26.4
+transformers==4.53.3
+more-itertools>=10.0.0

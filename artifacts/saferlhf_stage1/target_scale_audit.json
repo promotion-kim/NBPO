@@ -1,0 +1,100 @@
+{
+  "scope": "pre-training target-scale audit; no outcome metric used",
+  "rows": 7125,
+  "arms": {
+    "ronpo_os_entropy_0.15": {
+      "column": "target_os_k0p01",
+      "mean": 0.17978002803104368,
+      "std": 0.26533314292678734,
+      "mean_abs": 0.2369703724598731,
+      "p95_abs": 0.4996646498271936,
+      "count": 7125
+    },
+    "ronpo_os_entropy_0.55": {
+      "column": "target_os_k0p1",
+      "mean": 0.19474018222400247,
+      "std": 0.21023537832094585,
+      "mean_abs": 0.22014780541194032,
+      "p95_abs": 0.4996646498695335,
+      "count": 7125
+    },
+    "ronpo_os_entropy_0.85": {
+      "column": "target_os_k0p5",
+      "mean": 0.2363593649048362,
+      "std": 0.22381734338563194,
+      "mean_abs": 0.2521755144342849,
+      "p95_abs": 0.6368825614735966,
+      "count": 7125
+    },
+    "target_topmass_k0p1": {
+      "column": "target_topmass_k0p1",
+      "mean": 0.18311480984974868,
+      "std": 0.2873270828224301,
+      "mean_abs": 0.25125470184135895,
+      "p95_abs": 0.4996646498695335,
+      "count": 7125
+    },
+    "target_uniform": {
+      "column": "target_uniform",
+      "mean": 0.24589830669508916,
+      "std": 0.19536591784076085,
+      "mean_abs": 0.24730525516794472,
+      "p95_abs": 0.5825559294482544,
+      "count": 7125
+    },
+    "ht_mnpo_ht_target": {
+      "column": "ht_target",
+      "trainer_scale": 0.0075,
+      "mean": 0.0029196141282026764,
+      "std": 0.003858661623065625,
+      "mean_abs": 0.004048152656854296,
+      "p95_abs": 0.0075,
+      "count": 7125
+    },
+    "ht_mnpo_ht_target_helpfulness": {
+      "column": "ht_target_helpfulness",
+      "trainer_scale": 0.0075,
+      "mean": 0.0028939001861475557,
+      "std": 0.003893098332137665,
+      "mean_abs": 0.00402904007492414,
+      "p95_abs": 0.0075,
+      "count": 7125
+    },
+    "inpo_avg": {
+      "analytic_target": "1/(2*eta)",
+      "eta": 0.0075,
+      "mean": 66.66666666666666,
+      "std": 1.4210854715202004e-14,
+      "mean_abs": 66.66666666666666,
+      "p95_abs": 66.66666666666667,
+      "count": 7125
+    },
+    "mnpo": {
+      "analytic_target": "1/(2*eta)",
+      "eta": 0.0075,
+      "mean": 66.66666666666666,
+      "std": 1.4210854715202004e-14,
+      "mean_abs": 66.66666666666666,
+      "p95_abs": 66.66666666666667,
+      "count": 7125
+    },
+    "ipo": {
+      "analytic_target": "1/(2*dpo_beta)",
+      "dpo_beta": 0.05,
+      "mean": 10.0,
+      "std": 0.0,
+      "mean_abs": 10.0,
+      "p95_abs": 10.0,
+      "count": 7125
+    },
+    "dpo": {
+      "analytic_target": "logistic pairwise objective; no fixed regression target"
+    },
+    "sppo_avg": {
+      "analytic_target": "history probability objective; no fixed scalar target"
+    },
+    "simpo": {
+      "analytic_target": "logistic pairwise objective; no fixed regression target"
+    }
+  }
+}

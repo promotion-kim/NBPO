@@ -1,0 +1,66 @@
+{
+  "assertions": {
+    "full_exp_corr_topmass_nonincreasing": true,
+    "full_exp_corr_uniform_nondecreasing": true,
+    "interior_target_families_nonidentical": true,
+    "topmass_identical_all_kappas": true
+  },
+  "curve": [
+    {
+      "full_exp_corr_topmass": 0.9575821628312914,
+      "full_exp_corr_uniform": 0.5409525588729048,
+      "full_exp_mean_abs": 0.23733716394767423,
+      "full_vs_topmass_fraction_differing": 0.9357333333333333,
+      "full_vs_uniform_fraction_differing": 0.9468,
+      "kappa": 0.01,
+      "os_mean_abs": 0.23732654544379728,
+      "os_vs_full_fraction_differing": 0.8462666666666666,
+      "os_vs_topmass_fraction_differing": 0.9197333333333333
+    },
+    {
+      "full_exp_corr_topmass": 0.7905108106503801,
+      "full_exp_corr_uniform": 0.781297898866892,
+      "full_exp_mean_abs": 0.2184300369321713,
+      "full_vs_topmass_fraction_differing": 0.9404,
+      "full_vs_uniform_fraction_differing": 0.9442666666666667,
+      "kappa": 0.1,
+      "os_mean_abs": 0.22024820573007714,
+      "os_vs_full_fraction_differing": 0.9392,
+      "os_vs_topmass_fraction_differing": 0.924
+    },
+    {
+      "full_exp_corr_topmass": 0.5710895423910876,
+      "full_exp_corr_uniform": 0.9767652131818183,
+      "full_exp_mean_abs": 0.24286985107844236,
+      "full_vs_topmass_fraction_differing": 0.9461333333333334,
+      "full_vs_uniform_fraction_differing": 0.9456,
+      "kappa": 0.5,
+      "os_mean_abs": 0.25266474664031247,
+      "os_vs_full_fraction_differing": 0.9421333333333334,
+      "os_vs_topmass_fraction_differing": 0.9401333333333334
+    }
+  ],
+  "kappas_sorted": [
+    0.01,
+    0.1,
+    0.5
+  ],
+  "rows": 7500,
+  "scope": "reward-blind target audit on shared precomputed rows before any training",
+  "static_adversary_note": "sigma is computed once from uniform-pool costs; this audit does not claim adaptive OMD dynamics.",
+  "status": "pass",
+  "topmass_exact_kappa_invariance": {
+    "0.01": {
+      "fraction_differing_from_first": 0.0,
+      "max_abs_difference_from_first": 0.0
+    },
+    "0.1": {
+      "fraction_differing_from_first": 0.0,
+      "max_abs_difference_from_first": 0.0
+    },
+    "0.5": {
+      "fraction_differing_from_first": 0.0,
+      "max_abs_difference_from_first": 0.0
+    }
+  }
+}

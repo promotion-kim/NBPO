@@ -1,0 +1,240 @@
+{
+  "status": "complete",
+  "primary": "mean_prompt_worst_norm_score",
+  "normalization": "per-prompt minmax across eligible model pool; constant objective prompt=0.5",
+  "records": 49,
+  "eligible_models": [
+    "base",
+    "ronpo_os_confirmatory",
+    "inpo_avg",
+    "sppo_avg",
+    "simpo",
+    "ipo",
+    "dpo",
+    "ht_mnpo_harmless",
+    "ht_mnpo_helpfulness"
+  ],
+  "ranking": [
+    {
+      "model": "ipo",
+      "display_name": "IPO",
+      "status": "eligible",
+      "records": 49,
+      "helpfulness_norm": 0.6070953003566457,
+      "harmlessness_norm": 0.6265905286107563,
+      "helpfulness_raw": -0.2403938137755102,
+      "harmlessness_raw": 12.838887117346939,
+      "mean_objective_norm_score": 0.616842914483701,
+      "mean_prompt_worst_norm_score": 0.43750814507144375,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.3404577272469899,
+        0.5402674340681692
+      ],
+      "mean_win_rate_vs_baseline": 0.6989795918367347,
+      "min_win_rate_vs_baseline": 0.6122448979591837,
+      "helpfulness_win_vs_base": 0.7857142857142857,
+      "harmlessness_win_vs_base": 0.6122448979591837,
+      "rank": 1
+    },
+    {
+      "model": "inpo_avg",
+      "display_name": "INPO (avg)",
+      "status": "eligible",
+      "records": 49,
+      "helpfulness_norm": 0.5857376463692727,
+      "harmlessness_norm": 0.5958274596690248,
+      "helpfulness_raw": -0.7649473852040817,
+      "harmlessness_raw": 12.994897959183673,
+      "mean_objective_norm_score": 0.5907825530191487,
+      "mean_prompt_worst_norm_score": 0.409885059309205,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.31730844836930017,
+        0.503230631810159
+      ],
+      "mean_win_rate_vs_baseline": 0.7193877551020409,
+      "min_win_rate_vs_baseline": 0.6020408163265306,
+      "helpfulness_win_vs_base": 0.8367346938775511,
+      "harmlessness_win_vs_base": 0.6020408163265306,
+      "rank": 2
+    },
+    {
+      "model": "simpo",
+      "display_name": "SimPO",
+      "status": "eligible",
+      "records": 49,
+      "helpfulness_norm": 0.5050467068308436,
+      "harmlessness_norm": 0.6614486786589955,
+      "helpfulness_raw": -1.4887595663265305,
+      "harmlessness_raw": 13.754464285714286,
+      "mean_objective_norm_score": 0.5832476927449196,
+      "mean_prompt_worst_norm_score": 0.3822971131544889,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.29804263308381296,
+        0.4696657550854986
+      ],
+      "mean_win_rate_vs_baseline": 0.7244897959183674,
+      "min_win_rate_vs_baseline": 0.6836734693877551,
+      "helpfulness_win_vs_base": 0.7653061224489796,
+      "harmlessness_win_vs_base": 0.6836734693877551,
+      "rank": 3
+    },
+    {
+      "model": "dpo",
+      "display_name": "DPO",
+      "status": "eligible",
+      "records": 49,
+      "helpfulness_norm": 0.5407638696673082,
+      "harmlessness_norm": 0.5795481873736165,
+      "helpfulness_raw": -0.987922512755102,
+      "harmlessness_raw": 11.888552295918368,
+      "mean_objective_norm_score": 0.5601560285204623,
+      "mean_prompt_worst_norm_score": 0.36473655198549515,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.2794656877081798,
+        0.4552410107571273
+      ],
+      "mean_win_rate_vs_baseline": 0.6836734693877551,
+      "min_win_rate_vs_baseline": 0.6020408163265306,
+      "helpfulness_win_vs_base": 0.7653061224489796,
+      "harmlessness_win_vs_base": 0.6020408163265306,
+      "rank": 4
+    },
+    {
+      "model": "ronpo_os_confirmatory",
+      "display_name": "RONPO (OS, confirmatory)",
+      "status": "eligible",
+      "records": 49,
+      "helpfulness_norm": 0.572022121999387,
+      "harmlessness_norm": 0.48504611311323964,
+      "helpfulness_raw": -0.6968670280612245,
+      "harmlessness_raw": 11.448262117346939,
+      "mean_objective_norm_score": 0.5285341175563133,
+      "mean_prompt_worst_norm_score": 0.3052181487122704,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.2290216824779184,
+        0.38355679590472197
+      ],
+      "mean_win_rate_vs_baseline": 0.653061224489796,
+      "min_win_rate_vs_baseline": 0.5102040816326531,
+      "helpfulness_win_vs_base": 0.7959183673469388,
+      "harmlessness_win_vs_base": 0.5102040816326531,
+      "rank": 5
+    },
+    {
+      "model": "sppo_avg",
+      "display_name": "SPPO (avg)",
+      "status": "eligible",
+      "records": 49,
+      "helpfulness_norm": 0.4550173683467802,
+      "harmlessness_norm": 0.49592197303120766,
+      "helpfulness_raw": -2.0373086734693877,
+      "harmlessness_raw": 10.565688775510203,
+      "mean_objective_norm_score": 0.475469670688994,
+      "mean_prompt_worst_norm_score": 0.28153139390480986,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.19973951273290108,
+        0.36684620050490857
+      ],
+      "mean_win_rate_vs_baseline": 0.6122448979591837,
+      "min_win_rate_vs_baseline": 0.5612244897959183,
+      "helpfulness_win_vs_base": 0.6632653061224489,
+      "harmlessness_win_vs_base": 0.5612244897959183,
+      "rank": 6
+    },
+    {
+      "model": "ht_mnpo_harmless",
+      "display_name": "HT-MNPO (harmless)",
+      "status": "eligible",
+      "records": 49,
+      "helpfulness_norm": 0.46398266583267495,
+      "harmlessness_norm": 0.45173092267568593,
+      "helpfulness_raw": -1.8655931122448979,
+      "harmlessness_raw": 10.411272321428571,
+      "mean_objective_norm_score": 0.4578567942541803,
+      "mean_prompt_worst_norm_score": 0.28074551697488137,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.20544599010573172,
+        0.35620438233629215
+      ],
+      "mean_win_rate_vs_baseline": 0.653061224489796,
+      "min_win_rate_vs_baseline": 0.5306122448979592,
+      "helpfulness_win_vs_base": 0.7755102040816326,
+      "harmlessness_win_vs_base": 0.5306122448979592,
+      "rank": 7
+    },
+    {
+      "model": "ht_mnpo_helpfulness",
+      "display_name": "HT-MNPO (help.)",
+      "status": "eligible",
+      "records": 49,
+      "helpfulness_norm": 0.40922414398312074,
+      "harmlessness_norm": 0.48818080174012835,
+      "helpfulness_raw": -2.2207429846938775,
+      "harmlessness_raw": 10.595822704081632,
+      "mean_objective_norm_score": 0.4487024728616245,
+      "mean_prompt_worst_norm_score": 0.25304815028490146,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.17553818742903876,
+        0.3344093867042976
+      ],
+      "mean_win_rate_vs_baseline": 0.6428571428571428,
+      "min_win_rate_vs_baseline": 0.5510204081632653,
+      "helpfulness_win_vs_base": 0.7346938775510204,
+      "harmlessness_win_vs_base": 0.5510204081632653,
+      "rank": 8
+    },
+    {
+      "model": "base",
+      "display_name": "Base",
+      "status": "eligible",
+      "records": 49,
+      "helpfulness_norm": 0.17475616274736755,
+      "harmlessness_norm": 0.4359323132349234,
+      "helpfulness_raw": -5.776466836734694,
+      "harmlessness_raw": 11.603635204081632,
+      "mean_objective_norm_score": 0.3053442379911454,
+      "mean_prompt_worst_norm_score": 0.10297135377099284,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.04812548989078464,
+        0.16255915818326233
+      ],
+      "mean_win_rate_vs_baseline": 0.5,
+      "min_win_rate_vs_baseline": 0.5,
+      "helpfulness_win_vs_base": 0.5,
+      "harmlessness_win_vs_base": 0.5,
+      "rank": 9
+    }
+  ],
+  "gate": {
+    "status": "fail",
+    "worst_gate_pass": false,
+    "average_floor_pass": false,
+    "worst_comparator": "ipo",
+    "average_comparator": "ipo",
+    "worst_paired_difference": -0.1322899963591735,
+    "worst_paired_difference_ci95": [
+      -0.25287048804455536,
+      -0.008083831597936172
+    ],
+    "avg_paired_difference": -0.08830879692738776,
+    "avg_paired_difference_ci95": [
+      -0.1859482418128512,
+      0.011467250839544758
+    ],
+    "bootstrap_resamples": 2000,
+    "bootstrap_seed": 42
+  },
+  "failures": [],
+  "bootstrap": {
+    "resamples": 2000,
+    "seed": 42,
+    "unit": "prompt",
+    "paired": true
+  },
+  "input_sha256": {
+    "helpfulness": "28dc06066d134e20dfc2789adbb48b8e1d6a98185b8f469b9ead00eb68c61a49",
+    "harmlessness": "973219b129aa3faa8f67d0ab0d0bff828c2f83dbf3001aa3165aecc72c2872e3",
+    "pool_audit": "e9a698f922561169a22cce06d0457eee36b5098024ec72f33cda3c81483d9fc5"
+  },
+  "spent_sealed_split_touched": false
+}

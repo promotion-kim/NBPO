@@ -1,0 +1,38 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+
+# Credentials and local environment files
+.env
+.env.*
+*.key
+*.pem
+*.token
+*_token.txt
+.hf_token
+
+# Model, dataset, and experiment outputs
+data/
+outputs/
+checkpoints/
+wandb/
+cache/
+reproduced/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.arrow
+
+# LaTeX build products. The reviewed main.pdf is tracked explicitly.
+ronpo_aaai/*.aux
+ronpo_aaai/*.bbl
+ronpo_aaai/*.blg
+ronpo_aaai/*.log
+ronpo_aaai/*.out
+ronpo_aaai/*.toc

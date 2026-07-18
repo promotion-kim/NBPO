@@ -1,0 +1,235 @@
+{
+  "status": "complete",
+  "scope": "fresh 1000-prompt PKU-SafeRLHF default-test panel; Stage-4 training seed 43; decode seed fixed at 42",
+  "primary": "mean_prompt_worst_norm_score",
+  "normalization": "per-prompt minmax over the full eligible model pool; constant objective prompt=0.5",
+  "objectives": [
+    "Beaver reward helpfulness",
+    "negative Beaver cost harmlessness"
+  ],
+  "records": 1000,
+  "eligible_models": [
+    "base",
+    "ronpo_os_stage4",
+    "ronpo_topmass_stage4",
+    "inpo_avg_stage4",
+    "sppo_avg_stage4",
+    "simpo_stage4",
+    "ipo_stage4",
+    "dpo_stage4",
+    "ht_mnpo_harmless_stage4",
+    "ht_mnpo_helpfulness_stage4"
+  ],
+  "ranking": [
+    {
+      "model": "ronpo_os_stage4",
+      "display_name": "RONPO (OS)",
+      "records": 1000,
+      "helpfulness_raw": 6.28950048828125,
+      "harmlessness_raw": 11.110458251953125,
+      "helpfulness_norm": 0.6545409499584491,
+      "harmlessness_norm": 0.5844676297157908,
+      "mean_objective_norm_score": 0.61950428983712,
+      "mean_prompt_worst_norm_score": 0.43521472362862273,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.4185030357167017,
+        0.45248283764777375
+      ],
+      "mean_win_rate_vs_base": 0.724,
+      "min_win_rate_vs_base": 0.614,
+      "rank": 1
+    },
+    {
+      "model": "ronpo_topmass_stage4",
+      "display_name": "RONPO (top-mass)",
+      "records": 1000,
+      "helpfulness_raw": 5.68246142578125,
+      "harmlessness_raw": 11.226850204467773,
+      "helpfulness_norm": 0.6348576746815384,
+      "harmlessness_norm": 0.5881572180552452,
+      "mean_objective_norm_score": 0.6115074463683918,
+      "mean_prompt_worst_norm_score": 0.4282531923792642,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.41140350445856105,
+        0.4457627184337086
+      ],
+      "mean_win_rate_vs_base": 0.71475,
+      "min_win_rate_vs_base": 0.61,
+      "rank": 2
+    },
+    {
+      "model": "ipo_stage4",
+      "display_name": "IPO",
+      "records": 1000,
+      "helpfulness_raw": 3.673597961425781,
+      "harmlessness_raw": 12.18946875,
+      "helpfulness_norm": 0.5467177168689131,
+      "harmlessness_norm": 0.654138579113207,
+      "mean_objective_norm_score": 0.60042814799106,
+      "mean_prompt_worst_norm_score": 0.40650975390420946,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.38972023259491745,
+        0.42296377047308437
+      ],
+      "mean_win_rate_vs_base": 0.75425,
+      "min_win_rate_vs_base": 0.688,
+      "rank": 3
+    },
+    {
+      "model": "inpo_avg_stage4",
+      "display_name": "INPO-avg",
+      "records": 1000,
+      "helpfulness_raw": 2.9466248779296875,
+      "harmlessness_raw": 12.20858984375,
+      "helpfulness_norm": 0.529870062136147,
+      "harmlessness_norm": 0.6374449825600457,
+      "mean_objective_norm_score": 0.5836575223480963,
+      "mean_prompt_worst_norm_score": 0.3948683650774708,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.3777626628884898,
+        0.41183393751538694
+      ],
+      "mean_win_rate_vs_base": 0.74075,
+      "min_win_rate_vs_base": 0.6755,
+      "rank": 4
+    },
+    {
+      "model": "simpo_stage4",
+      "display_name": "SimPO",
+      "records": 1000,
+      "helpfulness_raw": 1.973897705078125,
+      "harmlessness_raw": 13.633073486328126,
+      "helpfulness_norm": 0.4629924289160433,
+      "harmlessness_norm": 0.7328226895991183,
+      "mean_objective_norm_score": 0.5979075592575808,
+      "mean_prompt_worst_norm_score": 0.372834877091276,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.3566249279981224,
+        0.38950364113314695
+      ],
+      "mean_win_rate_vs_base": 0.7595000000000001,
+      "min_win_rate_vs_base": 0.727,
+      "rank": 5
+    },
+    {
+      "model": "dpo_stage4",
+      "display_name": "DPO",
+      "records": 1000,
+      "helpfulness_raw": 2.384376953125,
+      "harmlessness_raw": 12.57622802734375,
+      "helpfulness_norm": 0.4879573280815608,
+      "harmlessness_norm": 0.6462393900228484,
+      "mean_objective_norm_score": 0.5670983590522046,
+      "mean_prompt_worst_norm_score": 0.36549672421951823,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.34921113030569295,
+        0.3817912486731512
+      ],
+      "mean_win_rate_vs_base": 0.7375,
+      "min_win_rate_vs_base": 0.682,
+      "rank": 6
+    },
+    {
+      "model": "ht_mnpo_harmless_stage4",
+      "display_name": "HT-MNPO (harml.)",
+      "records": 1000,
+      "helpfulness_raw": 4.129884765625,
+      "harmlessness_raw": 8.9080439453125,
+      "helpfulness_norm": 0.5329127188564633,
+      "harmlessness_norm": 0.4363281437459701,
+      "mean_objective_norm_score": 0.4846204313012166,
+      "mean_prompt_worst_norm_score": 0.30329493006506875,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.28658180462825705,
+        0.3187742190152097
+      ],
+      "mean_win_rate_vs_base": 0.6455,
+      "min_win_rate_vs_base": 0.521,
+      "rank": 7
+    },
+    {
+      "model": "sppo_avg_stage4",
+      "display_name": "SPPO-avg",
+      "records": 1000,
+      "helpfulness_raw": 2.649884521484375,
+      "harmlessness_raw": 10.2312734375,
+      "helpfulness_norm": 0.48374401795149485,
+      "harmlessness_norm": 0.48376648603362266,
+      "mean_objective_norm_score": 0.4837552519925587,
+      "mean_prompt_worst_norm_score": 0.29778694301761105,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.2807313540878088,
+        0.3143616776898791
+      ],
+      "mean_win_rate_vs_base": 0.6585,
+      "min_win_rate_vs_base": 0.5585,
+      "rank": 8
+    },
+    {
+      "model": "ht_mnpo_helpfulness_stage4",
+      "display_name": "HT-MNPO (help.)",
+      "records": 1000,
+      "helpfulness_raw": 3.853867919921875,
+      "harmlessness_raw": 8.919484375,
+      "helpfulness_norm": 0.5207257133433356,
+      "harmlessness_norm": 0.4275047373156495,
+      "mean_objective_norm_score": 0.47411522532949263,
+      "mean_prompt_worst_norm_score": 0.28776577071001574,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.2712334984810096,
+        0.3044867007371678
+      ],
+      "mean_win_rate_vs_base": 0.6427499999999999,
+      "min_win_rate_vs_base": 0.513,
+      "rank": 9
+    },
+    {
+      "model": "base",
+      "display_name": "Base",
+      "records": 1000,
+      "helpfulness_raw": -3.00662939453125,
+      "harmlessness_raw": 10.881300048828125,
+      "helpfulness_norm": 0.20602875050870872,
+      "harmlessness_norm": 0.44649205859919583,
+      "mean_objective_norm_score": 0.3262604045539523,
+      "mean_prompt_worst_norm_score": 0.13216057027809522,
+      "mean_prompt_worst_norm_score_ci95": [
+        0.11870411532376454,
+        0.1466924439949015
+      ],
+      "mean_win_rate_vs_base": 0.5,
+      "min_win_rate_vs_base": 0.5,
+      "rank": 10
+    }
+  ],
+  "new_arm_paired_comparisons": {
+    "ronpo_os_stage4": {
+      "worst_comparator": "ipo_stage4",
+      "paired_prompt_worst_difference": 0.02870496972441327,
+      "paired_prompt_worst_difference_ci95": [
+        0.007386360436092679,
+        0.04991098477110656
+      ]
+    },
+    "ronpo_topmass_stage4": {
+      "worst_comparator": "ipo_stage4",
+      "paired_prompt_worst_difference": 0.021743438475054735,
+      "paired_prompt_worst_difference_ci95": [
+        -0.001076992715059736,
+        0.04400579929774034
+      ]
+    }
+  },
+  "bootstrap": {
+    "resamples": 2000,
+    "seed": 42,
+    "unit": "prompt",
+    "paired": true
+  },
+  "input_sha256": {
+    "helpfulness": "d67ca5f93c54a751496e183b3c868db6b048b7b410d2dd7f3c20ae3078e18610",
+    "harmlessness": "01af22c3f3b70f630975399686766a42b562be9a2315bd0c8895f1bac0fecd77",
+    "pool_audit": "683a50fdcc0c0b77ba9544d5f26b236dd36f3ab5882c9ca20a68ee3b73e509f3"
+  },
+  "spent_sealed_split_touched": false
+}

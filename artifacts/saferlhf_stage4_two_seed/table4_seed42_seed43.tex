@@ -1,0 +1,24 @@
+% Generated from seed-level JSON; values are mean and sample SD over training seeds 42 and 43.
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lrrrr}
+\toprule
+Method & Helpful. & Harmless. & Avg & Worst \\
+\midrule
+RONPO (OS) & \textbf{0.6624 $\pm$ 0.0111} & 0.5856 $\pm$ 0.0016 & \textbf{0.6240 $\pm$ 0.0063} & \textbf{0.4412 $\pm$ 0.0085} \\
+IPO & \underline{0.5420 $\pm$ 0.0067} & \underline{0.6539 $\pm$ 0.0003} & 0.5979 $\pm$ 0.0035 & \underline{0.4046 $\pm$ 0.0027} \\
+INPO-avg & 0.5023 $\pm$ 0.0390 & 0.6448 $\pm$ 0.0104 & 0.5736 $\pm$ 0.0143 & 0.3806 $\pm$ 0.0202 \\
+DPO & 0.4978 $\pm$ 0.0140 & 0.6493 $\pm$ 0.0044 & 0.5736 $\pm$ 0.0092 & 0.3750 $\pm$ 0.0135 \\
+SimPO & 0.4606 $\pm$ 0.0034 & \textbf{0.7410 $\pm$ 0.0116} & \underline{0.6008 $\pm$ 0.0041} & 0.3730 $\pm$ 0.0002 \\
+HT-MNPO (harml.) & 0.5242 $\pm$ 0.0123 & 0.4359 $\pm$ 0.0006 & 0.4801 $\pm$ 0.0064 & 0.2988 $\pm$ 0.0063 \\
+HT-MNPO (help.) & 0.5329 $\pm$ 0.0171 & 0.4244 $\pm$ 0.0044 & 0.4786 $\pm$ 0.0064 & 0.2934 $\pm$ 0.0080 \\
+SPPO-avg & 0.4856 $\pm$ 0.0026 & 0.4749 $\pm$ 0.0125 & 0.4803 $\pm$ 0.0050 & 0.2916 $\pm$ 0.0088 \\
+\midrule
+Base & 0.2045 $\pm$ 0.0022 & 0.4456 $\pm$ 0.0012 & 0.3250 $\pm$ 0.0017 & 0.1315 $\pm$ 0.0009 \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Model-scale robustness on PKU-SafeRLHF across training seeds 42 and 43.} Values are mean $\pm$ sample standard deviation over two training seeds. Each seed uses the same held-out 1{,}000-prompt panel, Beaver reward and negated Beaver cost evaluators, fixed decode seed 42, and per-prompt min--max normalization over the same method pool. Best in bold, second best underlined.}
+\label{tab:saferlhf-robust-two-seed}
+\end{table}

@@ -1,0 +1,54 @@
+{
+  "status": "complete",
+  "summary": "mean and sample standard deviation over training seeds 42 and 43",
+  "n_seeds": 2,
+  "training_seeds": [
+    42,
+    43
+  ],
+  "decode_seed": 42,
+  "records_per_seed": 1000,
+  "objectives": [
+    "Beaver reward helpfulness",
+    "negative Beaver cost harmlessness"
+  ],
+  "normalization": "per-prompt minmax over the full eligible model pool; constant objective prompt=0.5",
+  "bootstrap_in_seed_files": {
+    "resamples": 2000,
+    "seed": 42,
+    "unit": "prompt",
+    "paired": true
+  },
+  "seed_input_sha256": {
+    "42": "e88a66753aa3be6411795889ce65d143472cf681125a00232ebc39862dad40fa",
+    "43": "391169a70b8f1874680918773ded7c2892d288700fbde57019a827c8a59e9273"
+  },
+  "prompt_manifest": "results/p10_saferlhf_stage4_seed43_20260718/two_seed_table4/inputs/fresh_default_test_1000.jsonl",
+  "prompt_manifest_sha256": "c7b5d42f5b866d6c8fce8667cfb22d27541fa86eea61d4b9d2ad0dad7a12eec2",
+  "main_table_models": [
+    "ronpo_os_stage4",
+    "ipo_stage4",
+    "inpo_avg_stage4",
+    "dpo_stage4",
+    "simpo_stage4",
+    "ht_mnpo_harmless_stage4",
+    "ht_mnpo_helpfulness_stage4",
+    "sppo_avg_stage4",
+    "base"
+  ],
+  "full_audit_models": [
+    "ronpo_os_stage4",
+    "ronpo_topmass_stage4",
+    "ipo_stage4",
+    "inpo_avg_stage4",
+    "dpo_stage4",
+    "simpo_stage4",
+    "ht_mnpo_harmless_stage4",
+    "ht_mnpo_helpfulness_stage4",
+    "sppo_avg_stage4",
+    "base"
+  ],
+  "topmass_handling": "reported in full audit as estimator ablation; omitted from Table-4-style main table",
+  "caution": "sample SD at n=2 is descriptive and is not a confidence interval",
+  "spent_sealed_split_touched": false
+}

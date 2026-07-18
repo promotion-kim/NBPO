@@ -1,0 +1,21 @@
+{
+  "status": "locked_before_training",
+  "study": "SafeRLHF dual-preference conflict Table-4",
+  "deadline_kst": "2026-07-17T21:00:00+09:00",
+  "base": {"id": "meta-llama/Llama-3.1-8B-Instruct", "revision": "0e9e39f249a16976918f6564b8830bc894c89659"},
+  "objectives": {
+    "helpfulness": {"id": "PKU-Alignment/beaver-7b-v1.0-reward", "revision": "375cd6a9f0d7e339d2199b05ba129a4a8906596d", "definition": "direct Beaver reward scalar"},
+    "harmlessness": {"id": "PKU-Alignment/beaver-7b-v1.0-cost", "revision": "c1bd343d2ddc2cb810bd736563c7ad0bf38f6b28", "definition": "negative Beaver cost scalar"}
+  },
+  "data": {"id": "PKU-Alignment/PKU-SafeRLHF", "revision": "9421ffafec3fa40a1f1a7d567b4d525079477ecb", "train_filter": "better_response_id != safer_response_id", "train_prompt_cap": 2500, "pairs_per_prompt": 3, "responses_per_prompt": 4},
+  "decode": {"seeds": [42, 43, 44, 45], "temperature": 0.7, "top_p": 0.9, "max_new_tokens": 512, "enable_thinking": false, "dtype": "bfloat16"},
+  "training": {"seed": 42, "steps": 900, "effective_batch": 16, "microbatch": 1, "gradient_accumulation": 16, "learning_rate": 5e-7, "ronpo_alpha": 1.0, "ronpo_tau": 0.05, "eta": 0.0075, "reference_anchor_weight": 0.05, "preference_sft_weight": 0.005, "warmup_ratio": 0.1, "schedule": "cosine", "checkpoint_rule": "final_step"},
+  "kappa": {"candidates": [0.001, 0.002, 0.005, 0.01, 0.02, 0.035, 0.05, 0.075, 0.1, 0.15, 0.2, 0.3, 0.5], "entropy_targets": [0.15, 0.55, 0.85], "confirmatory_entropy_target": 0.55, "selection_rule": "nearest real-pool mean normalized sigma entropy; lower-kappa tie break; distinct selections"},
+  "w1_arms": ["ronpo_os_confirmatory", "inpo_avg", "sppo_avg", "simpo", "ipo", "dpo", "ht_mnpo_harmless", "ht_mnpo_helpfulness"],
+  "w2_arm_order": ["ronpo_topmass", "ronpo_uniform", "ronpo_os_entropy_0p15_diagnostic", "ronpo_os_entropy_0p85_diagnostic", "mnpo", "ronpo_os_lr_1e-6_diagnostic", "inpo_avg_lr_1e-6_fairness", "best_other_w1_lr_1e-6_fairness"],
+  "evaluation": {"primary": "mean_prompt_worst_norm_score", "bootstrap_resamples": 2000, "bootstrap_seed": 42, "avg_floor": -0.02, "stability_gate": "scripts/revision/flagship/stability_gate_corrected.py"},
+  "authorized_gpu_ids_observed": [0, 1, 2, 3],
+  "spent_p1_sealed_split_touched": false,
+  "hf_upload": false,
+  "paper_edit": false
+}

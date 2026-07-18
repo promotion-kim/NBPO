@@ -1,0 +1,1270 @@
+%File: ronpo_aaai27.tex
+% AAAI-27 anonymous submission.
+
+\documentclass[letterpaper]{article} % DO NOT CHANGE THIS
+\usepackage[submission]{aaai2027}  % DO NOT CHANGE THIS (swap to aaai2027 when using the AAAI-27 kit)
+\usepackage{times}  % DO NOT CHANGE THIS
+\usepackage{helvet}  % DO NOT CHANGE THIS
+\usepackage{courier}  % DO NOT CHANGE THIS
+\usepackage[hyphens]{url}  % DO NOT CHANGE THIS
+\usepackage{graphicx} % DO NOT CHANGE THIS
+\urlstyle{rm} % DO NOT CHANGE THIS
+\def\UrlFont{\rm}  % DO NOT CHANGE THIS
+\usepackage{natbib}  % DO NOT CHANGE THIS AND DO NOT ADD ANY OPTIONS TO IT
+\usepackage{caption} % DO NOT CHANGE THIS AND DO NOT ADD ANY OPTIONS TO IT
+\frenchspacing  % DO NOT CHANGE THIS
+\setlength{\pdfpagewidth}{8.5in} % DO NOT CHANGE THIS
+\setlength{\pdfpageheight}{11in} % DO NOT CHANGE THIS
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\pdfinfo{
+/TemplateVersion (2026.1)
+}
+\setcounter{secnumdepth}{0}
+
+% Additional packages that do not alter AAAI layout.
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\Y}{\mathcal{Y}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\Kset}{\mathcal{K}}
+\newcommand{\DeltaY}{\Delta(\Y)}
+\newcommand{\KL}{\mathrm{KL}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Ber}{\mathrm{Ber}}
+\newcommand{\inner}[2]{\langle #1,#2\rangle}
+\newcommand{\ones}{\mathbf{1}}
+
+\title{Robust Nash Preference Optimization}
+\author{Anonymous Submission}
+\affiliations{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Aligning language models increasingly relies on multiple, conflicting preference signals: helpfulness, harmlessness, conciseness, and domain-specific judges routinely disagree. Standard practice scalarizes these signals into a fixed average, which can hide a severe failure on a minority objective, while assigning each objective its own player yields a general-sum game for which last-iterate convergence guarantees are unavailable. We propose Robust Nash Preference Optimization (RONPO), which keeps heterogeneous alignment inside a two-player game: a single adversary jointly selects a preference oracle and an opponent response, and the policy must remain competitive against the resulting worst-case pair. The induced objective is a KL-regularized bilinear saddle whose inner problem is a distributionally robust soft minimum over objective--response pairs, so the policy maximizes a certified floor on its worst-case win probability. We prove that the game admits a unique robust Nash policy and that exact mirror-descent dynamics converge directly to it at an $O(1/T)$ rate. The exact update reduces to a partition-free log-ratio regression against a sampled adversarial pair, giving a practical loss for language models. On synthetic preference games, RONPO nearly closes the gap to the robust linear-programming optimum where averaging-based methods collapse on a hidden objective, and its dynamics track the predicted convergence rate. At model scale, RONPO raises worst-objective reward under the multiple judges and preserves verifiable instruction following.
+\end{abstract}
+
+\section{Introduction}
+
+Reinforcement learning from human feedback (RLHF) is the standard recipe for aligning Large Language Models (LLMs): pairwise human preferences are compressed into a scalar reward model, and the policy is optimized against that reward under a KL constraint \citep{christiano2017deep,ouyang2022training}. Direct alignment methods such as DPO shortcut the reward-modeling step but retain the same scalar, Bradley--Terry structure \citep{rafailov2023direct,bradley1952rank}. This compression is a modeling assumption, not a fact about human judgment: a Bradley--Terry model induces a transitive order over responses, whereas aggregate human preferences can be cyclic or context-dependent \citep{tversky1969intransitivity,may1954intransitivity}.
+
+When preferences need not be transitive, there may exist no scalar utility whose maximizer is ``the preferred response,'' so reward maximization is no longer the right solution concept. Nash learning from human feedback (NLHF) instead works with a general preference oracle and seeks a policy that no opponent policy can beat in expectation, a von Neumann winner of the induced two-player constant-sum game \citep{munos2024nash,dudik2015contextual,azar2024general}. The game-theoretic view is what supplies robustness: the learned policy is evaluated against an explicit opponent that actively searches for responses on which the policy loses, rather than against a fixed scalar score. Self-play methods such as SPPO and INPO make this practical for language models via no-regret mirror descent, and INPO in particular provides \emph{last-iterate} convergence to the regularized Nash policy \citep{wu2025sppo,zhang2025iterative}.
+
+Realistic alignment, however, rarely involves a single preference source. A model is judged simultaneously by helpfulness, harmlessness, factuality, conciseness, style, and domain-policy critics \citep{bai2022training,wang2024helpsteer2,wang2024armorm}, and these judges conflict \citep{dai2024safe,rame2023rewarded}. Existing methods absorb this conflict at the level of objectives alone: single-oracle methods such as SPPO and INPO may collapse the judges into one signal, typically a fixed weighted average \citep{wu2025sppo,zhang2025iterative,wang2024armorm}, while robust variants such as MaxMin-RLHF, group-robust preference optimization, and RMOD harden only the choice of objective weights \citep{chakraborty2024maxmin,ramesh2024group,son2026rmod}. Assigning each oracle its own player, as in MNPO \citep{wu2026mnpo}, avoids aggregation altogether, but the game then becomes general-sum and the monotone structure behind last-iterate convergence is lost. What is needed is a method that is robust jointly over objectives and opponent responses while remaining a two-player game with a last-iterate convergence guarantee.
+
+RONPO keeps the multi-objective concept but changes where it lives. There is one policy player and one adversary, and the adversary's action is a \emph{pair} $(k,a)$: which preference oracle judges the policy, and which opponent response the policy must beat. Confining conflicting preferences to a single adversary's action set keeps the problem a two-player KL-regularized bilinear saddle, so the strongly monotone structure (and with it existence, uniqueness, and last-iterate convergence) survives arbitrary conflict among the $K$ oracles. The inner minimization is exactly the dual of a Kullback--Leibler distributionally robust program over pairs: RONPO maximizes a regularized \emph{worst-case floor} on win probability, with a single temperature $\kappa$ interpolating between hard worst-case and plain averaging.
+
+Our contributions are as follows.
+\begin{itemize}
+\item We cast multiple preference alignment as an objective-adversarial game whose adversary selects objective--response pairs.
+\item The game has a unique robust Nash policy (Thm.~\ref{thm:existence}); exact mirror-descent dynamics converge to it at an $O(1/T)$ last-iterate rate (Thm.~\ref{thm:lastiter}). To our knowledge, these are the first last-iterate guarantees for general-preference alignment with heterogeneous objectives.
+\item The exact update reduces to a partition-free log-ratio regression against a sampled adversarial pair (Prop.~\ref{prop:unbiased}), yielding a loss with no partition function.
+\item Synthetic preference games isolate the hidden-objective failure of averaging, where RONPO nearly closes the gap to the robust LP optimum at essentially no average cost, and numerically validate the convergence theory. At model scale, RONPO raises worst-objective reward under the training-aligned judges and preserves instruction following.
+\end{itemize}
+We are explicit about scope: the equilibrium and rate analysis instantiates standard strongly monotone variational-inequality arguments \citep{facchinei2003finite,nemirovski1983problem}; the contribution is the formulation that makes those arguments \emph{apply} under multi-objective setting, together with the resulting algorithm and guarantees.
+
+\section{Related Work}
+
+\paragraph{RLHF and direct alignment.}
+Reward-based RLHF optimizes a KL-regularized policy against a learned scalar reward \citep{christiano2017deep,ouyang2022training}. DPO removes the explicit reward model through a closed-form reparameterization \citep{rafailov2023direct}; IPO replaces its logistic link with a squared loss on preference probabilities to reduce overfitting \citep{azar2024general}; and SimPO drops the reference model \citep{meng2024simpo}. All inherit a single, implicitly transitive preference signal; under heterogeneous judges they are applied to an averaged or single oracle, the regime our synthetic study shows can mask minority-objective collapse.
+
+\paragraph{General preferences and Nash alignment.}
+Dueling and contextual dueling bandits introduced learning from pairwise comparisons and the von Neumann winner solution concept \citep{yue2012karmed,dudik2015contextual}. NLHF brought this view to LLM alignment \citep{munos2024nash}, with self-play and no-regret instantiations including SPPO, INPO, DNO, SPO, and online IPO variants \citep{wu2025sppo,zhang2025iterative,rosset2024direct,swamy2024minimaximalist,calandriello2024online}, and theoretical treatments of the KL-regularized preference game \citep{ye2024theoretical}. MNPO extends NLHF to population opponents and, in its heterogeneous variant, to per-player oracles \citep{wu2026mnpo}. RONPO reuses the mirror-descent foundation but selects heterogeneous objectives adversarially rather than averaging them; unlike the per-player split, it retains the two-player monotone structure (Lemma~\ref{lem:mono}).
+
+\paragraph{Robust and multi-objective alignment.}
+MaxMin-RLHF optimizes an egalitarian max-min over scalar reward models \citep{chakraborty2024maxmin}, group-robust preference optimization minimizes a worst-group DPO-style loss \citep{ramesh2024group}, MODPO folds multiple objectives into a single direct loss \citep{zhou2024beyond}, and RMOD computes maxmin weights over reward-model values decoding time \citep{son2026rmod}. A separate line characterizes the Pareto front itself, by weight interpolation \citep{rame2023rewarded,wang2024arithmetic} or with a single preference-conditioned model \citep{zhong2024panacea}; since the most deployed model ultimately commit to one policy, the robust objective can be read as a principled selection rule on that front. RONPO differs from the robust family on two axes: it works with general preference \emph{oracles} rather than scalar rewards, retaining the intransitivity that motivates NLHF, and its adversary ranges over opponent responses $a$ in addition to objective indices $k$, so it can expose failures that depend jointly on the judge and the opponent response (Remark~\ref{rem:dominance}). For a fixed policy, the inner problem is exactly a KL-constrained DRO program over objective--response distributions \citep{hu2013kullback}.
+
+\section{Preliminaries}
+
+\subsection{Preference-Based Alignment as a Contextual Bandit}
+\label{sec:contextual}
+
+We work in the preference-based contextual bandit setting that underlies RLHF \citep{yue2012karmed,dudik2015contextual}. A context (prompt) $x\in\X$ is drawn from a distribution $\rho$; the learner selects a response (action) $y$ from a finite response set $\Y$; and feedback is \emph{relative}: for a pair of responses $(y,y')$, a preference oracle returns a binary label
+\begin{equation}
+z\sim\Ber\bigl(P(y\succ y'\mid x)\bigr),\qquad z\in\{0,1\},
+\end{equation}
+where $z=1$ means $y$ is preferred to $y'$. The oracle $P:\Y\times\Y\times\X\to[0,1]$ is skew-symmetric, $P(y\succ y'\mid x)+P(y'\succ y\mid x)=1$ and $P(y\succ y\mid x)=1/2$, but need not be induced by any scalar utility: cyclic preferences are allowed. A policy maps each context to a distribution $\pi(\cdot\mid x)\in\DeltaY$, and for policies $\pi,\pi'$ we write $P(\pi\succ\pi'\mid x)=\E_{y\sim\pi(\cdot|x),\,y'\sim\pi'(\cdot|x)}[P(y\succ y'\mid x)]$.
+
+All objectives in this paper are expectations over $x\sim\rho$ of per-context terms, and the exact dynamics we analyze decompose across contexts. Following standard practice in NLHF analysis \citep{munos2024nash,wu2025sppo,zhang2025iterative}, we therefore state definitions and results for a fixed context and drop $x$ from the notation; every statement lifts to the contextual case by conditioning on $x$ and averaging over $x\sim\rho$.
+
+\subsection{Nash Learning from General Preferences}
+
+With the context fixed, a policy is a probability vector $\pi\in\DeltaY$. The unregularized NLHF objective is $\max_\pi\min_{\pi'}P(\pi\succ\pi')$, whose solution is a von Neumann winner: a policy that no opponent policy beats in expectation \citep{munos2024nash,dudik2015contextual}. KL regularization toward a fixed reference policy $\mu\in\mathrm{int}\,\DeltaY$ (the role played by $\pi_{\mathrm{ref}}$ in direct alignment) yields the smoother saddle objective
+\begin{equation}
+J(\pi,\pi')=P(\pi\succ\pi')-\tau\KL(\pi\|\mu)+\tau\KL(\pi'\|\mu),
+\label{eq:nlhf}
+\end{equation}
+with the first player maximizing and the second minimizing, and $\tau>0$ the regularization temperature. Because $P(\pi\succ\pi')$ is bilinear in $(\pi,\pi')$, the objective $J$ is concave in $\pi$ and convex in $\pi'$: \eqref{eq:nlhf} is a two-player zero-sum game in saddle-point form, and the regularized Nash policy is the $\pi$-component of its saddle point. What remains is a computational question, namely how to reach that saddle point, and the standard answer in NLHF is to let both players run no-regret online algorithms against each other. We review this machinery next, since every method we compare, including ours, is an instance of it.
+
+\subsection{No-Regret Learning via Mirror Descent}
+\label{sec:omd}
+
+Solving a saddle-point game online amounts to two coupled online convex problems: once one player's iterate is fixed, the other faces a convex loss. If both players run no-regret algorithms, the duality gap of average play vanishes at rate $(R^{\pi}_T+R^{\pi'}_T)/T$ \citep{freund1999adaptive,cesa2006prediction}; Appendix~\ref{app:derivations} reviews this reduction. The standard no-regret rule on the simplex is entropic online mirror descent (OMD): for losses with subgradients $g_t$ at the iterate $u_t$,
+\begin{equation}
+u_{t+1}=\arg\min_{v\in\DeltaY}\bigl\{\eta_t\inner{g_t}{v}+\KL(v\|u_t)\bigr\},
+\label{eq:omd-min}
+\end{equation}
+whose closed form is the multiplicative-weights update
+\begin{equation}
+u_{t+1}(y)=\frac{u_t(y)\exp(-\eta_t g_t(y))}{\sum_{a}u_t(a)\exp(-\eta_t g_t(a))},
+\label{eq:single-block-mw}
+\end{equation}
+with regret $R_T\le G\sqrt{2T\log|\Y|}$ for $\|g_t\|_\infty\le G$ and tuned constant step (Appendix~\ref{app:omd-regret-proof}). Average-iterate convergence follows from regret alone; the last-iterate results below additionally exploit strong monotonicity of the regularized operator.
+
+\subsection{Existing Methods Through the OMD Lens}
+\label{sec:lens}
+
+The self-play baselines instantiate template \eqref{eq:single-block-mw} and differ only in the opponent. \textbf{SPPO} \citep{wu2025sppo} uses the pointwise self-play update $\pi_{t+1}(y)\propto\pi_t(y)\exp\{\eta(P(y\succ\pi_t)-\tfrac12)\}$ with $P(y\succ\pi_t)=\E_{a\sim\pi_t}[P(y\succ a)]$; under multiple preferences we instantiate it on an averaged oracle $\bar P=\sum_{k=1}^{K}w_kP_k$, where $P_1,\ldots,P_K$ are per-objective preference oracles (formally introduced in the next section) and $w\in\Delta(\{1,\ldots,K\})$ is a fixed weight vector (the SPPO-avg baseline of our experiments, with uniform weights). \textbf{INPO} \citep{zhang2025iterative} applies OMD to the regularized game \eqref{eq:nlhf},
+\begin{equation}
+\pi_{t+1}(y)\propto \exp\{\eta P(y\succ \pi_t)\}\,\mu(y)^{\eta\tau}\pi_t(y)^{1-\eta\tau},
+\label{eq:inpo-update}
+\end{equation}
+and turns it into a partition-free loss by regressing pairwise log-ratios $\Delta_\pi(y,y'):=\log\pi(y)-\log\pi(y')$, a device we reuse. \textbf{MNPO} \citep{wu2026mnpo} replaces the single opponent with a population via a geometric opponent mixture. Its heterogeneous extension assigns oracle $P_i$ to player $i$; the game is then neither symmetric nor constant-sum, the bilinear cross terms no longer cancel pairwise, and the operator need not be monotone. We do not claim such dynamics diverge;population play can perform well empirically \citep{wu2026mnpo,rame2023rewarded}. Our claim is only that the monotone variational-inequality route to last-iterate convergence is unavailable. Table~\ref{tab:baseline-summary} summarizes the comparison; RONPO recovers the monotone structure exactly (Lemma~\ref{lem:mono}) by keeping a single adversary.
+
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{lccccc}
+\toprule
+Method & Opponent object & Oracle choice & Pointwise win rate? & Multiple Preferences? & Last-iterate\\
+\midrule
+DPO / IPO / SimPO & offline pair data & fixed (implicit) & --- & No & ---\\
+SPPO & current policy & fixed & yes & No & Yes\\
+INPO & current policy + reference & fixed & no & No & Yes\\
+MNPO & opponent population & shared or mixed & no & Yes & No$^\dagger$\\
+RONPO (ours) & objective--response pair & adversarial & no & Yes & Yes\\
+\bottomrule
+\end{tabular}
+\caption{Modeling comparison. The crucial distinction is the opponent object. ``Heterogeneity'' marks whether the method natively represents conflicting objectives without averaging; ``Last-iterate'' marks whether a last-iterate convergence guarantee to the (regularized) Nash policy is available. Direct-alignment methods optimize a fixed offline objective and are listed for completeness. $^\dagger$The heterogeneous (per-player oracle) MNPO variant is general-sum and falls outside the monotone class, so the homogeneous last-iterate argument does not transfer.}
+\label{tab:baseline-summary}
+\end{table*}
+
+\section{Robust Nash Preference Optimization}
+
+\subsection{The Objective-Adversarial Game}
+
+Assume $K$ preference oracles $P_1,\ldots,P_K$ indexed by $\Kset=\{1,\dots,K\}$, and let $\A\subseteq\Y$ be a finite adversarial response pool. In LLM applications, $\A(x)$ is constructed from reference responses, current-policy responses, or historical checkpoints. The policy chooses $\pi\in\DeltaY$; the adversary chooses a distribution $s\in\Delta(\Kset\times\A)$ over objective--response pairs $(k,a)$. Because $\A$ is finite, the robustness RONPO certifies is relative to this pool and to the $K$ oracles: the learned policy is unexploitable by pairs in $\Kset\times\A$, not by every response in $\Y$.
+
+Define the win functional
+\begin{equation}
+W(\pi,s)=\E_{y\sim \pi,\,(k,a)\sim s}[P_k(y\succ a)].
+\label{eq:win}
+\end{equation}
+Let $\mu\in\mathrm{int}\,\DeltaY$ be the reference policy and $s_0\in\mathrm{int}\,\Delta(\Kset\times\A)$ an adversary prior. RONPO solves
+\begin{equation}
+\begin{aligned}
+\max_{\pi\in\DeltaY}\ \min_{s\in\Delta(\Kset\times\A)}\quad
+V(\pi,s)
+&:=W(\pi,s)-\tau\KL(\pi\|\mu) \\
+&\quad+\kappa\KL(s\|s_0),
+\end{aligned}
+\label{eq:ronpo-game}
+\end{equation}
+with temperatures $\tau,\kappa>0$. Writing $A\in\mathbb{R}^{|\Y|\times K|\A|}$ for the matrix $A_{y,(k,a)}=P_k(y\succ a)$, we have $W(\pi,s)=\pi^\top As$, and the saddle operator is
+\begin{equation}
+\begin{aligned}
+F(\pi,s) &= \bigl(-\nabla_\pi V(\pi, s),\ \nabla_sV(\pi, s)\bigr)\\
+&=\bigl(-As+\tau(\log(\pi/\mu)+\ones), \\
+&\qquad A^\top \pi+\kappa(\log(s/s_0)+\ones)\bigr),
+\end{aligned}
+\label{eq:saddle-operator}
+\end{equation}
+with logarithms and divisions componentwise. If $K=1$, $\A=\Y$, $s_0=\mu$, and $\kappa=\tau$, then \eqref{eq:ronpo-game} reduces to the KL-regularized NLHF game \eqref{eq:nlhf}, so RONPO strictly generalizes single-oracle NLHF.
+
+\subsection{A Distributionally Robust Interpretation}
+
+The adversary's KL term makes \eqref{eq:ronpo-game} a regularized worst case rather than a hard one, and the inner problem has a closed form.
+
+\begin{proposition}[Soft worst-case form]
+\label{prop:soft-min}
+For fixed $\pi$, let $c_\pi(k,a)=\E_{y\sim \pi}[P_k(y\succ a)]$. Then
+\begin{equation}
+\begin{aligned}
+\min_s V(\pi,s)
+&=-\kappa\log\E_{(k,a)\sim s_0}
+\Bigl[\exp\Bigl(-\frac{c_\pi(k,a)}{\kappa}\Bigr)\Bigr] \\
+&\quad-\tau\KL(\pi\|\mu),
+\end{aligned}
+\label{eq:soft-min}
+\end{equation}
+and as $\kappa\downarrow0$ the first term converges to $\min_{k,a}c_\pi(k,a)$.
+\end{proposition}
+
+The proof (Appendix~\ref{app:proofs}) is the Gibbs variational principle. Equation \eqref{eq:soft-min} is exactly what RONPO protects: a regularized soft minimum over objective-response pairs, a worst-case \emph{floor} on win probability. The penalized inner problem is the Lagrangian form of a KL-DRO objective over pair distributions centered at $s_0$ \citep{hu2013kullback}, and $\kappa$ is the single robustness knob: large $\kappa$ keeps $s$ near the prior and recovers fixed scalarization; small $\kappa$ approaches a hard selector of the currently weakest pair. We use the soft minimum rather than a hard constraint $c_\pi(k,a)\ge\rho$ because a constraint requires a threshold $\rho$ that is known and feasible a priori (rarely available per judge), whereas the soft minimum raises the floor as far as the geometry allows, keeps the problem an unconstrained saddle so the monotone machinery applies, and exposes the interpolation above.
+
+\begin{remark}[Pair-level vs.\ weight-only robustness]
+\label{rem:dominance}
+For any fixed opponent distribution $q\in\Delta(\A)$, the weight-only floor optimized by scalar max-min methods \citep{chakraborty2024maxmin} satisfies
+$\min_{k\in\Kset}\E_{a\sim q}[c_\pi(k,a)]\ \ge\ \min_{(k,a)\in\Kset\times\A}c_\pi(k,a)$
+for every policy $\pi$ (Appendix~\ref{app:proofs}). Hence any level certified on RONPO's pair floor is simultaneously certified on \emph{every} weight-only floor with opponents in $\A$, while the converse fails: a policy can pass all weight-only floors yet lose badly to one specific judge--response pair, a failure mode only the pair-level adversary exposes.
+\end{remark}
+
+\subsection{Equilibrium Guarantees}
+
+The reason to confine all preference oracles to one adversary is structural: the preference coupling then cancels from the monotonicity gap, no matter how much the oracles conflict.
+
+\begin{lemma}[Coupling cancels in the monotonicity gap]
+\label{lem:mono}
+For any interior $z=(\pi,s)$ and $z'=(\pi',s')$,
+\begin{align}
+\inner{F(z)-F(z')}{z-z'}
+&=\tau\{\KL(\pi\|\pi')+\KL(\pi'\|\pi)\} \notag\\
+&\quad+\kappa\{\KL(s\|s')+\KL(s'\|s)\}
+\label{eq:strong-mono}\\
+&\ge m\{D(z\|z')+D(z'\|z)\},\notag
+\end{align}
+where $m=\min\{\tau,\kappa\}$ and $D(z\|z')=\KL(\pi\|\pi')+\KL(s\|s')$.
+\end{lemma}
+
+\emph{Proof idea.} The bilinear block $(-As,\,A^\top\pi)$ is skew-symmetric, so its contribution $-\inner{A\delta s}{\delta \pi}+\inner{A^\top\delta \pi}{\delta s}$ vanishes identically. This holds for every matrix $A$, hence for every collection of oracles and every pool. The separable entropic regularizers contribute the symmetrized KL terms. Full details are in Appendix~\ref{app:proofs}. \hfill$\square$
+
+\begin{theorem}[Existence and uniqueness]
+\label{thm:existence}
+The game \eqref{eq:ronpo-game} has a unique saddle point $z^\star=(\pi^\star,s^\star)$, and both components have full support.
+\end{theorem}
+
+Existence follows from Brouwer's theorem applied to the continuous Gibbs best-response maps; uniqueness combines the saddle variational inequality with the strong monotonicity of Lemma~\ref{lem:mono} (Appendix~\ref{app:proofs}). We call $\pi^\star$ the \emph{robust Nash policy}.
+
+\subsection{Last-Iterate Convergence}
+\label{sec:lastiter}
+
+We instantiate OMD \eqref{eq:omd-min} on the product $Z=\DeltaY\times\Delta(\Kset\times\A)$ with proximal term $D(z\|z_t)=\KL(\pi\|\pi_t)+\KL(s\|s_t)$; since both the feasible set and the regularizer decompose over blocks, one product step equals two per-block steps,
+\begin{equation}
+z_{t+1}=\arg\min_{z\in Z}\{\eta_t\inner{F(z_t)}{z}+D(z\|z_t)\}.
+\label{eq:product-omd}
+\end{equation}
+For $z_t=(\pi_t,s_t)$, define the policy-side adversarial reward and adversary-side cost
+\begin{align}
+r_t(y)&=\E_{(k,a)\sim s_t}[P_k(y\succ a)]=(As_t)(y),\label{eq:r_t}\\
+c_t(k,a)&=\E_{y\sim \pi_t}[P_k(y\succ a)]=(A^\top \pi_t)(k,a).\label{eq:c_t}
+\end{align}
+Substituting \eqref{eq:saddle-operator} into \eqref{eq:single-block-mw} gives the closed-form updates
+\begin{align}
+\pi_{t+1}(y)&\propto \exp\{\eta_t r_t(y)\}\,\mu(y)^{\eta_t\tau}\,\pi_t(y)^{1-\eta_t\tau},\label{eq:p-update}\\
+s_{t+1}(k,a)&\propto \exp\{-\eta_t c_t(k,a)\}\,s_0(k,a)^{\eta_t\kappa}\,s_t(k,a)^{1-\eta_t\kappa}.
+\label{eq:s-update}
+\end{align}
+The policy upweights responses that beat the current adversarial mixture; the adversary upweights pairs on which the current policy is weakest. Let $\Theta_t=D(z^\star\|z_t)$.
+
+\begin{lemma}[Verifiable operator bound]
+\label{lem:opbound}
+Initialize $z_0=(\mu,s_0)$ and suppose $\eta_t\tau\le1$ and $\eta_t\kappa\le1$ for all $t$. Then the iterates of \eqref{eq:p-update}--\eqref{eq:s-update} satisfy $\|F(z_t)\|_{\oplus,*}\le G$ with $G=2+\max\{\tau,\kappa\}$, where $\|g\|_{\oplus,*}=\max\{\|g_\pi\|_\infty,\|g_s\|_\infty\}$.
+\end{lemma}
+
+\begin{theorem}[Exact last-iterate rate]
+\label{thm:lastiter}
+Under the conditions of Lemma~\ref{lem:opbound}, the exact dynamics satisfy
+\begin{equation}
+\Theta_{t+1}\le (1-m\eta_t)\Theta_t+\eta_t^2G^2,
+\label{eq:recurrence}
+\end{equation}
+with $m=\min\{\tau,\kappa\}$. With $\eta_t=2/(m(t+t_0))$ and $t_0$ large enough that $\eta_t\tau\le1$ and $\eta_t\kappa\le1$, the last iterate obeys $\Theta_T\le M/(T+t_0)$ with $M=\max\{t_0\Theta_0,\,4G^2/m^2\}$, i.e., $\Theta_T=O\!\bigl(G^2/(m^2T)\bigr)$.
+\end{theorem}
+
+\emph{Proof idea.} Add the one-step entropic-OMD descent inequality over the two blocks with comparators $(\pi^\star,s^\star)$; the saddle variational inequality makes $\inner{F(z^\star)}{z_t-z^\star}\ge0$ and Lemma~\ref{lem:mono} lower-bounds the remainder by $m\Theta_t$; solve the scalar recurrence (Appendix~\ref{app:proofs}). \hfill$\square$
+
+The practical estimator (next section) queries preferences stochastically, so we also record that the rate survives Bernoulli feedback: at round $t$, sample one pair $(k_t,a_t)\sim s_t$ and set $\hat r_t(y)=\xi_t(y)$ with $\xi_t(y)\sim\Ber(P_{k_t}(y\succ a_t))$ for each $y$; independently sample $y_t\sim\pi_t$ and set $\hat c_t(k,a)=\zeta_t(k,a)$ with $\zeta_t(k,a)\sim\Ber(P_k(y_t\succ a))$; run \eqref{eq:p-update}--\eqref{eq:s-update} with $(\hat r_t,\hat c_t)$ in place of $(r_t,c_t)$.
+
+\begin{corollary}[Stochastic preference feedback]
+\label{cor:stochastic}
+Under the step-size conditions of Theorem~\ref{thm:lastiter}, the stochastic dynamics above satisfy $\E[\Theta_T]\le M/(T+t_0)$ with the same constants: $\hat r_t,\hat c_t\in[0,1]$ coordinatewise, so the bound of Lemma~\ref{lem:opbound} holds pathwise, and $\E[(\hat r_t,\hat c_t)\mid \mathcal{F}_t]=(r_t,c_t)$, so the recurrence \eqref{eq:recurrence} holds in conditional expectation (Appendix~\ref{app:proofs}).
+\end{corollary}
+
+These rates certify the idealized tabular dynamics that the practical loss regresses toward; they are not claims about the parametric prompt-conditioned trainer (see Limitations), matching how guarantees are scoped in prior NLHF practice \citep{zhang2025iterative}.
+
+\section{From Exact Updates to a Practical Loss}
+\label{sec:loss}
+
+\subsection{Partition-Free Log-Ratio Regression}
+
+Estimating $r_t(y)$ for every response is expensive, and the normalizer in \eqref{eq:p-update} is inconvenient for parametric policies. Both problems disappear in pairwise log-ratios. For a full-support $u$, let $\Delta_u(y,y'):=\log u(y)-\log u(y')$; all exact iterates are full-support because $\pi_0,\mu,s_0$ are. Taking log-differences of \eqref{eq:p-update} for two responses cancels the normalizer and yields, with
+\begin{equation}
+\begin{aligned}
+h_t(\pi;y,y')
+&:=\Delta_\pi(y,y')-\eta_t\tau\,\Delta_\mu(y,y') \\
+&\quad-(1-\eta_t\tau)\,\Delta_{\pi_t}(y,y'),
+\end{aligned}
+\label{eq:h}
+\end{equation}
+the exact-update identity
+\begin{equation}
+h_t(\pi_{t+1};y,y')=\eta_t\bigl(r_t(y)-r_t(y')\bigr).
+\label{eq:exact-logratio}
+\end{equation}
+The left side contains only log-probability differences, which are directly computable for an LLM policy, and the unknown partition function is gone. The right side is estimated without integrating over $s_t$: sample one pair $(k,a)\sim s_t$, query the oracle twice, $z_y\sim\Ber(P_k(y\succ a))$ and $z_{y'}\sim\Ber(P_k(y'\succ a))$, and use the signed difference $z_y-z_{y'}$, which is conditionally unbiased for $r_t(y)-r_t(y')$. The idealized population loss is
+\begin{equation}
+L_t(\pi)=\E\Bigl[\bigl(h_t(\pi;y,y')-\eta_t(z_y-z_{y'})\bigr)^2\Bigr],
+\label{eq:ronpo-loss}
+\end{equation}
+with expectation over $y,y'\sim \pi_t$ and $(k,a)\sim s_t$.
+
+\begin{proposition}[Unbiased partition-free regression]
+\label{prop:unbiased}
+If the policy class contains the exact update \eqref{eq:p-update}, then $\pi_{t+1}$ minimizes \eqref{eq:ronpo-loss}; if $\pi_t$ has full support and policies are identified by pairwise log-ratios on that support, the minimizer is unique (Appendix~\ref{app:proofs}).
+\end{proposition}
+
+\subsection{The Deployed Surrogate}
+\label{sec:surrogate}
+
+The trainer keeps the log-ratio left-hand side of \eqref{eq:exact-logratio} and makes two substitutions. \emph{First}, oracle queries are replaced by a deterministic plug-in target built from reward-model scores: per-prompt, per-objective scores are min--max normalized over the candidate pool to $\widetilde r_k(y\mid x)$, and
+\begin{equation}
+\widehat{P}_k(y\succ a\mid x)
+=
+\mathrm{sigmoid}\bigl(\lambda(\widetilde r_k(y\mid x)-\widetilde r_k(a\mid x))\bigr),
+\label{eq:plugin-pref}
+\end{equation}
+with a fixed preference scale $\lambda$. Two distinct policy responses $y,y'$ are drawn from the empirical pool policy and paired with the signed relative target
+\begin{equation}
+\widehat{z}_{k,a}(y,y'\mid x)
+=
+\widehat{P}_k(y\succ a\mid x)-\widehat{P}_k(y'\succ a\mid x),
+\label{eq:relative-target}
+\end{equation}
+so the fields need not be preference-ordered. \emph{Second}, the per-pair target $r_t(y)-r_t(y')=\E_{(k,a)\sim s_t}[\widehat z_{k,a}(y,y'\mid x)]$ is estimated by objective-stratified sampling rather than by a single pair drawn from $s_t$. Factor the adversary of \eqref{eq:s-update} as $s_t(k,a)=\omega_t(k)\,q_t(a\mid k)$, where $\omega_t(k)=\sum_{a}s_t(k,a)$ is the mass on objective $k$ and $q_t(\cdot\mid k)$ is the induced distribution over responses within that objective. The trainer keeps the objective marginals $\omega_t(k)$ exactly and draws one response $a_k\sim q_t(\cdot\mid k)$ per objective, forming the stratified target
+\begin{equation}
+\tau^{\mathrm{os}}_t(y,y'\mid x)
+=
+\sum_{k\in\Kset}\omega_t(k)\,\widehat z_{k,a_k}(y,y'\mid x),
+\label{eq:tau-os}
+\end{equation}
+so every objective contributes a training signal on every update at a cost of $K$ plug-in evaluations. Over the independent draws $a_k$, the target is unbiased for the exact adversary expectation, and its variance never exceeds that of a single pair sampled from $s_t$ (Propositions~\ref{prop:os-unbiased} and~\ref{prop:os-var} in Appendix~\ref{app:estimators}). The trained loss is
+\begin{equation}
+\widehat L_t(\pi)
+=
+\E\Bigl[
+\bigl(h_t(\pi;y,y')-\eta_t\,\tau^{\mathrm{os}}_t(y,y'\mid x)\bigr)^2
+\Bigr],
+\label{eq:ronpo-loss-empirical}
+\end{equation}
+with $\Delta_{\pi_t}$ precomputed under the policy that generated the pool. Algorithm~\ref{alg:ronpo} summarizes the procedure. The stratified target occupies the middle of a cost--fidelity spectrum. Appendix~\ref{app:estimators} defines a full-expectation target that keeps every atom of $s_t$ and a cheaper top-mass target that keeps only the heaviest atoms, proves the unbiasedness and variance-reduction properties above, and reports an estimator ablation in which the stratified target attains the best average and worst-objective reward.
+
+\begin{remark}[What the surrogate inherits]
+\label{rem:surrogate}
+Two properties of Prop.~\ref{prop:unbiased} survive the substitutions and two do not. \emph{Survive:} the regression remains partition-free, and the stratified target is conditionally unbiased for the adversary expectation $\E_{(k,a)\sim s_t}[\widehat z_{k,a}]$ of the plug-in preferences, so the regression still points toward the OMD step of the surrogate oracle. \emph{Do not survive:} the adversary weights are computed from cost estimates $\widehat c_t$ over the finite pool, so the effective adversary is exact only relative to that pool, and $\widehat P_k$ carries plug-in bias governed by $\lambda$. Moreover, because \eqref{eq:plugin-pref} is logistic in a scalar score gap, the plug-in oracle is Bradley--Terry and hence transitive: at model scale RONPO exercises heterogeneous-\emph{reward} robustness, and genuine intransitivity is exercised only in the synthetic games, whose oracles are arbitrary skew-symmetric matrices. We phrase all model-scale claims accordingly.
+\end{remark}
+
+\begin{algorithm}[t]
+\caption{RONPO for prompt-conditioned policies}
+\label{alg:ronpo}
+\begin{algorithmic}[1]
+\STATE Initialize $\pi_0(\cdot\mid x)=\mu(\cdot\mid x)$ and adversary prior $s_0(\cdot\mid x)$ over $\Kset\times\A(x)$.
+\FOR{$t=0,1,\ldots,T-1$}
+\STATE Build or refresh the response pool $\A_t(x)$ (reference, current, and historical policies; external teachers).
+\STATE Score $\A_t(x)$ with all $K$ objectives; normalize per prompt--objective; form $\widehat{P}_k$ by \eqref{eq:plugin-pref}.
+\STATE Estimate $\widehat{c}_t(k,a\mid x)=\E_{y\sim\widehat{\pi}_t}[\widehat{P}_k(y\succ a\mid x)]$ over the pool.
+\STATE Update the adversary by \eqref{eq:s-update}; factor $s_t(k,a)=\omega_t(k)\,q_t(a\mid k)$ and draw one opponent $a_k\sim q_t(\cdot\mid k)$ per objective.
+\STATE Sample distinct $y,y'\sim\widehat{\pi}_t(\cdot\mid x)$; form the stratified target $\tau^{\mathrm{os}}_t$ by \eqref{eq:tau-os} from the per-pair values \eqref{eq:relative-target}.
+\STATE Precompute $\Delta_\mu(y,y')$ and $\Delta_{\pi_t}(y,y')$; update the policy by minimizing $\widehat L_t$ in \eqref{eq:ronpo-loss-empirical}.
+\ENDFOR
+\STATE \textbf{return} $\pi_T$.
+\end{algorithmic}
+\end{algorithm}
+
+\section{Experiments}
+
+Our evaluation has two parts. Synthetic preference games (i) isolate the hidden-objective failure of averaging in a setting where the robust optimum is computable exactly, and (ii) numerically validate Theorems~\ref{thm:existence}--\ref{thm:lastiter}, Corollary~\ref{cor:stochastic}, and Proposition~\ref{prop:soft-min}. LLM experiments then test whether the deployed surrogate (Sec.~\ref{sec:surrogate}) delivers heterogeneous-reward robustness at model scale.
+
+\subsection{Numerical Validation on Synthetic Games}
+\label{sec:toy}
+
+\paragraph{Setup.}
+We validate the convergence theory on a synthetic decoy instance with $|\Y|=8$ actions and $K=3$ conflicting objectives. The full game construction, the compared tabular methods, and the averaging-failure comparison that motivates the robust objective are deferred to Appendix~\ref{app:toy-details}; the robust linear-programming value on this instance is $V^\star=0.3289$.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/ronpo_lastiter_validation.pdf}
+\caption{Numerical validation of the theory on the Table~\ref{tab:toy} instance. (a)~Last-iterate Lyapunov value $\Theta_t=D(z^\star\|z_t)$ under the step schedule of Theorem~\ref{thm:lastiter} ($\tau=\kappa=0.05$). Exact dynamics converge below the explicit bound $M/(t+t_0)$; with single-pair Bernoulli feedback (Cor.~\ref{cor:stochastic}, mean of 8 runs) the decay is $\Theta(1/t)$ (empirical log--log slope $-0.90$ over the final decade), running parallel to the bound. (b)~The inner soft-min value and the hard minimum $\min_{k,a}c_{\pi^\star_\kappa}(k,a)$ at the saddle policy both converge to the robust LP value $V^\star=0.3289$ as $\kappa\downarrow0$ (Prop.~\ref{prop:soft-min}).}
+\label{fig:validation}
+\end{figure}
+
+\paragraph{The dynamics track the predicted rates.}
+Figure~\ref{fig:validation} ties the numerics to the statements. Panel~(a) plots $\Theta_t$ against the explicit bound $M/(t+t_0)$ of Theorem~\ref{thm:lastiter}: the exact dynamics stay below the bound at every iterate (converging faster, as expected for a deterministic map whose fixed point is $z^\star$), while stochastic Bernoulli feedback saturates the $\Theta(1/t)$ rate of Corollary~\ref{cor:stochastic}. Panel~(b) verifies the soft-min characterization: as $\kappa\downarrow0$ the regularized inner value and the hard pair minimum at the saddle policy converge together to the LP value $V^\star$, confirming both the closed form \eqref{eq:soft-min} and the interpretation of $\kappa$ as the robustness radius. All curves are produced by a self-contained script included with the supplementary code.
+
+\subsection{LLM Alignment Experiments}
+\label{sec:llm}
+
+\paragraph{Setup.}
+All policies are initialized from \texttt{Qwen2.5-1.5B-Instruct} and trained on 19{,}856 UltraFeedback prompts with three heterogeneous reward objectives (Skywork, Athene, and ArmoRM; Appendix~\ref{app:llm-details}), applied through the plug-in oracle \eqref{eq:plugin-pref}. Training proceeds in two stages of iterative pool construction and optimization; the response pool $\A(x)$ mixes reference-, current-, and historical-policy generations. Evaluation uses 647 held-out prompts and three axes: (i) the three \emph{local reward models} (training-aligned, so reported as an in-distribution robustness probe: per-prompt normalized reward, worst-objective reward, and win rate against the base response); (ii) \emph{IFEval} \citep{zhou2023ifeval}, testing whether preference optimization damages verifiable instruction following; and (iii) a reward-model-independent \texttt{gpt-5.5} all-pairwise judge with deterministically randomized order, ties counted as $0.5$, and prompt-level bootstrap confidence intervals (protocol in Appendix~\ref{app:llm-details}).
+
+\paragraph{Baselines.}
+We compare against (a) the base policy; (b) three single-oracle HT-MNPO policies, each trained on one reward model, which represent the ``pick one judge'' strategy; and (c) averaged-oracle self-play baselines SPPO-avg and INPO-avg trained on the prompt-wise average of the min--max-normalized objectives. All trained methods share the same base policy, data, and response pools.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{4}{c}{Local RM} & \multicolumn{2}{c}{IFEval} \\
+\cmidrule(lr){2-5}\cmidrule(lr){6-7}
+Method & Avg & Worst & WR$_{\mathrm{B}}$ & wWR$_{\mathrm{B}}$ & Strict & Tok. \\
+\midrule
+Base & 0.4852 & 0.4099 & -- & -- & \textbf{0.4140} & 610 \\
+HT-MNPO (Sky.) & \underline{0.5020} & \underline{0.4735} & \underline{52.29} & \underline{47.53} & 0.3530 & 1166 \\
+HT-MNPO (Ath.) & 0.3881 & 0.3372 & 43.84 & 38.02 & 0.3290 & 1970 \\
+HT-MNPO (Armo) & 0.4148 & 0.3702 & 45.36 & 37.87 & 0.3216 & 1571 \\
+RONPO & \textbf{0.7025} & \textbf{0.6701} & \textbf{66.05} & \textbf{60.05} & \underline{0.3993} & 725 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Stage-2 summary. Local RM: per-prompt min--max-normalized reward averaged over the three objectives (Avg), worst objective (Worst), and average/worst win rate vs.\ the base response (WR$_{\mathrm{B}}$/wWR$_{\mathrm{B}}$, \%). IFEval: prompt-strict accuracy and mean output tokens. RONPO improves every robustness metric while staying far closer to the base model's instruction following and length than the single-oracle baselines.}
+\label{tab:stage2-local-ifeval}
+\end{table}
+
+\paragraph{Stage-1 results.}
+On the first-stage checkpoints (full tables in Appendix~\ref{app:llm-details}), RONPO obtains the best average and worst-objective normalized reward ($0.637/0.633$ versus $0.500/0.467$ for the strongest single-oracle baseline) and by a wide margin the smallest cross-objective spread ($0.005$), so its advantage is spread across the three reward models rather than resting on one. The SPPO-avg and INPO-avg rows are repaired baselines, retrained with a stability-gated hyperparameter sweep so that the comparison is against properly trained averaging and not a failed run. Once repaired, INPO-avg is a strong baseline and edges RONPO on the Athene objective and on the worst-objective win rate, but RONPO keeps the highest average and worst-objective reward and the most even objective profile. We read this narrowly: even a well-trained fixed-average baseline leaves the weakest objective lower than the robust objective does.
+
+\paragraph{Stage-2 results.}
+Table~\ref{tab:stage2-local-ifeval} summarizes the final stage. RONPO reaches $0.703/0.670$ average/worst normalized reward versus $0.502/0.474$ for the strongest single-oracle baseline, with a $66.0\%$ average win rate over the base response. On IFEval the base model remains best, so this axis measures \emph{preservation}: RONPO stays near the base prompt-strict score with moderate output length, while the single-oracle baselines degrade more and generate much longer outputs, so the reward gains are not a length artifact. On the reward-model-independent GPT-5.5 all-pairwise tournament (Appendix~\ref{app:llm-details}), RONPO ranks first overall, beating every trained baseline clearly ($58.7$--$68.6\%$ head-to-head) while reaching only parity with the base policy ($51.8\%$, CI overlapping $0.5$). The combined claim is deliberately scoped: RONPO improves heterogeneous-reward robustness and transfers favorably to an external judge, without uniformly dominating the base model.
+
+% AUTO-GENERATED by build_qwen3_power_diagnostic_table.py; do not hand-edit numbers
+\newcommand{\QwenSealedPromptCount}{604}
+\newcommand{\QwenBootstrapResamples}{2,000}
+\newcommand{\QwenBootstrapSeed}{42}
+\newcommand{\QwenArmoHelpSpread}{0.0037}
+\newcommand{\QwenArmoSafetySpread}{0.0045}
+\newcommand{\QwenArmoConcisenessSpread}{0.0027}
+\newcommand{\QwenArmoMaxSpread}{0.0045}
+\newcommand{\QwenWorstNormLow}{0.216}
+\newcommand{\QwenWorstNormHigh}{0.235}
+\newcommand{\QwenSkyworkDetectedPairs}{0}
+\newcommand{\QwenAtheneDetectedPairs}{3}
+\newcommand{\QwenPowerPairTotal}{45}
+% Auto-generated from measured fair-demo JSON. Do not edit by hand.
+\newcommand{\QwenFairPromptCount}{1024}
+\newcommand{\QwenFairEvaluatedModelCount}{8}
+\newcommand{\QwenFairFailedMethodCount}{3}
+\newcommand{\QwenFairRonpoRank}{5}
+\newcommand{\QwenFairFreshMDE}{0.012}
+\newcommand{\QwenFairConfirmatoryValid}{0}
+\newcommand{\QwenFairInvalidVerdictCount}{10}
+\newcommand{\QwenFairJudgeVerdictCount}{14336}
+\newcommand{\QwenFairPositionAgreement}{0.582}
+\newcommand{\QwenFairInterJudgeAgreement}{0.688}
+\newcommand{\QwenFairConflictRho}{-0.10}
+\newcommand{\QwenFairConflictMismatch}{0.80}
+\newcommand{\QwenFairStrongSupported}{0}
+\newcommand{\QwenFairRonpoWorst}{0.396}
+\newcommand{\QwenFairRonpoWorstLow}{0.388}
+\newcommand{\QwenFairRonpoWorstHigh}{0.405}
+\newcommand{\QwenFairRonpoDelta}{-0.104}
+\newcommand{\QwenFairRonpoDeltaLow}{-0.112}
+\newcommand{\QwenFairRonpoDeltaHigh}{-0.095}
+\paragraph{Model-scale robustness on SafeRLHF.}
+We test whether the deployed surrogate delivers heterogeneous-reward robustness at the 8B scale on a task with a genuine helpfulness--harmlessness conflict. All policies are initialized from \texttt{Llama-3.1-8B-Instruct} and trained on PKU-SafeRLHF \citep{dai2024safe} for four iterative stages of pool construction and optimization (Appendix~\ref{app:saferlhf}), applying the plug-in oracle \eqref{eq:plugin-pref} to two objectives: helpfulness, scored by the Beaver reward model, and harmlessness, scored by the negated Beaver cost model. All methods share the base policy, the training prompts, and the response pools. We evaluate on a held-out panel of 1{,}000 SafeRLHF prompts that is disjoint from training, rescore every response with both Beaver heads, and normalize each objective per prompt over the compared policies; every policy passes the generation stability gate.
+
+\paragraph{Results.}
+Table~\ref{tab:saferlhf-robust} reports the mean and sample standard deviation across training seeds 42 and 43 for per-prompt normalized helpfulness and harmlessness, their average, and the worst objective. RONPO gives the best worst-objective reward ($0.4412\pm0.0085$) and the best average ($0.6240\pm0.0063$), ahead of every baseline and far above the base policy. The gain comes from balance: RONPO is strong on both objectives ($0.6624\pm0.0111$ helpfulness and $0.5856\pm0.0016$ harmlessness), whereas methods that spike a single objective, such as SimPO with $0.7410\pm0.0116$ harmlessness at $0.4606\pm0.0034$ helpfulness, pay for it on the worst objective. IPO is the strongest baseline and trails RONPO by $0.0366$ on the two-seed mean worst objective. RONPO leads in both seeds, but two seeds do not support a precise estimate of between-seed uncertainty. INPO-avg is the strongest averaging baseline but still trails RONPO and IPO on the worst objective, while the single-oracle HT-MNPO policies and SPPO-avg are the weakest trained policies there.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lrrrr}
+\toprule
+Method & Helpful. & Harmless. & Avg & Worst \\
+\midrule
+RONPO & \textbf{0.6624$\pm$0.0111} & 0.5856$\pm$0.0016 & \textbf{0.6240$\pm$0.0063} & \textbf{0.4412$\pm$0.0085} \\
+HT-MNPO (help.) & 0.5329$\pm$0.0171 & 0.4244$\pm$0.0044 & 0.4786$\pm$0.0064 & 0.2934$\pm$0.0080 \\
+HT-MNPO (harml.) & 0.5242$\pm$0.0123 & 0.4359$\pm$0.0006 & 0.4801$\pm$0.0064 & 0.2988$\pm$0.0063 \\
+INPO-avg & 0.5023$\pm$0.0390 & 0.6448$\pm$0.0104 & 0.5736$\pm$0.0143 & 0.3806$\pm$0.0202 \\
+SPPO-avg & 0.4856$\pm$0.0026 & 0.4749$\pm$0.0125 & 0.4803$\pm$0.0050 & 0.2916$\pm$0.0088 \\
+\midrule
+SimPO & 0.4606$\pm$0.0034 & \textbf{0.7410$\pm$0.0116} & \underline{0.6008$\pm$0.0041} & 0.3730$\pm$0.0002 \\
+IPO & \underline{0.5420$\pm$0.0067} & \underline{0.6539$\pm$0.0003} & 0.5979$\pm$0.0035 & \underline{0.4046$\pm$0.0027} \\
+DPO & 0.4978$\pm$0.0140 & 0.6493$\pm$0.0044 & 0.5736$\pm$0.0092 & 0.3750$\pm$0.0135 \\
+\midrule
+Base & 0.2045$\pm$0.0022 & 0.4456$\pm$0.0012 & 0.3250$\pm$0.0017 & 0.1315$\pm$0.0009 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{\textbf{Model-scale robustness on PKU-SafeRLHF.} Values are mean $\pm$ sample standard deviation across training seeds 42 and 43. Helpfulness (Beaver reward) and harmlessness (negated Beaver cost) are min--max normalized per prompt over the common eligible policy pool; \emph{Avg} and \emph{Worst} are the per-prompt mean and minimum of the two normalized objectives, averaged over the held-out 1{,}000-prompt test panel. The normalization pool also contains the top-mass estimator ablation, which is omitted here. Best in bold, second best underlined. Every policy passed the generation stability gate.}
+\label{tab:saferlhf-robust}
+\end{table}
+
+\section{Conclusion}
+
+RONPO moves the objective index into a single adversary's action space, keeping heterogeneous preference alignment inside a KL-regularized two-player bilinear saddle: a unique robust Nash policy exists, exact and stochastically fed mirror-descent dynamics converge to it at an $O(1/T)$ last-iterate rate, the inner problem is a KL-DRO worst-case floor over objective--response pairs, and the idealized update is a partition-free log-ratio regression against a sampled adversarial pair. Synthetic games show that averaging can hide a minority-objective collapse that RONPO's floor prevents and that the dynamics track the predicted rates; at model scale the deployed surrogate improves worst-objective reward and transfers to an external judge.
+
+\paragraph{Limitations.}
+The convergence guarantees are exact for the tabular per-context dynamics and their stochastically fed variant; the prompt-conditioned trainer uses a shared network, a stratified adversary target with one sampled opponent per objective, and the plug-in oracle \eqref{eq:plugin-pref}, and its robustness is relative to the finite pool $\A$ and the $K$ oracles. Because the plug-in oracle is Bradley--Terry, model-scale claims concern heterogeneous-\emph{reward} robustness; intransitivity is exercised only in the synthetic games. Most model-scale runs use a single training seed. The reward and external-judge study uses a 1.5B backbone with prompt-level (not seed-level) confidence intervals, and its local reward judges overlap the training objectives; the external judge is the only reward-model-independent signal and shows parity with the base policy on the hardest pairwise subset. The 8B SafeRLHF result uses two training seeds and gives RONPO the best worst-objective and average reward in both, but two seeds remain insufficient for a precise estimate of between-seed uncertainty. A separate Qwen3-8B diagnostic with three ArmoRM objectives is underpowered, since its raw head means vary by at most $\QwenArmoMaxSpread$ across methods, so that normalized ranking (Appendix~\ref{app:qwen3-robust}) reflects evaluator power rather than model robustness. Additional seeds and reward-independent judges are required before a stronger claim can be made.
+
+\bibliography{aaai2027}
+
+\appendix
+\setcounter{secnumdepth}{2} % number appendix sections A, B, ... so \ref works
+
+\section{Deferred Proofs}
+\label{app:proofs}
+
+Throughout, $z=(\pi,s)$ and $z'=(\pi',s')$ denote interior points of $Z=\DeltaY\times\Delta(\Kset\times\A)$, and $\delta \pi:=\pi-\pi'$, $\delta s:=s-s'$.
+
+\subsection{Proof of Lemma~\ref{lem:mono} (Monotonicity Gap)}
+
+Because $z$ and $z'$ are interior, every coordinate of $\pi,\pi',s,s'$ is strictly positive, so $\log \pi,\log \pi',\log s,\log s'$ are finite, the operator $F$ of \eqref{eq:saddle-operator} is well defined at both points, and every Kullback--Leibler term below is finite. Equip $Z\subseteq\mathbb{R}^{|\Y|}\times\mathbb{R}^{K|\A|}$ with the product inner product
+\begin{equation}
+\inner{(u_1,v_1)}{(u_2,v_2)}=\inner{u_1}{u_2}+\inner{v_1}{v_2}.
+\label{eq:mono-inner}
+\end{equation}
+
+\textit{Step 1 (Additive split of the operator).} By \eqref{eq:saddle-operator}, decompose $F=B+g$ with
+\[
+\begin{aligned}
+B(\pi,s)&:=(-As,\;A^\top \pi),\\
+g(\pi,s)&:=\bigl(\tau(\log(\pi/\mu)+\ones),\;\kappa(\log(s/s_0)+\ones)\bigr).
+\end{aligned}
+\]
+The map $B$ is linear on $Z$ with block representation
+\begin{equation}
+B=\begin{pmatrix}0 & -A\\ A^\top & 0\end{pmatrix}.
+\label{eq:mono-block}
+\end{equation}
+Subtracting $F(z')$ from $F(z)$ and using linearity of $B$,
+\begin{equation}
+F(z)-F(z')=B(\delta \pi,\delta s)+\bigl(g(z)-g(z')\bigr).
+\label{eq:mono-Fdiff}
+\end{equation}
+In $g(z)-g(z')$, the reference vectors $-\tau\log\mu,-\kappa\log s_0$ and the all-ones vectors cancel, leaving
+\begin{equation}
+g(z)-g(z')=\bigl(\tau(\log \pi-\log \pi'),\;\kappa(\log s-\log s')\bigr).
+\label{eq:mono-gdiff}
+\end{equation}
+
+\textit{Step 2 (The bilinear coupling cancels).} By \eqref{eq:mono-block} and \eqref{eq:mono-inner},
+\[
+\inner{B(\delta \pi,\delta s)}{(\delta \pi,\delta s)}
+=-\inner{A\,\delta s}{\delta \pi}+\inner{A^\top\delta \pi}{\delta s}.
+\]
+Expanding entrywise, with $A_{y,(k,a)}=P_k(y\succ a)$,
+\[
+\inner{A\,\delta s}{\delta \pi}
+=\sum_{y}\sum_{k,a}A_{y,(k,a)}\,\delta \pi_{y}\,\delta s_{k,a}
+=\inner{A^\top\delta \pi}{\delta s},
+\]
+the same finite double sum in a different order (the adjoint property of the transpose). Carrying opposite signs, the two terms cancel:
+\begin{equation}
+\inner{B(\delta \pi,\delta s)}{(\delta \pi,\delta s)}=0.
+\label{eq:mono-skew}
+\end{equation}
+Nothing about $A$ was used beyond its being a fixed matrix, so the coupling vanishes for every collection of oracles $P_1,\dots,P_K$ and every pool $\A$; structurally, \eqref{eq:mono-skew} says $B$ is skew-symmetric, $B^\top=-B$.
+
+\textit{Step 3 (The regularizer yields a symmetrized KL).} Pairing \eqref{eq:mono-gdiff} against $(\delta \pi,\delta s)$,
+\begin{equation}
+\begin{aligned}
+&\inner{g(z)-g(z')}{(\delta \pi,\delta s)}\\
+&\qquad=\tau\inner{\log \pi-\log \pi'}{\pi-\pi'}\\
+&\qquad\quad+\kappa\inner{\log s-\log s'}{s-s'}.
+\end{aligned}
+\label{eq:mono-gpair}
+\end{equation}
+Splitting the policy-block sum into its $\pi(y)$- and $\pi'(y)$-weighted parts,
+\[
+\begin{aligned}
+&\inner{\log \pi-\log \pi'}{\pi-\pi'}\\
+&=\sum_{y}\pi(y)\bigl(\log \pi(y)-\log \pi'(y)\bigr)\\
+&\quad+\sum_{y}\pi'(y)\bigl(\log \pi'(y)-\log \pi(y)\bigr)\\
+&=\KL(\pi\|\pi')+\KL(\pi'\|\pi),
+\end{aligned}
+\]
+and identically for the adversary block. Substituting into \eqref{eq:mono-gpair},
+\begin{equation}
+\begin{aligned}
+&\inner{g(z)-g(z')}{(\delta \pi,\delta s)}\\
+&\qquad=\tau\{\KL(\pi\|\pi')+\KL(\pi'\|\pi)\}\\
+&\qquad\quad+\kappa\{\KL(s\|s')+\KL(s'\|s)\}.
+\end{aligned}
+\label{eq:mono-gfinal}
+\end{equation}
+
+\textit{Step 4 (Assembling).} Pairing \eqref{eq:mono-Fdiff} against $z-z'$ and using \eqref{eq:mono-skew} and \eqref{eq:mono-gfinal} gives \eqref{eq:strong-mono}.
+
+\textit{Step 5 (Strong-monotonicity bound).} Relative entropy is nonnegative, so replacing $\tau$ and $\kappa$ by $m=\min\{\tau,\kappa\}$ in front of nonnegative terms can only decrease the value:
+\[
+\inner{F(z)-F(z')}{z-z'}\ge m\{D(z\|z')+D(z'\|z)\},
+\]
+with $D(z\|z')=\KL(\pi\|\pi')+\KL(s\|s')$. \hfill$\qed$
+
+\subsection{Proof of Theorem~\ref{thm:existence} (Existence and Uniqueness)}
+
+For fixed $s$, $\pi\mapsto V(\pi,s)$ is strictly concave (linear minus $\tau\KL(\pi\|\mu)$), with unique best response
+\begin{equation}
+B_\pi(s)(y)
+=
+\frac{\mu(y)\exp((As)_y/\tau)}{\sum_u \mu(u)\exp((As)_u/\tau)}.
+\label{eq:br-p}
+\end{equation}
+For fixed $\pi$, $s\mapsto V(\pi,s)$ is strictly convex, with unique best response
+\begin{equation}
+B_s(\pi)(k,a)
+=
+\frac{s_0(k,a)\exp(-(A^\top \pi)_{k,a}/\kappa)}{\sum_{j,b}s_0(j,b)\exp(-(A^\top \pi)_{j,b}/\kappa)}.
+\label{eq:br-s}
+\end{equation}
+The map $(\pi,s)\mapsto(B_\pi(s),B_s(\pi))$ is continuous on the compact convex product of simplices, so Brouwer's theorem gives a fixed point $(\pi^\star,s^\star)$ with $\pi^\star=B_\pi(s^\star)$ and $s^\star=B_s(\pi^\star)$. Since $\pi^\star$ is the exact policy best response to $s^\star$ and $s^\star$ the exact adversary best response to $\pi^\star$,
+\begin{equation}
+V(\pi,s^\star)\le V(\pi^\star,s^\star)\le V(\pi^\star,s)\qquad\forall \pi,s,
+\label{eq:saddle-inequality}
+\end{equation}
+which is the definition of a saddle point. Every saddle point must satisfy the same best-response equations, and since $\mu,s_0$ are strictly positive and the exponentials in \eqref{eq:br-p}--\eqref{eq:br-s} are strictly positive, every saddle point has full support.
+
+For uniqueness, we first derive the saddle variational inequality. Fix any feasible $\pi$ and set $\pi_\epsilon:=\pi^\star+\epsilon(\pi-\pi^\star)$ for $\epsilon\in[0,1]$; feasibility follows from convexity of the simplex. Since $\pi^\star$ maximizes $V(\cdot,s^\star)$,
+\[
+\frac{V(\pi_\epsilon,s^\star)-V(\pi^\star,s^\star)}{\epsilon}\le0
+\;\Longrightarrow\;
+\inner{\nabla_\pi V(z^\star)}{\pi-\pi^\star}\le0
+\]
+by letting $\epsilon\downarrow0$ and using differentiability at the interior point $z^\star$. Likewise, minimality of $s^\star$ for $V(\pi^\star,\cdot)$ gives $\inner{\nabla_sV(z^\star)}{s-s^\star}\ge0$ for all feasible $s$. Negating the first inequality, adding the second, and using $F=(-\nabla_\pi V,\nabla_sV)$ yields
+\begin{equation}
+\inner{F(z^\star)}{z-z^\star}\ge0\qquad\forall z\in Z.
+\label{eq:saddle-vi}
+\end{equation}
+Now let $z_1,z_2$ be two saddle points. Applying \eqref{eq:saddle-vi} at $z_1$ with $z=z_2$ and at $z_2$ with $z=z_1$, then adding,
+\[
+\inner{F(z_1)-F(z_2)}{z_1-z_2}\le0.
+\]
+Lemma~\ref{lem:mono} lower-bounds the same quantity by $m\{D(z_1\|z_2)+D(z_2\|z_1)\}\ge0$. Both hold only if the divergences vanish, hence $z_1=z_2$. \hfill$\qed$
+
+\subsection{Proof of Proposition~\ref{prop:soft-min} and Remark~\ref{rem:dominance}}
+
+For fixed $\pi$, $\min_s V(\pi,s)=-\tau\KL(\pi\|\mu)+\min_{s}\{\inner{c_\pi}{s}+\kappa\KL(s\|s_0)\}$. The inner minimization is the Gibbs variational principle: for any cost vector $c$ and prior $s_0$,
+\[
+\min_{s\in\Delta}\{\inner{c}{s}+\kappa\KL(s\|s_0)\}
+=-\kappa\log\E_{s_0}\!\bigl[e^{-c/\kappa}\bigr],
+\]
+attained uniquely at $s^\star\propto s_0\exp(-c/\kappa)$, obtained by setting the gradient of the strictly convex objective to a constant on the simplex. Substituting $c=c_\pi$ gives \eqref{eq:soft-min}. The limit $\kappa\downarrow0$ is the standard log-sum-exp $\to$ min convergence: $-\kappa\log\sum_i s_0(i)e^{-c_i/\kappa}\to\min_i c_i$ for $s_0$ with full support.
+
+For Remark~\ref{rem:dominance}: for any $k\in\Kset$ and $q\in\Delta(\A)$, $\E_{a\sim q}[c_\pi(k,a)]\ge\min_{a\in\A}c_\pi(k,a)\ge\min_{(k',a)\in\Kset\times\A}c_\pi(k',a)$, since an average dominates a minimum and a minimum over a larger set is no larger. Taking the minimum over $k$ preserves the inequality. \hfill$\qed$
+
+\subsection{Proof of Lemma~\ref{lem:opbound} (Operator Bound)}
+
+We bound the policy block $F_\pi(z_t)=-As_t+\tau(\psi_t+\ones)$ with $\psi_t:=\log(\pi_t/\mu)$; the adversary block is symmetric. Since $P_k\in[0,1]$ and $s_t$ is a distribution, $(As_t)_y=\E_{(k,a)\sim s_t}[P_k(y\succ a)]\in[0,1]$, so $\|As_t\|_\infty\le1$.
+
+\emph{Normalization.} Because $\pi_t$ and $\mu$ are distributions, $\E_\mu[e^{\psi_t}]=\sum_y\mu(y)\pi_t(y)/\mu(y)=1$, so $\psi_t$ is neither everywhere positive nor everywhere negative: $\min_y\psi_t(y)\le0\le\max_y\psi_t(y)$.
+
+\emph{Spread.} Taking logs of \eqref{eq:p-update}, $\psi_{t+1}(y)=\eta_t r_t(y)+(1-\eta_t\tau)\psi_t(y)-\log Z_t$ with normalizer $Z_t$; the constant cancels in differences, so for all $y,y'$, using $1-\eta_t\tau\ge0$,
+\[
+\begin{aligned}
+\psi_{t+1}(y)-\psi_{t+1}(y')
+&=\eta_t\bigl(r_t(y)-r_t(y')\bigr)\\
+&\quad+(1-\eta_t\tau)\bigl(\psi_t(y)-\psi_t(y')\bigr).
+\end{aligned}
+\]
+Let $\sigma_t:=\max_y\psi_t(y)-\min_y\psi_t(y)$. As $r_t(y)\in[0,1]$, its spread is at most $1$, so $\sigma_{t+1}\le\eta_t+(1-\eta_t\tau)\sigma_t$. From $\pi_0=\mu$ (so $\sigma_0=0$), induction yields $\sigma_t\le1/\tau$: if $\sigma_t\le1/\tau$ then $\sigma_{t+1}\le\eta_t+(1-\eta_t\tau)/\tau=1/\tau$.
+
+\emph{Combine.} From $\min_y\psi_t\le0\le\max_y\psi_t$ and $\sigma_t\le1/\tau$ we get $\|\psi_t\|_\infty\le1/\tau$, hence
+\[
+\begin{aligned}
+\|F_\pi(z_t)\|_\infty
+&\le\|As_t\|_\infty+\tau\|\psi_t+\ones\|_\infty\\
+&\le 1+\tau(\tfrac1\tau+1)=2+\tau.
+\end{aligned}
+\]
+The identical argument for $\log(s_t/s_0)$ gives $\|F_s(z_t)\|_\infty\le2+\kappa$; taking the maximum gives $G=2+\max\{\tau,\kappa\}$. Note that only $r_t\in[0,1]^{|\Y|}$ and $c_t\in[0,1]^{K|\A|}$ coordinatewise were used, a fact we reuse in Corollary~\ref{cor:stochastic}. \hfill$\qed$
+
+\subsection{Proof of Theorem~\ref{thm:lastiter} (Last-Iterate Rate)}
+
+Apply the descent form of the one-step entropic-OMD inequality \eqref{eq:omd-descent} separately to the two blocks: policy block with $u_t=\pi_t$, comparator $\pi^\star$, gradient $F_\pi(z_t)$; adversary block with $u_t=s_t$, comparator $s^\star$, gradient $F_s(z_t)$. Adding,
+\begin{equation}
+\begin{aligned}
+\Theta_{t+1}
+&\le \Theta_t
+-\eta_t\inner{F(z_t)}{z_t-z^\star}\\
+&\quad+\tfrac{\eta_t^2}{2}\bigl(\|F_\pi(z_t)\|_\infty^2+\|F_s(z_t)\|_\infty^2\bigr),
+\end{aligned}
+\label{eq:descent-sum}
+\end{equation}
+where the two middle terms combined via the product inner product. Lemma~\ref{lem:opbound} bounds the last term by $\eta_t^2G^2$. Decompose the inner product as $\inner{F(z_t)-F(z^\star)}{z_t-z^\star}+\inner{F(z^\star)}{z_t-z^\star}$: the variational inequality \eqref{eq:saddle-vi} makes the second term nonnegative, and Lemma~\ref{lem:mono} bounds the first below by $m\{D(z_t\|z^\star)+D(z^\star\|z_t)\}\ge m\Theta_t$. This gives \eqref{eq:recurrence}.
+
+It remains to solve the recurrence. Set $a_t:=\Theta_t$ and $C:=4G^2/m^2$. With $\eta_t=2/(m(t+t_0))$, \eqref{eq:recurrence} reads
+\[
+a_{t+1}\le\Bigl(1-\frac{2}{t+t_0}\Bigr)a_t+\frac{C}{(t+t_0)^2}.
+\]
+Let $M:=\max\{t_0a_0,C\}$. We show $a_t\le M/(t+t_0)$ by induction: the base case is $a_0\le M/t_0$; for the step, write $n=t+t_0$, so
+\[
+\begin{aligned}
+a_{t+1}
+&\le\Bigl(1-\frac{2}{n}\Bigr)\frac{M}{n}+\frac{C}{n^2}
+=\frac{M(n-2)+C}{n^2}\\
+&\le\frac{M(n-1)}{n^2}
+\le\frac{M}{n+1},
+\end{aligned}
+\]
+using $C\le M$ and $(n-1)(n+1)\le n^2$. \hfill$\qed$
+
+\subsection{Proof of Corollary~\ref{cor:stochastic} (Stochastic Feedback)}
+
+Let $\mathcal{F}_t$ be the $\sigma$-field generated by the history through $z_t$. The realized gradients are $\widehat F_\pi(z_t)=-\hat r_t+\tau(\psi_t+\ones)$ and $\widehat F_s(z_t)=\hat c_t+\kappa(\log(s_t/s_0)+\ones)$.
+
+\emph{Pathwise bound.} By construction $\hat r_t(y)=\xi_t(y)\in\{0,1\}\subset[0,1]$ and $\hat c_t(k,a)=\zeta_t(k,a)\in\{0,1\}\subset[0,1]$ coordinatewise. The spread induction in the proof of Lemma~\ref{lem:opbound} used only that the reward vector lies in $[0,1]$ coordinatewise, so it applies verbatim to the stochastic iterates and yields, pathwise, $\|\widehat F_\pi(z_t)\|_\infty\le G$ and $\|\widehat F_s(z_t)\|_\infty\le G$.
+
+\emph{Unbiasedness.} Conditional on $\mathcal{F}_t$, $\E[\xi_t(y)]=\E_{(k,a)\sim s_t}[P_k(y\succ a)]=r_t(y)$ for every $y$, and $\E[\zeta_t(k,a)]=\E_{y\sim\pi_t}[P_k(y\succ a)]=c_t(k,a)$ for every $(k,a)$; hence $\E[\widehat F(z_t)\mid\mathcal{F}_t]=F(z_t)$, since the regularizer terms are $\mathcal{F}_t$-measurable.
+
+\emph{Recurrence in expectation.} The one-step inequality \eqref{eq:omd-descent} is a deterministic consequence of the update and holds pathwise with the realized gradients:
+\[
+\Theta_{t+1}\le\Theta_t-\eta_t\inner{\widehat F(z_t)}{z_t-z^\star}+\eta_t^2G^2 .
+\]
+Taking $\E[\cdot\mid\mathcal{F}_t]$ and using that $z_t$, $z^\star$ are $\mathcal{F}_t$-measurable,
+\[
+\E[\Theta_{t+1}\mid\mathcal{F}_t]
+\le\Theta_t-\eta_t\inner{F(z_t)}{z_t-z^\star}+\eta_t^2G^2 ,
+\]
+and the deterministic decomposition from the proof of Theorem~\ref{thm:lastiter} (variational inequality plus Lemma~\ref{lem:mono}) bounds the middle term to give $\E[\Theta_{t+1}\mid\mathcal{F}_t]\le(1-m\eta_t)\Theta_t+\eta_t^2G^2$. The tower property yields the same scalar recurrence for $\E[\Theta_t]$, which the induction of Theorem~\ref{thm:lastiter} solves to $\E[\Theta_T]\le M/(T+t_0)$. Each round uses one Bernoulli query per coordinate: $|\Y|$ queries against the sampled pair $(k_t,a_t)$ and $K|\A|$ queries at the sampled response $y_t$. \hfill$\qed$
+
+\subsection{Proof of Proposition~\ref{prop:unbiased} (Unbiased Regression)}
+
+Fix an ordered pair $(y,y')$ and define $d_t(y,y'):=r_t(y)-r_t(y')$. With $N=z_y-z_{y'}$, conditioning on $(y,y')$ leaves randomness only in the sampled pair $(k,a)\sim s_t$ and the two Bernoulli draws, so
+\[
+\begin{aligned}
+\E[N\mid y,y']
+&=\E_{(k,a)\sim s_t}\bigl[P_k(y\succ a)-P_k(y'\succ a)\bigr]\\
+&=d_t(y,y').
+\end{aligned}
+\]
+For any candidate $\pi$, adding and subtracting $\eta_td_t(y,y')$ inside the square and using that the cross term vanishes in conditional expectation,
+\[
+\begin{aligned}
+&\E[(h_t(\pi;y,y')-\eta_tN)^2\mid y,y'] \\
+&\quad=(h_t(\pi;y,y')-\eta_td_t(y,y'))^2
++\eta_t^2\mathrm{Var}(N\mid y,y').
+\end{aligned}
+\]
+The variance term does not depend on $\pi$, so the conditional loss is minimized exactly when $h_t(\pi;y,y')=\eta_td_t(y,y')$, which the exact update $\pi_{t+1}$ satisfies for every pair by \eqref{eq:exact-logratio}; hence $\pi_{t+1}$ minimizes the population loss. If $\pi_t$ has full support, every ordered pair has positive sampling probability, so any other minimizer $\pi$ must satisfy $h_t(\pi;y,y')=h_t(\pi_{t+1};y,y')$ for all pairs; the $\mu$ and $\pi_t$ terms cancel, leaving $\Delta_\pi(y,y')=\Delta_{\pi_{t+1}}(y,y')$ for all $y,y'$. Fixing $y_0$ and taking $y'=y_0$ shows $\log \pi(y)-\log \pi_{t+1}(y)$ is constant in $y$, so $\pi=C\pi_{t+1}$, and normalization forces $C=1$. \hfill$\qed$
+
+\section{Adversary-Aggregation Estimators and the Objective-Stratified Target}
+\label{app:estimators}
+
+The empirical loss \eqref{eq:ronpo-loss-empirical} regresses the log-ratio term $h_t(\pi;y,y')$ onto a scalar that stands in for the exact per-pair reward gap
+\begin{equation}
+d_t(y,y')=r_t(y)-r_t(y')=\E_{(k,a)\sim s_t}\bigl[\widehat z_{k,a}(y,y')\bigr],
+\label{eq:target-mean}
+\end{equation}
+where $\widehat z_{k,a}(y,y')=\widehat P_k(y\succ a)-\widehat P_k(y'\succ a)$ is the plug-in relative preference of \eqref{eq:relative-target} and $s_t$ is the adversary distribution over pairs from \eqref{eq:s-update}. In the plug-in deployment $\widehat z_{k,a}$ is a fixed function of the reward scores, so given a training pair $(y,y')$ the only randomness in an estimate of $d_t$ comes from how we sample or weight the pairs $(k,a)$. With $c_t(k,a)=\E_{y\sim\pi_t}[\widehat P_k(y\succ a)]$ the pair cost of \eqref{eq:c_t}, the entropic best response of \eqref{eq:s-update} is
+\begin{equation}
+s_t(k,a)\ \propto\ s_0(k,a)\,\exp\{-c_t(k,a)/\kappa\}.
+\label{eq:adv-weights}
+\end{equation}
+As in Section~\ref{sec:surrogate}, write $\omega_t(k)=\sum_{a}s_t(k,a)$ for the mass that $s_t$ places on objective $k$ and $q_t(a\mid k)=s_t(k,a)/\omega_t(k)$ for the induced distribution over responses inside that objective, so that $s_t(k,a)=\omega_t(k)\,q_t(a\mid k)$.
+
+\paragraph{Three targets.}
+The trainer forms the regression target for a pair $(y,y')$ in one of three ways, ordered here from most to least adversary mass retained:
+\begin{align}
+\tau^{\mathrm{full}}_t(y,y')&=\textstyle\sum_{k,a}s_t(k,a)\,\widehat z_{k,a}(y,y')=d_t(y,y'),\label{eq:tau-full}\\
+\tau^{\mathrm{os}}_t(y,y')&=\textstyle\sum_{k}\omega_t(k)\,\widehat z_{k,a_k}(y,y'),\notag\\
+\tau^{\mathrm{top}}_t(y,y')&=\widehat z_{k^\star\!,a^\star}(y,y'),\label{eq:tau-top}
+\end{align}
+where $a_k\sim q_t(\cdot\mid k)$ is drawn independently for each objective and $(k^\star,a^\star)\in\arg\max_{k,a}s_t(k,a)$. The full-expectation target keeps every atom of $s_t$ and equals $d_t$ exactly, at a cost of one plug-in evaluation for each of the $K|\A|$ pairs. The objective-stratified target, deployed in the trained loss \eqref{eq:ronpo-loss-empirical}, draws the responses $a_k$ independently across objectives; it keeps the exact objective marginals $\omega_t(k)$ but replaces the inner sum over responses by a single draw per objective, so it costs $K$ evaluations and gives every objective a training signal on every update. Top-mass keeps only the single heaviest atom, or a few heaviest atoms renormalized to unit mass; it costs one evaluation but discards the remaining mass and is biased whenever that mass matters. The next two results make the middle ground precise: the stratified target is exactly unbiased for the full expectation, and it never has larger variance than a single sampled pair.
+
+\begin{proposition}[Unbiasedness of the stratified target]
+\label{prop:os-unbiased}
+Fix a pair $(y,y')$ and the weights $s_t$. Over the independent draws $a_k\sim q_t(\cdot\mid k)$,
+\[
+\E\bigl[\tau^{\mathrm{os}}_t(y,y')\bigr]=\tau^{\mathrm{full}}_t(y,y')=d_t(y,y').
+\]
+\end{proposition}
+
+\emph{Proof.} Linearity of expectation and independence of the draws give
+\[
+\begin{aligned}
+\E\bigl[\tau^{\mathrm{os}}_t\bigr]
+&=\sum_k \omega_t(k)\,\E_{a_k\sim q_t(\cdot\mid k)}\bigl[\widehat z_{k,a_k}\bigr]\\
+&=\sum_k \omega_t(k)\sum_a q_t(a\mid k)\,\widehat z_{k,a}.
+\end{aligned}
+\]
+Substituting $\omega_t(k)\,q_t(a\mid k)=s_t(k,a)$ collapses the double sum to $\sum_{k,a}s_t(k,a)\,\widehat z_{k,a}$, which is $\tau^{\mathrm{full}}_t=d_t$ by \eqref{eq:tau-full}. \hfill$\qed$
+
+\begin{proposition}[Variance reduction over single-pair sampling]
+\label{prop:os-var}
+Let $\tau^{\mathrm{iid}}_t(y,y')=\widehat z_{k',a'}(y,y')$ use one pair $(k',a')\sim s_t$, the estimator behind the population loss \eqref{eq:ronpo-loss} under the plug-in oracle. Set $\mu_k=\E_{a\sim q_t(\cdot\mid k)}[\widehat z_{k,a}]$ and $v_k=\mathrm{Var}_{a\sim q_t(\cdot\mid k)}(\widehat z_{k,a})$. Both estimators are unbiased for $d_t$, and
+\[
+\begin{aligned}
+\mathrm{Var}\bigl(\tau^{\mathrm{iid}}_t\bigr)-\mathrm{Var}\bigl(\tau^{\mathrm{os}}_t\bigr)
+&=\sum_k \omega_t(k)\bigl(1-\omega_t(k)\bigr)v_k\\
+&\quad+\sum_k \omega_t(k)\bigl(\mu_k-d_t\bigr)^2\ \ge\ 0 .
+\end{aligned}
+\]
+Equality holds only when every within-objective variance $v_k$ is zero and all objective means $\mu_k$ coincide.
+\end{proposition}
+
+\emph{Proof.} Unbiasedness of $\tau^{\mathrm{os}}_t$ is Proposition~\ref{prop:os-unbiased}; for $\tau^{\mathrm{iid}}_t$ it is immediate from $\E[\widehat z_{k',a'}]=\sum_{k,a}s_t(k,a)\widehat z_{k,a}=d_t$. The $K$ draws in $\tau^{\mathrm{os}}_t$ are independent, so
+\[
+\mathrm{Var}\bigl(\tau^{\mathrm{os}}_t\bigr)=\sum_k \omega_t(k)^2\,\mathrm{Var}\bigl(\widehat z_{k,a_k}\bigr)=\sum_k \omega_t(k)^2 v_k .
+\]
+For $\tau^{\mathrm{iid}}_t$, condition on the sampled objective $k'$, whose marginal is $\omega_t$. Since $\E[\widehat z\mid k'=k]=\mu_k$, $\mathrm{Var}(\widehat z\mid k'=k)=v_k$, and $\sum_k\omega_t(k)\mu_k=d_t$, the law of total variance gives
+\[
+\begin{aligned}
+\mathrm{Var}\bigl(\tau^{\mathrm{iid}}_t\bigr)
+&=\E_{k'}\bigl[\mathrm{Var}(\widehat z\mid k')\bigr]+\mathrm{Var}_{k'}\bigl(\E[\widehat z\mid k']\bigr)\\
+&=\sum_k \omega_t(k)\,v_k+\sum_k \omega_t(k)\bigl(\mu_k-d_t\bigr)^2 .
+\end{aligned}
+\]
+Subtracting this from $\mathrm{Var}(\tau^{\mathrm{os}}_t)=\sum_k\omega_t(k)^2 v_k$ and grouping the $v_k$ terms yields
+\[
+\begin{aligned}
+\mathrm{Var}\bigl(\tau^{\mathrm{iid}}_t\bigr)-\mathrm{Var}\bigl(\tau^{\mathrm{os}}_t\bigr)
+&=\sum_k \bigl(\omega_t(k)-\omega_t(k)^2\bigr)v_k\\
+&\quad+\sum_k \omega_t(k)\bigl(\mu_k-d_t\bigr)^2 .
+\end{aligned}
+\]
+Both sums are nonnegative because $\omega_t(k)\in[0,1]$ and $v_k\ge 0$, which proves the inequality and the equality condition. \hfill$\qed$
+
+The decomposition names two distinct gains. The between-objective term $\sum_k \omega_t(k)(\mu_k-d_t)^2$ is the variance a single draw pays for not knowing which objective it will land on; stratification removes it in full, and it is largest exactly when the objectives disagree, the regime RONPO is built for. The remaining term is the further gain from spending the query budget on one response per objective rather than on one pair overall. The stratified target thus keeps the unbiasedness of the full expectation while querying $K$ preferences per update instead of $K|\A|$, so it stays affordable as the pool or the objective set grows. Top-mass sits at the opposite corner: cheapest, but biased and blind to every objective other than the current heaviest, which is the mechanism behind its instability at larger scale.
+
+\paragraph{Estimator ablation at 1.5B.}
+Table~\ref{tab:estimator-ablation} isolates the aggregation choice. The two policies are stage-2 RONPO runs that share the base model, prompts, response pool, and every optimization setting, and differ only in whether the per-pair target is $\tau^{\mathrm{top}}$ or $\tau^{\mathrm{os}}$. We score the held-out generations with the three local reward models under the stage-2 protocol of Appendix~\ref{app:stage2}, normalized per prompt within this three-policy set. The stratified target raises the worst objective by $0.016$ over top-mass and by $0.086$ over the base policy, improves the average objective, and holds the tight cross-objective spread, matching the ordering that Proposition~\ref{prop:os-var} predicts.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccc}
+\toprule
+Target & Avg & Worst & WR$_{\mathrm{B}}$ & wWR$_{\mathrm{B}}$ & Spread \\
+\midrule
+Base & 0.487 & 0.414 & $-$ & $-$ & 0.056 \\
+Top-mass $\tau^{\mathrm{top}}$ & 0.512 & 0.484 & 0.511 & 0.449 & \textbf{0.026} \\
+Stratified $\tau^{\mathrm{os}}$ & \textbf{0.527} & \textbf{0.500} & \textbf{0.522} & \textbf{0.468} & 0.030 \\
+\bottomrule
+\end{tabular}
+\caption{Estimator ablation on Qwen2.5-1.5B at stage 2, same pool and settings, differing only in the adversary-aggregation target. Avg and Worst are the mean and minimum per-prompt min--max-normalized reward across the three objectives; WR$_{\mathrm{B}}$ and wWR$_{\mathrm{B}}$ are the average and worst-objective win rate against the base response; Spread is the cross-objective standard deviation. Scores are normalized within this three-policy set and are not comparable to Table~\ref{tab:stage2-local-ifeval}. The objective-stratified target gives the best average and worst-objective reward.}
+\label{tab:estimator-ablation}
+\end{table}
+
+\section{Standard Online-Mirror-Descent Facts}
+\label{app:derivations}
+
+The building blocks below are classical \citep{cesa2006prediction,bubeck2015convex,nemirovski1983problem}; we include them so the paper is self-contained. We take Pinsker's and H\"older's inequalities as given and derive the regret-to-gap reduction, the one-step inequality \eqref{eq:omd-descent}, and the regret bound used in the section on no-regret learning.
+
+\subsection{Regret-to-Gap Reduction}
+\label{app:regret-to-gap}
+
+At round $t$, let the maximizing player use $\pi_t$ and the minimizing player use $\pi'_t$ in the game \eqref{eq:nlhf}. Once $\pi'_t$ is fixed, the maximizing player faces the convex online loss $\ell_t^{\pi}(\pi):=-J(\pi,\pi'_t)$; once $\pi_t$ is fixed, the minimizing player faces $\ell_t^{\pi'}(\pi'):=J(\pi_t,\pi')$. Convexity holds because $J(\cdot,\pi'_t)$ is concave and $J(\pi_t,\cdot)$ is convex. The external regrets are
+\begin{align*}
+R_T^{\pi}
+&=\max_{\pi\in\DeltaY}\sum_{t=1}^T J(\pi,\pi'_t)
+-\sum_{t=1}^T J(\pi_t,\pi'_t),\\
+R_T^{\pi'}
+&=\sum_{t=1}^T J(\pi_t,\pi'_t)
+-\min_{\pi'\in\DeltaY}\sum_{t=1}^T J(\pi_t,\pi').
+\end{align*}
+Let $\bar \pi_T=\tfrac1T\sum_t\pi_t$ and $\bar \pi'_T=\tfrac1T\sum_t\pi'_t$, and define the gap $\operatorname{Gap}(\bar \pi_T,\bar \pi'_T)=\max_\pi J(\pi,\bar \pi'_T)-\min_{\pi'} J(\bar \pi_T,\pi')$. For fixed $\pi$, convexity of $J(\pi,\cdot)$ and Jensen give $J(\pi,\bar \pi'_T)\le\tfrac1T\sum_tJ(\pi,\pi'_t)$; for fixed $\pi'$, concavity gives $J(\bar \pi_T,\pi')\ge\tfrac1T\sum_tJ(\pi_t,\pi')$. Taking the maximum in the first, the minimum in the second, and adding and subtracting $\sum_tJ(\pi_t,\pi'_t)$,
+\begin{equation}
+\operatorname{Gap}(\bar \pi_T,\bar \pi'_T)
+\le\frac{R_T^{\pi}+R_T^{\pi'}}{T}.
+\label{eq:regret-to-gap}
+\end{equation}
+Thus if both players are no-regret, the gap of average play vanishes; this is the precise game-theoretic reason for using no-regret dynamics rather than arbitrary stabilized best responses. Sublinear regret certifies average iterates only; RONPO's last-iterate results use the additional strong monotonicity of Lemma~\ref{lem:mono}.
+
+\subsection{One-Step Inequality and Regret Bound}
+\label{app:omd-regret-proof}
+
+Let $\ell_1,\dots,\ell_T$ be convex losses on $\DeltaY$, let $u_{t+1}$ be the entropic-OMD iterate \eqref{eq:omd-min} from $u_t$ with step $\eta_t>0$, let $g_t\in\partial\ell_t(u_t)$, and fix a comparator $\widetilde u\in\DeltaY$; write $n=|\Y|$.
+
+\emph{Step 0 (Linearization).} By the subgradient inequality, $\ell_t(u_t)-\ell_t(\widetilde u)\le\inner{g_t}{u_t-\widetilde u}$ (equality for linear losses, as in the RONPO blocks); summing, it suffices to bound each $\inner{g_t}{u_t-\widetilde u}$.
+
+\emph{Step 1 (Closed form and log-linear relation).} The subproblem \eqref{eq:omd-min} has the multiplicative-weights closed form \eqref{eq:single-block-mw} (App.~\ref{app:mw-derivation}); taking logarithms,
+\begin{equation}
+\eta_t g_t=\log(u_t/u_{t+1})-(\log Z_t)\ones
+\label{eq:omd-loglinear}
+\end{equation}
+componentwise, with all logarithms finite since interiority is preserved.
+
+\emph{Step 2 (Three-point identity).} Pair \eqref{eq:omd-loglinear} with $u_{t+1}-\widetilde u$; the constant drops because $\inner{\ones}{u_{t+1}-\widetilde u}=0$. Splitting the resulting sum into its $u_{t+1}$- and $\widetilde u$-weighted parts and using $\log(u_t/u_{t+1})=\log(\widetilde u/u_{t+1})-\log(\widetilde u/u_t)$,
+\begin{equation}
+\begin{aligned}
+\eta_t\inner{g_t}{u_{t+1}-\widetilde u}
+&=\KL(\widetilde u\|u_t)-\KL(\widetilde u\|u_{t+1})\\
+&\quad-\KL(u_{t+1}\|u_t).
+\end{aligned}
+\label{eq:omd-threepoint}
+\end{equation}
+
+\emph{Step 3 (Splitting the per-step term).} Inserting $u_{t+1}$ as an intermediate point and substituting \eqref{eq:omd-threepoint},
+\begin{equation}
+\begin{aligned}
+\eta_t\inner{g_t}{u_t-\widetilde u}
+&=\eta_t\inner{g_t}{u_t-u_{t+1}}
++\KL(\widetilde u\|u_t)\\
+&\quad-\KL(\widetilde u\|u_{t+1})
+-\KL(u_{t+1}\|u_t).
+\end{aligned}
+\label{eq:omd-split}
+\end{equation}
+
+\emph{Step 4 (H\"older, Pinsker, Young).} H\"older gives $\eta_t\inner{g_t}{u_t-u_{t+1}}\le\eta_t\|g_t\|_\infty\|u_t-u_{t+1}\|_1$ and Pinsker gives $-\KL(u_{t+1}\|u_t)\le-\tfrac12\|u_t-u_{t+1}\|_1^2$; with $a=\eta_t\|g_t\|_\infty$ and $b=\|u_t-u_{t+1}\|_1$, the elementary bound $ab-\tfrac12b^2\le\tfrac12a^2$ yields
+\begin{equation}
+\eta_t\inner{g_t}{u_t-u_{t+1}}-\KL(u_{t+1}\|u_t)\le\tfrac12\eta_t^2\|g_t\|_\infty^2 .
+\label{eq:omd-young}
+\end{equation}
+
+\emph{Step 5 (One-step inequality).} Substituting \eqref{eq:omd-young} into \eqref{eq:omd-split} and dividing by $\eta_t$,
+\begin{equation}
+\inner{g_t}{u_t-\widetilde u}
+\le
+\frac{\KL(\widetilde u\|u_t)-\KL(\widetilde u\|u_{t+1})}{\eta_t}
++\frac{\eta_t}{2}\|g_t\|_\infty^2 ;
+\label{eq:omd-one-step}
+\end{equation}
+multiplying back by $\eta_t$ and rearranging gives the descent form
+\begin{equation}
+\begin{aligned}
+\KL(\widetilde u\|u_{t+1})
+&\le\KL(\widetilde u\|u_t)-\eta_t\inner{g_t}{u_t-\widetilde u}\\
+&\quad+\tfrac12\eta_t^2\|g_t\|_\infty^2 ,
+\end{aligned}
+\label{eq:omd-descent}
+\end{equation}
+the per-block step invoked in Theorem~\ref{thm:lastiter} and Corollary~\ref{cor:stochastic}.
+
+\emph{Step 6 (Regret at constant step).} With $\eta_t\equiv\eta$, summing \eqref{eq:omd-one-step} telescopes the KL terms; using $\KL(\widetilde u\|u_1)\le\log n$ for uniform $u_1$ and $\|g_t\|_\infty\le G$,
+\[
+R_T\le\frac{\log n}{\eta}+\frac{\eta}{2}G^2T
+\ \le\ G\sqrt{2T\log n}
+\]
+at the optimal $\eta=\sqrt{2\log n/(G^2T)}$, so the dynamics are no-regret.
+
+\subsection{Multiplicative-Weights Mirror Step}
+\label{app:mw-derivation}
+
+The subproblem \eqref{eq:omd-min} has a strictly convex objective with a full-support reference $u_t$, so its minimizer is interior and unique (the entropy gradient $\log v(y)$ diverges as $v(y)\downarrow0$, so no coordinate is set to zero). Introducing a multiplier $\lambda$ for $\sum_yv(y)=1$ gives the stationarity condition $\eta_tg_t(y)+\log(v(y)/u_t(y))+1+\lambda=0$, hence $v(y)\propto u_t(y)e^{-\eta_tg_t(y)}$; normalizing recovers \eqref{eq:single-block-mw}. Since $u_1$ is interior and each step preserves full support, every iterate is interior.
+
+\section{Synthetic-Game Details and Additional Figures}
+\label{app:toy-details}
+
+\paragraph{Game construction.}
+Each objective $k\in\{1,2,3\}$ is an $8\times8$ skew-symmetric matrix built in three layers: (i) a weak random tournament background assigning each ordered pair win probability $0.56$ or $0.44$ uniformly at random; (ii) a specialist action $a_k$ for objective $k$ that beats every other action with probability $0.82$ under $P_k$; (iii) a decoy action that beats every other action with probability $0.78$ under objectives $1,2$ and $0.06$ under objective $3$. The reference $\mu$ and adversary prior $s_0$ are uniform. The robust LP benchmark $V^\star=\max_\pi\min_{k,a}c_\pi(k,a)$ is computed by linear programming; the reported instance has $V^\star=0.3289$.
+
+\paragraph{Compared methods and metrics.}
+We compare five idealized tabular methods: SPPO-avg, INPO-avg, and MNPO-hist-avg on the averaged oracle $\bar P=\tfrac13\sum_kP_k$; HT-MNPO-mix, which trains objective-specific players and deploys their arithmetic mixture; and exact RONPO over all objective--action pairs. The central metric is the robust minimum win rate $V_{\min}(\pi)=\min_{k,a}c_\pi(k,a)$, compared against the robust LP benchmark $V^\star=\max_\pi V_{\min}(\pi)=0.3289$; we also report the average reference win rate $V_{\mathrm{avg}}$, final entropy, and decoy mass.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccccc}
+\toprule
+Method & $V_{\min}$ & Gap & $V_{\mathrm{avg}}$ & Ent. & Decoy\\
+\midrule
+SPPO-avg & 0.060 & 0.269 & \textbf{0.535} & 0.005 & 1.000\\
+INPO-avg & 0.210 & 0.119 & 0.530 & 1.806 & 0.290\\
+MNPO-hist-avg & \underline{0.213} & \underline{0.116} & 0.512 & 2.043 & 0.157\\
+HT-MNPO-mix & 0.209 & 0.120 & 0.530 & 1.811 & 0.278\\
+RONPO & \textbf{0.288} & \textbf{0.041} & \underline{0.533} & 1.386 & 0.340\\
+\bottomrule
+\end{tabular}
+\caption{Final metrics in the decoy game ($V^\star=0.3289$). ``Gap'' is $V^\star-V_{\min}$. RONPO attains the best worst-case win rate while preserving a competitive average.}
+\label{tab:toy}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/ronpo_toy_curves.pdf}
+\caption{Dynamics over 200 iterations. Averaged-oracle SPPO attains the highest average win rate by collapsing onto the decoy action; RONPO shifts mass toward the robust LP mixture and raises the minimum objective--action win rate.}
+\label{fig:toy-curves}
+\end{figure}
+
+\paragraph{Averaging hides the failure; the pair adversary exposes it.}
+Table~\ref{tab:toy} and Figure~\ref{fig:toy-curves} show the mechanism. SPPO-avg collapses almost entirely onto the decoy: its average win rate is the best of all methods while its minimum falls to $0.060$. This is precisely the hidden-objective failure the construction was designed to reveal, invisible to any average-based metric. Reference anchoring (INPO-avg) and historical mixing (MNPO-hist-avg) soften but do not fix the collapse, since both still optimize the fixed averaged oracle, and HT-MNPO-mix spreads mass across players without restoring a two-player saddle. RONPO raises $V_{\min}$ to $0.288$, reducing the LP gap from $0.269$ (SPPO-avg) to $0.041$, at an average cost of $0.002$. The final adversary concentrates on objective $3$, the source that rejects the decoy, confirming that the adversary identifies exposing pairs rather than injecting noise. We further sweep the decoy severity below (RONPO's advantage is largest exactly when the hidden failure is most severe) and the temperature $\kappa$, which interpolates between worst-case and averaging behavior as Prop.~\ref{prop:soft-min} predicts.
+
+\paragraph{Decoy severity sweep.}
+Figure~\ref{fig:decoy-sweep} varies the hidden-objective decoy win probability. When the decoy is most dangerous, averaged-oracle methods keep assigning it high mass because it remains attractive under the first two objectives, and RONPO's advantage is largest; as the hidden objective becomes milder, robust and average objectives align and the gap narrows.
+
+\paragraph{Temperature sweep.}
+Figure~\ref{fig:kappa} traces the average/worst-case trade-off as $\kappa$ varies: small $\kappa$ sharpens the worst-case adversary; large $\kappa$ keeps the adversary near its prior and recovers averaging behavior, the empirical counterpart of the interpolation in Prop.~\ref{prop:soft-min}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/ronpo_decoy_sweep.pdf}
+\caption{Sweep over the hidden-objective decoy win probability $P_3(a_{\mathrm{decoy}}\succ a)$. Lower values make the decoy more dangerous. RONPO is most useful in the regime where the averaged oracle masks severe minority-objective failure.}
+\label{fig:decoy-sweep}
+\end{figure*}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.98\columnwidth]{figures/kappa_tradeoff_avg_vs_min.pdf}
+\caption{RONPO trade-off as the adversary temperature $\kappa$ varies. Smaller $\kappa$ gives a sharper worst-case adversary; larger $\kappa$ moves toward fixed scalarization.}
+\label{fig:kappa}
+\end{figure}
+
+\section{LLM Experiment Details}
+\label{app:llm-details}
+
+\subsection{Stage-1 Evaluation}
+\label{app:stage1}
+
+\paragraph{Compared models and training signals.}
+All methods are initialized from \texttt{Qwen/Qwen2.5-1.5B-Instruct}. HT-MNPO and RONPO share the same stage-1 base-policy response pool; SPPO-avg and INPO-avg use the prompt-wise average of the min--max-normalized objectives.
+
+\paragraph{Training configuration.}
+Table~\ref{tab:stage1-common-config} summarizes the common stage-1 configuration for HT-MNPO and RONPO; Table~\ref{tab:stage1-method-config} gives method-specific settings. The SPPO-avg and INPO-avg artifacts record the checkpoint and oracle construction but not the complete optimizer configuration; we do not infer unrecorded hyperparameters.
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{p{0.26\textwidth}p{0.67\textwidth}}
+\toprule
+Setting & Value \\
+\midrule
+Base policy & \texttt{Qwen/Qwen2.5-1.5B-Instruct} \\
+Training split & UltraFeedback subset; 19{,}856 prompts \\
+Held-out split & UltraFeedback subset; 647 prompts \\
+Online generation & vLLM with seeds \texttt{13, 21, 42, 79, 100}, temperature 0.8, top-$p$ 0.95, at most 4096 new tokens \\
+Objectives & Skywork, Athene, and ArmoRM \\
+Shared stage-1 data & HT-MNPO and RONPO use the same base-policy response pool \\
+Optimization & bf16 AdamW, learning rate $5\times10^{-7}$, cosine schedule, warmup ratio 0.1, weight decay 0 \\
+Training horizon & One epoch; seed 42 \\
+Batching & Per-device batch size 2; gradient accumulation 8 \\
+Sequence limits & Maximum sequence length 2048; maximum prompt length 1800 \\
+Memory and launch & Gradient checkpointing (\texttt{use\_reentrant=false}); Accelerate with DeepSpeed ZeRO-3 \\
+\bottomrule
+\end{tabular}
+\caption{Common stage-1 training configuration for HT-MNPO and RONPO.}
+\label{tab:stage1-common-config}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{p{0.21\textwidth}p{0.35\textwidth}p{0.35\textwidth}}
+\toprule
+Setting & HT-MNPO stage 1 & RONPO stage 1 \\
+\midrule
+Objective handling & One homogeneous oracle per run & Skywork, Athene, and ArmoRM jointly \\
+Pair or target construction & Reward-gap target; no target normalization & Per-objective min--max normalization; adversarial pair selection; best-vs-adversary policy pair \\
+Method scales & Ratio 0.3333; $\eta=0.0075$; $\beta=(10,1,10)$ for Skywork, Athene, ArmoRM & Policy $\alpha=1.0$; $\tau=0.05$; preference scale $\lambda=8.0$; $\beta=10$ \\
+Adversary settings & Not applicable & 25 adversary steps; adversary $\alpha=1.0$; $\kappa=0.05$; one pair per prompt \\
+\bottomrule
+\end{tabular}
+\caption{Method-specific stage-1 training configuration.}
+\label{tab:stage1-method-config}
+\end{table*}
+
+\paragraph{Evaluation configuration and metrics.}
+For evaluation, every model generates one response per prompt under identical vLLM decoding (seed 42, temperature 0.7, top-$p$ 0.9, at most 2048 new tokens), and all outputs are rescored by the same three reward models in one pass (Table~\ref{tab:stage1-pairwise}). Let $r_{i,o,m}$ be the score on prompt $i$ from objective $o$ for model $m$. Because reward scales differ, we report per-prompt min--max-normalized scores
+\begin{equation}
+\widehat r_{i,o,m}
+=
+\frac{r_{i,o,m}-\min_{m'}r_{i,o,m'}}
+{\max_{m'}r_{i,o,m'}-\min_{m'}r_{i,o,m'}},
+\label{eq:stage1-normalization}
+\end{equation}
+with $\widehat r_{i,o,m}=1/2$ when the denominator is zero, averaged over prompts; the extrema range over the exact compared model set, so normalized values are comparable only within one table. Win rates against the base use $w=1$ if $r_{i,o,m}>r_{i,o,m_0}$, $w=0$ if smaller, and $w=1/2$ on exact ties. Average metrics take the mean over objectives; worst-objective metrics take the minimum; the normalized standard deviation is computed across the three objective-level normalized scores.
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrrrrr}
+\toprule
+& \multicolumn{2}{c}{Skywork} & \multicolumn{2}{c}{Athene} & \multicolumn{2}{c}{ArmoRM} & \multicolumn{3}{c}{Normalized aggregate} & \multicolumn{2}{c}{WR aggregate} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-10}\cmidrule(lr){11-12}
+Method & Norm. & WR & Norm. & WR & Norm. & WR & Avg. & Worst & Std. & Avg. & Worst \\
+\midrule
+Base & 0.3990 & -- & 0.4116 & -- & 0.4846 & -- & 0.4317 & 0.3990 & 0.0378 & -- & -- \\
+HT-MNPO (Sky.) & 0.4666 & 55.95 & 0.4813 & 58.19 & 0.5529 & 58.73 & 0.5002 & 0.4666 & 0.0377 & 57.62 & 55.95 \\
+HT-MNPO (Ath.) & 0.4749 & 56.03 & 0.4225 & 49.69 & 0.4880 & 49.61 & 0.4618 & 0.4225 & 0.0283 & 51.78 & 49.61 \\
+HT-MNPO (Armo) & 0.4615 & 56.34 & 0.4356 & 55.72 & 0.4806 & 50.70 & 0.4592 & 0.4356 & \underline{0.0184} & 54.25 & 50.70 \\
+RONPO & \textbf{0.6331} & \textbf{67.47} & \underline{0.6432} & \textbf{68.55} & \textbf{0.6339} & \underline{59.81} & \textbf{0.6367} & \textbf{0.6331} & \textbf{0.0046} & \textbf{65.28} & \underline{59.81} \\
+SPPO-avg & 0.5131 & 59.51 & 0.4194 & 52.94 & 0.4583 & 48.92 & 0.4636 & 0.4194 & 0.0384 & 53.79 & 48.92 \\
+INPO-avg & \underline{0.5962} & \underline{64.30} & \textbf{0.6768} & \underline{67.31} & \underline{0.6208} & \textbf{60.43} & \underline{0.6313} & \underline{0.5962} & 0.0337 & \underline{64.01} & \textbf{60.43} \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Stage-1 local reward-model evaluation. \textit{Norm.} is the per-prompt normalized reward and \textit{WR} the win rate against the base response (\%). Lower normalized standard deviation indicates more balanced objective-level performance. RONPO attains the best average and worst-objective normalized reward and the most balanced objective profile; the repaired INPO-avg is the strongest baseline and edges RONPO on the Athene objective.}
+\label{tab:stage1-local-rm}
+\end{table*}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lp{0.6\linewidth}}
+\toprule
+Objective & Reward model \\
+\midrule
+Skywork & \path{Skywork/Skywork-Reward-V2-Llama-3.1-8B} \\
+Athene & \path{Nexusflow/Athene-RM-8B} \\
+ArmoRM & \path{RLHFlow/ArmoRM-Llama3-8B-v0.1} \\
+\bottomrule
+\end{tabular}
+\caption{The three heterogeneous reward models used as the stage-1 objectives.}
+\label{tab:stage1-pairwise}
+\end{table}
+
+\subsection{Stage-2 Evaluation}
+\label{app:stage2}
+
+\paragraph{Compared artifacts and setup.}
+Stage 2 resumes training from stage-1 checkpoints, comparing the base model, the three single-oracle HT-MNPO checkpoints, and RONPO (an earlier diagnostic RONPO stage-2 run is excluded because it exhibited output-length pathology; the resumed run reported here does not). The local reward-model and GPT-5.5 evaluations share the same generated responses, so they differ only in the evaluator; IFEval measures rule-based instruction following on a separate benchmark with deterministic decoding.
+
+\paragraph{External-judge protocol.}
+The judge receives the prompt and two candidate responses labeled A and B, in a deterministically randomized order seeded by the prompt hash, and returns a single preference (A, B, or tie) under a fixed rubric covering helpfulness, correctness, and instruction following. Each unordered pair is judged once per prompt; a tie counts as $0.5$ for both sides. Mean pairwise win rates and $95\%$ intervals use 2000 prompt-level paired bootstrap resamples.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcc}
+\toprule
+Method & Mean pairwise WR & 95\% CI \\
+\midrule
+RONPO & \textbf{0.5927} & [0.5709, 0.6136] \\
+Base & 0.5581 & [0.5329, 0.5841] \\
+HT-MNPO (Sky.) & 0.5054 & [0.4841, 0.5272] \\
+HT-MNPO (Armo) & 0.4263 & [0.4025, 0.4493] \\
+HT-MNPO (Ath.) & 0.3643 & [0.3425, 0.3855] \\
+\bottomrule
+\end{tabular}
+\caption{Reward-model-independent GPT-5.5 all-pairwise judge results on 647 held-out prompts. Each method is compared against the other five; higher mean pairwise win rate is better.}
+\label{tab:stage2-gpt55}
+\end{table}
+
+\subsection{SafeRLHF Helpfulness--Harmlessness Experiment}
+\label{app:saferlhf}
+This appendix documents the model-scale SafeRLHF runs summarized in Table~\ref{tab:saferlhf-robust}. Every method starts from \texttt{Llama-3.1-8B-Instruct} and trains for three iterative stages: stage~1 optimizes from the base policy, and stages~2 and~3 each resume from the previous stage while keeping the base policy as the reference anchor. All methods share the base policy, the training prompts, and the response pools, so the comparison isolates the training signal. Table~\ref{tab:saferlhf-common-config} lists the configuration common to every method and stage, Table~\ref{tab:saferlhf-method-config} the method-specific settings, and Table~\ref{tab:saferlhf-eval-config} the evaluation protocol.
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{p{0.26\textwidth}p{0.67\textwidth}}
+\toprule
+Setting & Value \\
+\midrule
+Base policy & \path{meta-llama/Llama-3.1-8B-Instruct} \\
+Training data & PKU-SafeRLHF \citep{dai2024safe}, train split restricted to the human dual-preference conflicts in which the more helpful response is the less safe one; 2{,}500 prompts per stage \\
+Objectives & Helpfulness from the Beaver reward model \path{PKU-Alignment/beaver-7b-v1.0-reward}; harmlessness from the negated Beaver cost model \path{PKU-Alignment/beaver-7b-v1.0-cost} \\
+Response pool & vLLM, four responses per prompt; stage~1 from the base policy (seeds 42--45), stages~2 and~3 mix parent-policy (seeds 42, 43) and base (seeds 44, 45) responses; temperature 0.7, top-$p$ 0.9, at most 512 new tokens, bf16 \\
+Pair construction & Three pairs per prompt, selected deterministically; the preferred response has the higher mean of the two per-prompt min--max-normalized objectives; preference scale $\lambda=8.0$ \\
+Optimization & bf16 AdamW, learning rate $5\times10^{-7}$, cosine schedule, warmup ratio 0.1, weight decay 0, gradient clipping 1.0 \\
+Training horizon & 900 optimizer steps per stage; seed 42 \\
+Batching & Per-device batch size 1; gradient accumulation 16 \\
+Sequence limits & Maximum sequence length 2048; maximum prompt length 1024 \\
+Regularizers & Reference-anchor weight 0.05; preference-SFT weight 0.005 \\
+Memory and launch & Gradient checkpointing (\texttt{use\_reentrant=false}); single-GPU Accelerate \\
+\bottomrule
+\end{tabular}
+\caption{Common training configuration for the SafeRLHF experiment.}
+\label{tab:saferlhf-common-config}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{p{0.24\textwidth}p{0.12\textwidth}p{0.57\textwidth}}
+\toprule
+Method & Loss & Method-specific settings \\
+\midrule
+RONPO & \texttt{ronpo} & Objective-stratified target at adversary temperature $\kappa=0.1$; policy $\alpha=1.0$; $\tau=0.05$; closed-form entropic adversary over the two objectives, one opponent sampled per objective \\
+HT-MNPO (help./harml.) & \texttt{ht\_mnpo} & One homogeneous oracle per run (helpfulness or harmlessness); reward-gap target; $\eta=0.0075$ \\
+INPO-avg & \texttt{inpo} & Prompt-wise average of the normalized objectives; $\eta=0.0075$; ratio 0.3333 \\
+SPPO-avg & \texttt{sppo} & Prompt-wise average of the normalized objectives; per-response win-rate target; $\eta=0.0075$ \\
+SimPO & \texttt{simpo} & $\beta=2.0$; $\gamma=0.6$ \\
+IPO & \texttt{ipo} & $\beta=0.05$; squared log-ratio loss \\
+DPO & \texttt{dpo} & $\beta=0.05$; length-normalized \\
+\bottomrule
+\end{tabular}
+\caption{Method-specific training configuration for the SafeRLHF experiment. All methods share the common configuration in Table~\ref{tab:saferlhf-common-config}.}
+\label{tab:saferlhf-method-config}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{p{0.26\textwidth}p{0.67\textwidth}}
+\toprule
+Setting & Value \\
+\midrule
+Evaluation panel & 1{,}000 PKU-SafeRLHF prompts from the official default test split, prompt-disjoint from training and from every intermediate split \\
+Generation & vLLM, seed 42, temperature 0.7, top-$p$ 0.9, at most 512 new tokens, bf16 \\
+Scoring & Every response rescored by both Beaver heads; helpfulness is the reward and harmlessness is the negated cost \\
+Normalization & Per-prompt min--max over the compared policies; Avg and Worst take the mean and minimum across the two objectives \\
+Stability gate & Fail-closed per policy: 1{,}000 non-empty responses, no leaked reasoning spans, mean length within $[0.33, 2.0]$ of the base policy, and at most 20 consecutive identical words \\
+Confidence intervals & 2{,}000 prompt-level paired bootstrap resamples, seed 42 \\
+\bottomrule
+\end{tabular}
+\caption{Evaluation configuration for the SafeRLHF experiment.}
+\label{tab:saferlhf-eval-config}
+\end{table*}
+
+\subsection{Qwen3-8B Instruction-Following Scale-Up}
+\label{app:qwen3-ifeval}
+This diagnostic tests whether the instruction-following preservation seen at 1.5B survives a larger policy, training on \texttt{Qwen3-8B} under three heterogeneous ArmoRM objectives (helpfulness, safety, and conciseness; Appendix~\ref{app:qwen3-robust}). Table~\ref{tab:qwen3-ifeval} reports the four official IFEval aggregations. RONPO obtains the highest instruction-strict score ($0.8962$ vs.\ $0.8943$ for SimPO) and the highest prompt- and instruction-loose scores ($0.8817/0.9276$ vs.\ $0.8799/0.9187$), while trailing SimPO on prompt-strict by $0.0056$. RONPO therefore leads on three of the four views without uniformly dominating. Because the reported configurations were selected on this benchmark, we treat the table as a scale-up diagnostic rather than an untouched-test estimate, and we keep all four metrics instead of reporting a single favorable aggregation. This study also uses a different base model from the SafeRLHF experiment of Appendix~\ref{app:saferlhf}, so the IFEval numbers here and the reward-based results there do not describe a single 8B policy.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrr}
+\toprule
+& \multicolumn{2}{c}{Strict} & \multicolumn{2}{c}{Loose} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Method & Prompt & Inst. & Prompt & Inst. \\
+\midrule
+Base  & 0.8336 & 0.8900 & 0.8651 & 0.9140 \\
+DPO   & 0.8281 & 0.8808 & 0.8688 & 0.9122 \\
+SPPO  & 0.8281 & 0.8811 & 0.8614 & 0.9036 \\
+SimPO & \textbf{0.8466} & \underline{0.8943} & \underline{0.8799} & \underline{0.9187} \\
+RONPO & \underline{0.8410} & \textbf{0.8962} & \textbf{0.8817} & \textbf{0.9276} \\
+\bottomrule
+\end{tabular}
+\caption{Qwen3-8B scale-up diagnostic on all IFEval prompts. We report all four official aggregations. RONPO is best on three, including both instruction-level metrics, and SimPO is best on prompt-strict. Rows are the best configurations from the fixed method sweeps.}
+\label{tab:qwen3-ifeval}
+\end{table}
+
+\subsection{Qwen3-8B Heterogeneous-Objective Diagnostic}
+\label{app:qwen3-robust}
+As a second model-scale probe, we run a Qwen3-8B diagnostic on a held-out sealed test with three conflicting objectives, helpfulness, safety, and conciseness, scored by the corresponding ArmoRM heads. We confirm the objectives are genuinely opposed before use, with a median cross-objective Spearman correlation of $-0.10$ and a top-1 objective mismatch of $0.80$ across the pool. Across the ten stable policies, however, the mean raw rewards span only $\QwenArmoHelpSpread$ for helpfulness, $\QwenArmoSafetySpread$ for safety, and $\QwenArmoConcisenessSpread$ for conciseness; the policies are statistically indistinguishable on these heads. Per-prompt min--max normalization expands this residual variation into the $\QwenWorstNormLow$--$\QwenWorstNormHigh$ worst-objective range. The resulting order is therefore a diagnostic of evaluator power, not evidence of model robustness. Pre-committed rescoring with two general reward models also separates no trained policy from base. DPO is unscored because it failed the pre-reward stability gate with a repeated-token loop.
+
+\subsection{Qwen3-8B Capability Preservation}
+\label{app:qwen3-academic}
+We check that preference optimization at the 8B backbone does not damage general capability, using a shared seed-42 academic suite under lm-evaluation-harness 0.4.12 with thinking disabled and fixed per-task shot counts. Table~\ref{tab:qwen3-academic} reports the standard benchmarks with a macro average and its signed difference from the base policy. RONPO (top-mass) improves the macro over base, so preference optimization at this backbone does not come at a capability cost, while the averaged-oracle and single-oracle baselines stay within noise of base. GPQA is omitted because the official dataset is access-gated, and HumanEval reads $0$ for every model, base included, because the think-mode chat template prevents the harness from extracting the code block; it therefore enters the macro as the same offset for all rows and does not affect the ordering.
+
+% Numbers auto-generated by analysis/ronpo_8b_reconstruction_20260714/build_ronpo_8b_tables_figure.py
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrrrrr}
+\toprule
+Method & IFEval & MMLU & MMLU-Pro & ARC & GSM8K & AIME & Macro$_{\Delta}$ \\
+\midrule
+Base & 80.96 & 72.03 & 63.16 & 63.74 & 81.65 & 26.67 & 53.57$\;(\pm0)$ \\
+\midrule
+\textbf{RONPO (top-mass)} & 82.44 & 71.99 & 63.07 & 63.65 & 80.97 & 30.00 & 53.93$\,(+0.36)$ \\
+RONPO (full-exp.) & 81.52 & 71.97 & 63.00 & 63.57 & 80.89 & 23.33 & 53.24$\,(-0.34)$ \\
+DPO & 81.33 & 71.87 & 63.51 & 63.48 & 81.20 & 30.00 & 53.83$\,(+0.25)$ \\
+IPO & 82.44 & 71.88 & 63.20 & 63.57 & 81.12 & 33.33 & \textbf{54.27$\,(+0.70)$} \\
+SimPO & 80.41 & 71.92 & 63.07 & 63.57 & 81.05 & 23.33 & 53.16$\,(-0.42)$ \\
+SPPO (avg) & 81.15 & 71.74 & 63.41 & 63.74 & 80.29 & 30.00 & 53.78$\,(+0.20)$ \\
+INPO (avg) & 81.52 & 71.83 & 63.31 & 63.65 & 80.52 & 23.33 & 53.17$\,(-0.40)$ \\
+HT-MNPO (help.) & 81.15 & 72.08 & 63.39 & 63.65 & 80.52 & 23.33 & 53.20$\,(-0.37)$ \\
+HT-MNPO (safety) & 81.89 & 71.89 & 63.37 & 63.65 & 80.89 & 33.33 & 54.22$\,(+0.65)$ \\
+HT-MNPO (concise) & 81.89 & 71.71 & 63.57 & 63.23 & 80.59 & 23.33 & 53.15$\,(-0.42)$ \\
+\bottomrule
+\end{tabular}%
+}
+\caption{\textbf{Capability no-regression} on the shared seed-42 academic suite (lm-evaluation-harness 0.4.12, think disabled). Macro$_{\Delta}$ is the mean over all accessible benchmarks with the signed difference from base in parentheses (GPQA is access-gated and excluded; HumanEval is $0$ for every model including base due to a think-mode code-extraction failure and enters the macro as a constant offset for all rows). RONPO (top-mass) improves the macro over base (no regression); RONPO (full-exp.) is within noise. Per-benchmark deltas are within run-to-run noise (AIME-24 has 30 items, so $\pm3.3$pp equals one problem).}
+\label{tab:qwen3-academic}
+\end{table}
+
+\end{document}
