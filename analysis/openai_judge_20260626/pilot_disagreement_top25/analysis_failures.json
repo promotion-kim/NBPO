@@ -1,0 +1,5282 @@
+[
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d4a154926b73e8fb6b63f9783af2275ef9202734|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d4a154926b73e8fb6b63f9783af2275ef9202734|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d4a154926b73e8fb6b63f9783af2275ef9202734|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d4a154926b73e8fb6b63f9783af2275ef9202734|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d4a154926b73e8fb6b63f9783af2275ef9202734|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d4a154926b73e8fb6b63f9783af2275ef9202734|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d4a154926b73e8fb6b63f9783af2275ef9202734|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d4a154926b73e8fb6b63f9783af2275ef9202734|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d4a154926b73e8fb6b63f9783af2275ef9202734|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d4a154926b73e8fb6b63f9783af2275ef9202734|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c7009f155f082ae47625a0606bee964f80baa294|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c7009f155f082ae47625a0606bee964f80baa294|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fe3a6bf3a55df29ce79e0052408fde83f3aadcc0|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fe3a6bf3a55df29ce79e0052408fde83f3aadcc0|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fe3a6bf3a55df29ce79e0052408fde83f3aadcc0|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fe3a6bf3a55df29ce79e0052408fde83f3aadcc0|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fe3a6bf3a55df29ce79e0052408fde83f3aadcc0|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fe3a6bf3a55df29ce79e0052408fde83f3aadcc0|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fe3a6bf3a55df29ce79e0052408fde83f3aadcc0|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fe3a6bf3a55df29ce79e0052408fde83f3aadcc0|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fe3a6bf3a55df29ce79e0052408fde83f3aadcc0|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|52720db02381e80e15c589708d62cbc53139db38|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|52720db02381e80e15c589708d62cbc53139db38|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|52720db02381e80e15c589708d62cbc53139db38|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|52720db02381e80e15c589708d62cbc53139db38|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|52720db02381e80e15c589708d62cbc53139db38|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|52720db02381e80e15c589708d62cbc53139db38|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f277ce91abe0ab9e6828857c9dcb958c30a7c23f|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f277ce91abe0ab9e6828857c9dcb958c30a7c23f|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f277ce91abe0ab9e6828857c9dcb958c30a7c23f|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f277ce91abe0ab9e6828857c9dcb958c30a7c23f|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f277ce91abe0ab9e6828857c9dcb958c30a7c23f|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f277ce91abe0ab9e6828857c9dcb958c30a7c23f|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f277ce91abe0ab9e6828857c9dcb958c30a7c23f|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|60b3b76281ede65f1f91cf78a60fece5867a67f4|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|60b3b76281ede65f1f91cf78a60fece5867a67f4|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|60b3b76281ede65f1f91cf78a60fece5867a67f4|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|60b3b76281ede65f1f91cf78a60fece5867a67f4|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|60b3b76281ede65f1f91cf78a60fece5867a67f4|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|60b3b76281ede65f1f91cf78a60fece5867a67f4|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|348b91ae809de257fc38614c20440e977a148ca6|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|348b91ae809de257fc38614c20440e977a148ca6|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|348b91ae809de257fc38614c20440e977a148ca6|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|348b91ae809de257fc38614c20440e977a148ca6|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|348b91ae809de257fc38614c20440e977a148ca6|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|348b91ae809de257fc38614c20440e977a148ca6|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|348b91ae809de257fc38614c20440e977a148ca6|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|348b91ae809de257fc38614c20440e977a148ca6|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|348b91ae809de257fc38614c20440e977a148ca6|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|348b91ae809de257fc38614c20440e977a148ca6|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|348b91ae809de257fc38614c20440e977a148ca6|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|348b91ae809de257fc38614c20440e977a148ca6|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|23d3c9937c8df482c7aff3475ddca56a4e39957d|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b62c6a9fbbe541b5736b74b833e739a773ec242a|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b62c6a9fbbe541b5736b74b833e739a773ec242a|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b62c6a9fbbe541b5736b74b833e739a773ec242a|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b62c6a9fbbe541b5736b74b833e739a773ec242a|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b62c6a9fbbe541b5736b74b833e739a773ec242a|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|745042e2803b8825910a6b85daae1e9deee6fb49|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|745042e2803b8825910a6b85daae1e9deee6fb49|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|745042e2803b8825910a6b85daae1e9deee6fb49|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|745042e2803b8825910a6b85daae1e9deee6fb49|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f232ba44196a94a536b7418f18aa8699e4fedddf|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f232ba44196a94a536b7418f18aa8699e4fedddf|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f232ba44196a94a536b7418f18aa8699e4fedddf|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c15fa68d993f521855a7f486729286c5de41fcb9|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c15fa68d993f521855a7f486729286c5de41fcb9|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c15fa68d993f521855a7f486729286c5de41fcb9|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c15fa68d993f521855a7f486729286c5de41fcb9|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c15fa68d993f521855a7f486729286c5de41fcb9|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c15fa68d993f521855a7f486729286c5de41fcb9|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c15fa68d993f521855a7f486729286c5de41fcb9|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c15fa68d993f521855a7f486729286c5de41fcb9|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c15fa68d993f521855a7f486729286c5de41fcb9|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c15fa68d993f521855a7f486729286c5de41fcb9|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c15fa68d993f521855a7f486729286c5de41fcb9|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|40a63dfe54d582a50d0d93b7e7c617a857f53c5f|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|40a63dfe54d582a50d0d93b7e7c617a857f53c5f|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|40a63dfe54d582a50d0d93b7e7c617a857f53c5f|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|40a63dfe54d582a50d0d93b7e7c617a857f53c5f|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|40a63dfe54d582a50d0d93b7e7c617a857f53c5f|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|40a63dfe54d582a50d0d93b7e7c617a857f53c5f|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1584ec91cff41a9c4f6577da9ceec835af50b837|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|02e2fb3a9a3b2194ce61ed784b3497630200e0db|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|02e2fb3a9a3b2194ce61ed784b3497630200e0db|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|02e2fb3a9a3b2194ce61ed784b3497630200e0db|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|02e2fb3a9a3b2194ce61ed784b3497630200e0db|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|02e2fb3a9a3b2194ce61ed784b3497630200e0db|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|02e2fb3a9a3b2194ce61ed784b3497630200e0db|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|02e2fb3a9a3b2194ce61ed784b3497630200e0db|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|02e2fb3a9a3b2194ce61ed784b3497630200e0db|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|02e2fb3a9a3b2194ce61ed784b3497630200e0db|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|02e2fb3a9a3b2194ce61ed784b3497630200e0db|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|02e2fb3a9a3b2194ce61ed784b3497630200e0db|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|02e2fb3a9a3b2194ce61ed784b3497630200e0db|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|02e2fb3a9a3b2194ce61ed784b3497630200e0db|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fa0a5c8f3ae50d9643e185d7aaeb5b80847e3baf|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fa0a5c8f3ae50d9643e185d7aaeb5b80847e3baf|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fa0a5c8f3ae50d9643e185d7aaeb5b80847e3baf|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fa0a5c8f3ae50d9643e185d7aaeb5b80847e3baf|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fa0a5c8f3ae50d9643e185d7aaeb5b80847e3baf|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fa0a5c8f3ae50d9643e185d7aaeb5b80847e3baf|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fa0a5c8f3ae50d9643e185d7aaeb5b80847e3baf|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fa0a5c8f3ae50d9643e185d7aaeb5b80847e3baf|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fa0a5c8f3ae50d9643e185d7aaeb5b80847e3baf|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fa0a5c8f3ae50d9643e185d7aaeb5b80847e3baf|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fa0a5c8f3ae50d9643e185d7aaeb5b80847e3baf|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fa0a5c8f3ae50d9643e185d7aaeb5b80847e3baf|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fa0a5c8f3ae50d9643e185d7aaeb5b80847e3baf|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|999230976ed1093332a40f4bae708b9aeb71afec|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|999230976ed1093332a40f4bae708b9aeb71afec|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|999230976ed1093332a40f4bae708b9aeb71afec|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|999230976ed1093332a40f4bae708b9aeb71afec|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|999230976ed1093332a40f4bae708b9aeb71afec|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|999230976ed1093332a40f4bae708b9aeb71afec|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|999230976ed1093332a40f4bae708b9aeb71afec|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4d425a4839d78b0525831536a239326b72729645|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4d425a4839d78b0525831536a239326b72729645|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4d425a4839d78b0525831536a239326b72729645|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4d425a4839d78b0525831536a239326b72729645|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4d425a4839d78b0525831536a239326b72729645|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4d425a4839d78b0525831536a239326b72729645|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4d425a4839d78b0525831536a239326b72729645|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|cdac66eeafaf307dd057ee1a82a9c3a76728fd4e|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|cdac66eeafaf307dd057ee1a82a9c3a76728fd4e|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|cdac66eeafaf307dd057ee1a82a9c3a76728fd4e|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|cdac66eeafaf307dd057ee1a82a9c3a76728fd4e|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|43334bb4c710132a09c017596cea9bc9d94cf44d|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|43334bb4c710132a09c017596cea9bc9d94cf44d|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|43334bb4c710132a09c017596cea9bc9d94cf44d|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a49144f457013fd1adb1e9873a6b3049b4040a41|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|360b3f867673e69bec37ed814195b81f4fe758bc|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|360b3f867673e69bec37ed814195b81f4fe758bc|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|360b3f867673e69bec37ed814195b81f4fe758bc|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|360b3f867673e69bec37ed814195b81f4fe758bc|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|360b3f867673e69bec37ed814195b81f4fe758bc|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|360b3f867673e69bec37ed814195b81f4fe758bc|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b3f15d1ebf94bff5a1b9cbdfffd01e704067f479|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b3f15d1ebf94bff5a1b9cbdfffd01e704067f479|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93b1b56c0b6b318f1af6914e671c011ad28a0c51|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93b1b56c0b6b318f1af6914e671c011ad28a0c51|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93b1b56c0b6b318f1af6914e671c011ad28a0c51|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93b1b56c0b6b318f1af6914e671c011ad28a0c51|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93b1b56c0b6b318f1af6914e671c011ad28a0c51|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93b1b56c0b6b318f1af6914e671c011ad28a0c51|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93b1b56c0b6b318f1af6914e671c011ad28a0c51|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93b1b56c0b6b318f1af6914e671c011ad28a0c51|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93b1b56c0b6b318f1af6914e671c011ad28a0c51|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93b1b56c0b6b318f1af6914e671c011ad28a0c51|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93b1b56c0b6b318f1af6914e671c011ad28a0c51|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93b1b56c0b6b318f1af6914e671c011ad28a0c51|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93b1b56c0b6b318f1af6914e671c011ad28a0c51|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1cab08f104b613019441ec3fbff5324cbc8e8497|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1cab08f104b613019441ec3fbff5324cbc8e8497|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|172e87fbd6718259247fa8cc02da258e454fc0db|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|172e87fbd6718259247fa8cc02da258e454fc0db|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|172e87fbd6718259247fa8cc02da258e454fc0db|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|172e87fbd6718259247fa8cc02da258e454fc0db|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|172e87fbd6718259247fa8cc02da258e454fc0db|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fbb6b540d2d96e96e3395dc8217ab2f019a16680|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e58d0e2bfc3d32654885a2145d07a550416f555e|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e58d0e2bfc3d32654885a2145d07a550416f555e|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aca484842e5c46148725b40be56ba028daac501|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0c8572f4f74e2fb8bc01f75de4cc8c098dff3391|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6cb224f3ae7d0bb382862b315adc999ff570d293|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ee0edbe9d8d35dec95c465fb3f4b54fd9b323af6|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ee0edbe9d8d35dec95c465fb3f4b54fd9b323af6|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ee0edbe9d8d35dec95c465fb3f4b54fd9b323af6|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ee0edbe9d8d35dec95c465fb3f4b54fd9b323af6|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ee0edbe9d8d35dec95c465fb3f4b54fd9b323af6|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0851ebfa630f955cb5f2459c2a006ef81c0e00de|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dea401b01053da02f6625ebf75f963529ffdfba6|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dea401b01053da02f6625ebf75f963529ffdfba6|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dea401b01053da02f6625ebf75f963529ffdfba6|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dea401b01053da02f6625ebf75f963529ffdfba6|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dea401b01053da02f6625ebf75f963529ffdfba6|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dea401b01053da02f6625ebf75f963529ffdfba6|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dea401b01053da02f6625ebf75f963529ffdfba6|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dea401b01053da02f6625ebf75f963529ffdfba6|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dea401b01053da02f6625ebf75f963529ffdfba6|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dea401b01053da02f6625ebf75f963529ffdfba6|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c159fec47d4f8dfac6eeea3c1765abc5cf3075d9|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c159fec47d4f8dfac6eeea3c1765abc5cf3075d9|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c159fec47d4f8dfac6eeea3c1765abc5cf3075d9|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c159fec47d4f8dfac6eeea3c1765abc5cf3075d9|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c159fec47d4f8dfac6eeea3c1765abc5cf3075d9|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|81227e35dabefa06d5a14aa8a6fb46ec73b7a92a|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|81227e35dabefa06d5a14aa8a6fb46ec73b7a92a|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|81227e35dabefa06d5a14aa8a6fb46ec73b7a92a|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|81227e35dabefa06d5a14aa8a6fb46ec73b7a92a|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|81227e35dabefa06d5a14aa8a6fb46ec73b7a92a|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|81227e35dabefa06d5a14aa8a6fb46ec73b7a92a|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|81227e35dabefa06d5a14aa8a6fb46ec73b7a92a|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|81227e35dabefa06d5a14aa8a6fb46ec73b7a92a|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|81227e35dabefa06d5a14aa8a6fb46ec73b7a92a|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|81227e35dabefa06d5a14aa8a6fb46ec73b7a92a|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|81227e35dabefa06d5a14aa8a6fb46ec73b7a92a|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|3a41376a2d07a6b4631bc58b007de211e5f7f493|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|3a41376a2d07a6b4631bc58b007de211e5f7f493|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|3a41376a2d07a6b4631bc58b007de211e5f7f493|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|3a41376a2d07a6b4631bc58b007de211e5f7f493|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|3a41376a2d07a6b4631bc58b007de211e5f7f493|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|3a41376a2d07a6b4631bc58b007de211e5f7f493|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1af30ac5225f536bb372ff11c7db473b98134024|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1af30ac5225f536bb372ff11c7db473b98134024|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1af30ac5225f536bb372ff11c7db473b98134024|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1af30ac5225f536bb372ff11c7db473b98134024|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1af30ac5225f536bb372ff11c7db473b98134024|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1af30ac5225f536bb372ff11c7db473b98134024|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1af30ac5225f536bb372ff11c7db473b98134024|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1af30ac5225f536bb372ff11c7db473b98134024|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1af30ac5225f536bb372ff11c7db473b98134024|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1af30ac5225f536bb372ff11c7db473b98134024|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1af30ac5225f536bb372ff11c7db473b98134024|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ed549b78d9dd0c0ccbfedd87cceb11facc8c920c|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ed549b78d9dd0c0ccbfedd87cceb11facc8c920c|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ed549b78d9dd0c0ccbfedd87cceb11facc8c920c|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ed549b78d9dd0c0ccbfedd87cceb11facc8c920c|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d0daa975675346fac4b17f3b28c4fa3163ece52b|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a3efd6149d044e8bcd246ddad2e48e4571e46323|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a3efd6149d044e8bcd246ddad2e48e4571e46323|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a3efd6149d044e8bcd246ddad2e48e4571e46323|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a3efd6149d044e8bcd246ddad2e48e4571e46323|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a3efd6149d044e8bcd246ddad2e48e4571e46323|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a3efd6149d044e8bcd246ddad2e48e4571e46323|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a3efd6149d044e8bcd246ddad2e48e4571e46323|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a3efd6149d044e8bcd246ddad2e48e4571e46323|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a3efd6149d044e8bcd246ddad2e48e4571e46323|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|9ae9b742a1a38f5ed0fa03905d1bd4f64d1bc419|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|9ae9b742a1a38f5ed0fa03905d1bd4f64d1bc419|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|9ae9b742a1a38f5ed0fa03905d1bd4f64d1bc419|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|9ae9b742a1a38f5ed0fa03905d1bd4f64d1bc419|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|9ae9b742a1a38f5ed0fa03905d1bd4f64d1bc419|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|9ae9b742a1a38f5ed0fa03905d1bd4f64d1bc419|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|9ae9b742a1a38f5ed0fa03905d1bd4f64d1bc419|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|9ae9b742a1a38f5ed0fa03905d1bd4f64d1bc419|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|9ae9b742a1a38f5ed0fa03905d1bd4f64d1bc419|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|73da691e5b8afe154bf8b9a555838568865584e3|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6a56c7b5788024384dba508087681b5c44aac82d|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6a56c7b5788024384dba508087681b5c44aac82d|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6a56c7b5788024384dba508087681b5c44aac82d|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6a56c7b5788024384dba508087681b5c44aac82d|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6a56c7b5788024384dba508087681b5c44aac82d|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6a56c7b5788024384dba508087681b5c44aac82d|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6a56c7b5788024384dba508087681b5c44aac82d|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6a56c7b5788024384dba508087681b5c44aac82d|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6a56c7b5788024384dba508087681b5c44aac82d|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|54408a7de6f8c971220f963b78cedc3dd23ee357|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2c9fcdc2eecce2a0ecde4acfd0e1b0d748204e25|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2c9fcdc2eecce2a0ecde4acfd0e1b0d748204e25|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2c9fcdc2eecce2a0ecde4acfd0e1b0d748204e25|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2c9fcdc2eecce2a0ecde4acfd0e1b0d748204e25|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0a1dba9d718b2022d070c84747a8d4b0934cf53|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0a1dba9d718b2022d070c84747a8d4b0934cf53|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0a1dba9d718b2022d070c84747a8d4b0934cf53|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0a1dba9d718b2022d070c84747a8d4b0934cf53|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0a1dba9d718b2022d070c84747a8d4b0934cf53|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0a1dba9d718b2022d070c84747a8d4b0934cf53|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0a1dba9d718b2022d070c84747a8d4b0934cf53|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0a1dba9d718b2022d070c84747a8d4b0934cf53|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0269b94397a8d3df736a889536a4b0d9c216b49|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0269b94397a8d3df736a889536a4b0d9c216b49|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0269b94397a8d3df736a889536a4b0d9c216b49|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0269b94397a8d3df736a889536a4b0d9c216b49|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0269b94397a8d3df736a889536a4b0d9c216b49|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0269b94397a8d3df736a889536a4b0d9c216b49|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0269b94397a8d3df736a889536a4b0d9c216b49|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0269b94397a8d3df736a889536a4b0d9c216b49|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e0269b94397a8d3df736a889536a4b0d9c216b49|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b82d57fd5ad035c8ab122fa950f503891666856f|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b82d57fd5ad035c8ab122fa950f503891666856f|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b82d57fd5ad035c8ab122fa950f503891666856f|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b82d57fd5ad035c8ab122fa950f503891666856f|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b82d57fd5ad035c8ab122fa950f503891666856f|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|65f5e801b0e7c8dc96b446d71d7c1912873b4398|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|65f5e801b0e7c8dc96b446d71d7c1912873b4398|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|65f5e801b0e7c8dc96b446d71d7c1912873b4398|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|65f5e801b0e7c8dc96b446d71d7c1912873b4398|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|389584f714391c188db12d721d295e943112a5aa|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|389584f714391c188db12d721d295e943112a5aa|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|389584f714391c188db12d721d295e943112a5aa|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a719100abdf8e08a2d678ebcc0839d324628191a|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a719100abdf8e08a2d678ebcc0839d324628191a|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a719100abdf8e08a2d678ebcc0839d324628191a|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a719100abdf8e08a2d678ebcc0839d324628191a|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a719100abdf8e08a2d678ebcc0839d324628191a|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a719100abdf8e08a2d678ebcc0839d324628191a|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a719100abdf8e08a2d678ebcc0839d324628191a|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a719100abdf8e08a2d678ebcc0839d324628191a|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a719100abdf8e08a2d678ebcc0839d324628191a|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a719100abdf8e08a2d678ebcc0839d324628191a|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a719100abdf8e08a2d678ebcc0839d324628191a|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a719100abdf8e08a2d678ebcc0839d324628191a|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|a719100abdf8e08a2d678ebcc0839d324628191a|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|90103632e26fa78fe113dcf3114959d163d30466|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8c4b26a2f10ca6c17135050c3d982246b4325933|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8c4b26a2f10ca6c17135050c3d982246b4325933|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8c4b26a2f10ca6c17135050c3d982246b4325933|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8c4b26a2f10ca6c17135050c3d982246b4325933|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8c4b26a2f10ca6c17135050c3d982246b4325933|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8c4b26a2f10ca6c17135050c3d982246b4325933|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8c4b26a2f10ca6c17135050c3d982246b4325933|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8c4b26a2f10ca6c17135050c3d982246b4325933|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8c4b26a2f10ca6c17135050c3d982246b4325933|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|837c5bb456cdb99745c16fbe30a5e5883174aa9b|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|837c5bb456cdb99745c16fbe30a5e5883174aa9b|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|837c5bb456cdb99745c16fbe30a5e5883174aa9b|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|837c5bb456cdb99745c16fbe30a5e5883174aa9b|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|837c5bb456cdb99745c16fbe30a5e5883174aa9b|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|837c5bb456cdb99745c16fbe30a5e5883174aa9b|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|837c5bb456cdb99745c16fbe30a5e5883174aa9b|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|837c5bb456cdb99745c16fbe30a5e5883174aa9b|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|837c5bb456cdb99745c16fbe30a5e5883174aa9b|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|837c5bb456cdb99745c16fbe30a5e5883174aa9b|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|eec107f7c865b0daf5c9fcaaec58da85250894fa|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|eec107f7c865b0daf5c9fcaaec58da85250894fa|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|eec107f7c865b0daf5c9fcaaec58da85250894fa|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|eec107f7c865b0daf5c9fcaaec58da85250894fa|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|eec107f7c865b0daf5c9fcaaec58da85250894fa|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|eec107f7c865b0daf5c9fcaaec58da85250894fa|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|eec107f7c865b0daf5c9fcaaec58da85250894fa|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|eec107f7c865b0daf5c9fcaaec58da85250894fa|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|eec107f7c865b0daf5c9fcaaec58da85250894fa|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|eec107f7c865b0daf5c9fcaaec58da85250894fa|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|cced4cfa72e6881f74be7a0b8a6907833170eef0|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|cced4cfa72e6881f74be7a0b8a6907833170eef0|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|227ba204365732a3aaae1bbc32e56f499cd70bfc|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|227ba204365732a3aaae1bbc32e56f499cd70bfc|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|227ba204365732a3aaae1bbc32e56f499cd70bfc|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|903f9d0a35b59e89a0b395e0e9087498ca21b2fa|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|869d9780bf25b27bac69933ddfe98a7cd4e8734c|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|869d9780bf25b27bac69933ddfe98a7cd4e8734c|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|869d9780bf25b27bac69933ddfe98a7cd4e8734c|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|869d9780bf25b27bac69933ddfe98a7cd4e8734c|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|869d9780bf25b27bac69933ddfe98a7cd4e8734c|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c864def8c571ab6c152de4c8c1a8881dc9241b54|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c864def8c571ab6c152de4c8c1a8881dc9241b54|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|655e1be459fda5ab5f831e1950bc28626ac05368|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|655e1be459fda5ab5f831e1950bc28626ac05368|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|655e1be459fda5ab5f831e1950bc28626ac05368|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|655e1be459fda5ab5f831e1950bc28626ac05368|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|655e1be459fda5ab5f831e1950bc28626ac05368|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2b7618f194bc35b3b4914581f7ba7dc084d2dd14|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2b7618f194bc35b3b4914581f7ba7dc084d2dd14|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|23aa53b0461375b079beae7d4b5d034556171ab5|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|23aa53b0461375b079beae7d4b5d034556171ab5|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|23aa53b0461375b079beae7d4b5d034556171ab5|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|23aa53b0461375b079beae7d4b5d034556171ab5|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|23aa53b0461375b079beae7d4b5d034556171ab5|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|23aa53b0461375b079beae7d4b5d034556171ab5|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|5ad240ae45499c2707081de53e1ae06725d564a6|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|5ad240ae45499c2707081de53e1ae06725d564a6|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|5ad240ae45499c2707081de53e1ae06725d564a6|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|5ad240ae45499c2707081de53e1ae06725d564a6|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c1209de5c2fabdc7981dd72d6f128de86f07dfe1|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c1209de5c2fabdc7981dd72d6f128de86f07dfe1|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c1209de5c2fabdc7981dd72d6f128de86f07dfe1|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c1209de5c2fabdc7981dd72d6f128de86f07dfe1|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c1209de5c2fabdc7981dd72d6f128de86f07dfe1|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c1209de5c2fabdc7981dd72d6f128de86f07dfe1|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c1209de5c2fabdc7981dd72d6f128de86f07dfe1|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c1209de5c2fabdc7981dd72d6f128de86f07dfe1|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c1209de5c2fabdc7981dd72d6f128de86f07dfe1|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|892d5fb6e6764dbce8e1b8ff2f0ab185717e2c82|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|892d5fb6e6764dbce8e1b8ff2f0ab185717e2c82|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|892d5fb6e6764dbce8e1b8ff2f0ab185717e2c82|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|892d5fb6e6764dbce8e1b8ff2f0ab185717e2c82|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|892d5fb6e6764dbce8e1b8ff2f0ab185717e2c82|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|892d5fb6e6764dbce8e1b8ff2f0ab185717e2c82|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|892d5fb6e6764dbce8e1b8ff2f0ab185717e2c82|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|892d5fb6e6764dbce8e1b8ff2f0ab185717e2c82|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|892d5fb6e6764dbce8e1b8ff2f0ab185717e2c82|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|892d5fb6e6764dbce8e1b8ff2f0ab185717e2c82|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|892d5fb6e6764dbce8e1b8ff2f0ab185717e2c82|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|892d5fb6e6764dbce8e1b8ff2f0ab185717e2c82|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|892d5fb6e6764dbce8e1b8ff2f0ab185717e2c82|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f056e0e3d13a415cd777111df00640ad3660ba7a|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f056e0e3d13a415cd777111df00640ad3660ba7a|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f056e0e3d13a415cd777111df00640ad3660ba7a|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f056e0e3d13a415cd777111df00640ad3660ba7a|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f056e0e3d13a415cd777111df00640ad3660ba7a|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f056e0e3d13a415cd777111df00640ad3660ba7a|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f056e0e3d13a415cd777111df00640ad3660ba7a|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f056e0e3d13a415cd777111df00640ad3660ba7a|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c0fc344542cf96bf89c22c7df3f53765bd5823ec|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c0fc344542cf96bf89c22c7df3f53765bd5823ec|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c0fc344542cf96bf89c22c7df3f53765bd5823ec|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c0fc344542cf96bf89c22c7df3f53765bd5823ec|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c0fc344542cf96bf89c22c7df3f53765bd5823ec|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c0fc344542cf96bf89c22c7df3f53765bd5823ec|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c0fc344542cf96bf89c22c7df3f53765bd5823ec|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c0fc344542cf96bf89c22c7df3f53765bd5823ec|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c0fc344542cf96bf89c22c7df3f53765bd5823ec|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c0fc344542cf96bf89c22c7df3f53765bd5823ec|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c0fc344542cf96bf89c22c7df3f53765bd5823ec|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bfa33d95c22c0b57d7a7aa585bc90929fb8baf5c|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bfa33d95c22c0b57d7a7aa585bc90929fb8baf5c|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bfa33d95c22c0b57d7a7aa585bc90929fb8baf5c|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bfa33d95c22c0b57d7a7aa585bc90929fb8baf5c|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bfa33d95c22c0b57d7a7aa585bc90929fb8baf5c|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bfa33d95c22c0b57d7a7aa585bc90929fb8baf5c|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bfa33d95c22c0b57d7a7aa585bc90929fb8baf5c|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bfa33d95c22c0b57d7a7aa585bc90929fb8baf5c|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ae86bec763745b16f58d5aef4a250ffe12a726e7|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93ddf47f7023b0aee25ed6893a0f046bdedda59f|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93ddf47f7023b0aee25ed6893a0f046bdedda59f|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93ddf47f7023b0aee25ed6893a0f046bdedda59f|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93ddf47f7023b0aee25ed6893a0f046bdedda59f|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93ddf47f7023b0aee25ed6893a0f046bdedda59f|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93ddf47f7023b0aee25ed6893a0f046bdedda59f|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93ddf47f7023b0aee25ed6893a0f046bdedda59f|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|93ddf47f7023b0aee25ed6893a0f046bdedda59f|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8da34cd99b0177c1ddf1c08e279a2cedd2eba710|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8da34cd99b0177c1ddf1c08e279a2cedd2eba710|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8da34cd99b0177c1ddf1c08e279a2cedd2eba710|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8da34cd99b0177c1ddf1c08e279a2cedd2eba710|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8a5dad792556b1e1b7e992410a6b55914cf198a0|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8a5dad792556b1e1b7e992410a6b55914cf198a0|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8a5dad792556b1e1b7e992410a6b55914cf198a0|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|78922a1f322e37e21c56179d80d6e15096a853b6|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|516af34f453251c537deec5c5ae74b796fac505e|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|516af34f453251c537deec5c5ae74b796fac505e|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|516af34f453251c537deec5c5ae74b796fac505e|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|516af34f453251c537deec5c5ae74b796fac505e|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|516af34f453251c537deec5c5ae74b796fac505e|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|294db6e106d3f0683cf30a005b59d31009f58663|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|294db6e106d3f0683cf30a005b59d31009f58663|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|294db6e106d3f0683cf30a005b59d31009f58663|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|294db6e106d3f0683cf30a005b59d31009f58663|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|294db6e106d3f0683cf30a005b59d31009f58663|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|294db6e106d3f0683cf30a005b59d31009f58663|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|294db6e106d3f0683cf30a005b59d31009f58663|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|294db6e106d3f0683cf30a005b59d31009f58663|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|294db6e106d3f0683cf30a005b59d31009f58663|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|294db6e106d3f0683cf30a005b59d31009f58663|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|294db6e106d3f0683cf30a005b59d31009f58663|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|294db6e106d3f0683cf30a005b59d31009f58663|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1887f489cbd5f65b7b2fe9240f912a3e5144ccaf|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1887f489cbd5f65b7b2fe9240f912a3e5144ccaf|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1887f489cbd5f65b7b2fe9240f912a3e5144ccaf|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1887f489cbd5f65b7b2fe9240f912a3e5144ccaf|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1887f489cbd5f65b7b2fe9240f912a3e5144ccaf|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1887f489cbd5f65b7b2fe9240f912a3e5144ccaf|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1887f489cbd5f65b7b2fe9240f912a3e5144ccaf|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1887f489cbd5f65b7b2fe9240f912a3e5144ccaf|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1887f489cbd5f65b7b2fe9240f912a3e5144ccaf|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1887f489cbd5f65b7b2fe9240f912a3e5144ccaf|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1887f489cbd5f65b7b2fe9240f912a3e5144ccaf|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1887f489cbd5f65b7b2fe9240f912a3e5144ccaf|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1887f489cbd5f65b7b2fe9240f912a3e5144ccaf|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|29cafd50a73ce455139f6e513b9cbc6de2e43131|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ba9accdf6e9f810f75b067fdadf30f05a6414404|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ba9accdf6e9f810f75b067fdadf30f05a6414404|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ba9accdf6e9f810f75b067fdadf30f05a6414404|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ba9accdf6e9f810f75b067fdadf30f05a6414404|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ba9accdf6e9f810f75b067fdadf30f05a6414404|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aba8dd66faac5dcc94273bd6c21903b26936da5|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aba8dd66faac5dcc94273bd6c21903b26936da5|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aba8dd66faac5dcc94273bd6c21903b26936da5|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aba8dd66faac5dcc94273bd6c21903b26936da5|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aba8dd66faac5dcc94273bd6c21903b26936da5|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aba8dd66faac5dcc94273bd6c21903b26936da5|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aba8dd66faac5dcc94273bd6c21903b26936da5|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0aba8dd66faac5dcc94273bd6c21903b26936da5|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2038f9d16debf23d8fbd7c4585833b28a6ba107|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7a6405772c1d0b8117b7e7e1a1b193bb9ce125b5|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7a6405772c1d0b8117b7e7e1a1b193bb9ce125b5|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7a6405772c1d0b8117b7e7e1a1b193bb9ce125b5|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7a6405772c1d0b8117b7e7e1a1b193bb9ce125b5|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7a6405772c1d0b8117b7e7e1a1b193bb9ce125b5|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7a6405772c1d0b8117b7e7e1a1b193bb9ce125b5|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7a6405772c1d0b8117b7e7e1a1b193bb9ce125b5|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7a6405772c1d0b8117b7e7e1a1b193bb9ce125b5|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7a6405772c1d0b8117b7e7e1a1b193bb9ce125b5|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c2523fbb59ff3fbb04ded8bd4a78c69562ff32fa|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c2523fbb59ff3fbb04ded8bd4a78c69562ff32fa|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c2523fbb59ff3fbb04ded8bd4a78c69562ff32fa|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c2523fbb59ff3fbb04ded8bd4a78c69562ff32fa|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c2523fbb59ff3fbb04ded8bd4a78c69562ff32fa|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c2523fbb59ff3fbb04ded8bd4a78c69562ff32fa|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c2523fbb59ff3fbb04ded8bd4a78c69562ff32fa|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c2523fbb59ff3fbb04ded8bd4a78c69562ff32fa|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c2523fbb59ff3fbb04ded8bd4a78c69562ff32fa|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c2523fbb59ff3fbb04ded8bd4a78c69562ff32fa|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|c2523fbb59ff3fbb04ded8bd4a78c69562ff32fa|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bbce0badb02e2bd3b846c67ffcbc56cf3cdf025d|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bbce0badb02e2bd3b846c67ffcbc56cf3cdf025d|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bbce0badb02e2bd3b846c67ffcbc56cf3cdf025d|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bbce0badb02e2bd3b846c67ffcbc56cf3cdf025d|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bbce0badb02e2bd3b846c67ffcbc56cf3cdf025d|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bbce0badb02e2bd3b846c67ffcbc56cf3cdf025d|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e23190c9fd19d9b1d0444e8f4dde55e643e5e57b|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|23bb3103c27c5e58f7725a88b88bca53ceec5e88|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|23bb3103c27c5e58f7725a88b88bca53ceec5e88|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|23bb3103c27c5e58f7725a88b88bca53ceec5e88|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|23bb3103c27c5e58f7725a88b88bca53ceec5e88|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|23bb3103c27c5e58f7725a88b88bca53ceec5e88|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|23bb3103c27c5e58f7725a88b88bca53ceec5e88|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d716983fa8626e27c290fbd45fa415990a8d3318|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d716983fa8626e27c290fbd45fa415990a8d3318|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d716983fa8626e27c290fbd45fa415990a8d3318|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d716983fa8626e27c290fbd45fa415990a8d3318|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d716983fa8626e27c290fbd45fa415990a8d3318|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d716983fa8626e27c290fbd45fa415990a8d3318|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d716983fa8626e27c290fbd45fa415990a8d3318|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d716983fa8626e27c290fbd45fa415990a8d3318|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d716983fa8626e27c290fbd45fa415990a8d3318|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d716983fa8626e27c290fbd45fa415990a8d3318|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d716983fa8626e27c290fbd45fa415990a8d3318|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d716983fa8626e27c290fbd45fa415990a8d3318|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85205c4690f71e5efcc07c09b45b9faec491eb72|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ab94b2dd0228159913dc5b958d8b62c7fd8aa97b|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fb8d7c53af8663c32079573b9ac93cbc27655c82|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fb8d7c53af8663c32079573b9ac93cbc27655c82|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fb8d7c53af8663c32079573b9ac93cbc27655c82|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fb8d7c53af8663c32079573b9ac93cbc27655c82|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fb8d7c53af8663c32079573b9ac93cbc27655c82|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fb8d7c53af8663c32079573b9ac93cbc27655c82|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|fb8d7c53af8663c32079573b9ac93cbc27655c82|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|18954ff5fef12f65c10455de43d0802724321141|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|18954ff5fef12f65c10455de43d0802724321141|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|18954ff5fef12f65c10455de43d0802724321141|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f29049daefb482b3dc98cfa131229d1c37ba5d48|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ec64c97b82c740dce4db684a5d9d75fa14777669|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ec64c97b82c740dce4db684a5d9d75fa14777669|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ec64c97b82c740dce4db684a5d9d75fa14777669|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ec64c97b82c740dce4db684a5d9d75fa14777669|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ec64c97b82c740dce4db684a5d9d75fa14777669|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ec64c97b82c740dce4db684a5d9d75fa14777669|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e6cb12a311348cfb3fe3806ba29191e8858d0cdc|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dfa8c13f68d1e7248164423d8792b8b57c5bedd0|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dfa8c13f68d1e7248164423d8792b8b57c5bedd0|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dfa8c13f68d1e7248164423d8792b8b57c5bedd0|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dfa8c13f68d1e7248164423d8792b8b57c5bedd0|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dfa8c13f68d1e7248164423d8792b8b57c5bedd0|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dfa8c13f68d1e7248164423d8792b8b57c5bedd0|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dfa8c13f68d1e7248164423d8792b8b57c5bedd0|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|dfa8c13f68d1e7248164423d8792b8b57c5bedd0|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d8b977b35f092536a048cb684c3540a202fe6b4a|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d8b977b35f092536a048cb684c3540a202fe6b4a|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d8b977b35f092536a048cb684c3540a202fe6b4a|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d8b977b35f092536a048cb684c3540a202fe6b4a|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d8b977b35f092536a048cb684c3540a202fe6b4a|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d8b977b35f092536a048cb684c3540a202fe6b4a|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d8b977b35f092536a048cb684c3540a202fe6b4a|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d8b977b35f092536a048cb684c3540a202fe6b4a|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d8b977b35f092536a048cb684c3540a202fe6b4a|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d8b977b35f092536a048cb684c3540a202fe6b4a|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d8b977b35f092536a048cb684c3540a202fe6b4a|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d6ea2f5d8e6de62f9f974138b437ae9a71f25ca5|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d6ea2f5d8e6de62f9f974138b437ae9a71f25ca5|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d6ea2f5d8e6de62f9f974138b437ae9a71f25ca5|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d6ea2f5d8e6de62f9f974138b437ae9a71f25ca5|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d6ea2f5d8e6de62f9f974138b437ae9a71f25ca5|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d6ea2f5d8e6de62f9f974138b437ae9a71f25ca5|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d6ea2f5d8e6de62f9f974138b437ae9a71f25ca5|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d6ea2f5d8e6de62f9f974138b437ae9a71f25ca5|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d6ea2f5d8e6de62f9f974138b437ae9a71f25ca5|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d6ea2f5d8e6de62f9f974138b437ae9a71f25ca5|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d6ea2f5d8e6de62f9f974138b437ae9a71f25ca5|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d6ea2f5d8e6de62f9f974138b437ae9a71f25ca5|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|d6ea2f5d8e6de62f9f974138b437ae9a71f25ca5|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bf8cd65662ca1d0bebe40f80b592ec67840f6a16|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bf8cd65662ca1d0bebe40f80b592ec67840f6a16|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bf8cd65662ca1d0bebe40f80b592ec67840f6a16|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bf8cd65662ca1d0bebe40f80b592ec67840f6a16|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bf8cd65662ca1d0bebe40f80b592ec67840f6a16|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|bf8cd65662ca1d0bebe40f80b592ec67840f6a16|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|98193ac468b35b7e7a671d6d7fe8b6e32045f605|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|98193ac468b35b7e7a671d6d7fe8b6e32045f605|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|98193ac468b35b7e7a671d6d7fe8b6e32045f605|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|98193ac468b35b7e7a671d6d7fe8b6e32045f605|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|798d2bedd33f75aa97d66aa0ff44ed43e8513e3b|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6c119608b4584b52bb4ff3828c52075a4aee6de4|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6c119608b4584b52bb4ff3828c52075a4aee6de4|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6c119608b4584b52bb4ff3828c52075a4aee6de4|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|59f13da0adffb6159aa3ad1ae628f60c37e67c16|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|59f13da0adffb6159aa3ad1ae628f60c37e67c16|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|59f13da0adffb6159aa3ad1ae628f60c37e67c16|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|59f13da0adffb6159aa3ad1ae628f60c37e67c16|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|59f13da0adffb6159aa3ad1ae628f60c37e67c16|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|59f13da0adffb6159aa3ad1ae628f60c37e67c16|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|59f13da0adffb6159aa3ad1ae628f60c37e67c16|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|59f13da0adffb6159aa3ad1ae628f60c37e67c16|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|59f13da0adffb6159aa3ad1ae628f60c37e67c16|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|18c4f00a1c64205f54461388575094147ffa1709|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|18c4f00a1c64205f54461388575094147ffa1709|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|18c4f00a1c64205f54461388575094147ffa1709|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|18c4f00a1c64205f54461388575094147ffa1709|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|024348688588344272308bfffd25bbdb73f4ebc0|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|efc01a390ec1caa7329e3713158acd31079deb0a|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e3a01551bb0e6b15554af839859c6cbbddb28b71|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e3a01551bb0e6b15554af839859c6cbbddb28b71|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e3a01551bb0e6b15554af839859c6cbbddb28b71|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e3a01551bb0e6b15554af839859c6cbbddb28b71|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e3a01551bb0e6b15554af839859c6cbbddb28b71|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e3a01551bb0e6b15554af839859c6cbbddb28b71|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e3a01551bb0e6b15554af839859c6cbbddb28b71|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e3a01551bb0e6b15554af839859c6cbbddb28b71|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e3a01551bb0e6b15554af839859c6cbbddb28b71|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7c5c3322b0824792bff21f9a9265f5606fc13598|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7c5c3322b0824792bff21f9a9265f5606fc13598|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7c5c3322b0824792bff21f9a9265f5606fc13598|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7c5c3322b0824792bff21f9a9265f5606fc13598|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7c5c3322b0824792bff21f9a9265f5606fc13598|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7c5c3322b0824792bff21f9a9265f5606fc13598|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|7c5c3322b0824792bff21f9a9265f5606fc13598|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|634b3db561e0df093c99016e7cc7aad657ee4cf1|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|344aaefbac89e418f3e3604f3f4ed55cae7310b0|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|344aaefbac89e418f3e3604f3f4ed55cae7310b0|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|344aaefbac89e418f3e3604f3f4ed55cae7310b0|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|344aaefbac89e418f3e3604f3f4ed55cae7310b0|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|344aaefbac89e418f3e3604f3f4ed55cae7310b0|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|344aaefbac89e418f3e3604f3f4ed55cae7310b0|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|344aaefbac89e418f3e3604f3f4ed55cae7310b0|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|344aaefbac89e418f3e3604f3f4ed55cae7310b0|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|344aaefbac89e418f3e3604f3f4ed55cae7310b0|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|344aaefbac89e418f3e3604f3f4ed55cae7310b0|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|344aaefbac89e418f3e3604f3f4ed55cae7310b0|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ecd4608427c2ac49b41d6419830e1075b4125ea7|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ecd4608427c2ac49b41d6419830e1075b4125ea7|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ecd4608427c2ac49b41d6419830e1075b4125ea7|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ecd4608427c2ac49b41d6419830e1075b4125ea7|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ecd4608427c2ac49b41d6419830e1075b4125ea7|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ecd4608427c2ac49b41d6419830e1075b4125ea7|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ecd4608427c2ac49b41d6419830e1075b4125ea7|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ecd4608427c2ac49b41d6419830e1075b4125ea7|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4d0a03079176404cb1cd386b187484ddbf10c952|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4d0a03079176404cb1cd386b187484ddbf10c952|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|002726251bd3b217de117a9d54ea74296a9a2712|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|002726251bd3b217de117a9d54ea74296a9a2712|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|002726251bd3b217de117a9d54ea74296a9a2712|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|002726251bd3b217de117a9d54ea74296a9a2712|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|002726251bd3b217de117a9d54ea74296a9a2712|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|002726251bd3b217de117a9d54ea74296a9a2712|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|002726251bd3b217de117a9d54ea74296a9a2712|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|002726251bd3b217de117a9d54ea74296a9a2712|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|002726251bd3b217de117a9d54ea74296a9a2712|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|002726251bd3b217de117a9d54ea74296a9a2712|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|002726251bd3b217de117a9d54ea74296a9a2712|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|002726251bd3b217de117a9d54ea74296a9a2712|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|002726251bd3b217de117a9d54ea74296a9a2712|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2343bf1c22889972cc5f29020726c0d9a9d10fa|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2343bf1c22889972cc5f29020726c0d9a9d10fa|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e2343bf1c22889972cc5f29020726c0d9a9d10fa|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|114931d610d4993307d987a2a800db80198ed0f1|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|114931d610d4993307d987a2a800db80198ed0f1|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|114931d610d4993307d987a2a800db80198ed0f1|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|114931d610d4993307d987a2a800db80198ed0f1|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|114931d610d4993307d987a2a800db80198ed0f1|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|114931d610d4993307d987a2a800db80198ed0f1|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|114931d610d4993307d987a2a800db80198ed0f1|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|114931d610d4993307d987a2a800db80198ed0f1|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0994d1a68a83b5156607cf1d572fe37b843f4447|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0994d1a68a83b5156607cf1d572fe37b843f4447|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0994d1a68a83b5156607cf1d572fe37b843f4447|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0994d1a68a83b5156607cf1d572fe37b843f4447|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0994d1a68a83b5156607cf1d572fe37b843f4447|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0994d1a68a83b5156607cf1d572fe37b843f4447|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0994d1a68a83b5156607cf1d572fe37b843f4447|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0994d1a68a83b5156607cf1d572fe37b843f4447|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0994d1a68a83b5156607cf1d572fe37b843f4447|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|0994d1a68a83b5156607cf1d572fe37b843f4447|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b883988b2065536a2b4c48c2c00819185fbb14ed|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b883988b2065536a2b4c48c2c00819185fbb14ed|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4fe5dc053dbe658ba8754de2be3cbc64aa5a7955|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4fe5dc053dbe658ba8754de2be3cbc64aa5a7955|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4fe5dc053dbe658ba8754de2be3cbc64aa5a7955|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|17c80469bbd2f12c07fa4dc1bc1829c36b933f71|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|17c80469bbd2f12c07fa4dc1bc1829c36b933f71|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|17c80469bbd2f12c07fa4dc1bc1829c36b933f71|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|17c80469bbd2f12c07fa4dc1bc1829c36b933f71|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|17c80469bbd2f12c07fa4dc1bc1829c36b933f71|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|17c80469bbd2f12c07fa4dc1bc1829c36b933f71|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1590fc52df959faf39eecdbea9ef0a6f4df2af92|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1590fc52df959faf39eecdbea9ef0a6f4df2af92|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1590fc52df959faf39eecdbea9ef0a6f4df2af92|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1590fc52df959faf39eecdbea9ef0a6f4df2af92|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1590fc52df959faf39eecdbea9ef0a6f4df2af92|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1590fc52df959faf39eecdbea9ef0a6f4df2af92|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1590fc52df959faf39eecdbea9ef0a6f4df2af92|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1590fc52df959faf39eecdbea9ef0a6f4df2af92|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1590fc52df959faf39eecdbea9ef0a6f4df2af92|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1590fc52df959faf39eecdbea9ef0a6f4df2af92|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1590fc52df959faf39eecdbea9ef0a6f4df2af92|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1590fc52df959faf39eecdbea9ef0a6f4df2af92|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2a7b684c4b15230425857f1e2c8f76f975923656|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2a7b684c4b15230425857f1e2c8f76f975923656|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2a7b684c4b15230425857f1e2c8f76f975923656|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2a7b684c4b15230425857f1e2c8f76f975923656|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2a7b684c4b15230425857f1e2c8f76f975923656|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2a7b684c4b15230425857f1e2c8f76f975923656|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2a7b684c4b15230425857f1e2c8f76f975923656|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|2a7b684c4b15230425857f1e2c8f76f975923656|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|htmnpo_skywork_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ddd3612f9cbbb7fb7770b80a16cc3483da0cda41|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|5ae8a7b0ed90b8f0c22d4b98a9859ff7af511c4a|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|5ae8a7b0ed90b8f0c22d4b98a9859ff7af511c4a|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|5ae8a7b0ed90b8f0c22d4b98a9859ff7af511c4a|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|5ae8a7b0ed90b8f0c22d4b98a9859ff7af511c4a|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|5ae8a7b0ed90b8f0c22d4b98a9859ff7af511c4a|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|5ae8a7b0ed90b8f0c22d4b98a9859ff7af511c4a|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|da7243bfd7495b10ad6ba1641dd3eede2ca905dc|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8154a1ec5c0192198221bbe96b690ea45f62b1b9|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8154a1ec5c0192198221bbe96b690ea45f62b1b9|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8154a1ec5c0192198221bbe96b690ea45f62b1b9|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8154a1ec5c0192198221bbe96b690ea45f62b1b9|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8154a1ec5c0192198221bbe96b690ea45f62b1b9|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8154a1ec5c0192198221bbe96b690ea45f62b1b9|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8154a1ec5c0192198221bbe96b690ea45f62b1b9|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8154a1ec5c0192198221bbe96b690ea45f62b1b9|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8154a1ec5c0192198221bbe96b690ea45f62b1b9|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8154a1ec5c0192198221bbe96b690ea45f62b1b9|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8154a1ec5c0192198221bbe96b690ea45f62b1b9|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8154a1ec5c0192198221bbe96b690ea45f62b1b9|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|8154a1ec5c0192198221bbe96b690ea45f62b1b9|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1474c107659389d5030968c7c17d9e865519d661|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1474c107659389d5030968c7c17d9e865519d661|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|1474c107659389d5030968c7c17d9e865519d661|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|60a6983d3d05ad20b59639bf36f3cd9a1c1235b0|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|60a6983d3d05ad20b59639bf36f3cd9a1c1235b0|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|60a6983d3d05ad20b59639bf36f3cd9a1c1235b0|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|60a6983d3d05ad20b59639bf36f3cd9a1c1235b0|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|60a6983d3d05ad20b59639bf36f3cd9a1c1235b0|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4bbe2a7d15814c0800c9c9e6b962e0a0c1e58d41|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4bbe2a7d15814c0800c9c9e6b962e0a0c1e58d41|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4bbe2a7d15814c0800c9c9e6b962e0a0c1e58d41|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|4bbe2a7d15814c0800c9c9e6b962e0a0c1e58d41|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6972f09d000713cb685a827adbcae5ef5513a442|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|6972f09d000713cb685a827adbcae5ef5513a442|htmnpo_armo_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|11ba9c3bca66b13c2aa07915b4eb7aa3386af33b|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|11ba9c3bca66b13c2aa07915b4eb7aa3386af33b|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|11ba9c3bca66b13c2aa07915b4eb7aa3386af33b|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ff4ff6a812f96b5b2b1e09f51108a140939d2d57|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ff4ff6a812f96b5b2b1e09f51108a140939d2d57|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ff4ff6a812f96b5b2b1e09f51108a140939d2d57|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ff4ff6a812f96b5b2b1e09f51108a140939d2d57|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ff4ff6a812f96b5b2b1e09f51108a140939d2d57|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ff4ff6a812f96b5b2b1e09f51108a140939d2d57|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|f88afd3db9ff1a986564d255723a688f305dc140|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ee2c5022a3eb152e08d32e9fe628a746647a4bcc|htmnpo_skywork_s2|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ec130699e2dd108c6e8b7b769cd9e04a2424d7d6|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ec130699e2dd108c6e8b7b769cd9e04a2424d7d6|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e333db1c311efeb3b2b6f189b637a2096b6a318e|baseline|htmnpo_skywork_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e333db1c311efeb3b2b6f189b637a2096b6a318e|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e333db1c311efeb3b2b6f189b637a2096b6a318e|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e333db1c311efeb3b2b6f189b637a2096b6a318e|baseline|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e333db1c311efeb3b2b6f189b637a2096b6a318e|baseline|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e333db1c311efeb3b2b6f189b637a2096b6a318e|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e333db1c311efeb3b2b6f189b637a2096b6a318e|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e333db1c311efeb3b2b6f189b637a2096b6a318e|htmnpo_athene_s2|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e333db1c311efeb3b2b6f189b637a2096b6a318e|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e333db1c311efeb3b2b6f189b637a2096b6a318e|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|e333db1c311efeb3b2b6f189b637a2096b6a318e|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ca7d3d695a425792fd7c1e91dc3d3faa11c80e84|baseline|htmnpo_athene_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ca7d3d695a425792fd7c1e91dc3d3faa11c80e84|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ca7d3d695a425792fd7c1e91dc3d3faa11c80e84|htmnpo_armo_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|ba1db877a97a64a81deff7925fcbb8f1ed5147e5|htmnpo_armo_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b32bffca22a828ee598a9671afd7c5049ce548da|baseline|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b32bffca22a828ee598a9671afd7c5049ce548da|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b32bffca22a828ee598a9671afd7c5049ce548da|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b32bffca22a828ee598a9671afd7c5049ce548da|htmnpo_skywork_s2|htmnpo_athene_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b32bffca22a828ee598a9671afd7c5049ce548da|htmnpo_skywork_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b32bffca22a828ee598a9671afd7c5049ce548da|htmnpo_skywork_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b32bffca22a828ee598a9671afd7c5049ce548da|htmnpo_skywork_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b32bffca22a828ee598a9671afd7c5049ce548da|htmnpo_athene_s2|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b32bffca22a828ee598a9671afd7c5049ce548da|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b32bffca22a828ee598a9671afd7c5049ce548da|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b32bffca22a828ee598a9671afd7c5049ce548da|htmnpo_armo_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|b32bffca22a828ee598a9671afd7c5049ce548da|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|867e4929661c9120d0a946beaaf33daf5e5c6c02|baseline|htmnpo_armo_s2|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|867e4929661c9120d0a946beaaf33daf5e5c6c02|htmnpo_athene_s2|ronpo_s2_ckpt1400|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|867e4929661c9120d0a946beaaf33daf5e5c6c02|htmnpo_athene_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|867e4929661c9120d0a946beaaf33daf5e5c6c02|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85bcda6b8095a75be25cc99fe9e8d641f8645d64|baseline|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|85bcda6b8095a75be25cc99fe9e8d641f8645d64|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|847213bcb8fff8127f7dacf8c5a3010867f3d3c4|htmnpo_athene_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|847213bcb8fff8127f7dacf8c5a3010867f3d3c4|ronpo_s2_ckpt1400|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|76c013a7c1f250a4c452a48db21dcc934839b2b9|baseline|htmnpo_skywork_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|76c013a7c1f250a4c452a48db21dcc934839b2b9|baseline|ronpo_s2_ckpt1400|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|76c013a7c1f250a4c452a48db21dcc934839b2b9|baseline|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|76c013a7c1f250a4c452a48db21dcc934839b2b9|htmnpo_skywork_s2|htmnpo_armo_s2|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|76c013a7c1f250a4c452a48db21dcc934839b2b9|htmnpo_skywork_s2|ronpo_s2_ckpt2457|keep",
+    "error": "parse_error"
+  },
+  {
+    "content": "",
+    "custom_id": "ronpo-s2-gpt55|76c013a7c1f250a4c452a48db21dcc934839b2b9|htmnpo_athene_s2|ronpo_s2_ckpt2457|flip",
+    "error": "parse_error"
+  }
+]

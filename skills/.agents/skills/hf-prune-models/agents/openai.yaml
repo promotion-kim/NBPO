@@ -1,0 +1,4 @@
+interface:
+  display_name: "HF Prune Models"
+  short_description: "Upload essential models, then prune local copies"
+  default_prompt: "Use $hf-prune-models to upload paper-critical checkpoints to Hugging Face and remove only verified redundant local copies."

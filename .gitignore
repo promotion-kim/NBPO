@@ -1,0 +1,20 @@
+
+# --- NBPO push excludes: secrets, caches, large artifacts ---
+nhn/
+.claude/
+.TinyTeX/
+.conda_tex/
+.conda_tex_default/
+.vllm051_pkgs/
+data/
+experiments/
+results/
+outputs/
+wandb/
+mlxp/
+third_party/
+__pycache__/
+*.pyc
+*.safetensors
+*.bin
+hf_cache/

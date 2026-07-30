@@ -1,0 +1,34 @@
+{
+  "locked_at": "2026-07-19T08:30:00+09:00",
+  "seed": 42,
+  "reward_consulted": false,
+  "shared_protocol": {
+    "steps": 900,
+    "effective_batch": 16,
+    "scheduler": "cosine",
+    "warmup_ratio": 0.1,
+    "bf16": true,
+    "max_length": 2048,
+    "max_prompt_length": 1024
+  },
+  "candidates": {
+    "inpo_norm_a": {"arm": "inpo_avg", "stage": 1, "eta": 0.1, "dpo_beta": 0.05, "learning_rate": 2.5e-7, "reference_anchor_weight": 0.2, "preference_sft_weight": 0.02},
+    "inpo_norm_b": {"arm": "inpo_avg", "stage": 1, "eta": 0.2, "dpo_beta": 0.05, "learning_rate": 2.5e-7, "reference_anchor_weight": 0.2, "preference_sft_weight": 0.02},
+    "ipo_norm_a": {"arm": "ipo", "stage": 1, "eta": 0.0075, "dpo_beta": 0.1, "learning_rate": 2.5e-7, "reference_anchor_weight": 0.2, "preference_sft_weight": 0.02},
+    "ipo_norm_b": {"arm": "ipo", "stage": 1, "eta": 0.0075, "dpo_beta": 0.2, "learning_rate": 2.5e-7, "reference_anchor_weight": 0.2, "preference_sft_weight": 0.02},
+    "sppo_anchor": {"arm": "sppo_avg", "stage": 3, "eta": 0.0075, "dpo_beta": 0.05, "learning_rate": 2.5e-7, "reference_anchor_weight": 0.2, "preference_sft_weight": 0.02}
+  },
+  "selection": {
+    "inpo_avg": ["inpo_norm_a", "inpo_norm_b"],
+    "ipo": ["ipo_norm_a", "ipo_norm_b"],
+    "sppo_avg": ["sppo_anchor"]
+  },
+  "selection_uses_reward": false,
+  "gate": {
+    "expected_records": 1000,
+    "zero_empty": true,
+    "zero_nonempty_think_spans": true,
+    "mean_word_ratio": [0.33, 2.0],
+    "max_consecutive_identical_word_run": 20
+  }
+}

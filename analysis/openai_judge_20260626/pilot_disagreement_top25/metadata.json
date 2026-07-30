@@ -1,0 +1,34 @@
+{
+  "created_at_unix": 1782443612,
+  "estimated_cost_usd": {
+    "batch_short_context_usd": 19.95,
+    "standard_short_context_usd": 39.91
+  },
+  "input_tokens_est": {
+    "max": 12659.2,
+    "mean": 1748.5,
+    "p95": 5934.0,
+    "total": 4248733.8
+  },
+  "judge_model": "gpt-5.5",
+  "max_completion_tokens": 256,
+  "max_output_tokens_est": 622080,
+  "merged_path": "/ext_hdd/sjkim/mnpo/eval/ronpo_stage2_resume_sanity_20260625/merged_model_generations.json",
+  "models": [
+    "baseline",
+    "htmnpo_skywork_s2",
+    "htmnpo_athene_s2",
+    "htmnpo_armo_s2",
+    "ronpo_s2_ckpt1400",
+    "ronpo_s2_ckpt2457"
+  ],
+  "num_pairs_per_prompt": 15,
+  "num_prompts": 162,
+  "num_requests": 2430,
+  "out_dir": "analysis/openai_judge_20260626/pilot_disagreement_top25",
+  "reasoning_effort": null,
+  "request_path": "analysis/openai_judge_20260626/pilot_disagreement_top25/batch_requests.jsonl",
+  "subset_csv": "analysis/stage2_robustness_20260626/disagreement_prompts.csv",
+  "subset_limit": 162,
+  "work_dir": "/ext_hdd/sjkim/mnpo/eval/ronpo_stage2_resume_sanity_20260625"
+}

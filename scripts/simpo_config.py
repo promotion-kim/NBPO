@@ -37,6 +37,10 @@ class SimPOConfig(TrainingArguments):
             The truncation mode to use, either `keep_end` or `keep_start`. This argument is required if you want to use the default data collator.
         generate_during_eval (`bool`, defaults to `False`):
             Whether to sample and log generations during evaluation step.
+        eval_generation_samples (`int`, defaults to `5`):
+            Number of held-out eval prompts to generate and log when `generate_during_eval=True`.
+        eval_generation_max_new_tokens (`int`, defaults to `256`):
+            Maximum generated tokens for qualitative eval samples.
         is_encoder_decoder (`Optional[bool]`, `optional`, defaults to `None`):
             If no model is provided, we need to know if the model_init returns an encoder-decoder.
         disable_dropout (`bool`, defaults to `True`):
@@ -63,9 +67,24 @@ class SimPOConfig(TrainingArguments):
     padding_value: int = None
     truncation_mode: str = "keep_end"
     generate_during_eval: bool = False
+    eval_generation_samples: int = 5
+    eval_generation_max_new_tokens: int = 256
+    eval_generation_seed: int = 42
+    eval_generation_do_sample: bool = False
+    eval_generation_temperature: float = 0.7
+    eval_generation_top_p: float = 0.9
+    eval_generation_top_k: int = 20
+    eval_generation_backend: Literal["checkpoint", "in_memory"] = "checkpoint"
+    eval_generation_output_dir: Optional[str] = "/ext_hdd/sjkim/mnpo/eval_generations"
+    eval_generation_device: str = "cuda"
+    eval_generation_cuda_visible_devices: Optional[str] = None
+    eval_generation_dtype: Literal["float16", "bfloat16", "float32"] = "bfloat16"
+    eval_generation_keep_snapshot: bool = False
+    eval_generation_local_files_only: bool = True
+    eval_generation_print_max_chars: int = 1200
     is_encoder_decoder: Optional[bool] = None
+    save_safetensors: bool = True
 
     model_init_kwargs: Optional[Dict] = None
 
     dataset_num_proc: Optional[int] = None
-

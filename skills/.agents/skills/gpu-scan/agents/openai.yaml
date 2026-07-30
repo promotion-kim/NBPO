@@ -1,0 +1,6 @@
+interface:
+  display_name: "GPU Scan"
+  short_description: "Find authorized idle GPUs without changes"
+  default_prompt: "Use $gpu-scan to inspect candidate hosts and report verified GPU availability."
+policy:
+  allow_implicit_invocation: true

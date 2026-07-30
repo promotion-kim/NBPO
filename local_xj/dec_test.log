@@ -1,0 +1,40 @@
+Traceback (most recent call last):
+  File "/home/sjkim/MNPO/analysis/qwen3_8b_hh_selection_20260716/decode_policy_screen.py", line 12, in <module>
+    from vllm import LLM, SamplingParams
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/vllm/__init__.py", line 70, in __getattr__
+    module = import_module(module_name, __package__)
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/vllm/entrypoints/llm.py", line 48, in <module>
+    from vllm.entrypoints.pooling.io_processor_factories import init_pooling_io_processors
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/vllm/entrypoints/pooling/io_processor_factories.py", line 7, in <module>
+    from vllm.entrypoints.pooling.base.io_processor import PoolingIOProcessor
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/vllm/entrypoints/pooling/base/io_processor.py", line 15, in <module>
+    from vllm.entrypoints.openai.engine.serving import RendererChatRequest, RendererRequest
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/vllm/entrypoints/openai/engine/serving.py", line 23, in <module>
+    from vllm.engine.protocol import EngineClient
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/vllm/engine/protocol.py", line 23, in <module>
+    from vllm.v1.engine.input_processor import InputProcessor
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/vllm/v1/engine/input_processor.py", line 20, in <module>
+    from vllm.multimodal.encoder_budget import MultiModalBudget
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/vllm/multimodal/encoder_budget.py", line 10, in <module>
+    from vllm.v1.core.encoder_cache_manager import compute_mm_encoder_budget
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/vllm/v1/core/encoder_cache_manager.py", line 9, in <module>
+    from vllm.v1.request import Request
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/vllm/v1/request.py", line 23, in <module>
+    from vllm.v1.structured_output.request import StructuredOutputRequest
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/vllm/v1/structured_output/__init__.py", line 19, in <module>
+    from vllm.v1.structured_output.backend_xgrammar import XgrammarBackend
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/vllm/v1/structured_output/backend_xgrammar.py", line 20, in <module>
+    from vllm.v1.structured_output.utils import (
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/vllm/v1/structured_output/utils.py", line 15, in <module>
+    from diskcache import Cache
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/diskcache/__init__.py", line 8, in <module>
+    from .core import (
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/site-packages/diskcache/core.py", line 14, in <module>
+    import sqlite3
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/sqlite3/__init__.py", line 57, in <module>
+    from sqlite3.dbapi2 import *
+  File "/home/sjkim/anaconda3/envs/vllm/lib/python3.10/sqlite3/dbapi2.py", line 27, in <module>
+    from _sqlite3 import *
+ImportError: /lib64/libstdc++.so.6: version `CXXABI_1.3.15' not found (required by /home/sjkim/anaconda3/envs/vllm/lib/python3.10/lib-dynload/../.././libicui18n.so.78)

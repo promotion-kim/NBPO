@@ -1,0 +1,16 @@
+V* (unregularized robust LP) = 0.3289 | tau fixed = 0.05
+
+  kappa floor_nash(OS/full)   floor_top  nash-top floor_os(OMD)   Theta_os  Theta_top
+  0.050              0.2881      0.3014   -0.0133        0.2900   2.37e-04   5.57e-02
+  0.030              0.2961      0.3013   -0.0052        0.2957   4.04e-04   3.75e-02
+  0.020              0.2994      0.3012   -0.0018        0.2986   4.54e-04   2.36e-02
+  0.010              0.3018      0.3011   +0.0007        0.3006   2.78e-04   1.77e-02
+  0.007              0.3025      0.3011   +0.0014        0.3016   2.28e-04   1.75e-02
+  0.005              0.3030      0.3006   +0.0024        0.3017   3.15e-04   1.75e-02
+  0.003              0.3034      0.2996   +0.0039        0.3013   5.79e-04   1.83e-02
+  0.002              0.3037      0.2985   +0.0052        0.3002   1.17e-03   2.00e-02
+
+Decision scan (floor_nash - floor_top > 0 means OS/full-exp wins the hard floor):
+  -> OS/full-exp EXCEEDS top-mass for kappa in ['0.005', '0.003', '0.002']; largest margin at kappa=0.002 (nash 0.3037 vs top 0.2985, +0.0052).
+
+Saved results/os_ronpo_toy_20260715/os_ronpo_kappa_sweep.png

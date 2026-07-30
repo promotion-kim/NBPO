@@ -1,0 +1,7 @@
+model,display,num_pairwise_matchups,mean_pairwise_win_rate
+ronpo_s2_ckpt2457,RONPO S2 checkpoint-2457,5,0.5927
+baseline,Base,5,0.5581
+ronpo_s2_ckpt1400,RONPO S2 checkpoint-1400,5,0.5532
+htmnpo_skywork_s2,HT-MNPO Skywork S2,5,0.5054
+htmnpo_armo_s2,HT-MNPO ArmoRM S2,5,0.4263
+htmnpo_athene_s2,HT-MNPO Athene S2,5,0.3643

@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99e (TeX Live 2026)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: aaai2027.bst
+Database file #1: aaai2027.bib
+Warning--I didn't find a database entry for "son2026rmod"
+Warning--I didn't find a database entry for "zhong2024panacea"
+You've used 34 entries,
+            2840 wiz_defined-function locations,
+            754 strings with 12029 characters,
+and the built_in function-call counts, 26603 in all, are:
+= -- 1866
+> -- 1911
+< -- 8
++ -- 713
+- -- 670
+* -- 2068
+:= -- 4439
+add.period$ -- 137
+call.type$ -- 34
+change.case$ -- 369
+chr.to.int$ -- 35
+cite$ -- 34
+duplicate$ -- 1699
+empty$ -- 1548
+format.name$ -- 762
+if$ -- 4988
+int.to.chr$ -- 3
+int.to.str$ -- 1
+missing$ -- 426
+newline$ -- 174
+num.names$ -- 136
+pop$ -- 964
+preamble$ -- 1
+purify$ -- 337
+quote$ -- 0
+skip$ -- 768
+stack$ -- 0
+substring$ -- 688
+swap$ -- 929
+text.length$ -- 8
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 297
+warning$ -- 0
+while$ -- 160
+width$ -- 0
+write$ -- 430
+(There were 2 warnings)

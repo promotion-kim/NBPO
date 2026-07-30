@@ -1,0 +1,34 @@
+{
+  "locked_at": "2026-07-19T11:05:00+09:00",
+  "seed": 42,
+  "reward_consulted": false,
+  "candidates": {
+    "sppo_strong_a": {
+      "arm": "sppo_avg",
+      "stage": 3,
+      "eta": 0.0075,
+      "dpo_beta": 0.05,
+      "learning_rate": 1e-7,
+      "reference_anchor_weight": 0.5,
+      "preference_sft_weight": 0.05
+    },
+    "sppo_strong_b": {
+      "arm": "sppo_avg",
+      "stage": 3,
+      "eta": 0.0075,
+      "dpo_beta": 0.05,
+      "learning_rate": 5e-8,
+      "reference_anchor_weight": 0.75,
+      "preference_sft_weight": 0.075
+    }
+  },
+  "selection": ["sppo_strong_a", "sppo_strong_b"],
+  "selection_uses_reward": false,
+  "gate": {
+    "expected_records": 1000,
+    "mean_word_ratio": [0.33, 2.0],
+    "max_consecutive_identical_word_run": 20,
+    "zero_empty": true,
+    "zero_nonempty_think_spans": true
+  }
+}

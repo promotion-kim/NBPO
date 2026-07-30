@@ -1,0 +1,41 @@
+{
+  "cancelled_at": null,
+  "cancelling_at": null,
+  "completed_at": null,
+  "completion_window": "24h",
+  "created_at": 1782526148,
+  "endpoint": "/v1/chat/completions",
+  "error_file_id": null,
+  "errors": null,
+  "expired_at": null,
+  "expires_at": 1782612548,
+  "failed_at": null,
+  "finalizing_at": null,
+  "id": "batch_6a3f30c45fc88190854b8c6e7034afd8",
+  "in_progress_at": 1782526210,
+  "input_file_id": "file-LWDBj3EL5Q5fjPkamX5y6j",
+  "metadata": {
+    "experiment": "ronpo-s2-gpt55-full647-retry1-512",
+    "project": "mnpo"
+  },
+  "model": "gpt-5.5-2026-04-23",
+  "object": "batch",
+  "output_file_id": null,
+  "request_counts": {
+    "completed": 0,
+    "failed": 3866,
+    "total": 3876
+  },
+  "status": "in_progress",
+  "usage": {
+    "input_tokens": 0,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 0,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "total_tokens": 0
+  }
+}

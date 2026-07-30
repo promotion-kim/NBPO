@@ -22,8 +22,11 @@ from transformers.trainer_utils import get_last_checkpoint
 
 from accelerate import Accelerator
 from huggingface_hub import list_repo_files
-from huggingface_hub.utils._errors import RepositoryNotFoundError
-from huggingface_hub.utils._validators import HFValidationError
+try:
+    from huggingface_hub.utils import HFValidationError, RepositoryNotFoundError
+except ImportError:
+    from huggingface_hub.utils._errors import RepositoryNotFoundError
+    from huggingface_hub.utils._validators import HFValidationError
 from peft import LoraConfig, PeftConfig
 
 from .configs import DataArguments, DPOConfig, ModelArguments, SFTConfig
@@ -67,6 +70,13 @@ def get_tokenizer(
     model_args: ModelArguments, data_args: DataArguments, auto_set_chat_template: bool = True
 ) -> PreTrainedTokenizer:
     """Get the tokenizer for the model."""
+    use_fast_env = os.environ.get("MNPO_TOKENIZER_USE_FAST")
+    use_fast = None
+    if use_fast_env is not None:
+        use_fast = use_fast_env.strip().lower() not in {"0", "false", "no"}
+    tokenizer_kwargs = {}
+    if use_fast is not None:
+        tokenizer_kwargs["use_fast"] = use_fast
     tokenizer = AutoTokenizer.from_pretrained(
         (
             model_args.model_name_or_path
@@ -75,6 +85,7 @@ def get_tokenizer(
         ),
         revision=model_args.model_revision,
         trust_remote_code=model_args.trust_remote_code,
+        **tokenizer_kwargs,
     )
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token_id = tokenizer.eos_token_id

@@ -1,0 +1,21 @@
+# Copy to ~/.config/codex-cluster/hosts.yaml and edit.
+# This file contains policy and non-secret host metadata only.
+version: 1
+hosts:
+  odin2:
+    ssh_alias: odin2
+    allowed_gpus: [0, 1]       # Edit to the actual authorization.
+    workspace: ~/mnpo          # Edit.
+    storage_roots:
+      - /ext_hdd/skim
+      - /storm_hdd/skim
+      - /yj_hdd/skim
+
+  nhn-b200:
+    ssh_alias: nhn-b200        # Must match a Host alias in ~/.ssh/config.
+    allowed_gpus: [0, 1, 2, 3] # Edit to the actual authorization.
+    workspace: /NHNHOME/WORKSPACE/PROJECT/mnpo
+    storage_roots:
+      - /ext_hdd/skim
+      - /storm_hdd/skim
+      - /yj_hdd/skim

@@ -1,0 +1,87 @@
+# ================================
+# Model Arguments
+# ================================
+model_name_or_path: Qwen/Qwen2.5-1.5B-Instruct
+torch_dtype: null
+attn_implementation: eager
+
+# ================================
+# Data & Preprocessing
+# ================================
+dataset_mixer:
+  data/qwen2.5-1.5b-instruct_multiobj_iter1/inpo_avg_precomputed: 1.0
+
+dataset_splits:
+  - train
+  - test
+
+preprocessing_num_workers: 12
+
+# ================================
+# Training Parameters
+# ================================
+bf16: true
+loss_type: inpo
+eta: 0.0075
+ratio: 0.3333
+max_history_t: 1
+history_weights: [1.0]
+beta: 10
+learning_rate: 5.0e-7
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+optim: adamw_torch
+weight_decay: 0.0
+seed: 42
+
+gradient_accumulation_steps: 8
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+
+num_train_epochs: 1
+per_device_train_batch_size: 2
+per_device_eval_batch_size: 2
+max_length: 2048
+max_prompt_length: 1800
+
+# ================================
+# Evaluation & Logging
+# ================================
+do_eval: true
+eval_strategy: steps
+eval_steps: 100
+logging_steps: 5
+log_level: info
+generate_during_eval: true
+eval_generation_samples: 5
+eval_generation_max_new_tokens: 256
+eval_generation_seed: 42
+eval_generation_do_sample: false
+eval_generation_backend: checkpoint
+eval_generation_output_dir: /ext_hdd/sjkim/mnpo/eval_generations
+eval_generation_device: cuda
+eval_generation_dtype: bfloat16
+eval_generation_keep_snapshot: false
+eval_generation_local_files_only: true
+eval_generation_print_max_chars: 1200
+
+metric_for_best_model: eval_loss
+load_best_model_at_end: false
+
+# ================================
+# Saving & Reporting
+# ================================
+save_strategy: steps
+save_steps: 100
+save_total_limit: 5
+push_to_hub: false
+
+report_to:
+  - wandb
+
+# ================================
+# Output
+# ================================
+output_dir: /ext_hdd/sjkim/mnpo/outputs/qwen2.5-1.5b-instruct_inpo_avg_multiobj_stage_1
+run_name: qwen2.5-1.5b-instruct_inpo_avg_multiobj_stage_1

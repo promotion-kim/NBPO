@@ -1,0 +1,7 @@
+{
+  "max_completion_tokens": 512,
+  "num_retry_requests": 3876,
+  "out_dir": "analysis/openai_judge_20260626/full_647_all_pairwise_retry2_none512",
+  "reasoning_effort": "none",
+  "source_dir": "analysis/openai_judge_20260626/full_647_all_pairwise"
+}

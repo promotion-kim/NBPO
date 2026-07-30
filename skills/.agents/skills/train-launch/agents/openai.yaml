@@ -1,0 +1,6 @@
+interface:
+  display_name: "Train Launch"
+  short_description: "Launch authorized GPU training with evidence"
+  default_prompt: "Use $train-launch to inspect, prepare, review, launch, and verify this training run."
+policy:
+  allow_implicit_invocation: false

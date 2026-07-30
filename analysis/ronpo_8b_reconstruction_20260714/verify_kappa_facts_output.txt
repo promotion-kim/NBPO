@@ -1,0 +1,24 @@
+(a) top-mass target varies with kappa in 0/3000 rows (kappa range 0.001..100.0)
+    full-exp target varies with kappa in 3000/3000 rows
+
+(b)    kappa  norm_entropy  corr(fe,topmass)  corr(fe,uniform)
+       0.001        0.0093            0.9980            0.6767
+       0.005        0.0432            0.9910            0.6905
+        0.01        0.0835            0.9824            0.7079
+        0.02        0.1555            0.9651            0.7430
+        0.05        0.3309            0.9135            0.8346
+         0.1        0.5432            0.8344            0.9195
+         0.2        0.7829            0.7545            0.9703
+         0.5        0.9531            0.7039            0.9941
+           1        0.9877            0.6883            0.9985
+         100        1.0000            0.6730            1.0000
+
+    top-mass mean=+0.0028 std=0.3285   (exact kappa->0 endpoint)
+    uniform  mean=-0.0020 std=0.2646   (exact kappa->inf endpoint, NO-ADVERSARY control)
+    corr(top-mass, uniform) = 0.6728
+
+(c) repo has only ever run kappa <= 0.05  ->  normalized entropy <= 0.33, corr to hard argmax >= 0.91.
+    The kappa > 0.05 half of the mechanism is unmeasured.
+
+NOTE: entropies depend on the real cost distribution. Recompute this map on the actual
+precomputed dataset before freezing the kappa grid; do not reuse these synthetic values.

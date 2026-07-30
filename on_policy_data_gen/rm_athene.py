@@ -7,13 +7,51 @@ import torch
 from torch import nn
 from tqdm import tqdm
 
-from transformers import (
-    LlamaModel,
-    LlamaPreTrainedModel,
-    AutoTokenizer,
-    pipeline,
-    TextClassificationPipeline,
-)
+
+def _patch_transformers_gguf_compat():
+    try:
+        import transformers.integrations as integrations
+    except Exception:
+        return
+
+    config_mapping = getattr(integrations, "GGUF_CONFIG_MAPPING", None)
+    if not isinstance(config_mapping, dict):
+        config_mapping = {}
+    integrations.GGUF_CONFIG_MAPPING = config_mapping
+
+    tokenizer_mapping = getattr(integrations, "GGUF_TOKENIZER_MAPPING", None)
+    if not isinstance(tokenizer_mapping, dict):
+        tokenizer_mapping = {}
+    tokenizer_mapping.setdefault("tokenizer", {})
+    tokenizer_mapping.setdefault("tokenizer_config", {})
+    integrations.GGUF_TOKENIZER_MAPPING = tokenizer_mapping
+
+    if not hasattr(integrations, "_gguf_parse_value"):
+        def _gguf_parse_value(_value, data_type):
+            raise RuntimeError("GGUF checkpoint parsing is unavailable in this image.")
+
+        integrations._gguf_parse_value = _gguf_parse_value
+
+    try:
+        import transformers.generation as generation
+        if not hasattr(generation, "GenerationMixin"):
+            try:
+                from transformers.generation.utils import GenerationMixin
+            except Exception:
+                class GenerationMixin:
+                    pass
+            generation.GenerationMixin = GenerationMixin
+    except Exception:
+        return
+
+
+_patch_transformers_gguf_compat()
+del _patch_transformers_gguf_compat
+
+from transformers.models.auto.tokenization_auto import AutoTokenizer
+from transformers.models.llama.modeling_llama import LlamaModel, LlamaPreTrainedModel
+from transformers.pipelines import pipeline
+from transformers.pipelines.text_classification import TextClassificationPipeline
 
 
 # ======================
@@ -70,7 +108,7 @@ class AtheneRewardPipeline(TextClassificationPipeline):
         """
         inputs:  messages (list[{"role": ..., "content": ...}])
         """
-        return_tensors = self.framework  # "pt"
+        return_tensors = getattr(self, "framework", "pt") or "pt"
 
         formatted = self.tokenizer.apply_chat_template(
             inputs,
@@ -85,6 +123,7 @@ class AtheneRewardPipeline(TextClassificationPipeline):
             max_length=4096,
             padding="longest",
             truncation=True,
+            add_special_tokens=False,
         )
 
     def postprocess(self, model_outputs, function_to_apply=None, top_k=1, _legacy=True):
@@ -142,6 +181,11 @@ def build_messages(prompt: str, answer: str) -> List[Dict[str, str]]:
     ]
 
 
+def chunks(items, chunk_size):
+    for start in range(0, len(items), chunk_size):
+        yield items[start:start + chunk_size]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_file", type=str, required=True,
@@ -150,24 +194,50 @@ def main():
                         help="Path to output jsonl file")
     parser.add_argument("--cache_dir", type=str, default=None,
                         help="HF cache dir for model/tokenizer")
+    parser.add_argument("--model_name", type=str, default="Nexusflow/Athene-RM-8B",
+                        help="Hugging Face model name or local path")
+    parser.add_argument("--revision", type=str, default=None,
+                        help="Optional exact Hugging Face revision to load")
+    parser.add_argument("--local_files_only", action="store_true",
+                        help="Require the model and tokenizer to be present in the local cache")
     parser.add_argument("--batch_size", type=int, default=8,
                         help="Batch size for Athene pipeline")
+    parser.add_argument("--device", type=str, default="cuda",
+                        help="Device for reward scoring")
+    parser.add_argument("--sample_batch_size", type=int, default=32,
+                        help="Number of prompts to group before flattening responses for scoring")
+    parser.add_argument("--max_samples", type=int, default=None,
+                        help="Optional cap on the number of prompt samples to score")
+    parser.add_argument("--num_shards", type=int, default=1,
+                        help="Number of input shards for data-parallel scoring")
+    parser.add_argument("--shard_index", type=int, default=0,
+                        help="Zero-based shard index for data-parallel scoring")
     args = parser.parse_args()
+    if args.num_shards < 1:
+        raise ValueError("--num_shards must be >= 1")
+    if args.shard_index < 0 or args.shard_index >= args.num_shards:
+        raise ValueError("--shard_index must be in [0, num_shards)")
+    device = args.device if torch.cuda.is_available() or args.device == "cpu" else "cpu"
 
     # ======================
     # 4.1 load model and tokenizer
     # ======================
     print("Loading Athene-RM-8B ...")
     model = AtheneForSequenceClassification.from_pretrained(
-        "Nexusflow/Athene-RM-8B",
+        args.model_name,
         torch_dtype=torch.bfloat16,
         cache_dir=args.cache_dir,
-        device_map="auto",  # supporting multi-gpus
+        revision=args.revision,
+        local_files_only=args.local_files_only,
     )
+    model.to(device)
+    model.eval()
 
     tokenizer = AutoTokenizer.from_pretrained(
-        "Nexusflow/Athene-RM-8B",
+        args.model_name,
         cache_dir=args.cache_dir,
+        revision=args.revision,
+        local_files_only=args.local_files_only,
     )
 
     if tokenizer.cls_token is None:
@@ -182,7 +252,7 @@ def main():
         model=model,
         tokenizer=tokenizer,
         pipeline_class=AtheneRewardPipeline,
-        device_map="auto",
+        device=0 if device.startswith("cuda") else -1,
     )
 
     # ======================
@@ -191,40 +261,63 @@ def main():
     os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
     fout = open(args.output_file, "w", encoding="utf-8")
 
-    data_iter = iter_dataset(args.input_file)
+    data = list(iter_dataset(args.input_file))
+    if args.max_samples is not None:
+        data = data[:args.max_samples]
+    data = [row for idx, row in enumerate(data) if idx % args.num_shards == args.shard_index]
+    print(f"Scoring {len(data)} samples")
+    if args.max_samples is not None:
+        print(f"max_samples applied: {args.max_samples}")
+    print(f"batch_size={args.batch_size}, sample_batch_size={args.sample_batch_size}")
+    print(f"shard={args.shard_index}/{args.num_shards}")
 
-    for sample in tqdm(data_iter, desc="Scoring"):
-        # expected key：prompt_id, prompt, all_generated_responses, ...
-        prompt_id = sample.get("prompt_id")
-        prompt = sample["prompt"]
-        responses: List[str] = sample["all_generated_responses"]
+    import numpy as np
 
+    with tqdm(total=len(data), desc="Scoring") as pbar:
+        for sample_batch in chunks(data, args.sample_batch_size):
+            all_messages = []
+            response_counts = []
 
-        all_messages = [build_messages(prompt, resp) for resp in responses]
+            for sample in sample_batch:
+                prompt = sample["prompt"]
+                responses: List[str] = sample["all_generated_responses"]
+                response_counts.append(len(responses))
+                all_messages.extend(build_messages(prompt, resp) for resp in responses)
 
-        scores: List[float] = rm_pipe(
-            all_messages,
-            batch_size=args.batch_size,
-        )
+            flat_scores: List[float] = rm_pipe(
+                all_messages,
+                batch_size=args.batch_size,
+            ) if all_messages else []
 
-        import numpy as np
+            offset = 0
+            for sample, count in zip(sample_batch, response_counts):
+                prompt = sample["prompt"]
+                responses: List[str] = sample["all_generated_responses"]
+                scores = flat_scores[offset:offset + count]
+                offset += count
 
-        scores_array = np.array(scores, dtype=float)
-        best_idx = int(scores_array.argmax())
-        worst_idx = int(scores_array.argmin())
+                out_sample = dict(sample)
+                if not responses:
+                    out_sample["all_rm_scores"] = []
+                    out_sample["chosen"] = []
+                    out_sample["rejected"] = []
+                    fout.write(json.dumps(out_sample, ensure_ascii=False) + "\n")
+                    continue
 
-        best_resp = responses[best_idx]
-        worst_resp = responses[worst_idx]
+                scores_array = np.array(scores, dtype=float)
+                best_idx = int(scores_array.argmax())
+                worst_idx = int(scores_array.argmin())
 
-        chosen = build_messages(prompt, best_resp)
-        rejected = build_messages(prompt, worst_resp)
+                best_resp = responses[best_idx]
+                worst_resp = responses[worst_idx]
 
-        out_sample = dict(sample)
-        out_sample["all_rm_scores"] = [float(s) for s in scores]
-        out_sample["chosen"] = chosen
-        out_sample["rejected"] = rejected
+                out_sample["all_rm_scores"] = [float(s) for s in scores]
+                out_sample["chosen"] = build_messages(prompt, best_resp)
+                out_sample["rejected"] = build_messages(prompt, worst_resp)
 
-        fout.write(json.dumps(out_sample, ensure_ascii=False) + "\n")
+                fout.write(json.dumps(out_sample, ensure_ascii=False) + "\n")
+
+            pbar.update(len(sample_batch))
 
     fout.close()
     print("Done! Saved to", args.output_file)

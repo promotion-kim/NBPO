@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
+import inspect
 import random
 import sys
 
@@ -45,6 +46,17 @@ logger = logging.getLogger(__name__)
 
 MISTRAL_CHAT_TEMPLATE = "{% if messages[0]['role'] == 'system' %}{% set loop_messages = messages[1:] %}{% set system_message = messages[0]['content'].strip() + '\n\n' %}{% else %}{% set loop_messages = messages %}{% set system_message = '' %}{% endif %}{% for message in loop_messages %}{% if loop.index0 == 0 %}{% set content = system_message + message['content'] %}{% else %}{% set content = message['content'] %}{% endif %}{% if message['role'] == 'user' %}{{ '[INST] ' + content.strip() + ' [/INST]' }}{% elif message['role'] == 'assistant' %}{{ ' '  + content.strip() + ' ' + eos_token }}{% endif %}{% endfor %}"
 
+
+def _apply_chat_template_non_thinking(tokenizer, messages, **kwargs):
+    signature = inspect.signature(tokenizer.apply_chat_template)
+    supports_extra_kwargs = any(
+        parameter.kind == inspect.Parameter.VAR_KEYWORD
+        for parameter in signature.parameters.values()
+    )
+    if "enable_thinking" in signature.parameters or supports_extra_kwargs:
+        kwargs.setdefault("enable_thinking", False)
+    return tokenizer.apply_chat_template(messages, **kwargs)
+
 def apply_chat_template(
     example,
     tokenizer,
@@ -59,7 +71,8 @@ def apply_chat_template(
         # We add an empty system message if there is none
         if auto_insert_empty_system_msg:
             maybe_insert_system_message(messages, tokenizer)
-        example["text"] = tokenizer.apply_chat_template(
+        example["text"] = _apply_chat_template_non_thinking(
+            tokenizer,
             messages,
             tokenize=False,
             add_generation_prompt=True if task == "generation" else False,
@@ -73,8 +86,8 @@ def apply_chat_template(
                 maybe_insert_system_message(chosen_messages, tokenizer)
                 maybe_insert_system_message(rejected_messages, tokenizer)
 
-            example["text_chosen"] = tokenizer.apply_chat_template(chosen_messages, tokenize=False)
-            example["text_rejected"] = tokenizer.apply_chat_template(rejected_messages, tokenize=False)
+            example["text_chosen"] = _apply_chat_template_non_thinking(tokenizer, chosen_messages, tokenize=False)
+            example["text_rejected"] = _apply_chat_template_non_thinking(tokenizer, rejected_messages, tokenize=False)
         else:
             raise ValueError(
                 f"Could not format example as dialogue for `rm` task! Require `[chosen, rejected]` keys but found {list(example.keys())}"
@@ -102,11 +115,11 @@ def apply_chat_template(
             if auto_insert_empty_system_msg:
                 maybe_insert_system_message(prompt_messages, tokenizer)
 
-            example["text_prompt"] = tokenizer.apply_chat_template(prompt_messages, tokenize=False)
-            example["text_chosen"] = tokenizer.apply_chat_template(chosen_messages, tokenize=False)
+            example["text_prompt"] = _apply_chat_template_non_thinking(tokenizer, prompt_messages, tokenize=False)
+            example["text_chosen"] = _apply_chat_template_non_thinking(tokenizer, chosen_messages, tokenize=False)
             if example["text_chosen"].startswith(tokenizer.bos_token):
                 example["text_chosen"] = example["text_chosen"][len(tokenizer.bos_token):]
-            example["text_rejected"] = tokenizer.apply_chat_template(rejected_messages, tokenize=False)
+            example["text_rejected"] = _apply_chat_template_non_thinking(tokenizer, rejected_messages, tokenize=False)
             if example["text_rejected"].startswith(tokenizer.bos_token):
                 example["text_rejected"] = example["text_rejected"][len(tokenizer.bos_token):]
         else:

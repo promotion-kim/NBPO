@@ -1,0 +1,6 @@
+interface:
+  display_name: "Train Watch"
+  short_description: "Monitor and repair named runs with evidence"
+  default_prompt: "Use $train-watch to monitor these named runs until their explicit terminal conditions."
+policy:
+  allow_implicit_invocation: false

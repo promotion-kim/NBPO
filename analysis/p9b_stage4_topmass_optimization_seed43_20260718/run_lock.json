@@ -1,0 +1,14 @@
+{
+  "experiment": "P9b Stage-4 top-mass optimization-seed replication",
+  "created_before_training": true,
+  "arm": "ronpo_topmass_stage4_s43",
+  "parent": "P7 Stage-3 ronpo_topmass_stage3 final checkpoint (seed 42)",
+  "pool": "byte-identical P8 Stage-4 precompute, reused read-only",
+  "training_seed": 43,
+  "steps": 900,
+  "effective_batch_size": 16,
+  "checkpoint_rule": "final step",
+  "reward_selection_allowed": false,
+  "evaluation_panel": "P8 locked fresh 1000 prompts, only after P8 primary evaluation",
+  "limitation": "optimization-seed replication only; parent and pool remain seed 42"
+}

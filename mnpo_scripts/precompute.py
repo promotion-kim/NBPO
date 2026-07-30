@@ -1,4 +1,6 @@
 import logging
+import inspect
+import os
 import sys
 from tqdm import tqdm
 from dataclasses import dataclass, field
@@ -6,6 +8,11 @@ from typing import List, Optional, Dict, Any, Union, Tuple
 
 import torch
 import transformers
+if os.environ.get("MNPO_DISABLE_APEX", "").lower() in {"1", "true", "yes"}:
+    import transformers.utils.import_utils as _transformers_import_utils
+
+    if hasattr(_transformers_import_utils, "_apex_available"):
+        _transformers_import_utils._apex_available = False
 from accelerate import Accelerator
 from datasets import Dataset, DatasetDict, load_dataset, load_from_disk
 from torch.utils.data import DataLoader
@@ -15,12 +22,47 @@ from transformers import (
     AutoTokenizer,
     PreTrainedTokenizerBase,
 )
-from trl.trainer.utils import DPODataCollatorWithPadding, pad_to_length
+try:
+    from trl.trainer.utils import DPODataCollatorWithPadding, pad_to_length
+except ImportError:
+    DPODataCollatorWithPadding = None
+
+    def pad_to_length(tensor: torch.Tensor, length: int, pad_value: int, dim: int = -1) -> torch.Tensor:
+        if tensor.size(dim) >= length:
+            return tensor
+        pad_size = list(tensor.shape)
+        pad_size[dim] = length - tensor.size(dim)
+        return torch.cat(
+            [tensor, torch.full(pad_size, pad_value, dtype=tensor.dtype, device=tensor.device)],
+            dim=dim,
+        )
 import torch.nn as nn
-import os
 from mnpo_scripts.precompute_trainer import PreferenceDataCollatorWithPadding
 
 logger = logging.getLogger(__name__)
+
+
+def _apply_chat_template_non_thinking(
+    tokenizer: PreTrainedTokenizerBase,
+    messages: List[Dict[str, str]],
+    **kwargs: Any,
+) -> str:
+    signature = inspect.signature(tokenizer.apply_chat_template)
+    supports_extra_kwargs = any(
+        parameter.kind == inspect.Parameter.VAR_KEYWORD
+        for parameter in signature.parameters.values()
+    )
+    if "enable_thinking" in signature.parameters or supports_extra_kwargs:
+        kwargs.setdefault("enable_thinking", False)
+    return tokenizer.apply_chat_template(messages, **kwargs)
+
+
+def is_openai_format(messages: Any) -> bool:
+    return (
+        isinstance(messages, list)
+        and all(isinstance(message, dict) for message in messages)
+        and all("role" in message and "content" in message for message in messages)
+    )
 
 
 @dataclass
@@ -124,6 +166,42 @@ class ScriptArguments:
     history_paths: Optional[List[str]] = field(default_factory=list, metadata={"help": "list of historical model paths"})
     max_history_t: Optional[int] = field(default=2, metadata={"help": "maximum history length"})
     cache_dir: Optional[str] = field(default=None, metadata={"help": "cache directory for models and datasets"})
+    ronpo_target_mode: Optional[str] = field(
+        default="score_diff_sign",
+        metadata={
+            "help": (
+                "How to add the RONPO relative label column. "
+                "'score_diff_sign' matches chosen/rejected to all_generated_responses and stores sign(score_chosen-score_rejected); "
+                "'ordered' stores +1 for every pair; 'none' skips target creation."
+            )
+        },
+    )
+    ronpo_target_column: Optional[str] = field(
+        default="ronpo_target",
+        metadata={"help": "Column name for the RONPO relative label z_y - z_y_prime."},
+    )
+    ronpo_tie_threshold: Optional[float] = field(
+        default=0.0,
+        metadata={"help": "Absolute score gap below which score_diff_sign emits a neutral 0 target."},
+    )
+    apply_chat_template: Optional[bool] = field(
+        default=True,
+        metadata={
+            "help": (
+                "Format prompt/chosen/rejected with the model chat template before "
+                "precomputing logps. Disable only for legacy preformatted datasets."
+            )
+        },
+    )
+    auto_insert_empty_system_msg: Optional[bool] = field(
+        default=False,
+        metadata={
+            "help": (
+                "Insert an empty system message before applying the chat template. "
+                "Defaults to false to match on_policy_data_gen.decode for Qwen."
+            )
+        },
+    )
 
 
 def get_batch_logps(
@@ -236,6 +314,161 @@ def transform_chat_to_str(example: Dict[str, Any]) -> Dict[str, Any]:
     return example
 
 
+def _maybe_insert_empty_system(messages: List[Dict[str, str]], tokenizer: PreTrainedTokenizerBase) -> List[Dict[str, str]]:
+    if messages and messages[0].get("role") == "system":
+        return messages
+    chat_template = tokenizer.chat_template or getattr(tokenizer, "default_chat_template", None) or ""
+    if "system" in chat_template or "<|im_start|>" in chat_template:
+        return [{"role": "system", "content": ""}] + messages
+    return messages
+
+
+def _split_preference_example(example: Dict[str, Any]) -> Tuple[List[Dict[str, str]], str, str]:
+    prompt = example.get("prompt")
+    chosen = example.get("chosen")
+    rejected = example.get("rejected")
+
+    if is_openai_format(chosen) and is_openai_format(rejected):
+        if is_openai_format(prompt):
+            prompt_messages = list(prompt)
+        else:
+            prompt_messages = list(chosen[:-1])
+        if not chosen or not rejected:
+            raise ValueError("chosen/rejected messages must be non-empty")
+        chosen_response = chosen[-1]["content"]
+        rejected_response = rejected[-1]["content"]
+        return prompt_messages, chosen_response, rejected_response
+
+    if isinstance(prompt, str) and isinstance(chosen, str) and isinstance(rejected, str):
+        return [{"role": "user", "content": prompt}], chosen, rejected
+
+    raise ValueError(
+        "Expected either OpenAI-format chosen/rejected messages or string prompt/chosen/rejected fields."
+    )
+
+
+def _assistant_suffix_from_template(
+    tokenizer: PreTrainedTokenizerBase,
+    prompt_messages: List[Dict[str, str]],
+    response: str,
+) -> str:
+    prompt_text = _apply_chat_template_non_thinking(
+        tokenizer,
+        prompt_messages,
+        tokenize=False,
+        add_generation_prompt=True,
+    )
+    full_text = _apply_chat_template_non_thinking(
+        tokenizer,
+        prompt_messages + [{"role": "assistant", "content": response}],
+        tokenize=False,
+        add_generation_prompt=False,
+    )
+    if not full_text.startswith(prompt_text):
+        raise ValueError(
+            "Chat template full conversation does not start with the generation prompt prefix. "
+            "Cannot split assistant suffix safely."
+        )
+    return full_text[len(prompt_text):].rstrip()
+
+
+def apply_preference_chat_template(
+    example: Dict[str, Any],
+    tokenizer: PreTrainedTokenizerBase,
+    auto_insert_empty_system_msg: bool = False,
+) -> Dict[str, Any]:
+    prompt_messages, chosen_response, rejected_response = _split_preference_example(example)
+    if auto_insert_empty_system_msg:
+        prompt_messages = _maybe_insert_empty_system(prompt_messages, tokenizer)
+
+    example["prompt"] = _apply_chat_template_non_thinking(
+        tokenizer,
+        prompt_messages,
+        tokenize=False,
+        add_generation_prompt=True,
+    )
+    example["chosen"] = _assistant_suffix_from_template(tokenizer, prompt_messages, chosen_response)
+    example["rejected"] = _assistant_suffix_from_template(tokenizer, prompt_messages, rejected_response)
+    example["chat_template_applied"] = True
+    return example
+
+
+def _response_text(value: Any) -> Optional[str]:
+    """Extract the assistant response text from common pair formats."""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list) and value:
+        last = value[-1]
+        if isinstance(last, dict):
+            return last.get("content")
+        if isinstance(last, str):
+            return last
+    if isinstance(value, dict):
+        return value.get("content")
+    return None
+
+
+def _find_response_score(response: Optional[str], responses: Any, scores: Any) -> Optional[float]:
+    if response is None or not isinstance(responses, list) or not isinstance(scores, list):
+        return None
+    if len(responses) != len(scores):
+        return None
+
+    for candidate, score in zip(responses, scores):
+        if candidate == response:
+            return float(score)
+
+    response_norm = response.strip()
+    for candidate, score in zip(responses, scores):
+        if isinstance(candidate, str) and candidate.strip() == response_norm:
+            return float(score)
+    return None
+
+
+def add_ronpo_target(example: Dict[str, Any], mode: str, target_column: str, tie_threshold: float) -> Dict[str, Any]:
+    """
+    Add a practical RONPO relative target for the current pair.
+
+    The full RONPO algorithm samples an adversarial atom (k, a) and queries two
+    binary labels z_y and z_y'.  The current UltraFeedback-style data has one
+    scalar RM score list per prompt, so the feasible first LLM experiment uses
+    the sign of the chosen-vs-rejected score gap as a surrogate relative label.
+    """
+    mode = (mode or "none").lower()
+    if mode == "none":
+        return example
+    if mode == "ordered":
+        example[target_column] = 1.0
+        return example
+    if mode != "score_diff_sign":
+        raise ValueError(f"Unsupported ronpo_target_mode={mode!r}")
+
+    chosen = _response_text(example.get("chosen"))
+    rejected = _response_text(example.get("rejected"))
+    chosen_score = _find_response_score(chosen, example.get("all_generated_responses"), example.get("all_rm_scores"))
+    rejected_score = _find_response_score(rejected, example.get("all_generated_responses"), example.get("all_rm_scores"))
+
+    if chosen_score is None or rejected_score is None:
+        # The annotation scripts write chosen=max score and rejected=min score.
+        # Falling back to +1 keeps older scored files usable.
+        target = 1.0
+        gap = None
+    else:
+        gap = chosen_score - rejected_score
+        if gap > tie_threshold:
+            target = 1.0
+        elif gap < -tie_threshold:
+            target = -1.0
+        else:
+            target = 0.0
+
+    example[target_column] = float(target)
+    example["ronpo_chosen_score"] = chosen_score
+    example["ronpo_rejected_score"] = rejected_score
+    example["ronpo_score_gap"] = gap
+    return example
+
+
 
 def compute_and_add_logps(
     dataset: DatasetDict,
@@ -298,6 +531,32 @@ def compute_and_add_logps(
     accelerator.free_memory()
     torch.cuda.empty_cache()
     return dataset
+
+
+def copy_logp_columns(dataset: DatasetDict, src_prefix: str, dst_prefix: str) -> DatasetDict:
+    """Reuse already-computed logps when two model paths are intentionally identical."""
+    src_chosen = f"{src_prefix}_chosen_logps"
+    src_rejected = f"{src_prefix}_rejected_logps"
+    dst_chosen = f"{dst_prefix}_chosen_logps"
+    dst_rejected = f"{dst_prefix}_rejected_logps"
+
+    for split in dataset.keys():
+        split_dataset = dataset[split]
+        if dst_chosen in split_dataset.column_names and dst_rejected in split_dataset.column_names:
+            continue
+        if src_chosen not in split_dataset.column_names or src_rejected not in split_dataset.column_names:
+            raise ValueError(f"Cannot copy missing {src_prefix} logp columns for split={split}")
+        dataset[split] = split_dataset.add_column(dst_chosen, split_dataset[src_chosen])
+        dataset[split] = dataset[split].add_column(dst_rejected, split_dataset[src_rejected])
+    return dataset
+
+
+def _same_model_path(lhs: Optional[str], rhs: Optional[str]) -> bool:
+    if not lhs or not rhs:
+        return False
+    lhs_norm = os.path.abspath(os.path.expanduser(lhs)) if os.path.exists(os.path.expanduser(lhs)) else lhs
+    rhs_norm = os.path.abspath(os.path.expanduser(rhs)) if os.path.exists(os.path.expanduser(rhs)) else rhs
+    return lhs_norm == rhs_norm
 
 
 def load_flexible_dataset(dataset_name_or_path: str, cache_dir: Optional[str] = None, split: str = "train"):
@@ -385,10 +644,39 @@ def main():
     else:
         raw_dataset = DatasetDict({"train": raw_train})
 
-    # ----- Normalize chat format to plain strings -----
-    logger.info("Transforming 'chosen'/'rejected' columns from list-of-dicts to strings...")
-    raw_dataset = raw_dataset.map(transform_chat_to_str, num_proc=12)
-    logger.info("Transformation complete.")
+    if (script_args.ronpo_target_mode or "none").lower() != "none":
+        logger.info(
+            "Adding RONPO relative target column '%s' with mode=%s.",
+            script_args.ronpo_target_column,
+            script_args.ronpo_target_mode,
+        )
+        raw_dataset = raw_dataset.map(
+            lambda ex: add_ronpo_target(
+                ex,
+                mode=script_args.ronpo_target_mode,
+                target_column=script_args.ronpo_target_column,
+                tie_threshold=float(script_args.ronpo_tie_threshold),
+            ),
+            num_proc=12,
+        )
+        logger.info("RONPO target column added.")
+
+    # ----- Normalize preference format for tokenization -----
+    if script_args.apply_chat_template:
+        logger.info("Applying model chat template to prompt/chosen/rejected columns...")
+        raw_dataset = raw_dataset.map(
+            apply_preference_chat_template,
+            fn_kwargs={
+                "tokenizer": tokenizer,
+                "auto_insert_empty_system_msg": bool(script_args.auto_insert_empty_system_msg),
+            },
+            num_proc=12,
+        )
+        logger.info("Chat template formatting complete.")
+    else:
+        logger.info("Transforming 'chosen'/'rejected' columns from list-of-dicts to strings...")
+        raw_dataset = raw_dataset.map(transform_chat_to_str, num_proc=12)
+        logger.info("String transformation complete.")
 
     if script_args.sanity_check:
         raw_dataset["train"] = raw_dataset["train"].select(range(min(100, len(raw_dataset["train"]))))
@@ -413,14 +701,23 @@ def main():
     # Historical models logps (optional)
     if script_args.history_paths:
         for i, model_path in enumerate(script_args.history_paths):
-            dataset_with_logps = compute_and_add_logps(
-                dataset=dataset_with_logps,
-                model_path=model_path,
-                tokenizer=tokenizer,
-                args=script_args,
-                accelerator=accelerator,
-                column_prefix=f"history{i}",
-            )
+            history_prefix = f"history{i}"
+            if _same_model_path(model_path, script_args.ref_model):
+                logger.info(
+                    "--- Reusing reference logps for %s because model path matches ref_model: %s ---",
+                    history_prefix,
+                    model_path,
+                )
+                dataset_with_logps = copy_logp_columns(dataset_with_logps, "reference", history_prefix)
+            else:
+                dataset_with_logps = compute_and_add_logps(
+                    dataset=dataset_with_logps,
+                    model_path=model_path,
+                    tokenizer=tokenizer,
+                    args=script_args,
+                    accelerator=accelerator,
+                    column_prefix=history_prefix,
+                )
 
     # Save final dataset (DatasetDict with train and optionally test)
     if accelerator.is_main_process:

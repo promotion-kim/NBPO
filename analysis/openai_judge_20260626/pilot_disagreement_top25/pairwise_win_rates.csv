@@ -1,0 +1,16 @@
+left_model,right_model,n,left_win_rate,right_win_rate,tie_rate,mean_confidence
+baseline,htmnpo_armo_s2,84,0.6369,0.3631,0.0595,0.8246
+baseline,htmnpo_athene_s2,90,0.7667,0.2333,0.0667,0.8154
+baseline,htmnpo_skywork_s2,95,0.6684,0.3316,0.1158,0.8205
+baseline,ronpo_s2_ckpt1400,93,0.6344,0.3656,0.043,0.8132
+baseline,ronpo_s2_ckpt2457,87,0.5862,0.4138,0.069,0.809
+htmnpo_armo_s2,ronpo_s2_ckpt1400,85,0.4235,0.5765,0.0941,0.8153
+htmnpo_armo_s2,ronpo_s2_ckpt2457,88,0.3977,0.6023,0.0909,0.8174
+htmnpo_athene_s2,htmnpo_armo_s2,91,0.4725,0.5275,0.2198,0.8303
+htmnpo_athene_s2,ronpo_s2_ckpt1400,84,0.4167,0.5833,0.0714,0.8208
+htmnpo_athene_s2,ronpo_s2_ckpt2457,85,0.3647,0.6353,0.1176,0.8271
+htmnpo_skywork_s2,htmnpo_armo_s2,89,0.5393,0.4607,0.1348,0.802
+htmnpo_skywork_s2,htmnpo_athene_s2,90,0.5889,0.4111,0.2,0.8269
+htmnpo_skywork_s2,ronpo_s2_ckpt1400,94,0.4787,0.5213,0.1277,0.8246
+htmnpo_skywork_s2,ronpo_s2_ckpt2457,92,0.4348,0.5652,0.2174,0.8205
+ronpo_s2_ckpt1400,ronpo_s2_ckpt2457,98,0.4388,0.5612,0.4898,0.8593

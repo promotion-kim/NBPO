@@ -16,7 +16,7 @@ import dataclasses
 import os
 import sys
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, NewType, Optional, Tuple
+from typing import Any, Dict, List, NewType, Optional, Tuple, Union, get_args, get_origin
 
 from transformers import MODEL_FOR_CAUSAL_LM_MAPPING, HfArgumentParser
 
@@ -31,6 +31,57 @@ DataClassType = NewType("DataClassType", Any)
 
 
 class H4ArgumentParser(HfArgumentParser):
+    @staticmethod
+    def _unwrap_optional(annotation):
+        origin = get_origin(annotation)
+        if origin is Union:
+            args = [arg for arg in get_args(annotation) if arg is not type(None)]
+            if len(args) == 1:
+                return args[0]
+        return annotation
+
+    @classmethod
+    def _cast_override_value(cls, annotation, value: str):
+        annotation = cls._unwrap_optional(annotation)
+        origin = get_origin(annotation)
+
+        if annotation in [int, float, str]:
+            return annotation(value)
+        if annotation is bool:
+            return value in ["true", "True", "1", "yes", "Yes"]
+
+        if origin in [list, List]:
+            elem_type = get_args(annotation)[0] if get_args(annotation) else str
+            elem_type = cls._unwrap_optional(elem_type)
+            values = [] if value == "" else value.split(",")
+            if elem_type in [int, float, str]:
+                return [elem_type(v) for v in values]
+            return values
+
+        if origin in [dict, Dict]:
+            key_type, val_type = get_args(annotation) if get_args(annotation) else (str, str)
+            if value.strip().startswith("{"):
+                import json
+
+                parsed = json.loads(value)
+                return {key_type(k): val_type(v) for k, v in parsed.items()}
+
+            out = {}
+            for item in value.split(","):
+                item = item.strip()
+                if not item:
+                    continue
+                if ":" in item:
+                    k, v = item.rsplit(":", 1)
+                elif "=" in item:
+                    k, v = item.rsplit("=", 1)
+                else:
+                    k, v = item, "1.0"
+                out[key_type(k)] = val_type(v)
+            return out
+
+        return value
+
     def parse_yaml_and_args(self, yaml_arg: str, other_args: Optional[List[str]] = None) -> List[dataclass]:
         """
         Parse a YAML file and overwrite the default/loaded values with the values provided to the command line.
@@ -48,7 +99,7 @@ class H4ArgumentParser(HfArgumentParser):
 
         outputs = []
         # strip other args list into dict of key-value pairs
-        other_args = {arg.split("=")[0].strip("-"): arg.split("=")[1] for arg in other_args}
+        other_args = {arg.split("=", 1)[0].strip("-"): arg.split("=", 1)[1] for arg in other_args}
         used_args = {}
 
         # overwrite the default/loaded value with the value provided to the command line
@@ -61,21 +112,7 @@ class H4ArgumentParser(HfArgumentParser):
 
                 if arg in keys:
                     base_type = data_yaml.__dataclass_fields__[arg].type
-                    inputs[arg] = val
-
-                    # cast type for ints, floats (default to strings)
-                    if base_type in [int, float]:
-                        inputs[arg] = base_type(val)
-
-                    if base_type == List[str]:
-                        inputs[arg] = [str(v) for v in val.split(",")]
-
-                    # bool of a non-empty string is True, so we manually check for bools
-                    if base_type is bool:
-                        if val in ["true", "True"]:
-                            inputs[arg] = True
-                        else:
-                            inputs[arg] = False
+                    inputs[arg] = self._cast_override_value(base_type, val)
 
                     # add to used-args so we can check if double add
                     if arg not in used_args:
@@ -86,7 +123,7 @@ class H4ArgumentParser(HfArgumentParser):
             obj = data_class(**inputs)
             outputs.append(obj)
 
-        return outputs
+        return tuple(outputs)
 
     def parse(self) -> DataClassType | Tuple[DataClassType]:
         if len(sys.argv) == 2 and sys.argv[1].endswith(".yaml"):
@@ -269,3 +306,7 @@ class DPOConfig(trl.DPOConfig):
     )
     optim: Optional[str] = field(default="rmsprop")
     remove_unused_columns: bool = field(default=False)
+    save_safetensors: bool = field(
+        default=True,
+        metadata={"help": "Compatibility field for configs that request safetensors checkpoint output."},
+    )

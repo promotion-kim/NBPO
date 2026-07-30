@@ -1,0 +1,48 @@
+{
+  "locked_at": "2026-07-20T00:55:00+09:00",
+  "reward_consulted": false,
+  "arm": "sppo_avg",
+  "training_seeds": [42, 43, 44],
+  "shared_protocol": {
+    "steps": 900,
+    "effective_batch": 16,
+    "scheduler": "cosine",
+    "warmup_ratio": 0.1,
+    "bf16": true,
+    "max_length": 2048,
+    "max_prompt_length": 1024
+  },
+  "candidates": {
+    "sppo_strong_a": {
+      "eta": 0.0075,
+      "dpo_beta": 0.05,
+      "learning_rate": 1e-7,
+      "reference_anchor_weight": 0.5,
+      "preference_sft_weight": 0.05
+    },
+    "sppo_strong_b": {
+      "eta": 0.0075,
+      "dpo_beta": 0.05,
+      "learning_rate": 5e-8,
+      "reference_anchor_weight": 0.75,
+      "preference_sft_weight": 0.075
+    },
+    "sppo_strong_c": {
+      "eta": 0.0075,
+      "dpo_beta": 0.05,
+      "learning_rate": 2.5e-8,
+      "reference_anchor_weight": 1.0,
+      "preference_sft_weight": 0.1
+    }
+  },
+  "selection_order": ["sppo_strong_a", "sppo_strong_b", "sppo_strong_c"],
+  "selection_uses_reward": false,
+  "gate": {
+    "expected_records": 1000,
+    "mean_word_ratio": [0.33, 2.0],
+    "max_consecutive_identical_word_run": 20,
+    "zero_empty": true,
+    "zero_nonempty_think_spans": true
+  }
+}
+

@@ -1,0 +1,7 @@
+{
+  "max_completion_tokens": 1024,
+  "num_retry_requests": 1085,
+  "out_dir": "analysis/openai_judge_20260626/pilot_disagreement_top25_retry1",
+  "reasoning_effort": "minimal",
+  "source_dir": "analysis/openai_judge_20260626/pilot_disagreement_top25"
+}

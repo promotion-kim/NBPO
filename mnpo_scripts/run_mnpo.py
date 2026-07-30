@@ -1,4 +1,6 @@
 import logging
+import inspect
+import os
 import random
 import sys
 from tqdm import tqdm
@@ -6,6 +8,15 @@ from tqdm import tqdm
 import torch
 import torch.nn.functional as F
 import transformers
+if os.environ.get("MNPO_DISABLE_APEX", "").lower() in {"1", "true", "yes"}:
+    # Some NGC images expose an incomplete system `apex` package without
+    # `apex.amp`.  Transformers 4.x treats its mere presence as availability
+    # and then fails while importing Trainer.  This repair path is bf16/AdamW
+    # and does not use Apex, so disable only the stale availability flag.
+    import transformers.utils.import_utils as _transformers_import_utils
+
+    if hasattr(_transformers_import_utils, "_apex_available"):
+        _transformers_import_utils._apex_available = False
 from accelerate import Accelerator
 from torch.utils.data import DataLoader
 from transformers import AutoModelForCausalLM, set_seed
@@ -27,8 +38,19 @@ from peft import PeftConfig, PeftModel
 
 from mnpo_scripts.mnpo_trainer import MNPOTrainer
 from mnpo_scripts.mnpo_config import MNPOConfig
-# =====================================================================================
 from datasets import load_from_disk
+# =====================================================================================
+
+
+def _apply_chat_template_non_thinking(tokenizer, messages, **kwargs):
+    signature = inspect.signature(tokenizer.apply_chat_template)
+    supports_extra_kwargs = any(
+        parameter.kind == inspect.Parameter.VAR_KEYWORD
+        for parameter in signature.parameters.values()
+    )
+    if "enable_thinking" in signature.parameters or supports_extra_kwargs:
+        kwargs.setdefault("enable_thinking", False)
+    return tokenizer.apply_chat_template(messages, **kwargs)
 
 logger = logging.getLogger(__name__)
 
@@ -92,11 +114,11 @@ def apply_chat_template(
             if auto_insert_empty_system_msg:
                 maybe_insert_system_message(prompt_messages, tokenizer)
 
-            example["text_prompt"] = tokenizer.apply_chat_template(prompt_messages, tokenize=False)
-            example["text_chosen"] = tokenizer.apply_chat_template(chosen_messages, tokenize=False)
+            example["text_prompt"] = _apply_chat_template_non_thinking(tokenizer, prompt_messages, tokenize=False)
+            example["text_chosen"] = _apply_chat_template_non_thinking(tokenizer, chosen_messages, tokenize=False)
             if example["text_chosen"].startswith(tokenizer.bos_token):
                 example["text_chosen"] = example["text_chosen"][len(tokenizer.bos_token):]
-            example["text_rejected"] = tokenizer.apply_chat_template(rejected_messages, tokenize=False)
+            example["text_rejected"] = _apply_chat_template_non_thinking(tokenizer, rejected_messages, tokenize=False)
             if example["text_rejected"].startswith(tokenizer.bos_token):
                 example["text_rejected"] = example["text_rejected"][len(tokenizer.bos_token):]
         else:
@@ -107,6 +129,34 @@ def apply_chat_template(
 
 
 def main():
+    # The B200 NGC image ships a newer ProcessGroupNCCL than the original
+    # training environment.  Older Accelerate does not pass device_id to its
+    # early dataset barriers, so make the torchrun local-rank mapping explicit
+    # before any distributed synchronization.  This changes no training math.
+    local_rank = os.environ.get("LOCAL_RANK")
+    if local_rank is not None and torch.cuda.is_available():
+        local_rank_int = int(local_rank)
+        torch.cuda.set_device(local_rank_int)
+        # Accelerate 0.29 calls torch.distributed.barrier() without device_ids.
+        # Torch/NCCL in the 2025.12 B200 image guesses a device in that case and
+        # aborts in the allocator.  Preserve every explicit caller argument and
+        # add only the missing local device for legacy calls.
+        original_barrier = torch.distributed.barrier
+
+        def _barrier_with_local_device(*args, **kwargs):
+            kwargs.setdefault("device_ids", [local_rank_int])
+            return original_barrier(*args, **kwargs)
+
+        torch.distributed.barrier = _barrier_with_local_device
+
+    if os.environ.get("MNPO_DISABLE_CUDNN_SDPA", "").lower() in {"1", "true", "yes"}:
+        if not hasattr(torch.backends.cuda, "enable_cudnn_sdp"):
+            raise RuntimeError("MNPO_DISABLE_CUDNN_SDPA was requested but this torch build lacks the backend switch")
+        torch.backends.cuda.enable_cudnn_sdp(False)
+        if torch.backends.cuda.cudnn_sdp_enabled():
+            raise RuntimeError("failed to disable the cuDNN SDPA backend")
+        print("[runtime] cuDNN SDPA disabled; using another enabled PyTorch SDPA backend", flush=True)
+
     # =====================================================================================
     # MODIFIED: Use MNPOConfig
     # =====================================================================================
@@ -237,6 +287,16 @@ def main():
     trainer.save_state()
 
     logger.info("*** Training complete ***")
+
+    skip_final_save = os.environ.get("MNPO_SKIP_FINAL_SAVE", "").lower() in {"1", "true", "yes"}
+    if skip_final_save:
+        logger.info("*** Skip final model save because MNPO_SKIP_FINAL_SAVE is set ***")
+        if trainer.accelerator.is_main_process:
+            trainer.tokenizer.save_pretrained(training_args.output_dir)
+            trainer.model.config.use_cache = True
+            trainer.model.config.save_pretrained(training_args.output_dir)
+        logger.info("*** Training complete! ***")
+        return
 
     ##################################
     # Save model and create model card

@@ -1,0 +1,55 @@
+Feedback
+
+
+A. 수학적 오류 지적 (CRITICAL) — 전부 타당, 전부 수정
+
+#1 "certified floor"가 수학적으로 거짓 (L64) — 핵심 지적입니다. 쉽게 말해: RONPO가 최적화하는 soft minimum은 softmin_κ(c) = −κ log E_{s0}[e^{−c/κ}]인데, 지수함수가 볼록해서 이 값은 실제 최악값 min c보다 항상 큽니다 (직접 유도 확인: E[e^{−c/κ}] ≤ e^{−min c/κ} ⇒ softmin ≥ min). 즉 "바닥을 보증한다(floor)"는 주장은 방향이 반대입니다. 타당. 수정: Prop 1에 sandwich bound min ≤ softmin ≤ min + κ log(1/s0_min) (eq:sandwich)을 추가하고, 올바른 인증서 min ≥ softmin − κ log(1/s0_min)을 본문에 명시했으며, "certified floor" 표현을 abstract·서론·실험·결론에서 전부 "smooth conservative surrogate"로 교체했습니다.
+
+#12 sandwich bound 추가 (L232) — #1의 해법 그 자체. 타당. 위와 같이 반영했고, uniform prior에서 gap이 κ log(K|A|)로 커진다는 차원 의존성도 명시했습니다.
+
+#14 dominance Remark가 동어반복 (L245) — "더 큰 집합의 min이 더 작다"는 자명한 부등식에 "certified"라는 해석을 붙인 게 문제라는 지적. 타당하지만 방어 가능: Remark를 Proposition(prop:separation)으로 승격하고, 교수님이 요구한 strict-separation 예시를 추가했습니다. K=|A|=2 anti-diagonal 비용(½±γ)에서 weight-only 값은 정확히 ½(엔트로피 완화 후에도 ½)인데 joint softmin은 κ<γ/log4이면 ½ 미만 — 동어반복이 아닌 실질적 분리를 증명으로 보였습니다(부록 증명 추가).
+
+#19 adversary 업데이트 불일치 (L416) / #32 eq:adv-weights 명칭 (L843) — 본문의 OMD step과 부록의 best response가 다르다는 지적. 코드로 확인한 결과: 1.5B 파이프라인(build_multi_objective_dataset.py)은 고정된 cost 아래 mirror step 25회 반복(≈best response로 수렴), SafeRLHF(build_os_ronpo_targets.py)는 closed-form best response. 그리고 best response는 정확히 η=1/κ에서의 OMD 한 스텝과 일치함을 확인했습니다. 타당. 수정: "Adversary schedule" 문단 신설(구현이 stagewise best-response schedule이며 정리는 이를 직접 보증하지 않음을 명시), Algorithm 1의 인덱스 버그 수정(s_{t+1} 만들고 s_t에서 샘플하던 것 → ĉ_t로 s_t를 만들어 샘플), 부록 명칭을 "entropic best response(frozen cost의 고정점)"로 정정.
+
+#22 Fig 1(b) 캡션 거짓 (L439) — κ↓0 극한이 LP값 0.3289가 아니라 0.304 근처인 이유는 τ=0.05가 고정이라 τ-정규화된 robust 최적값으로 수렴하기 때문. 표준적인 사실이고 타당. 캡션과 본문을 "fixed-τ gap을 정량화하는 것이지 V* 수렴 주장이 아님"으로 다시 썼습니다.
+
+B. 클레임 스코프 (전부 타당, 전부 수정)
+
+- #2 abstract의 이론-실험 갭 (L66): abstract에 "모델 스케일 증거는 BT plug-in을 통한 다중 보상 robustness 검증이며, 비전이적 선호는 synthetic에서만 검증"을 명시.
+- #17 plug-in이 general-preference 강점을 제거 (L395): 경험적 헤드라인을 robust multi-reward self-play로 재배치(abstract·기여·결론), general-oracle은 이론 확장으로 격하. 비-BT 판정자 실험은 향후 과제.
+- #27 "transfers favorably" 과장 (L490): "포함된 학습 baseline은 이기지만 base 대비 유의한 이득 없음"으로 정직하게 재서술.
+- #29 세 가지 worst 지표 혼용 (L574): Experiments 서두에 pairwise floor / worst objective mean(min_k E_x) / per-prompt worst(E_x min_k) 명명 규약을 신설하고 각 표 캡션에 어느 것인지 명시. (코드 확인: aggregator가 두 방식을 다 계산하고 있어서 실제로 혼용 위험이 있었음.)
+- #21 이론-지표 정렬 (L424): 위 규약 + "pairwise floor 직접 추정이 남은 갭"임을 명시. 실제 worst-pair win rate 평가는 실험 필요(아래).
+- #8 Pareto front 주장 (L108): 증명 없는 주장이므로 제거, "여러 보수적 선택 기준 중 하나"로 교체.
+- #31 결론 재작성 (L582): 교수님이 제시한 좁은 요약 구조 그대로 재작성.
+
+C. Novelty·문헌 (타당, 수정; 일부는 방어 병행)
+
+- #3/#11 Cartesian-product lifting (L87, L211): lifting이 대수적으로 표준임을 본문에서 먼저 인정하고, lifting에서 자동으로 안 나오는 것 3가지(finite-κ 인증서, weight-only와의 분리 명제, 층화 추정량의 분산 감소)를 novelty로 명시. 교수님 옵션 중 "formal separation under matched budgets"를 실제 명제로 추가한 것이 핵심 방어입니다.
+- #4/#7 문헌 감사 (L89, L106): 세 논문 모두 웹에서 실존·서지 확인 후 bib 추가 — EGPO (Zhou, Fazel, Du, COLM 2025) (https://arxiv.org/abs/2503.08942), MOPO (Agnihotri et al., ICML 2026) (https://arxiv.org/abs/2505.10892), Latham & Moharrami 2026 (https://arxiv.org/abs/2604.00200). MOPO는 실제로는 "primary + constraint" 형태라 교수님 표현("adversarial lower bounds")보다 정확하게 비교문을 작성했습니다. "first" 주장은 "단일 adversary가 이종 oracle과 opponent response를 동시에 선택하는 formulation에 대한 최초의 last-iterate 보장"으로 축소.
+- #5 IPO 특성화 오류 (L96): Azar et al.의 IPO는 실제로 BT 가정 없는 일반 선호 최적화가 맞으므로 타당. "전이성 vs 비전이성"이 아니라 "고정 opponent vs Nash worst-response" 축으로 재작성.
+- #6/#15 EGPO 선형 수렴 (L101, L309): 인용·논의 추가는 반영. 선형 수렴 증명 요구는 방어: RONPO의 loss는 OMD 스텝의 closed form에 회귀하는 구조라 partition-free가 가능한데, extragradient는 스텝당 추가 oracle 평가가 필요해 이 구조가 깨짐 — 이 trade-off를 Thm 2 뒤에 명시하고 "linear-rate 확장은 자연스러운 후속"으로 포지셔닝.
+- #10 비교표 (L177): 열을 Oracle/Robustness axis/Train-decode/Guarantee로 재구성, EGPO·MaxMin-RLHF·group-robust·RMOD·MOPO 행 추가. SPPO의 "Last-iterate Yes"는 검증 결과 잘못 — SPPO의 보장은 no-regret 기반 average-iterate이므로 수정했습니다. 모든 보장이 tabular 한정임을 캡션에 명시.
+- #9 OMD 교과서 내용 압축 (L147): 두 수식을 부록 신설 subsection으로 이동, 본문은 한 문단으로 압축. (권장하신 solution-concept 비교 그림은 새 asset이 필요해 미반영 — 원하시면 다음에 제작 가능.)
+- #16 full-coordinate feedback (L322): 타당한 한계 지적. Corollary가 |Y|+K|A| 쿼리를 소모하며 LLM에선 비현실적임을 본문에 명시하고 sampled-coordinate 분석을 open problem으로 선언.
+
+D. 실험 프로토콜 (타당, 텍스트로 가능한 부분 수정)
+
+- #26/#34 stage-2에 SPPO/INPO-avg 부재, "other five" 오류 (L482, L1222): averaging 관련 결론은 stage-1 비교에 근거함을 명시, GPT-5.5 토너먼트에 avg baseline이 없음을 캡션·본문에 공개, "other five"→"other four" 수정.
+- #28 잠정 Qwen 블록 제거 (L531): 표에서 Qwen2.5-7B 블록 삭제 (min-max 정규화가 pool 의존이라 baseline 추가 시 모든 숫자가 바뀐다는 지적이 정확). frozen calibration pool 완성 후 보고한다고 명시.
+- #30 3-seed ±SD (L576): ±값이 seed 산포이지 차이의 신뢰구간이 아님을 명시, "seed별 개별 우위(3/3)"를 근거로 삼고 유의성 주장은 철회, exploratory로 명명.
+- #33 생존 편향 (L1198): 제외 규칙(보상 평가 전 length pathology)을 공개하고, retry budget이 사전등록되지 않았음을 한계로 인정.
+- #25 하이퍼파라미터 프로토콜 (L457): 공통 탐색이 없었다는 사실과 비대칭(repair된 avg baseline)을 부록에 명시.
+- #35 seed 42 vs 42/43/44 불일치 (L1253): config 표를 "seed당 독립 4-stage run, eval 랜덤성은 42 고정"으로 수정하고 pool 행을 stages 2–4로 확장. ⚠️ 주의: stage-4 pool 구성과 seed 의미는 로컬에 결과 파일이 없어 NHN 스크립트 패턴(1.5B seed-43 replicate 스크립트의 "training-seed variation 격리" 설계)에서 유추한 것입니다. B200 접속 가능할 때 대조 확인이 필요합니다.
+- #36 IFEval 선택 편향 (L1300): "best" 비교 언어 제거, validation evidence/sanity check로 격하.
+- #37 Qwen3 진단 축약 (L1327): 2문장으로 압축, 미사용 자동생성 매크로 30개 삭제.
+- #38 HumanEval (L1333): "상수 offset이라 무해"라는 방어는 부적절하다는 지적이 맞음. Macro를 표시된 6개 벤치마크 평균으로 재계산(Base 64.70, RONPO-top +0.65, IPO +1.22 등 — 산술 검증 완료), "no regression" 단정 대신 "no evidence of regression"으로 완화.
+- #18 normalization (L397) / #20 pair sampler (L418) / #23 synthetic 폭 (L444) / #24 baseline 부족 (L455): 각각 pool 의존성 경고문, "세 번째 substitution"(deterministic pair 선택) 명문화, "algebraic 검증이지 일반 벤치마크가 아님" 스코프 문장, baseline 갭 2건(worst-objective trainer 부재, factorized-k ablation 부재) 공개로 대응. 완결은 실험 필요.
+
+남은 실험 TODO (중요도순)
+
+1. Factorized k-only adversary ablation + MaxMin-RLHF류 baseline 1개 — joint (k,a)의 가치를 직접 검증하는, novelty 방어의 핵심 실험 (#3, #24)
+2. SPPO/INPO-avg stage-2 완주 + GPT-5.5 전체 pairwise matrix (#26, #34)
+3. Synthetic random-game families + CI bands + EGPO 비교 — CPU로 저렴, 먼저 하기 좋음 (#23)
+4. λ sweep + raw reward 분포 보고 (#18), worst-pair win rate 평가 (#21)
+5. Qwen2.5-7B frozen-pool 완성 (#28), HumanEval 수정 재실행 (#38), IFEval 분리 validation (#36)

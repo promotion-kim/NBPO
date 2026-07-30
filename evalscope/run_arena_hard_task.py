@@ -7,6 +7,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-name", required=True)
     parser.add_argument("--port", type=int, required=True)
+    parser.add_argument("--eval-batch-size", type=int, default=12)
+    parser.add_argument("--judge-worker-num", type=int, default=18)
+    parser.add_argument("--judge-model", default=os.getenv("JUDGE_MODEL", "gpt-5-mini"))
     args = parser.parse_args()
 
     api_key = os.getenv("API_KEY")
@@ -21,12 +24,12 @@ def main():
 
         eval_type=EvalType.SERVICE,
         datasets=['arena_hard'],
-        eval_batch_size=12,
-        judge_worker_num=18,
+        eval_batch_size=args.eval_batch_size,
+        judge_worker_num=args.judge_worker_num,
         judge_strategy=JudgeStrategy.AUTO,
 
         judge_model_args={
-            'model_id': 'gpt-5-mini',
+            'model_id': args.judge_model,
             'generation_config': {"reasoning_effort": "minimal"},
             'api_url': api_url,
             'api_key': api_key,

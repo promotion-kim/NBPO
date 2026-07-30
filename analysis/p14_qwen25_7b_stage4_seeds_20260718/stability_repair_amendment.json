@@ -1,0 +1,15 @@
+{
+  "locked_at": "2026-07-19T15:25:00+09:00",
+  "reason": "Apply the reward-blind INPO stability recipe selected and passed at seed 42 to seeds 43 and 44 after both original Stage-1 runs failed the unchanged 1000-prompt gate.",
+  "source_lock_sha256": "b2a1a97f262365a1b056461e8878712ee6c91fcabcef5da8ebd765dee7283e31",
+  "selection_uses_reward": false,
+  "arm_overrides": {
+    "inpo_avg": {
+      "eta": 0.1,
+      "dpo_beta": 0.05,
+      "learning_rate": 2.5e-7,
+      "reference_anchor_weight": 0.2,
+      "preference_sft_weight": 0.02
+    }
+  }
+}

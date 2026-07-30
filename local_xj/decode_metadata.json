@@ -1,0 +1,14 @@
+{
+  "policy_name": "topmass_43",
+  "model": "/ext_hdd/sjkim/mnpo/outputs_ronpo_h200/os_ronpo_topmass_k05",
+  "revision": null,
+  "probe": "none",
+  "probe_system_instruction": null,
+  "seed": 43,
+  "temperature": 0.7,
+  "top_p": 0.9,
+  "max_new_tokens": 400,
+  "enable_thinking": false,
+  "count": 250,
+  "manifest_sha256": "9db5dc29e475b3f64546b53e45f7811d84b4045299586984d4bc7e197bc0ff11"
+}

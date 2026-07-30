@@ -1,0 +1,31 @@
+{
+  "locked_at": "2026-07-20T09:05:00+09:00",
+  "reward_consulted": false,
+  "arm": "ipo",
+  "training_seed": 43,
+  "shared_protocol": {
+    "steps": 900,
+    "effective_batch": 16,
+    "scheduler": "cosine",
+    "warmup_ratio": 0.1,
+    "bf16": true,
+    "max_length": 2048,
+    "max_prompt_length": 1024
+  },
+  "candidates": {
+    "ipo_repair_a": {"dpo_beta": 0.1, "learning_rate": 2.5e-7, "reference_anchor_weight": 0.2, "preference_sft_weight": 0.02},
+    "ipo_repair_b": {"dpo_beta": 0.2, "learning_rate": 2.5e-7, "reference_anchor_weight": 0.2, "preference_sft_weight": 0.02},
+    "ipo_repair_c": {"dpo_beta": 0.1, "learning_rate": 1.0e-7, "reference_anchor_weight": 0.5, "preference_sft_weight": 0.05},
+    "ipo_repair_d": {"dpo_beta": 0.2, "learning_rate": 1.0e-7, "reference_anchor_weight": 0.5, "preference_sft_weight": 0.05}
+  },
+  "selection_order": ["ipo_repair_a", "ipo_repair_b", "ipo_repair_c", "ipo_repair_d"],
+  "selection_uses_reward": false,
+  "gate": {
+    "expected_records": 1000,
+    "mean_word_ratio": [0.33, 2.0],
+    "max_consecutive_identical_word_run": 20,
+    "zero_empty": true,
+    "zero_nonempty_think_spans": true
+  }
+}
+

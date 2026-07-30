@@ -1,0 +1,41 @@
+# Cluster training defaults
+
+## Code, names, and reports
+- Keep code, scripts, configs, folders, tmux sessions, and tracker run names as short as possible without becoming ambiguous.
+- Prefer established project or domain abbreviations. Avoid vague names such as `tmp`, `new`, `final`, `run2`, or duplicate `*_v2` files without a defined version boundary.
+- Prefer names such as `ronpo-s2`, `sppo-s1`, and `inpo-s1` when they uniquely identify the run.
+- Prefer modifying the canonical launcher or config over creating a near-duplicate file or another wrapper layer.
+- Keep implementations concise and linear, but preserve validation, logging, error handling, tests, comments for non-obvious decisions, and reproducibility metadata.
+- Do not compress important logic into opaque one-liners or hide behavior behind implicit defaults and silent fallbacks.
+- Distinguish `observed`, `verified`, `inferred`, and `unknown`. Never present an assumption, launch, or process creation as a verified success.
+- Report exact changed files, commands, host/GPU IDs, output paths, checks performed, and remaining uncertainty. Surface failures plainly.
+
+## Authorization and safety
+- Use only SSH hosts and GPU IDs authorized in the user request or `~/.config/codex-cluster/hosts.yaml`.
+- Treat an unlisted GPU as unauthorized, even when it appears idle.
+- Never stop, cancel, or delete another user's process, scheduler job, tmux session, or files.
+- Never use broad commands such as `pkill -f`, `killall`, or recursive deletion with an ambiguous path.
+- Before a destructive action, identify the exact host, owner, PID or job ID, command, and working directory.
+- Do not change drivers, CUDA, system packages, firewall rules, or system-wide configuration.
+
+## Secrets and SSH
+- User-provided credentials may be used only as ephemeral authentication material for the current task. Never store, echo, log, commit, or copy passwords, TOTP seeds/codes, API keys, private keys, or tokens into prompts, skills, scripts, command lines, logs, Git, tmux history, or tracker configs.
+- Prefer SSH aliases from `~/.ssh/config` with key or agent authentication.
+- If interactive authentication is required, stop at the authentication boundary and report the exact command the user must run manually.
+
+## Storage
+- Keep source code and small configs in the project workspace.
+- Put large models, datasets, checkpoints, caches, and temporary training artifacts under the first existing writable host-approved storage root, commonly `/ext_hdd/skim`, `/storm_hdd/skim`, or `/yj_hdd/skim`.
+- Check free bytes and inodes before downloads or training. Do not silently fall back to a small system disk.
+- Use explicit environment variables or verified symlinks rather than copying large artifacts into the repository.
+
+## Training quality
+- Optimize stable samples/tokens per second, not VRAM occupancy by itself.
+- Use the exact requested GPUs through `CUDA_VISIBLE_DEVICES` or the repository's scheduler configuration.
+- Preserve algorithm semantics and effective batch size unless the user explicitly requests a change.
+- Run a bounded smoke test before a long run, then verify process state, logs, finite loss, step progress, GPU utilization, memory, and checkpoint output.
+- Record the host, GPU IDs, Git commit, command, config, environment, tmux session, PID/job ID, log path, output path, and tracker URL or run ID.
+
+## Precise review agent
+- For task-relevant code, script, config, or launch-command changes, have the `precise` custom agent perform a read-only review before the long run.
+- Apply material findings, rerun relevant checks, and state whether the review passed or remains blocked.
