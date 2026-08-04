@@ -1,0 +1,19 @@
+{
+  "label": "llama70_helpsteer2_ks",
+  "n_objectives": 4,
+  "surplus": {
+    "helpfulness": 0.142,
+    "correctness": 0.1278,
+    "coherence": 0.1678,
+    "conciseness": 0.1029
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0462,
+    "correctness": 0.0464,
+    "coherence": 0.046,
+    "conciseness": 0.046
+  },
+  "worst_surplus": 0.1029,
+  "individual_rationality": true,
+  "nash_welfare_logsum": -8.0678
+}

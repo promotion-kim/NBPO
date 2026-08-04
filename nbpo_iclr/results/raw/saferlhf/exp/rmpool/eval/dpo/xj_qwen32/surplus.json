@@ -1,0 +1,15 @@
+{
+  "label": "qwen32_saferlhf_dpo",
+  "n_objectives": 2,
+  "surplus": {
+    "helpfulness": 0.2248,
+    "harmlessness": 0.3471
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0331,
+    "harmlessness": 0.0331
+  },
+  "worst_surplus": 0.2248,
+  "individual_rationality": true,
+  "nash_welfare_logsum": -2.5508
+}

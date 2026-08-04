@@ -1,0 +1,19 @@
+{
+  "label": "phi4_helpsteer2_nbs",
+  "n_objectives": 4,
+  "surplus": {
+    "helpfulness": 0.1739,
+    "correctness": 0.1528,
+    "coherence": 0.1222,
+    "conciseness": 0.0982
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0357,
+    "correctness": 0.0367,
+    "coherence": 0.0357,
+    "conciseness": 0.0356
+  },
+  "worst_surplus": 0.0982,
+  "individual_rationality": true,
+  "nash_welfare_logsum": -8.0496
+}

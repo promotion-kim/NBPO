@@ -1,0 +1,19 @@
+{
+  "label": "phi4_helpsteer2_ipo",
+  "n_objectives": 4,
+  "surplus": {
+    "helpfulness": 0.1385,
+    "correctness": 0.1237,
+    "coherence": 0.0987,
+    "conciseness": 0.16
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0461,
+    "correctness": 0.0477,
+    "coherence": 0.0461,
+    "conciseness": 0.046
+  },
+  "worst_surplus": 0.0987,
+  "individual_rationality": true,
+  "nash_welfare_logsum": -8.2154
+}

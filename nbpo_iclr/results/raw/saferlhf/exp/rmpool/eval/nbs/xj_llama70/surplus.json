@@ -1,0 +1,15 @@
+{
+  "label": "llama70_saferlhf_nbs",
+  "n_objectives": 2,
+  "surplus": {
+    "helpfulness": 0.2384,
+    "harmlessness": 0.1703
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0332,
+    "harmlessness": 0.0331
+  },
+  "worst_surplus": 0.1703,
+  "individual_rationality": true,
+  "nash_welfare_logsum": -3.2042
+}

@@ -1,0 +1,15 @@
+{
+  "label": "phi4_saferlhf_inpo",
+  "n_objectives": 2,
+  "surplus": {
+    "helpfulness": 0.256,
+    "harmlessness": 0.3594
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0331,
+    "harmlessness": 0.0331
+  },
+  "worst_surplus": 0.256,
+  "individual_rationality": true,
+  "nash_welfare_logsum": -2.386
+}

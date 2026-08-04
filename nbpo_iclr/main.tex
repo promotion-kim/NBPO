@@ -126,7 +126,7 @@ Nothing above uses the fact that the anchor is the reference. Replacing $\mu$ by
 
 \begin{assumption}[Nondegeneracy]
 \label{ass:nondeg}
-Some $\pi$ has $s(\pi)>0$ componentwise. If nondegeneracy fails, $\mu$ is already weakly Pareto optimal and a leximin fallback applies.
+Some $\pi$ has $s(\pi)>0$ componentwise. If nondegeneracy fails, $\mu$ is already weakly Pareto optimal.
 \end{assumption}
 
 \paragraph{What existing methods select.}
@@ -149,18 +149,18 @@ All proofs, with explicit constants and witness instances, are in Appendix~\ref{
 \label{thm:ir}
 Under Assumption~\ref{ass:nondeg}: (i) for every $\tau\ge0$, $s_k(\pi^{\mathrm N}_\tau)>0$ for all $k$, so every judge strictly prefers the Nash-bargained policy to the reference; (ii) for every $\tau\ge0$, $s_k(\pi^{\mathrm{KS}}_\tau)>0$ for all $k$, with an explicit positive floor on the normalized surpluses; and (iii) the utilitarian (averaging) rule fails individual rationality: there are $K$-judge instances on which it selects a policy with $s_k<0$ for some judge.
 \end{theorem}
-The logarithmic barrier of the Nash product ensures strict individual rationality at every regularization strength $\tau$, not only in the small-$\tau$ limit. Part (iii) shows that the failure of averaging to protect individual objectives is not merely an empirical observation: there is an explicit instance on which the utilitarian rule violates the individual-rationality axiom. Both positive parts concern the exact maximizer over $\Delta$; a parametric policy trained for finitely many stages inherits them up to optimization and estimation error, so surpluses near zero can survive training when nondegeneracy is marginal (see Section~\ref{sec:exp}).
+The logarithmic barrier of the Nash product ensures strict individual rationality at every regularization strength $\tau$. Part (iii) shows that the failure of averaging to protect individual objectives is not merely an empirical observation: there is an explicit instance on which the utilitarian rule violates the individual-rationality axiom. Both positive parts concern the exact maximizer over $\Delta$; a parametric policy trained for finitely many stages inherits them up to optimization and estimation error, so surpluses near zero can survive training when nondegeneracy is marginal (see Section~\ref{sec:exp}).
 
 \begin{theorem}[Pareto optimality]
 \label{thm:po}
-Under Assumption~\ref{ass:nondeg}, $\pi^{\mathrm N}_0$ is Pareto optimal in $(u_1,\dots,u_K)$, and for $\tau>0$, $\pi^{\mathrm N}_\tau$ is Pareto optimal in the extended vector $(u_1,\dots,u_K,-\KL(\cdot\|\mu))$; the Nash welfare loss from regularization is at most linear in $\tau$.
+Under Assumption~\ref{ass:nondeg}, $\pi^{\mathrm N}_0$ is Pareto optimal in $(u_1,\dots,u_K)$, and for $\tau>0$, $\pi^{\mathrm N}_\tau$ is Pareto optimal in the extended vector $(u_1,\dots,u_K,-\KL(\cdot\|\mu))$.
 \end{theorem}
 
 \begin{theorem}[Covariance to judge noise]
 \label{thm:cov}
 Degrading judge $k$ by replacing a fraction $1-\lambda_k$ of its labels with coin flips gives the skew-symmetric oracle $P^\lambda_k=\lambda_kP_k+(1-\lambda_k)\tfrac12$. Under this compression: (i) anchored surpluses rescale exactly, $s^\lambda_k=\lambda_ks_k$, while $d$ and the KL term are unchanged, and the ideals rescale the same way; (ii) both bargaining solutions are invariant, $\pi^{\mathrm N}_\tau$ and $\pi^{\mathrm{KS}}_\tau$ are unchanged for every $\lambda\in(0,1]^K$ and $\tau\ge0$; (iii) the utilitarian and egalitarian rules are not invariant and change their selected policy under some $\lambda$.
 \end{theorem}
-Operationally, if one judge becomes noisier, a maxmin-aligned model drifts toward the degraded judge and an averaging-aligned model also moves, while a bargained model does not. To our knowledge this consequence of the scale covariance axiom has not been stated at the alignment level before, and it is directly testable.
+Operationally, if one judge becomes noisier, a maxmin-aligned model drifts toward the degraded judge and an averaging-aligned model also moves, while a bargained model does not. To our knowledge this consequence of the scale covariance axiom has not been stated at the alignment level before.
 % TODO(exp, P0): LLM-scale analogue of Table tab:cov. Inject label noise
 % (lambda = 0.3) into one HH judge, retrain all four rules, report the drift
 % of the clean surplus. This is the only empirical axis that separates NBPO
@@ -192,7 +192,7 @@ Freeze the dual at its best response to the current policy, $\omega_{t,k}=1/s_k(
 \pi_{t+1}=\arg\max_{\pi}\;\eta_t\textstyle\sum_k\omega_{t,k}s_k(\pi)-\eta_t\tau\KL(\pi\|\mu)-\KL(\pi\|\pi_t).
 \label{eq:md}
 \end{equation}
-Because $\sum_k\omega_{t,k}m_k$ is the gradient of $\sum_k\log s_k$ at $\pi_t$, the same step is Bregman proximal ascent on $J^{\mathrm N}_\tau$ itself (Lemma~\ref{lem:equiv}): the saddle and the concave program prescribe the same iterate. Its closed form is the exponential tilt
+Because $\sum_k\omega_{t,k}m_k$ is the gradient of $\sum_k\log s_k$ at $\pi_t$, the same step is Bregman proximal ascent on $J^{\mathrm N}_\tau$ itself (Lemma~\ref{lem:equiv}): the saddle and the concave program prescribe the same iterate. Solving the KL-proximal subproblem gives the following closed-form multiplicative reweighting:
 \begin{equation}
 \pi_{t+1}(y)\propto\Big(\pi_t(y)\,\mu(y)^{\eta_t\tau}\,e^{\eta_t\sum_k\omega_{t,k}m_k(y)}\Big)^{\!1/(1+\eta_t\tau)}.
 \label{eq:closed}
@@ -228,7 +228,7 @@ Because the dual is separable and one-dimensional per judge, one can solve it to
 \label{alg:nbpo}
 \begin{algorithmic}[1]
 \STATE \textbf{Input:} judges $P_{1:K}$ (an LLM prompted per objective, swap-averaged), reference $\mu$, $\tau$, $\varepsilon$, steps $T$.
-\STATE Generate and cache a reference batch $B_\mu\sim\mu$ once.
+\STATE Generate and cache a reference batch $B_\mu\sim\mu$.
 \FOR{$t=0,\dots,T-1$}
   \STATE Sample $B_t\sim\pi_t$; obtain binary outcomes $\mathbf 1[y\succ_k y'']$ for $y\in B_t,y''\in B_\mu$, all $k$.
   \STATE $\hat s_k\leftarrow(\text{win rate of }B_t\text{ over }B_\mu\text{ under }k)-\tfrac12$;\; $\omega_{t,k}\propto1/\max\{\hat s_k,\varepsilon\}$.
@@ -295,9 +295,6 @@ On \textsc{HelpSteer2} \citep{wang2024helpsteer2} we take four objectives, helpf
 
 Because the quality objectives reward longer answers, they conflict with conciseness, and the table shows how each family resolves that conflict. The preference-optimization rules and INPO push conciseness to $0.65$--$0.67$ and leave the other three near $0.59$; the per-player corners lift whichever objective they are given and give up the rest, most starkly the conciseness corner, which reaches $0.859$ there and falls to $0.231$ elsewhere. The bargaining rules spread the gain instead, and NBPO-KS ends with the highest worst-objective utility of any rule in the table. Its softmin temperature is read off the stage-one conflict strength rather than tuned.
 
-\paragraph{Iterating the bargain.}
-Re-anchoring at the reference every round makes the iteration oscillate: the weights always chase whichever objective is worst against $\mu$, so each round surrenders the one it just repaired, and the minimum utility falls from $0.506$ to $0.372$ by the fourth round. Taking the previous policy as the disagreement point removes the swing, provided each round trains on a decisive comparison; among four samples of the anchor we keep the pair with the largest weighted margin, with the weights still read off the anchored surpluses against $\mu$. Seven such rounds lift the worst objective to $0.566$ and $0.575$ on two training seeds, every utility staying above $\tfrac12$ throughout. Running the identical loop with uniform weights and a preference loss isolates what the bargaining weight buys: at matched rounds it holds a worst-objective margin of $0.015$ to $0.020$ over SimPO, IPO and DPO, and every paired bootstrap interval over $1000$ held-out prompts excludes zero in both seeds, while the average utility is statistically tied. Two further judge families were run on the same $1000$ prompts: \texttt{Llama-3.3-70B} reproduces the margin with intervals that exclude zero ($+0.017$ and $+0.018$), while \texttt{Phi-4} agrees in sign but not in significance ($+0.007$ and $+0.005$). A second chain started from the reference itself rather than from a warm policy repeats the ordering against utilitarian averaging after five rounds, by $+0.093$ on the worst objective and $+0.042$ on the average, both intervals excluding zero on $1000$ held-out prompts. Iterating SimPO in the same loop is unstable and its fifth round degenerates, so we compare against the averaging rule there. Under \texttt{Qwen3-32B} alone the helpfulness and coherence corners finish ahead of the bargaining rules, but that ordering does not survive the other two judges, and Table~\ref{tab:lm} reports the average over the three: NBPO-KS gains most from the change (worst objective $0.566$, $0.611$, $0.617$ across the families) while the helpfulness corner barely moves ($0.588$, $0.580$, $0.587$). Which corner to name therefore decides everything and cannot be known in advance, whereas the anchored surpluses supply that choice for free.
-
 \paragraph{A second panel.}
 A second panel probes the opposite regime. On \textsc{SafeRLHF} \citep{dai2024safe} we score helpfulness and harmlessness with the ground-truth Beaver reward and cost models and evaluate with the same three judges. Here the two objectives largely improve together rather than conflict, and the picture changes accordingly (Table~\ref{tab:lm2}): the aggregate rules stay within a few points of the bargaining ones, SimPO taking the average at $0.818$ against $0.803$, while NBPO-KS still holds the highest worst-objective utility at $0.799$. Bargaining neither helps much nor hurts when there is little tension to arbitrate, which is the boundary the theory draws. What the panel does show sharply is the cost of naming the wrong objective in advance: the helpfulness corner reaches $0.556$ on its own target and $0.358$ on safety.
 
@@ -329,6 +326,49 @@ Base ($\mu$) & 0.500 & 0.500 & 0.500 & 0.500 \\
 \bottomrule
 \end{tabular}
 \end{table}
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\linewidth]{figures/ablation_rounds.pdf}
+\caption{What the two design choices buy, on \textsc{HelpSteer2} under \texttt{Qwen3-32B}. Anchoring every round at the reference makes the weights chase whichever objective is currently worst against $\mu$, and the iteration gives back what it just repaired. Moving the anchor to the previous policy is not enough on its own: with a random pair of the anchor's samples the round direction is too noisy and the swing persists. Selecting, among four samples, the pair with the largest weighted margin makes each round decisive, and the worst objective rises monotonically and stays above the reference.}
+\label{fig:ablation}
+\end{figure}
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{Softmin temperature of the Kalai--Smorodinsky weights, one round on \textsc{HelpSteer2}. The temperature traces the frontier between the two corners: small values concentrate weight on the objective that is worst against $\mu$ and protect it, large values approach uniform weighting and buy a little average utility by giving that objective up. We set it from the stage-one conflict strength rather than tuning it against the evaluation.}
+\label{tab:beta}
+\begin{tabular}{lccccc}
+\toprule
+$\beta$ & 0.03 & 0.05 & 0.08 & 0.12 & 0.25 \\
+\midrule
+Avg & 0.517 & 0.522 & 0.527 & 0.524 & 0.531 \\
+Worst & \textbf{0.499} & 0.423 & 0.356 & 0.322 & 0.304 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{Seed replication of the four closest contenders, mean and standard deviation over training seeds at round six. These runs are scored by \texttt{Qwen3-32B} only, so they measure seed noise rather than judge robustness, and they should be read against Table~\ref{tab:lm}, whose entries average over three judges. Seed noise is small, at most $0.004$ on either column. Under this single judge the correctness corner leads on the worst objective; averaging over the three judges reverses that ordering, which is the point Section~\ref{sec:exp} makes about reading a corner result off one judge.}
+\label{tab:seeds}
+\begin{tabular}{lccc}
+\toprule
+rule & Avg & Worst & seeds \\
+\midrule
+NBPO-KS & $0.580\pm0.002$ & $0.561\pm0.004$ & 3 \\
+NBPO-NBS & $0.581\pm0.002$ & $0.557\pm0.001$ & 2 \\
+HT-MNPO-correct & $0.586\pm0.002$ & $0.575\pm0.002$ & 2 \\
+SimPO & $0.575\pm0.002$ & $0.545\pm0.004$ & 3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Seed sensitivity.}
+Table~\ref{tab:seeds} repeats the four closest contenders across training seeds. The runs are stable: the standard deviation is at most $0.004$ on either column, so the differences discussed above are not seed noise. They also isolate what a single judge decides. Scored by \texttt{Qwen3-32B} alone the correctness corner holds the best worst-objective utility, $0.575$ against $0.561$ for NBPO-KS, a gap several standard deviations wide; averaging over the three judges in Table~\ref{tab:lm} reverses it. The judge, not the seed, is what this comparison is sensitive to.
+
+\paragraph{What the design choices buy.}
+Figure~\ref{fig:ablation} isolates the two ingredients. Re-anchoring at $\mu$ every round is the natural reading of the formulation, and it fails: the minimum utility falls from $0.506$ to $0.372$ over three rounds as each round surrenders the objective the previous one repaired. Moving the anchor to the previous policy fixes the target but not the noise, and with a random pair of the anchor's samples the swing persists ($0.442$, $0.496$, $0.437$). Keeping the pair with the largest weighted margin among four samples makes the round direction consistent, and the worst objective climbs monotonically to $0.566$. Table~\ref{tab:beta} varies the softmin temperature over a single round and shows the frontier it controls, from protecting the worst-off objective at $\beta=0.03$ to approaching uniform weighting at $\beta=0.25$.
+
 \paragraph{Balance across judges.}
 The primal--dual iteration of Algorithm~\ref{alg:nbpo} is what buys this balance: re-estimating the weights each round pulls the neglected objective back up, so the bargaining policy ends balanced rather than specialized. On \textsc{HelpSteer2} a single such round is enough for NBPO-KS to clear every objective above the reference, the individual rationality and Pareto optimality of Theorems~\ref{thm:ir} and~\ref{thm:po}, realized without hand-tuning a single weight.
 
@@ -368,11 +408,21 @@ Throughout, $\Y$ is finite, $\Delta=\Delta(\Y)$, and $\mu$ has full support (Ass
 
 \subsection{Proof of Lemma~\ref{lem:struct}}
 \begin{proof}
-Linearity and the range $[0,1]$ are immediate from $u_k(\pi)=\sum_y\pi(y)m_k(y)$ with $m_k(y)\in[0,1]$. For the disagreement point, take independent $y,y'\sim\mu$ and average the integrand with itself after swapping the names of the two copies:
+Recall $m_k(y)=\E_{y'\sim\mu}P_k(y\succ y')$ and $u_k(\pi)=\sum_y\pi(y)m_k(y)$. Since $P_k$ takes values in $[0,1]$, so does each $m_k(y)$, and $u_k(\pi)$ is a convex combination of these numbers: it is linear in $\pi$ and lies in $[0,1]$.
+
+\emph{The disagreement point.} Taking $\pi=\mu$ and unfolding the two expectations, with $y,y'$ independent draws from $\mu$,
 \[
-u_k(\mu)=\E\,P_k(y\succ y')=\tfrac12\,\E\big[P_k(y\succ y')+P_k(y'\succ y)\big]=\tfrac12
+u_k(\mu)=\sum_y\mu(y)\,m_k(y)=\E_{y\sim\mu}\E_{y'\sim\mu}P_k(y\succ y')=\E_{(y,y')\sim\mu\otimes\mu}P_k(y\succ y').
 \]
-by skew-symmetry \eqref{eq:skew}. The set $\U$ is the image of the compact convex polytope $\Delta$ under a linear map, hence a compact convex polytope, and $d=u(\mu)\in\U$. Let $\G$ be the comprehensive hull $\{u'\in\R^K:d\le u'\le u\text{ for some }u\in\U\}$. It is convex because the defining inequalities survive convex combinations when $\U$ is convex, compact because it is a closed subset of a box (limits preserve the inequalities and $\U$ is closed), comprehensive relative to $d$ by construction, and it contains a point $u>d$ exactly when some policy has $s(\pi)>0$. Under Assumption~\ref{ass:nondeg}, the pair $(\G,d)$ therefore satisfies every clause of the definition of a bargaining problem.
+Because $(y',y)$ has the same law $\mu\otimes\mu$ as $(y,y')$, relabelling the two coordinates gives $\E_{\mu\otimes\mu}P_k(y\succ y')=\E_{\mu\otimes\mu}P_k(y'\succ y)$, so each of them equals half of their sum:
+\[
+u_k(\mu)=\tfrac12\,\E_{(y,y')\sim\mu\otimes\mu}\big[P_k(y\succ y')+P_k(y'\succ y)\big]=\tfrac12,
+\]
+since skew-symmetry \eqref{eq:skew} makes the bracket equal to $1$ for every pair, including $y=y'$. Hence $d=u(\mu)=\tfrac12\mathbf 1$ exactly, with nothing left to estimate.
+
+\emph{The feasible set.} $\U=\{u(\pi):\pi\in\Delta\}$ is the image of the simplex under the linear map $\pi\mapsto u(\pi)$. A linear image of a compact convex polytope is again one, so $\U$ is a compact convex polytope, and $d=u(\mu)\in\U$.
+
+\emph{The bargaining problem.} Let $\G=\{u'\in\R^K:d\le u'\le u\ \text{componentwise for some }u\in\U\}$; we check the four clauses. \emph{Convex}: if $d\le u'_i\le u_i\in\U$ for $i=1,2$ and $\lambda\in[0,1]$, then $\lambda u'_1+(1-\lambda)u'_2$ lies between $d$ and $\lambda u_1+(1-\lambda)u_2$, and the latter belongs to $\U$ because $\U$ is convex. \emph{Compact}: $\G\subseteq[0,1]^K$ is bounded since $\U$ is; and if $u'_n\to u'$ with $d\le u'_n\le u_n\in\U$, then compactness of $\U$ gives a subsequence $u_n\to u\in\U$, and passing to the limit in both inequalities yields $d\le u'\le u$, so $\G$ is closed. \emph{Comprehensive relative to $d$}: immediate from the definition, since lowering any coordinate of a point of $\G$ while staying above $d$ preserves membership. \emph{Nondegenerate}: $\G$ contains a point $u'>d$ if and only if some $u\in\U$ satisfies $u>d$, because $u'\in\G$ is dominated by such a $u$ and conversely any such $u$ lies in $\G$; and $u(\pi)>d$ says exactly that $s(\pi)>0$, one judge at a time, which is Assumption~\ref{ass:nondeg}. Therefore $(\G,d)$ is a bargaining problem in the sense of Section~\ref{sec:background}.
 \end{proof}
 
 \subsection{Proof of Theorem~\ref{thm:ir}}
@@ -609,7 +659,5 @@ User: [User prompt] $\{$prompt$\}$ [Response A] $\{$A$\}$ [Response B] $\{$B$\}$
 
 \paragraph{From verdicts to training targets.}
 The anchored surplus of objective $k$ is the swap-averaged win rate of the policy's samples against the reference's, $\hat s_k=u_k(\pi)-\tfrac12$ with $u_k(\pi)=P_k(\pi\succ\mu)$, which is also the anchored utility reported throughout (estimated on held-out prompts). From these surpluses the Nash and Kalai--Smorodinsky weights are formed as in the main text, and every rule (utilitarian, egalitarian, NBPO-NBS, NBPO-KS) together with the baselines (INPO, HT-MNPO) trains on the same judged comparisons through the same regression, differing only in the per-objective weight; no reward model enters at any point.
-
-\paragraph{Response length.}
 
 \end{document}

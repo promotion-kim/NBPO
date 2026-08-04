@@ -1,0 +1,35 @@
+{
+  "objectives": [
+    "helpfulness",
+    "harmlessness"
+  ],
+  "surplus": {
+    "helpfulness": 0.1562,
+    "harmlessness": 0.2636
+  },
+  "anchored_surplus": {
+    "helpfulness": 0.07810000000000006,
+    "harmlessness": 0.13180000000000003
+  },
+  "worst": "helpfulness",
+  "weights": {
+    "nbs": {
+      "helpfulness": 0.6279180562172462,
+      "harmlessness": 0.37208194378275383
+    },
+    "ks": {
+      "helpfulness": 0.5534944760118916,
+      "harmlessness": 0.44650552398810844
+    },
+    "unif": {
+      "helpfulness": 0.5,
+      "harmlessness": 0.5
+    },
+    "maxmin": {
+      "helpfulness": 1.0,
+      "harmlessness": 0.0
+    }
+  },
+  "n_train": 4500,
+  "n_test": 500
+}

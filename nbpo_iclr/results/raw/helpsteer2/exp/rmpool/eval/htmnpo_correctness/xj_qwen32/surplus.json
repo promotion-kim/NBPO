@@ -1,0 +1,19 @@
+{
+  "label": "qwen32_helpsteer2_htmnpo_correctness",
+  "n_objectives": 4,
+  "surplus": {
+    "helpfulness": 0.1567,
+    "correctness": 0.098,
+    "coherence": 0.0837,
+    "conciseness": -0.2509
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0356,
+    "correctness": 0.0358,
+    "coherence": 0.0356,
+    "conciseness": 0.0356
+  },
+  "worst_surplus": -0.2509,
+  "individual_rationality": false,
+  "nash_welfare_logsum": -20.4719
+}

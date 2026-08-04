@@ -1,0 +1,49 @@
+{
+  "objectives": [
+    "helpfulness",
+    "correctness",
+    "coherence",
+    "conciseness"
+  ],
+  "surplus": {
+    "helpfulness": 0.0082,
+    "correctness": -0.0008,
+    "coherence": 0.011,
+    "conciseness": 0.0108
+  },
+  "anchored_surplus": {
+    "helpfulness": 0.0040999999999999925,
+    "correctness": 1e-06,
+    "coherence": 0.005499999999999949,
+    "conciseness": 0.00539999999999996
+  },
+  "worst": "correctness",
+  "weights": {
+    "nbs": {
+      "helpfulness": 0.00024375352857854227,
+      "correctness": 0.9993894671720216,
+      "coherence": 0.00018170717584946013,
+      "conciseness": 0.00018507212355037573
+    },
+    "ks": {
+      "helpfulness": 0.24640219887773218,
+      "correctness": 0.28247738349860985,
+      "coherence": 0.23516760882732773,
+      "conciseness": 0.2359528087963302
+    },
+    "unif": {
+      "helpfulness": 0.25,
+      "correctness": 0.25,
+      "coherence": 0.25,
+      "conciseness": 0.25
+    },
+    "maxmin": {
+      "helpfulness": 0.0,
+      "correctness": 1.0,
+      "coherence": 0.0,
+      "conciseness": 0.0
+    }
+  },
+  "n_train": 4500,
+  "n_test": 500
+}

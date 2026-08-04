@@ -1,0 +1,15 @@
+{
+  "label": "qwen32_saferlhf_unif_s43",
+  "n_objectives": 2,
+  "surplus": {
+    "helpfulness": 0.265,
+    "harmlessness": 0.2935
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0331,
+    "harmlessness": 0.0331
+  },
+  "worst_surplus": 0.265,
+  "individual_rationality": true,
+  "nash_welfare_logsum": -2.5539
+}

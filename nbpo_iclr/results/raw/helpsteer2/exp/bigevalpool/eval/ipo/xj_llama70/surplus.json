@@ -1,0 +1,19 @@
+{
+  "label": "llama70_helpsteer2_ipo",
+  "n_objectives": 4,
+  "surplus": {
+    "helpfulness": 0.0729,
+    "correctness": 0.072,
+    "coherence": 0.0916,
+    "conciseness": 0.1471
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0253,
+    "correctness": 0.0254,
+    "coherence": 0.0252,
+    "conciseness": 0.0252
+  },
+  "worst_surplus": 0.072,
+  "individual_rationality": true,
+  "nash_welfare_logsum": -9.558
+}

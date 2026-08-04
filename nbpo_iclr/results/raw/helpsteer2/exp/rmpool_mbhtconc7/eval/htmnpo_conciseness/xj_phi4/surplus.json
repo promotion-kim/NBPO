@@ -1,0 +1,19 @@
+{
+  "label": "phi4_helpsteer2_htmnpo_conciseness",
+  "n_objectives": 4,
+  "surplus": {
+    "helpfulness": -0.2539,
+    "correctness": -0.2057,
+    "coherence": -0.1994,
+    "conciseness": 0.3555
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0357,
+    "correctness": 0.0362,
+    "coherence": 0.0356,
+    "conciseness": 0.0356
+  },
+  "worst_surplus": -0.2539,
+  "individual_rationality": false,
+  "nash_welfare_logsum": -42.4808
+}

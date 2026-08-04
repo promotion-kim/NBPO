@@ -9,6 +9,8 @@ nhn/
 data/
 experiments/
 results/
+!nbpo_iclr/results/
+!nbpo_iclr/results/**
 outputs/
 wandb/
 mlxp/

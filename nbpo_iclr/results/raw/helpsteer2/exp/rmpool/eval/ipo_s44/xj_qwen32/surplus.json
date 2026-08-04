@@ -1,0 +1,19 @@
+{
+  "label": "qwen32_helpsteer2_ipo_s44",
+  "n_objectives": 4,
+  "surplus": {
+    "helpfulness": 0.1544,
+    "correctness": 0.0966,
+    "coherence": 0.081,
+    "conciseness": -0.1951
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0357,
+    "correctness": 0.0359,
+    "coherence": 0.0356,
+    "conciseness": 0.0356
+  },
+  "worst_surplus": -0.1951,
+  "individual_rationality": false,
+  "nash_welfare_logsum": -20.5343
+}

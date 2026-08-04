@@ -1,0 +1,19 @@
+{
+  "label": "qwen32_helpsteer2_ks",
+  "n_objectives": 4,
+  "surplus": {
+    "helpfulness": -0.0591,
+    "correctness": -0.0176,
+    "coherence": -0.0159,
+    "conciseness": 0.1092
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0356,
+    "correctness": 0.0358,
+    "coherence": 0.0356,
+    "conciseness": 0.0356
+  },
+  "worst_surplus": -0.0591,
+  "individual_rationality": false,
+  "nash_welfare_logsum": -43.6606
+}

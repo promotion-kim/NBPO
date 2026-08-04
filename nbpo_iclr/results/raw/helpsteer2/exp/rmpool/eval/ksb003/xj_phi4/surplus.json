@@ -1,0 +1,19 @@
+{
+  "label": "phi4_helpsteer2_ksb003",
+  "n_objectives": 4,
+  "surplus": {
+    "helpfulness": 0.07,
+    "correctness": 0.0466,
+    "coherence": 0.0502,
+    "conciseness": -0.0002
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.046,
+    "correctness": 0.0475,
+    "coherence": 0.0461,
+    "conciseness": 0.046
+  },
+  "worst_surplus": -0.0002,
+  "individual_rationality": false,
+  "nash_welfare_logsum": -22.5324
+}

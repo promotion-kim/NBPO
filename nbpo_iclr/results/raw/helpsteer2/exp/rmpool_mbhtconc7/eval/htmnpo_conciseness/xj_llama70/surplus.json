@@ -1,0 +1,19 @@
+{
+  "label": "llama70_helpsteer2_htmnpo_conciseness",
+  "n_objectives": 4,
+  "surplus": {
+    "helpfulness": -0.2917,
+    "correctness": -0.2023,
+    "coherence": -0.3028,
+    "conciseness": 0.3958
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0359,
+    "correctness": 0.036,
+    "coherence": 0.0357,
+    "conciseness": 0.0356
+  },
+  "worst_surplus": -0.3028,
+  "individual_rationality": false,
+  "nash_welfare_logsum": -42.3735
+}

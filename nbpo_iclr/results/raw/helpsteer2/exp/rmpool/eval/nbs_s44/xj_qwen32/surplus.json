@@ -1,0 +1,19 @@
+{
+  "label": "qwen32_helpsteer2_nbs_s44",
+  "n_objectives": 4,
+  "surplus": {
+    "helpfulness": -0.0273,
+    "correctness": -0.0156,
+    "coherence": -0.0145,
+    "conciseness": 0.0591
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0356,
+    "correctness": 0.0359,
+    "coherence": 0.0356,
+    "conciseness": 0.0356
+  },
+  "worst_surplus": -0.0273,
+  "individual_rationality": false,
+  "nash_welfare_logsum": -44.2746
+}

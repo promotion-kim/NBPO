@@ -1,0 +1,19 @@
+{
+  "label": "llama70_helpsteer2_simpo",
+  "n_objectives": 4,
+  "surplus": {
+    "helpfulness": 0.0707,
+    "correctness": 0.0738,
+    "coherence": 0.0894,
+    "conciseness": 0.1742
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0464,
+    "correctness": 0.0463,
+    "coherence": 0.046,
+    "conciseness": 0.046
+  },
+  "worst_surplus": 0.0707,
+  "individual_rationality": true,
+  "nash_welfare_logsum": -9.4181
+}

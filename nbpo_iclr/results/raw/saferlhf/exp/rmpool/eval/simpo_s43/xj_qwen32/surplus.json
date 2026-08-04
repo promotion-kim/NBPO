@@ -1,0 +1,15 @@
+{
+  "label": "qwen32_saferlhf_simpo_s43",
+  "n_objectives": 2,
+  "surplus": {
+    "helpfulness": 0.2658,
+    "harmlessness": 0.3557
+  },
+  "hoeffding_margin": {
+    "helpfulness": 0.0331,
+    "harmlessness": 0.0331
+  },
+  "worst_surplus": 0.2658,
+  "individual_rationality": true,
+  "nash_welfare_logsum": -2.3589
+}
