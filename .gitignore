@@ -18,3 +18,10 @@ __pycache__/
 *.safetensors
 *.bin
 hf_cache/
+
+# LaTeX build products
+*.aux
+*.log
+*.blg
+*.out
+*.synctex.gz
