@@ -1,0 +1,134 @@
+\begin{thebibliography}{25}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Agnihotri et~al.(2026)Agnihotri, Jain, Ramachandran, and Wen]{agnihotri2026mopo}
+Akhil Agnihotri, Rahul Jain, Deepak Ramachandran, and Zheng Wen.
+\newblock Multi-objective preference optimization: Improving human alignment of generative models.
+\newblock In \emph{International Conference on Machine Learning}, 2026.
+
+\bibitem[Bhatia et~al.(2020)Bhatia, Pananjady, Bartlett, Dragan, and Wainwright]{bhatia2020multicriteria}
+Kush Bhatia, Ashwin Pananjady, Peter~L. Bartlett, Anca~D. Dragan, and Martin~J. Wainwright.
+\newblock Preference learning along multiple criteria: A game-theoretic perspective.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~33, pp.\  7413--7424, 2020.
+
+\bibitem[Blackwell(1956)]{blackwell1956analog}
+David Blackwell.
+\newblock An analog of the minimax theorem for vector payoffs.
+\newblock \emph{Pacific Journal of Mathematics}, 6\penalty0 (1):\penalty0 1--8, 1956.
+
+\bibitem[Bradley \& Terry(1952)Bradley and Terry]{bradley1952rank}
+Ralph~Allan Bradley and Milton~E. Terry.
+\newblock Rank analysis of incomplete block designs: I. the method of paired comparisons.
+\newblock \emph{Biometrika}, 39\penalty0 (3/4):\penalty0 324--345, 1952.
+
+\bibitem[Calandriello et~al.(2024)Calandriello, Guo, Munos, Rowland, Tang, Pires, Richemond, Le~Lan, Valko, Liu, et~al.]{calandriello2024online}
+Daniele Calandriello, Daniel Guo, R{\'e}mi Munos, Mark Rowland, Yunhao Tang, Bernardo~Avila Pires, Pierre~Harvey Richemond, Charline Le~Lan, Michal Valko, Tianqi Liu, et~al.
+\newblock Human alignment of large language models through online preference optimisation.
+\newblock \emph{arXiv preprint arXiv:2403.08635}, 2024.
+
+\bibitem[Chakraborty et~al.(2024)Chakraborty, Qiu, Yuan, Koppel, Huang, Manocha, Bedi, and Wang]{chakraborty2024maxmin}
+Souradip Chakraborty, Jiahao Qiu, Hui Yuan, Alec Koppel, Furong Huang, Dinesh Manocha, Amrit~Singh Bedi, and Mengdi Wang.
+\newblock Maxmin-rlhf: Alignment with diverse human preferences.
+\newblock In \emph{Proceedings of the 41st International Conference on Machine Learning}, volume 235 of \emph{Proceedings of Machine Learning Research}, 2024.
+
+\bibitem[Chen et~al.(2026)Chen, Li, Chen, and Lin]{chen2026raco}
+Peter Chen, Xiaopeng Li, Xi~Chen, and Tianyi Lin.
+\newblock Reward-free alignment for conflicting objectives.
+\newblock In \emph{Proceedings of the 43rd International Conference on Machine Learning}, 2026.
+
+\bibitem[Christiano et~al.(2017)Christiano, Leike, Brown, Martic, Legg, and Amodei]{christiano2017deep}
+Paul~F. Christiano, Jan Leike, Tom Brown, Miljan Martic, Shane Legg, and Dario Amodei.
+\newblock Deep reinforcement learning from human preferences.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~30, 2017.
+
+\bibitem[Conitzer et~al.(2024)Conitzer, Freedman, Heitzig, Holliday, Jacobs, Lambert, Moss{\'e}, Pacuit, Russell, Schoelkopf, Tewolde, and Zwicker]{conitzer2024social}
+Vincent Conitzer, Rachel Freedman, Jobst Heitzig, Wesley~H. Holliday, Bob~M. Jacobs, Nathan Lambert, Milan Moss{\'e}, Eric Pacuit, Stuart Russell, Hailey Schoelkopf, Emanuel Tewolde, and William~S. Zwicker.
+\newblock Position: Social choice should guide {AI} alignment in dealing with diverse human feedback.
+\newblock In \emph{Proceedings of the 41st International Conference on Machine Learning}, volume 235 of \emph{Proceedings of Machine Learning Research}, 2024.
+
+\bibitem[Hoeffding(1963)]{hoeffding1963probability}
+Wassily Hoeffding.
+\newblock Probability inequalities for sums of bounded random variables.
+\newblock \emph{Journal of the American Statistical Association}, 58\penalty0 (301):\penalty0 13--30, 1963.
+
+\bibitem[Munos et~al.(2024)Munos, Valko, Calandriello, Azar, Rowland, Guo, Tang, Geist, Mesnard, Michi, et~al.]{munos2024nash}
+R{\'e}mi Munos, Michal Valko, Daniele Calandriello, Mohammad~Gheshlaghi Azar, Mark Rowland, Daniel Guo, Yunhao Tang, Matthieu Geist, Thomas Mesnard, Andrea Michi, et~al.
+\newblock Nash learning from human feedback.
+\newblock In \emph{Proceedings of the 41st International Conference on Machine Learning}, volume 235 of \emph{Proceedings of Machine Learning Research}, 2024.
+
+\bibitem[Nash(1950)]{nash1950}
+John~F Nash.
+\newblock The bargaining problem.
+\newblock \emph{Econometrica}, 18\penalty0 (2):\penalty0 155--162, 1950.
+
+\bibitem[Navon et~al.(2022)Navon, Shamsian, Achituve, Maron, Kawaguchi, Chechik, and Fetaya]{navon2022nashmtl}
+Aviv Navon, Aviv Shamsian, Idan Achituve, Haggai Maron, Kenji Kawaguchi, Gal Chechik, and Ethan Fetaya.
+\newblock Multi-task learning as a bargaining game.
+\newblock In \emph{Proceedings of the 39th International Conference on Machine Learning}, volume 162 of \emph{Proceedings of Machine Learning Research}, 2022.
+
+\bibitem[Ouyang et~al.(2022)Ouyang, Wu, Jiang, Almeida, Wainwright, Mishkin, Zhang, Agarwal, Slama, Ray, Schulman, Hilton, Kelton, Miller, Simens, Askell, Welinder, Christiano, Leike, and Lowe]{ouyang2022training}
+Long Ouyang, Jeffrey Wu, Xu~Jiang, Diogo Almeida, Carroll Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, John Schulman, Jacob Hilton, Fraser Kelton, Luke Miller, Maddie Simens, Amanda Askell, Peter Welinder, Paul Christiano, Jan Leike, and Ryan Lowe.
+\newblock Training language models to follow instructions with human feedback.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~35, pp.\  27730--27744, 2022.
+
+\bibitem[Rafailov et~al.(2023)Rafailov, Sharma, Mitchell, Ermon, Manning, and Finn]{rafailov2023direct}
+Rafael Rafailov, Archit Sharma, Eric Mitchell, Stefano Ermon, Christopher~D. Manning, and Chelsea Finn.
+\newblock Direct preference optimization: Your language model is secretly a reward model.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~36, 2023.
+
+\bibitem[Ram{\'e} et~al.(2023)Ram{\'e}, Couairon, Dancette, Gaya, Shukor, Soulier, and Cord]{rame2023rewarded}
+Alexandre Ram{\'e}, Guillaume Couairon, Corentin Dancette, Jean-Baptiste Gaya, Mustafa Shukor, Laure Soulier, and Matthieu Cord.
+\newblock Rewarded soups: Towards pareto-optimal alignment by interpolating weights fine-tuned on diverse rewards.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~36, 2023.
+
+\bibitem[Rosset et~al.(2024)Rosset, Cheng, Mitra, Santacroce, Awadallah, and Xie]{rosset2024direct}
+Corby Rosset, Ching-An Cheng, Arindam Mitra, Michael Santacroce, Ahmed Awadallah, and Tengyang Xie.
+\newblock Direct nash optimization: Teaching language models to self-improve with general preferences.
+\newblock \emph{arXiv preprint arXiv:2404.03715}, 2024.
+
+\bibitem[Son et~al.(2026)Son, Bankes, Yoon, Ramesh, Tang, and Bogunovic]{son2026rmod}
+Seongho Son, William Bankes, Sangwoong Yoon, Shyam~Sundhar Ramesh, Xiaohang Tang, and Ilija Bogunovic.
+\newblock Robust multi-objective controlled decoding of large language models.
+\newblock In \emph{International Conference on Learning Representations}, 2026.
+
+\bibitem[Wu et~al.(2025)Wu, Sun, Yuan, Ji, Yang, and Gu]{wu2025sppo}
+Yue Wu, Zhiqing Sun, Huizhuo Yuan, Kaixuan Ji, Yiming Yang, and Quanquan Gu.
+\newblock Self-play preference optimization for language model alignment.
+\newblock In \emph{International Conference on Learning Representations}, 2025.
+
+\bibitem[Zhang et~al.(2026)Zhang, Zhang, Grimes, Yu, Swamy, and Wu]{zhang2026prosper}
+Jiahao Zhang, Lujing Zhang, Keltin Grimes, Zhuohao Yu, Gokul Swamy, and Zhiwei~Steven Wu.
+\newblock Back to blackwell: Closing the loop on intransitivity in multi-objective preference fine-tuning.
+\newblock \emph{arXiv preprint arXiv:2602.19041}, 2026.
+
+\bibitem[Zhang et~al.(2025)Zhang, Yu, Peng, Song, Tian, Huo, Jiang, Mi, and Yu]{zhang2025iterative}
+Yuheng Zhang, Dian Yu, Baolin Peng, Linfeng Song, Ye~Tian, Mingyue Huo, Nan Jiang, Haitao Mi, and Dong Yu.
+\newblock Iterative nash policy optimization: Aligning {LLM}s with general preferences via no-regret learning.
+\newblock In \emph{The Thirteenth International Conference on Learning Representations}, 2025.
+\newblock URL \url{https://openreview.net/forum?id=Pujt3ADZgI}.
+
+\bibitem[Zhong et~al.(2024{\natexlab{a}})Zhong, Deng, Su, Wu, and Zhang]{zhong2024nashwelfare}
+Huiying Zhong, Zhun Deng, Weijie~J. Su, Zhiwei~Steven Wu, and Linjun Zhang.
+\newblock Provable multi-party reinforcement learning with diverse human feedback.
+\newblock \emph{arXiv preprint arXiv:2403.05006}, 2024{\natexlab{a}}.
+
+\bibitem[Zhong et~al.(2024{\natexlab{b}})Zhong, Ma, Zhang, Yang, Chen, Zhang, Qi, and Yang]{zhong2024panacea}
+Yifan Zhong, Chengdong Ma, Xiaoyuan Zhang, Ziran Yang, Haojun Chen, Qingfu Zhang, Siyuan Qi, and Yaodong Yang.
+\newblock Panacea: Pareto alignment via preference adaptation for {LLM}s.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2024{\natexlab{b}}.
+
+\bibitem[Zhou et~al.(2025)Zhou, Fazel, and Du]{zhou2025egpo}
+Runlong Zhou, Maryam Fazel, and Simon~S. Du.
+\newblock Extragradient preference optimization ({EGPO}): Beyond last-iterate convergence for nash learning from human feedback.
+\newblock In \emph{Conference on Language Modeling}, 2025.
+
+\bibitem[Zhou et~al.(2024)Zhou, Liu, Shao, Yue, Yang, Ouyang, and Qiao]{zhou2024beyond}
+Zhanhui Zhou, Jie Liu, Jing Shao, Xiangyu Yue, Chao Yang, Wanli Ouyang, and Yu~Qiao.
+\newblock Beyond one-preference-fits-all alignment: Multi-objective direct preference optimization.
+\newblock In \emph{Findings of the Association for Computational Linguistics: ACL 2024}, 2024.
+
+\end{thebibliography}

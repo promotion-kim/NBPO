@@ -1,0 +1,14 @@
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\caption{Exact optimization on the frozen \textsc{UltraFeedback} response pool ($n=1{,}372$ complete prompts). Surpluses use the population scale of Eq.~\eqref{eq:game-surplus}; higher is better except for the Frank--Wolfe (FW) gap. This finite-pool certificate tests the bargaining rule, not neural generalization.}
+\label{tab:finite-pool-certificate}
+\begin{tabular}{lrrrr}
+\toprule
+selection rule & min $s_k$ & mean $s_k$ & $\sum_k\log s_k$ & FW gap \\
+\midrule
+\NBPO{} & 0.221324 & 0.235957 & -5.783311 & 9.02e-09 \\
+Utilitarian & 0.217866 & 0.236070 & -5.785865 & 9.86e-09 \\
+\bottomrule
+\end{tabular}
+\end{table}
