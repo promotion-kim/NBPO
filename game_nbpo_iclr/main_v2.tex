@@ -488,96 +488,37 @@ HT-MNPO (instr.\ following) & $0.491$ & $0.491$ & $0.490$ & $0.509$ & $0.495$ & 
 \paragraph{Results.}
 
 \begin{table*}[t]
-\centering\footnotesize
-\setlength{\tabcolsep}{3.2pt}
-\caption{Objective-wise game-value improvement over the reference on \textsc{UltraFeedback}, on the population scale of \eqref{eq:centered}. Held-out surpluses on one 657-prompt jointly complete panel judged in a single pass by the pinned \texttt{Qwen3-32B} oracle; the panel spans all twelve policies, so it is smaller than the ten-policy panel of the previous draft and every row shifts by at most $0.005$. ``IR'' is the fraction of held-out prompts on which all four objectives exceed the fallback; the base policy scores $0.254$ on this statistic, so that value is the sampling floor rather than zero. ``ref.\ win'' is the mean anchored win rate. Every arm starts at $\pi_0=\mu$, shares the pair set, optimizer and 300-step budget, and differs only in its aggregation rule; \NBPO{} uses the proximal step size selected in Appendix~\ref{app:eta} and MOPO the temperature of its own sweep that attains positive surplus. Four arms attain positive surplus on all four objectives---\NBPO{}, MOPO, and the honesty and instruction-following corners---but \NBPO{}'s minimum is $1.8\times$ the next largest, and it leads every column of the table.}
-\label{tab:fixed-k-neural-completion}
-\begin{tabular}{lrrrrrrr}
-\toprule
-method & instr. $s$ & truth. $s$ & honest $s$ & helpful $s$ & min $s$ & IR & ref. win \\
-\midrule
-Base $=\mu=\pi_0$ & $0.0000$ & $0.0000$ & $0.0000$ & $0.0000$ & $0.0000$ & $0.254$ & 0.493 \\
-\NBPO{} (ours) & $\mathbf{0.0391}$ & $\mathbf{0.0485}$ & $\mathbf{0.0546}$ & $\mathbf{0.1093}$ & $\mathbf{0.0391}$ & $\mathbf{0.342}$ & $\mathbf{0.555}$ \\
-PROSPER/MaxEntBW & $-0.0349$ & $-0.0508$ & $-0.0458$ & $0.0676$ & $-0.0508$ & $0.240$ & 0.469 \\
-Utilitarian & $-0.0639$ & $-0.0765$ & $-0.0705$ & $0.0268$ & $-0.0765$ & $0.228$ & 0.433 \\
-Absolute maxmin & $-0.0434$ & $-0.0624$ & $-0.0512$ & $0.0594$ & $-0.0624$ & $0.263$ & 0.455 \\
-Surplus maxmin & $-0.0137$ & $-0.0004$ & $0.0200$ & $0.1081$ & $-0.0137$ & $0.295$ & 0.516 \\
-Uniform-INPO & $-0.0082$ & $0.0222$ & $0.0203$ & $0.0789$ & $-0.0082$ & $0.300$ & 0.517 \\
-MOPO & $0.0307$ & $0.0265$ & $0.0215$ & $0.0321$ & $0.0215$ & $0.312$ & 0.520 \\
-HT-MNPO (truthfulness) & $-0.0501$ & $-0.0486$ & $-0.0415$ & $0.0231$ & $-0.0501$ & $0.237$ & 0.454 \\
-HT-MNPO (helpfulness) & $-0.0571$ & $-0.0728$ & $-0.0668$ & $0.0500$ & $-0.0728$ & $0.219$ & 0.445 \\
-HT-MNPO (honesty) & $0.0215$ & $0.0273$ & $0.0250$ & $0.0749$ & $0.0215$ & $0.304$ & 0.529 \\
-HT-MNPO (instr.\ following) & $0.0080$ & $0.0257$ & $0.0321$ & $0.0653$ & $0.0080$ & $0.323$ & 0.526 \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-
-\paragraph{Objective-wise surplus across datasets.}
-Table~\ref{tab:fixed-k-neural-completion} reports one panel. Table~\ref{tab:multi-dataset-surplus} repeats
-the measurement on two further datasets so that the aggregation rules are compared where their objectives
-conflict differently. The reading is mixed and we report it as such. On \textsc{UltraFeedback}, \NBPO{} is
-the only rule with positive surplus on every objective and it attains the largest minimum. On \textsc{TL;DR}
-it attains the largest average surplus and keeps conciseness at the fallback while the utilitarian rule and
-PROSPER both drive that objective clearly negative, but surplus maxmin ends with the larger minimum. On the \texttt{Qwen3-8B} backbone, which carries the full eleven-arm baseline set, \NBPO{} leads all four objectives, the minimum and the average; its minimum is $55\%$ above the next best and its average more than double. Six of the eleven arms lose individual rationality there, including PROSPER, MOPO, uniform-INPO and three of the four single-objective corners. This panel is rebuilt with Qwen3's reasoning trace suppressed; an earlier version left it on, and $71\%$ of that pool's responses ended inside the trace, which flattened every arm into a $0.009$ band and let a single-objective corner appear to win. The dual is nearly uniform here either way ($\lambda$ between $8.2$ and $10.3$, against $14.5$--$18.0$ on the \textsc{Llama} panel), so the objectives genuinely do leave similar room on this backbone; what the truncation removed was the separation between the trained policies, not between the objectives. On
-\textsc{SafeRLHF} \NBPO{} places last of the four on both the minimum and the average, and does so even
-though it alone was tuned: its proximal step size was selected from a four-point sweep by held-out minimum
-surplus, PROSPER received the same sweep, and the two remaining rules were run at a single setting. The
-panels differ in how much their objectives disagree---the share of response pairs on which every objective
-agrees is $0.25$ on \textsc{TL;DR}, $0.42$ on \textsc{UltraFeedback} and $0.50$ on \textsc{SafeRLHF}---and
-\textsc{SafeRLHF} carries only two objectives, so it is the panel with the least for a bargaining rule to
-arbitrate. We regard that as a scope condition on the method rather than as support for it, and we do not
-claim uniform dominance on held-out surplus. The pattern across the four panels is that \NBPO{} takes the largest average surplus on three of them and the largest minimum on one, while surplus maxmin takes the largest minimum on three. That is the division the theory predicts rather than a shortfall: maximising the minimum is what surplus maxmin optimises by construction, whereas the bargaining solution trades a little of the minimum for total surplus and is the only rule among these that is invariant to how each objective's utility is scaled.
-
-\begin{table*}[t]
-\centering\footnotesize
-\setlength{\tabcolsep}{3.5pt}
-\caption{Objective-wise held-out surplus on three datasets, population scale of \eqref{eq:centered}, with
-the same \texttt{Llama-3.1-8B-Instruct} reference and the same pinned \texttt{Qwen3-32B} oracle throughout.
-Within each panel every arm starts at $\pi_0=\mu$, trains on the identical response pool with the identical
-optimizer budget, and differs only in the weight vector over objectives, so the comparison isolates the
-aggregation rule. Across panels the magnitudes are not comparable: \textsc{UltraFeedback} is scored on the
-657-prompt jointly complete panel of Table~\ref{tab:fixed-k-neural-completion}, while \textsc{TL;DR} and
-\textsc{SafeRLHF} are scored on 100 held-out prompts against four anchor samples. Objective columns follow
-each panel's own header. On \textsc{SafeRLHF} both \NBPO{} and PROSPER are reported at the proximal step
-size selected from a common four-point sweep by held-out minimum surplus, a criterion fixed before the
-sweep was run; the utilitarian and surplus-maxmin arms were run at a single step size and were not tuned.
-The fourth panel repeats the \textsc{UltraFeedback} objectives on a \texttt{Qwen3-8B} backbone---instruction-tuned; Qwen3 unifies thinking and non-thinking modes in one checkpoint and drops the \texttt{-Instruct} suffix used in Qwen2.5---so that the aggregation comparison does not rest on a single base model. Its objective columns run helpfulness, truthfulness, honesty, instruction following, the order its pool was built in. Best minimum surplus in each panel is bold.}
+\centering\scriptsize
+\setlength{\tabcolsep}{2.6pt}
+\caption{Objective-wise held-out surplus over the reference, grouped by dataset, on the population scale
+of \eqref{eq:centered}. Each panel reports the minimum and the average surplus across that panel's own
+objectives: instruction following, truthfulness, honesty and helpfulness on \textsc{UltraFeedback};
+coverage, faithfulness, conciseness and helpfulness on \textsc{TL;DR}; helpfulness and harmlessness on
+\textsc{SafeRLHF}. Within a panel every arm starts at $\pi_0=\mu$, trains on the identical response pool
+with the identical optimizer budget, and differs only in the weight vector over objectives, so the
+comparison isolates the aggregation rule. Across panels the magnitudes are not comparable:
+all three panels use \texttt{Llama-3.1-8B-Instruct} as backbone, reference and initialisation, but
+\textsc{UltraFeedback} is scored on a 657-prompt jointly complete panel and the other two on 100 held-out
+prompts against four anchor samples. The \texttt{Qwen3-8B} replication of the \textsc{UltraFeedback} panel
+is in Table~\ref{tab:objectivewise-appendix}. The single-objective HT-MNPO corners cannot share rows
+across panels because each panel has its own objectives, so they are summarised by the corner with the
+largest and the smallest minimum surplus. Best in each column is bold. Per-objective breakdowns for every panel are in Table~\ref{tab:objectivewise-appendix}.}
 \label{tab:multi-dataset-surplus}
 \begin{tabular}{lrrrrrr}
 \toprule
-method & \multicolumn{4}{c}{objective-wise surplus $s_k$} & min $s$ & avg $s$\\
+& \multicolumn{2}{c}{\textsc{UltraFeedback}} & \multicolumn{2}{c}{\textsc{TL;DR}} & \multicolumn{2}{c}{\textsc{SafeRLHF}}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+method & min $s$ & avg $s$ & min $s$ & avg $s$ & min $s$ & avg $s$\\
 \midrule
-\multicolumn{7}{l}{\textsc{UltraFeedback}: instruction following, truthfulness, honesty, helpfulness}\\
-\NBPO{} (ours) & $0.039$ & $0.049$ & $0.055$ & $0.109$ & $\mathbf{0.039}$ & $0.063$\\
-PROSPER/MaxEntBW & $-0.035$ & $-0.051$ & $-0.046$ & $0.068$ & $-0.051$ & $-0.016$\\
-Utilitarian & $-0.064$ & $-0.077$ & $-0.071$ & $0.027$ & $-0.077$ & $-0.046$\\
-Surplus maxmin & $-0.014$ & $-0.000$ & $0.020$ & $0.108$ & $-0.014$ & $0.028$\\
-\midrule
-\multicolumn{7}{l}{\textsc{TL;DR}: coverage, faithfulness, conciseness, helpfulness}\\
-\NBPO{} (ours) & $0.198$ & $0.079$ & $-0.001$ & $0.178$ & $-0.001$ & $\mathbf{0.114}$\\
-PROSPER/MaxEntBW & $0.205$ & $0.031$ & $-0.068$ & $0.175$ & $-0.068$ & $0.086$\\
-Utilitarian & $0.221$ & $0.072$ & $-0.046$ & $0.188$ & $-0.046$ & $0.109$\\
-Surplus maxmin & $0.081$ & $0.090$ & $0.018$ & $0.066$ & $\mathbf{0.018}$ & $0.064$\\
-\midrule
-\multicolumn{7}{l}{\textsc{UltraFeedback} on \texttt{Qwen3-8B}, trace suppressed: helpfulness, truthfulness, honesty, instr.\ following}\\
-\NBPO{} (ours) & $\mathbf{0.072}$ & $\mathbf{0.018}$ & $\mathbf{0.043}$ & $\mathbf{0.031}$ & $\mathbf{0.018}$ & $\mathbf{0.041}$\\
-PROSPER/MaxEntBW & $0.039$ & $-0.002$ & $0.016$ & $0.017$ & $-0.002$ & $0.018$\\
-Utilitarian & $0.038$ & $0.012$ & $0.016$ & $0.012$ & $0.012$ & $0.019$\\
-Absolute maxmin & $0.041$ & $0.005$ & $0.018$ & $0.012$ & $0.005$ & $0.019$\\
-Surplus maxmin & $0.038$ & $0.004$ & $0.014$ & $0.009$ & $0.004$ & $0.016$\\
-Uniform-INPO & $-0.005$ & $-0.001$ & $-0.001$ & $-0.003$ & $-0.005$ & $-0.002$\\
-MOPO & $-0.002$ & $-0.001$ & $-0.005$ & $0.001$ & $-0.005$ & $-0.001$\\
-HT-MNPO (helpfulness) & $-0.002$ & $-0.001$ & $-0.001$ & $0.002$ & $-0.002$ & $-0.001$\\
-HT-MNPO (truthfulness) & $0.017$ & $0.001$ & $0.016$ & $0.014$ & $0.001$ & $0.012$\\
-HT-MNPO (honesty) & $0.000$ & $0.005$ & $0.001$ & $-0.003$ & $-0.003$ & $0.001$\\
-HT-MNPO (instr.\ following) & $-0.004$ & $0.004$ & $0.001$ & $0.002$ & $-0.004$ & $0.001$\\
-\midrule
-\multicolumn{7}{l}{\textsc{SafeRLHF}: helpfulness, harmlessness}\\
-\NBPO{} (ours) & $0.118$ & $0.101$ & --- & --- & $0.101$ & $0.110$\\
-PROSPER/MaxEntBW & $0.145$ & $0.116$ & --- & --- & $0.116$ & $0.131$\\
-Utilitarian & $0.157$ & $0.138$ & --- & --- & $0.138$ & $0.148$\\
-Surplus maxmin & $0.150$ & $0.143$ & --- & --- & $\mathbf{0.143}$ & $0.147$\\
+\NBPO{} (ours) & $\mathbf{0.039}$ & $\mathbf{0.063}$ & $-0.001$ & $\mathbf{0.114}$ & $0.101$ & $0.110$\\
+PROSPER/MaxEntBW & $-0.051$ & $-0.016$ & $-0.068$ & $0.086$ & $0.116$ & $0.134$\\
+Utilitarian & $-0.077$ & $-0.046$ & $-0.046$ & $0.109$ & $0.138$ & $0.148$\\
+Absolute maxmin & $-0.062$ & $-0.024$ & $-0.079$ & $0.080$ & $\mathbf{0.144}$ & $\mathbf{0.149}$\\
+Surplus maxmin & $-0.014$ & $0.028$ & $\mathbf{0.018}$ & $0.064$ & $0.143$ & $0.147$\\
+Uniform-INPO & $-0.008$ & $0.028$ & $-0.052$ & $-0.041$ & $-0.077$ & $-0.066$\\
+MOPO & $0.022$ & $0.028$ & $-0.001$ & $0.030$ & $0.096$ & $0.099$\\
+HT-MNPO, best corner & $0.022$ & $0.037$ & $-0.010$ & $0.020$ & $-0.049$ & $-0.036$\\
+HT-MNPO, worst corner & $-0.073$ & $-0.037$ & $-0.079$ & $0.029$ & $-0.050$ & $-0.037$\\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -605,13 +546,17 @@ construction rather than by dataset.
 \toprule
 selection rule & $\lambda^{(A)}$ & $\lambda^{(B)}$ & $\lambda^{(C)}$ & mean\\
 \midrule
-Constrained \NBPO{} (ours) & $\mathbf{0.01}$ & $\mathbf{0.01}$ & $\mathbf{0.00}$ & $\mathbf{0.01}$\\
+Constrained \NBPO{} (ours) & $0.01$ & $0.01$ & $0.00$ & $0.01$\\
 \NBPO{}, panel rule & $0.00$ & $0.00$ & $0.00$ & $0.00$\\
 \NBPO{}, prompt-wise & $2.53$ & $2.97$ & $2.32$ & $2.61$\\
 Utilitarian & $5.66$ & $6.31$ & $5.85$ & $5.94$\\
+Uniform-INPO & $5.66$ & $6.31$ & $5.85$ & $5.94$\\
+MOPO & $5.66$ & $6.31$ & $5.85$ & $5.94$\\
 PROSPER/MaxEntBW & $7.35$ & $6.63$ & $6.71$ & $6.90$\\
 Surplus maxmin & $16.02$ & $13.57$ & $0.00$ & $9.86$\\
 Absolute maxmin & $16.32$ & $0.00$ & $16.32$ & $10.88$\\
+\midrule
+HT-MNPO, any corner & $0.00$ & $0.00$ & $0.00$ & $0.00$\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -640,7 +585,7 @@ read. Every arm on that backbone sits within $0.03$ of its reference on Arena-Ha
 the rules far less than the objective-wise surpluses of Table~\ref{tab:multi-dataset-surplus}, where six of
 eleven arms fail individual rationality outright. We therefore report this table as a check that no arm
 regresses in general capability, not as evidence for an aggregation rule; the surpluses of
-Tables~\ref{tab:fixed-k-neural-completion} and~\ref{tab:multi-dataset-surplus} are what the rule is
+Table~\ref{tab:multi-dataset-surplus} are what the rule is
 designed to move.
 
 \paragraph{Suppressing the reasoning trace on the \texttt{Qwen3-8B} backbone.}
@@ -1308,7 +1253,7 @@ Surplus maxmin & $0.081$ & $\mathbf{0.090}$ & $\mathbf{0.018}$ & $0.066$ & $\mat
 \end{tabular}
 \end{table*}
 
-These tables serve different claims.  Table~\ref{tab:fixed-k-neural-completion} tests whether the learned compromise approaches the intended bargaining outcome under genuine objective conflict.  Table~\ref{tab:general-benchmark-completion} checks that gains are not caused by verbosity or broad capability regression.  Table~\ref{tab:cross-domain-completion} tests whether the result transfers to safety and summarization rather than depending on one prompt distribution.
+These tables serve different claims.  Table~\ref{tab:multi-dataset-surplus} tests whether the learned compromise approaches the intended bargaining outcome under genuine objective conflict.  Table~\ref{tab:general-benchmark-completion} checks that gains are not caused by verbosity or broad capability regression.  Table~\ref{tab:cross-domain-completion} tests whether the result transfers to safety and summarization rather than depending on one prompt distribution.
 
 \begin{table}[htbp]
 \centering\footnotesize
@@ -1409,7 +1354,7 @@ Surplus maxmin & $0.639$ [$0.629,\,0.649$] & $0.617$ & $+0.244$ [$+0.236,\,+0.25
 \end{table}
 
 \paragraph{Held-out realization of the regression target.}
-Table~\ref{tab:uf-realization} measures whether the trained network reproduces its prescribed mirror target on held-out prompts: the pairwise policy log-ratio is correlated against the frozen centered target on 148 held-out prompt groups after training on 1{,}340 groups for exactly four passes. Same-split memorization unit tests (32 groups, 50 passes) exceed Pearson $0.98$ for every configuration shown, so optimizer and capacity are not the binding constraint; the target itself has split-half reliability above $0.88$, so label noise is not the ceiling either. Across the logistic and squared losses, LoRA ranks 64 and 256, and a full-precision forward pass, held-out realization plateaus near $0.36$, far below the $0.80$ preregistered for opening reward-based selection. We are not aware of prior preference-optimization work that reports this quantity; the plateau motivates the pair-oriented projection used in Table~\ref{tab:fixed-k-neural-completion}.
+Table~\ref{tab:uf-realization} measures whether the trained network reproduces its prescribed mirror target on held-out prompts: the pairwise policy log-ratio is correlated against the frozen centered target on 148 held-out prompt groups after training on 1{,}340 groups for exactly four passes. Same-split memorization unit tests (32 groups, 50 passes) exceed Pearson $0.98$ for every configuration shown, so optimizer and capacity are not the binding constraint; the target itself has split-half reliability above $0.88$, so label noise is not the ceiling either. Across the logistic and squared losses, LoRA ranks 64 and 256, and a full-precision forward pass, held-out realization plateaus near $0.36$, far below the $0.80$ preregistered for opening reward-based selection. We are not aware of prior preference-optimization work that reports this quantity; the plateau motivates the pair-oriented projection used in Table~\ref{tab:multi-dataset-surplus}.
 
 \begin{table}[htbp]
 \centering\footnotesize
@@ -1428,14 +1373,94 @@ Squared \eqref{eq:regression-loss} & LoRA-256 & $0.928$ & $0.363$ & $0.018$\\
 \end{table}
 
 \paragraph{Rescaling test: construction and caveats.}
-Theorem~\ref{thm:fairness} states that the \NBPO{} solution is unchanged when each objective's utility is rescaled independently. Table~\ref{tab:uf-scale-covariance} tests this on the frozen pool without retraining or relabelling: each objective's payoff and temperature are multiplied by its own factor $\lambda_k$, which leaves the underlying preferences untouched, and every rule's selection is recomputed. We report the fraction of the $6{,}000\times 6$ response pairs whose preferred element changes. \NBPO{} does not move a single pair under any of the three rescalings, matching the theorem exactly. Every competing rule does: the utilitarian average and PROSPER's per-prompt worst objective both compare raw values across objectives, and the two maxmin rules move most of all. The zeros in the maxmin rows are coincidental rather than structural---they occur only when a rescaling happens to leave the arg-minimising objective unchanged---whereas the \NBPO{} zeros hold for every rescaling. The prompt-wise \NBPO{} variant is close to invariant but not exactly so, because a prompt whose estimated surplus is nonpositive needs a numerical floor and the floor does not commute with rescaling; the same floor is what makes the panel-level rule deviate when it binds.
+Theorem~\ref{thm:fairness} states that the \NBPO{} solution is unchanged when each objective's utility is rescaled independently. Table~\ref{tab:uf-scale-covariance} tests this on the frozen pool without retraining or relabelling: each objective's payoff and temperature are multiplied by its own factor $\lambda_k$, which leaves the underlying preferences untouched, and every rule's selection is recomputed. We report the fraction of the $6{,}000\times 6$ response pairs whose preferred element changes. \NBPO{} does not move a single pair under any of the three rescalings, matching the theorem exactly. Every competing rule does: the utilitarian average and PROSPER's per-prompt worst objective both compare raw values across objectives, and the two maxmin rules move most of all. The zeros in the maxmin rows are coincidental rather than structural---they occur only when a rescaling happens to leave the arg-minimising objective unchanged---whereas the \NBPO{} zeros hold for every rescaling. The prompt-wise \NBPO{} variant is close to invariant but not exactly so, because a prompt whose estimated surplus is nonpositive needs a numerical floor and the floor does not commute with rescaling; the same floor is what makes the panel-level rule deviate when it binds. Two of the added baselines land on the utilitarian row exactly, and for reasons worth stating. Uniform-INPO differs from the utilitarian rule in its training loss, not in how it combines objectives, so it inherits that rule's scale sensitivity unchanged. MOPO's log-barrier multipliers $\lambda_k = \sigma/\max(G_k - b_k, \sigma^2)$ never bind at these surplus magnitudes---$G_k - b_k \approx 0.05$ against $\sigma^2 = 1$---so its aggregation also reduces to the uniform sum. The HT-MNPO corners are exactly invariant, but only because a rule that reads a single objective cannot be disturbed by rescaling that objective: they buy invariance by ignoring the other objectives, and Table~\ref{tab:multi-dataset-surplus} shows what that costs them on individual rationality.
 
 
 The rescaling vectors, in the objective order (helpfulness, honesty, instruction following, truthfulness), are $\lambda^{(A)}=(0.2,0.6,1.0,1.7)$, $\lambda^{(B)}=(3.0,0.5,1.0,0.25)$ and $\lambda^{(C)}=(1.0,1.0,1.0,5.0)$.
 
 \paragraph{Matched game-value comparison.}
-Table~\ref{tab:fixed-k-neural-completion} in Appendix~\ref{app:frozen-neural-tables} evaluates all arms on the 1{,}000 held-out prompts under the frozen evaluator, anchors, and decoding shared with the parent run. ``pair-projection'' arms orient each frozen response pair by the rule's selector score and train with a standard length-normalized preference loss; ``exact regression'' arms regress the pairwise log-ratio difference onto the rule's signed score difference with the manuscript loss \eqref{eq:regression-loss}. Both use the identical 1{,}200-step budget.
+Table~\ref{tab:multi-dataset-surplus} in Appendix~\ref{app:frozen-neural-tables} evaluates all arms on the 1{,}000 held-out prompts under the frozen evaluator, anchors, and decoding shared with the parent run. ``pair-projection'' arms orient each frozen response pair by the rule's selector score and train with a standard length-normalized preference loss; ``exact regression'' arms regress the pairwise log-ratio difference onto the rule's signed score difference with the manuscript loss \eqref{eq:regression-loss}. Both use the identical 1{,}200-step budget.
 The completed rows stress-test the certificate requirement of Algorithm~\ref{alg:nbpo}. Run open-loop at four times the manuscript's optimizer budget, the squared-loss update drives every rule to the same collapsed policy: mean response length grows from $1{,}399$ to about $2{,}700$ characters, the anchored win rate falls to $0.07$--$0.09$, and every held-out surplus is strongly negative. Restoring the manuscript's own 300-step budget removes the collapse---response lengths stay within $1.2$--$1.3\times$ the parent and generations remain fluent---and the aggregation rules then separate measurably. \NBPO{} dominates the utilitarian rule on every objective, on the minimum surplus, and on the anchored win rate, which is the comparison the inverse-surplus weights are designed to affect; both maxmin rules place ahead of \NBPO{} on this panel, with surplus maxmin closest to the fallback. Critically, no trained arm at either budget attains joint positive surplus, so the constrained algorithm would reject every candidate. Since the same collapse appears under every rule, it is attributable to the uncertified projection step rather than to the aggregation rule, and it is consistent with the held-out realization plateau of Table~\ref{tab:uf-realization}: when the fitted update does not track its prescribed target off-distribution, constrained stage acceptance is the mechanism that prevents drift. We therefore report these runs as a negative result about uncertified projection, not as evidence for or against the bargaining rule.
+
+
+\section{Objective-Wise Surpluses}
+\label{app:objectivewise}
+Table~\ref{tab:multi-dataset-surplus} reports each panel's minimum and average surplus. This table gives
+the objective-by-objective breakdown those two statistics summarise, on the same evaluations and the same
+population scale, and adds the \texttt{Qwen3-8B} replication of the \textsc{UltraFeedback} panel that the
+main-text table omits so that all of its rows share one backbone. Objective columns follow each panel's own
+header; \textsc{SafeRLHF} has two objectives, so its last two columns are empty. Reading down a panel shows
+which objective each rule sacrifices: the utilitarian and maxmin rules buy helpfulness on
+\textsc{UltraFeedback} at the cost of the other three, PROSPER and the utilitarian rule drive conciseness
+clearly negative on \textsc{TL;DR}, and the single-objective corners lose whichever objectives they do not
+optimise.
+
+\begin{table*}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\caption{Objective-wise held-out surplus over the reference for every arm and every panel, population
+scale of \eqref{eq:centered}. Within a panel each arm starts at $\pi_0=\mu$, trains on the identical
+response pool with the identical optimizer budget, and differs only in the weight vector over objectives.
+Across panels the magnitudes are not comparable: \textsc{UltraFeedback} on \texttt{Llama} is scored on a
+657-prompt jointly complete panel, the rest on 100 held-out prompts against four anchor samples.}
+\label{tab:objectivewise-appendix}
+\begin{tabular}{lrrrrrr}
+\toprule
+method & obj.\ 1 & obj.\ 2 & obj.\ 3 & obj.\ 4 & min $s$ & avg $s$\\
+\midrule
+\multicolumn{7}{l}{\textsc{UltraFeedback} on \texttt{Llama-3.1-8B-Instruct}: instruction following, truthfulness, honesty, helpfulness}\\
+\NBPO{} (ours) & $0.039$ & $0.049$ & $0.055$ & $0.109$ & $0.039$ & $0.063$\\
+PROSPER/MaxEntBW & $-0.035$ & $-0.051$ & $-0.046$ & $0.068$ & $-0.051$ & $-0.016$\\
+Utilitarian & $-0.064$ & $-0.077$ & $-0.070$ & $0.027$ & $-0.077$ & $-0.046$\\
+Absolute maxmin & $-0.043$ & $-0.062$ & $-0.051$ & $0.059$ & $-0.062$ & $-0.024$\\
+Surplus maxmin & $-0.014$ & $-0.000$ & $0.020$ & $0.108$ & $-0.014$ & $0.028$\\
+Uniform-INPO & $-0.008$ & $0.022$ & $0.020$ & $0.079$ & $-0.008$ & $0.028$\\
+MOPO & $0.031$ & $0.026$ & $0.022$ & $0.032$ & $0.022$ & $0.028$\\
+HT-MNPO (helpfulness) & $-0.057$ & $-0.073$ & $-0.067$ & $0.050$ & $-0.073$ & $-0.037$\\
+HT-MNPO (truthfulness) & $-0.050$ & $-0.049$ & $-0.041$ & $0.023$ & $-0.050$ & $-0.029$\\
+HT-MNPO (honesty) & $0.022$ & $0.027$ & $0.025$ & $0.075$ & $0.022$ & $0.037$\\
+HT-MNPO (instr.\ following) & $0.008$ & $0.026$ & $0.032$ & $0.065$ & $0.008$ & $0.033$\\
+\midrule
+\multicolumn{7}{l}{\textsc{UltraFeedback} on \texttt{Qwen3-8B}: helpfulness, truthfulness, honesty, instruction following}\\
+\NBPO{} (ours) & $0.072$ & $0.018$ & $0.043$ & $0.031$ & $0.018$ & $0.041$\\
+PROSPER/MaxEntBW & $0.039$ & $-0.002$ & $0.016$ & $0.017$ & $-0.002$ & $0.018$\\
+Utilitarian & $0.038$ & $0.012$ & $0.016$ & $0.012$ & $0.012$ & $0.019$\\
+Absolute maxmin & $0.041$ & $0.005$ & $0.018$ & $0.012$ & $0.005$ & $0.019$\\
+Surplus maxmin & $0.038$ & $0.004$ & $0.014$ & $0.009$ & $0.004$ & $0.016$\\
+Uniform-INPO & $-0.005$ & $-0.001$ & $-0.001$ & $-0.003$ & $-0.005$ & $-0.002$\\
+MOPO & $-0.002$ & $-0.001$ & $-0.005$ & $0.001$ & $-0.005$ & $-0.001$\\
+HT-MNPO (helpfulness) & $-0.002$ & $-0.001$ & $-0.001$ & $0.002$ & $-0.002$ & $-0.001$\\
+HT-MNPO (truthfulness) & $0.017$ & $0.001$ & $0.016$ & $0.014$ & $0.001$ & $0.012$\\
+HT-MNPO (honesty) & $0.000$ & $0.005$ & $0.001$ & $-0.003$ & $-0.003$ & $0.001$\\
+HT-MNPO (instruction following) & $-0.004$ & $0.004$ & $0.001$ & $0.002$ & $-0.004$ & $0.001$\\
+\midrule
+\multicolumn{7}{l}{\textsc{TL;DR} on \texttt{Llama-3.1-8B-Instruct}: coverage, faithfulness, conciseness, helpfulness}\\
+\NBPO{} (ours) & $0.198$ & $0.079$ & $-0.001$ & $0.178$ & $-0.001$ & $0.114$\\
+PROSPER/MaxEntBW & $0.205$ & $0.031$ & $-0.068$ & $0.175$ & $-0.068$ & $0.086$\\
+Utilitarian & $0.221$ & $0.072$ & $-0.046$ & $0.188$ & $-0.046$ & $0.109$\\
+Absolute maxmin & $0.213$ & $0.005$ & $-0.079$ & $0.182$ & $-0.079$ & $0.080$\\
+Surplus maxmin & $0.081$ & $0.090$ & $0.018$ & $0.066$ & $0.018$ & $0.064$\\
+Uniform-INPO & $-0.051$ & $-0.052$ & $-0.011$ & $-0.050$ & $-0.052$ & $-0.041$\\
+MOPO & $0.061$ & $0.009$ & $-0.001$ & $0.052$ & $-0.001$ & $0.030$\\
+HT-MNPO (coverage) & $0.051$ & $-0.010$ & $-0.007$ & $0.045$ & $-0.010$ & $0.020$\\
+HT-MNPO (faithfulness) & $0.074$ & $-0.020$ & $-0.026$ & $0.060$ & $-0.026$ & $0.022$\\
+HT-MNPO (conciseness) & $0.126$ & $-0.037$ & $-0.079$ & $0.106$ & $-0.079$ & $0.029$\\
+HT-MNPO (helpfulness) & $0.037$ & $-0.025$ & $-0.035$ & $0.048$ & $-0.035$ & $0.006$\\
+\midrule
+\multicolumn{7}{l}{\textsc{SafeRLHF} on \texttt{Llama-3.1-8B-Instruct}: helpfulness, harmlessness}\\
+\NBPO{} (ours) & $0.118$ & $0.101$ & --- & --- & $0.101$ & $0.110$\\
+PROSPER/MaxEntBW & $0.151$ & $0.116$ & --- & --- & $0.116$ & $0.134$\\
+Utilitarian & $0.157$ & $0.138$ & --- & --- & $0.138$ & $0.148$\\
+Absolute maxmin & $0.154$ & $0.144$ & --- & --- & $0.144$ & $0.149$\\
+Surplus maxmin & $0.150$ & $0.143$ & --- & --- & $0.143$ & $0.147$\\
+Uniform-INPO & $-0.077$ & $-0.055$ & --- & --- & $-0.077$ & $-0.066$\\
+MOPO & $0.102$ & $0.096$ & --- & --- & $0.096$ & $0.099$\\
+HT-MNPO (helpfulness) & $-0.024$ & $-0.049$ & --- & --- & $-0.049$ & $-0.036$\\
+HT-MNPO (harmlessness) & $-0.023$ & $-0.050$ & --- & --- & $-0.050$ & $-0.037$\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
 
 \section{Fixed-Reference Precursor Experiments}
 \label{app:legacy}
