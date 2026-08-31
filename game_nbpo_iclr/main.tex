@@ -1,7 +1,6 @@
 % File: main.tex -- NBPO manuscript for ICLR 2027
 % Self-contained source using the official ICLR 2027 style.
 % The current method is called NBPO throughout; earlier fixed-reference results are labeled as a precursor variant.
-% IMPORTANT: empirical tables use \widetilde{s} because the supplied run summary does not document its payoff normalization.
 \documentclass{article}
 \usepackage{iclr2027_conference,times}
 \usepackage[hidelinks,hypertexnames=false]{hyperref}
@@ -41,36 +40,31 @@
 \maketitle
 
 \begin{abstract}
-Aligning Large Language Models (LLMs) often requires satisfying multiple, potentially competing preference objectives. This challenge has motivated growing line of work on multi-objective alignment. Many existing methods represent each objective with a scalar reward or utility, which cannot capture cyclic pairwise preferences. Game-theoretic methods such as Nash Learning from Human Feedback (NLHF) directly optimize general pairwise preferences. A recent game-theoretic approach extends this perspective to multi-objective alignment, but resolves trade-offs through worst-objective optimization. However, worst-objective optimization is only one possible way to aggregate multiple objectives. A max-min rule can admit Pareto-dominated solutions, and its solution can depend on the relative scales of the objectives. We therefore introduce Nash Bargaining Preference Optimization (NBPO), which applies Nash bargaining to objective-wise game values. When joint improvement is feasible, NBPO strictly improves every objective over a reference fallback, is Pareto optimal in game-value space, and is invariant to independent positive affine transformations of the objective utilities. For implementation, we derive a training-free regularized opponent model, and a partition-free regression loss using binary comparisons. We also establish last-iterate convergence. \textcolor{red}{Add experiment results.}
+Aligning large language models (LLMs) to multiple objectives requires both representing preferences within each objective and selecting a compromise across objectives. Human comparisons need not admit a global scalar reward: annotators may weigh latent attributes differently across contexts and response pairs, so aggregate judgments can be cyclic. Most existing methods nevertheless represent each objective through scalar scores over individual responses and cannot capture such cycles. Nash Learning from Human Feedback (NLHF) instead treats prompt-conditioned pairwise preferences directly as game payoffs. A recent multi-objective NLHF approach retains this generality but uses max-min aggregation. However, max-min can select Pareto-dominated outcomes and change under objective rescaling, so the resulting compromise lacks basic efficiency and scale robustness. We introduce Nash Bargaining Preference Optimization (NBPO), which separates these decisions. An entropy-regularized preference game yields one value per objective, and Nash bargaining balances improvements over a reference fallback. The reference becomes a meaningful status quo, while the trade-off follows proportional gains rather than prespecified weights. When joint improvement is feasible, NBPO strictly improves every objective over the fallback, selects a Pareto-optimal and unique game-value vector, is proportionally fair, and leaves the set of optimal policies unchanged under independent positive affine transformations of objective utilities. A closed-form regularized opponent avoids training an additional opponent model, while partition-free pairwise log-ratio regression removes policy normalizers and learns from binary comparisons without fitting scalar rewards. The resulting constrained entropy-proximal solver starts directly from the reference, recovers inverse-surplus weights, and admits last-iterate convergence with explicit sampling and regression errors.
 \end{abstract}
 
 \section{Introduction}
 \label{sec:intro}
-Large Language Models (LLMs) are commonly refined through preference-based post-training such as Reinforcement Learning from Human Feedback (RLHF) \citep{christiano2017deep,ouyang2022training}. Standard RLHF learns a scalar reward from pairwise comparisons and optimizes its expectation, while Direct Preference Optimization removes the separately trained reward model but retains an implicit scalar reward and a Bradley--Terry (BT) representation of preferences \citep{rafailov2023direct,bradley1952rank}.
+Preference-based post-training is central to aligning Large Language Models (LLMs) with human judgments \citep{christiano2017deep,ouyang2022training}. Standard Reinforcement Learning from Human Feedback (RLHF) learns a scalar reward from pairwise comparisons, while Direct Preference Optimization removes the separately trained reward model but retains an implicit scalar reward and a Bradley--Terry (BT) representation of preferences \citep{rafailov2023direct,bradley1952rank}. Both approaches require comparisons to be explained by a single scalar score assigned to each response. This assumption is restrictive for multi-objective alignment, where one deployed assistant must satisfy objectives such as helpfulness, harmlessness, correctness, and conciseness.
 
-A deployed assistant is evaluated along several objectives, including helpfulness, harmlessness, correctness, and conciseness. Existing multi-objective methods expose or constrain their trade-offs through objective weights, policy interpolation, preference-conditioned policies, hard constraints, or worst-case aggregation \citep{zhou2024beyond,rame2023rewarded,zhong2024panacea,chakraborty2024maxmin,son2026rmod,agnihotri2026mopo}. These approaches are useful when users can specify weights, thresholds, a primary objective, or a weakest-objective rule. We instead study the complementary setting in which a fixed set of objectives are combined into one deployed policy without prespecified priorities.
+Even within one named objective, human judgments may depend on several latent attributes whose relative importance changes across annotators, prompts, and response pairs. Consider three answers to the same prompt under a helpfulness criterion. Response A is direct but omits important qualifications, response B is comprehensive but verbose, and response C is clear and well qualified but less complete. Aggregate comparisons may prefer A to B for relevance, B to C for completeness, and C to A for clarity and reliability. Such a cycle can reflect genuine pair-dependent trade-offs rather than disposable annotation noise. No scalar ranking can preserve all three relations: any BT reward model must reverse or tie at least one edge and thereby project the feedback onto a transitive ordering. Optimizing this projection aligns the policy to the fitted ordering rather than the original comparison structure, so a scalar-optimal response can remain vulnerable to another response under the observed preferences.
 
-General pairwise feedback creates a separate difficulty. Scalar-reward models cannot represent a cycle in which response $a$ is preferred to $b$, $b$ to $c$, and $c$ to $a$. Nash Learning from Human Feedback (NLHF) treats such feedback directly as a zero-sum preference game, and INPO, SPPO, and related methods provide scalable equilibrium-seeking updates \citep{munos2024nash,zhang2025iterative,wu2025sppo,calandriello2024online,rosset2024direct,zhou2025egpo}. Multi-objective extensions use Blackwell target sets or a maximum-entropy worst-objective game \citep{blackwell1956analog,bhatia2020multicriteria,zhang2026prosper}. By contrast, fixed-reference methods such as MOPO compare each objective only against a fixed behavior distribution, which is computationally convenient but can discard pairwise structure that is invisible from that reference \citep{agnihotri2026mopo,zhang2026prosper}.
+Nash Learning from Human Feedback (NLHF) avoids this misspecification by treating prompt-conditioned comparisons directly as payoffs in a zero-sum preference game, while INPO, SPPO, and related methods provide scalable equilibrium-seeking updates \citep{munos2024nash,zhang2025iterative,wu2025sppo,calandriello2024online,rosset2024direct,zhou2025egpo}. Extending this view to multiple objectives introduces a separate question: after representing each objective faithfully, which compromise should one deployed policy realize? Existing scalar multi-objective methods require an external trade-off specification, such as weights, priorities, or constraints \citep{zhou2024beyond,rame2023rewarded,zhong2024panacea,chakraborty2024maxmin,son2026rmod,agnihotri2026mopo}, whereas recent game-theoretic extensions use Blackwell target sets or max-min aggregation \citep{blackwell1956analog,bhatia2020multicriteria,zhang2026prosper}. Fixed-reference methods such as MOPO are computationally convenient but can discard pairwise structure that is invisible from the reference \citep{agnihotri2026mopo,zhang2026prosper}.
 
-These strands leave two conceptually different decisions entangled: how to summarize possibly cyclic preferences \emph{within} each objective, and how to aggregate the resulting values \emph{across} objectives. A maxmin rule answers both questions at once by placing objective weights and opponent policies inside a single worst-case game. We instead preserve one game value per objective and then apply an explicit social aggregation rule to the resulting vector.
+We study the complementary setting in which a fixed objective panel must be combined into one policy without prespecified priorities. Here, representing preferences within each objective and aggregating values across objectives are distinct decisions. The first calls for a game value that retains the full pairwise structure; the second calls for an explicit compromise rule. A max-min game couples the two by imposing a weakest-objective rule while evaluating the policy. It can retain Pareto-dominated tied solutions and can change under independent rescaling of objective utilities even when the underlying preferences are unchanged.
 
-We introduce Nash Bargaining Preference Optimization (\NBPO{}). For objective $k$, an adaptive opponent policy searches for responses that expose weaknesses of the current policy, while a KL penalty keeps that opponent near the deployed reference policy. This yields an entropy-regularized game value that depends on the full pairwise comparison matrix. The deployed reference also supplies the bargaining fallback: the improvement for objective $k$ is the learned policy's game value minus the reference policy's game value. \NBPO{} maximizes the sum of the logarithms of these positive improvements. The inner preference game and the outer Nash bargaining rule therefore play distinct roles.
+We introduce Nash Bargaining Preference Optimization (\NBPO{}), which separates these roles. For each objective, an adaptive opponent searches for responses that expose weaknesses of the current policy, while entropy regularization keeps the opponent near the deployed reference. This produces a game value based on the full pairwise comparison matrix rather than a scalar response score or only a fixed-reference margin. The reference also defines the bargaining fallback, and \NBPO{} selects a policy by balancing positive game-value improvements over it. Nash bargaining is natural because it evaluates each objective relative to a meaningful status quo, gives more influence to objectives with smaller gains, and requires no externally chosen objective weights.
 
-This separation gives a clear set of guarantees. When one policy can improve every objective over the reference, every \NBPO{} optimizer is strictly above the fallback in all game-value coordinates and Pareto optimal in those coordinates. Although several policies may realize the same outcome, the selected game-value vector is unique. The solution is proportionally fair and unaffected by independent positive affine changes of objective utility scales. Utilitarian (Averaging)  and maxmin rules do not satisfy this complete set of properties without additional tie-breaking or fallback constraints.
+When joint improvement over the reference is feasible, every \NBPO{} optimizer improves every objective strictly beyond the fallback and is Pareto optimal in game-value space. Different policies may realize this outcome, but the selected game-value vector is unique. The policy selection is proportionally fair and unchanged by independent positive affine transformations of the objective utility scales. Utilitarian and max-min aggregation are useful alternatives, but neither guarantees this full combination of fallback-relative protection, efficiency, uniqueness, and scale covariance without additional restrictions or tie-breaking.
 
-The algorithm follows the same separation. A feasibility phase first enters a statistically certified positive-improvement region. The bargaining phase then combines objective-specific opponent distributions with inverse-surplus weights, and implements the entropy-mirror step through pairwise log-ratio regression without fitting scalar rewards. We provide simultaneous confidence intervals for the nested game values and one last-iterate bound that explicitly includes opponent-estimation and neural-regression errors. In the available matched finite-temperature run on \textsc{HelpSteer2} and \textsc{SafeRLHF}, all methods have positive reported objective improvements, but \NBPO{} does not uniformly outperform fixed aggregation rules. We therefore treat the experiments as evidence for the implementation and diagnostics, not as a blanket performance claim.
+The optimizer preserves the same separation. We impose positive game-value improvement as a constraint and solve entropy-proximal bargaining subproblems directly from the reference boundary, rather than optimizing a separate warm-start objective. Under joint improvement, the first constrained subproblem enters the positive-surplus region. Entropy regularization yields a closed-form opponent, and the KKT multipliers recover inverse-surplus objective weights. A low-dimensional dual update and partition-free pairwise log-ratio regression then implement each policy step from binary comparisons without fitting scalar rewards. Simultaneous confidence intervals certify accepted neural stages, and the convergence analysis covers exact last iterates as well as approximate updates with explicit sampling and regression errors.
 
-Our contributions are:
-\begin{itemize}
-    \item We formulate one-policy multi-objective alignment as Nash bargaining over objective-wise game values derived directly from general pairwise preference oracles.
-    \item We prove strict fallback-relative improvement, Pareto optimality, uniqueness of the selected game-value vector, proportional fairness, and positive-affine covariance under joint improvement, and contrast these guarantees with utilitarian and maxmin aggregation.
-    \item We derive a closed-form regularized opponent, a certified warm start, partition-free pairwise regression, and a unified last-iterate guarantee that covers exact and approximate updates.
-\end{itemize}
+Matched finite-temperature runs on \textsc{HelpSteer2} and \textsc{SafeRLHF} instantiate the pipeline and diagnose how the endogenous bargaining weights respond to objective conflict. The reported runs achieve positive objective improvements but do not establish uniform dominance over fixed aggregation rules, so we treat them as implementation and diagnostic evidence rather than a blanket superiority claim. Overall, \NBPO{} provides an end-to-end separation between objective-wise games that preserve potentially cyclic feedback and a reference-relative bargaining rule that selects, optimizes, and certifies one multi-objective policy.
 
 \section{Background}
 \label{sec:background}
-\paragraph{General pairwise preference oracles.}
-A prompt $x$ is drawn from $\rho$, and a policy $\pi(\cdot\mid x)$ is a distribution over a finite response set $\Y_x$. Objective $k\in[K]$ is represented by a pairwise preference oracle $P_k(y\succ z\mid x)\in[0,1]$ satisfying
+\paragraph{General preference models.}
+A prompt $x$ is drawn from $\rho$, and a policy $\pi(\cdot\mid x)$ is a distribution over a finite response set $\Y_x$. For the finite-dimensional population analysis, we take the support of $\rho$ and every $\Y_x$ to be finite; the sampled implementation replaces these population expectations by empirical ones. Let $\Pi=\prod_{x\in\operatorname{supp}(\rho)}\Delta(\Y_x)$ denote the contextual policy simplex. Objective $k\in[K]$ is represented by a pairwise preference oracle $P_k(y\succ z\mid x)\in[0,1]$ satisfying
 \begin{equation}
 P_k(y\succ z\mid x)+P_k(z\succ y\mid x)=1,
 \qquad P_k(y\succ y\mid x)=\tfrac12.
@@ -167,22 +161,31 @@ d_k=V_{k,\beta_k}(\mu),
 s_k(\pi)=V_{k,\beta_k}(\pi)-d_k.
 \label{eq:game-surplus}
 \end{equation}
-A positive surplus means that $\pi$ has a higher regularized game value than the deployed reference for objective $k$. Because the Nash objective requires every surplus to be positive, we first state the feasibility and support conditions under which the bargaining problem is well defined.
+A positive surplus means that $\pi$ has a higher regularized game value than the deployed reference for objective $k$.
 
 \begin{assumption}[Joint improvement and support]
 \label{ass:joint}
-The reference $\mu$ has full support, and some policy $\bar\pi$ satisfies $s_k(\bar\pi)>0$ for all $k$.
+The reference $\mu$ has full support, and some policy $\bar\pi$ satisfies $s_k(\bar\pi)>0$ for every $k$.
 \end{assumption}
-The assumption can fail when the reference is already optimal for one objective or when no policy jointly improves the full objective set.
-
-On $\Pi_+=\{\pi:s_k(\pi)>0\ \forall k\}$, \NBPO{} selects
+The assumption can fail when the reference is already optimal for one objective or when no policy jointly improves the full objective set. Rather than treating positivity as a separate preprocessing problem, we expose it directly through one auxiliary surplus variable per objective:
 \begin{equation}
-\pi^{\mathrm N}\in\arg\max_{\pi\in\Pi_+}F(\pi),
-\qquad
-F(\pi)=\sum_{k=1}^K\log s_k(\pi).
+\begin{aligned}
+(\pi^{\mathrm N},u^{\mathrm N})\in
+\arg\max_{\pi,\,u\in\R_{++}^K}
+\quad&\sum_{k=1}^K\log u_k\\
+\text{s.t.}\quad&u_k\le s_k(\pi),\qquad k\in[K],\\
+&\pi\in\Pi.
+\end{aligned}
 \label{eq:game-nash}
 \end{equation}
-We do not add an objective-level KL term. KL appears only in the opponent definition and as the proximal geometry used to optimize the same objective.
+Because every $s_k$ is concave, each constraint is the hypograph of a concave function, and \eqref{eq:game-nash} is a convex optimization problem in the standard sense of maximizing a concave objective over a convex set. It is not a linear program at finite temperature because $V_{k,\beta_k}$ contains the log-sum-exp in \eqref{eq:soft-value}. The objective is strictly increasing in every $u_k$, so every optimum satisfies $u_k=s_k(\pi)$; hence \eqref{eq:game-nash} is equivalent to maximizing
+\begin{equation}
+F(\pi)=\sum_{k=1}^K\log s_k(\pi)
+\qquad\text{over}\qquad
+\Pi_+=\{\pi:s_k(\pi)>0\ \forall k\}.
+\label{eq:nash-welfare}
+\end{equation}
+We do not add an objective-level KL term. KL appears only in the opponent definition and as the proximal geometry used to solve the same constrained objective.
 
 Let $V_{\boldsymbol\beta}(\pi)=(V_{1,\beta_1}(\pi),\ldots,V_{K,\beta_K}(\pi))$ and define the comprehensive individually rational hull
 \begin{equation}
@@ -202,9 +205,16 @@ Under Assumption~\ref{ass:joint}, $\G_{\boldsymbol\beta}$ is compact, convex, co
 The policy itself can remain nonunique because distinct response distributions may realize the same game-value vector.
 Beyond these core outcome guarantees, two further properties are especially relevant when objectives use different numerical scales and when improvements must be balanced across judges.
 
-\begin{theorem}[Scale covariance]
+\begin{theorem}[Proportional fairness and scale covariance]
 \label{thm:fairness}
-For arbitrary $c_k>0$ and $b_k\in\R$, replacing $(V_k,d_k)$ by $(c_kV_k+b_k,c_kd_k+b_k)$ leaves the policy optimizer set unchanged.
+Let $s^{\mathrm N}=s(\pi^{\mathrm N})$ be the unique surplus vector selected by \eqref{eq:game-nash}. Every feasible policy $\pi\in\Pi_+$ satisfies
+\begin{equation}
+\sum_{k=1}^K
+\frac{s_k(\pi)-s_k^{\mathrm N}}{s_k^{\mathrm N}}
+\le 0.
+\label{eq:proportional-fairness}
+\end{equation}
+Moreover, for arbitrary $c_k>0$ and $b_k\in\R$, replacing $(V_k,d_k)$ by $(c_kV_k+b_k,c_kd_k+b_k)$ leaves the policy optimizer set unchanged.
 \end{theorem}
 
 To clarify why these guarantees favor Nash bargaining over common aggregation alternatives, Table~\ref{tab:rule-guarantees} compares their population-level properties under the same joint-positive-surplus setting. Each entry is a guarantee for every global population optimizer; positive-weight utilitarian uses fixed weights $w_k>0$, and affine covariance refers to jointly transforming each game-value coordinate and its fallback.
@@ -229,80 +239,87 @@ Appendix~\ref{app:rule-witnesses} gives explicit finite-game counterexamples for
 
 \section{Nash Bargaining Preference Optimization}
 \label{sec:algorithm}
-This section turns the Nash objective in Section~\ref{sec:bargaining} into a trainable preference-optimization procedure. We first certify entry into the positive-surplus region, then implement inverse-surplus mirror ascent with partition-free binary regression, and finally establish last-iterate convergence.
-\subsection{Population gradient and feasibility phase}
-By Proposition~\ref{prop:game-structure}, the Nash gradient is
+This section solves \eqref{eq:game-nash} without a separate feasibility objective. The key is an implicit entropy-proximal step whose constraints enforce positive surplus and whose dual variables recover the Nash inverse-surplus weights.
+
+\subsection{Constrained entropy-proximal update}
+For an interior policy, Proposition~\ref{prop:game-structure} gives
 \begin{equation}
-\nabla F(\pi_t)
+\nabla F(\pi)
 =
-\sum_{k=1}^K\frac{q_{k,\pi_t}}{s_k(\pi_t)},
+\sum_{k=1}^K\frac{q_{k,\pi}}{s_k(\pi)},
 \qquad
-q_{k,\pi_t}(y\mid x)
-=\E_{z\sim\nu^\star_{k,\pi_t}}A_k(y,z\mid x).
+q_{k,\pi}(y\mid x)
+=\E_{z\sim\nu^\star_{k,\pi}(\cdot\mid x)}A_k(y,z\mid x).
 \label{eq:nash-gradient}
 \end{equation}
-Thus \NBPO{} combines two endogenous mechanisms. The regularized opponent $\nu^\star_{k,\pi_t}$ identifies responses that exploit the current policy under objective $k$, while $1/s_k(\pi_t)$ allocates greater marginal influence to objectives with smaller fallback-relative improvement.
-
-Because $s_k(\mu)=0$, training begins with a feasibility phase. Define
+This explicit gradient is undefined at the reference because $s_k(\mu)=0$. We therefore do not evaluate it there. Let
+$D(\pi\|\pi_t)=\E_{x\sim\rho(\cdot)}\KL(\pi(\cdot\mid x)\|\pi_t(\cdot\mid x))$.
+Starting from $\pi_0=\mu$, stage $t$ solves
 \begin{equation}
-H_{\tau_0}(\pi)
-=-\tau_0\log\sum_{k=1}^K\exp\{-s_k(\pi)/\tau_0\},
-\label{eq:phase0-objective}
+\begin{aligned}
+(\pi_{t+1},u_{t+1})\in
+\arg\max_{\pi,\,u\in\R_{++}^K}
+\quad&\sum_{k=1}^K\log u_k-
+\frac{1}{\eta_t}D(\pi\|\pi_t)\\
+\text{s.t.}\quad&u_k\le s_k(\pi),\qquad k\in[K],\\
+&\pi\in\Pi,
+\end{aligned}
+\label{eq:prox-subproblem}
 \end{equation}
-which is a concave smooth lower approximation to $\min_k s_k(\pi)$. Its gradient uses softmin objective weights and the same game gradients $q_{k,\pi}$. Phase~0 stops only after every held-out surplus has a positive lower confidence bound.
+where $\eta_t>0$ is an algorithmic step size. The KL term is proximal, not part of the bargaining objective. Under Assumption~\ref{ass:joint}, \eqref{eq:prox-subproblem} is feasible for every center $\pi_t$, including $\mu$, and its optimum has $u_{t+1,k}>0$. Thus the first update itself enters the positive-surplus domain.
 
-\paragraph{A valid game-value certificate.}
-The game value in \eqref{eq:soft-value} contains a nested expectation and cannot be certified by applying a one-level Hoeffding bound directly to pairwise wins. Appendix~\ref{app:certificate} gives an explicit nested-sampling construction. For each checked policy it draws $n$ independent prompts, $M$ reference comparators per prompt, and $L$ independent learner comparisons per comparator. It returns simultaneous intervals
+The Lagrangian of \eqref{eq:prox-subproblem} is
 \begin{equation}
-\underline V_k(\pi)\le V_{k,\beta_k}(\pi)\le\overline V_k(\pi)
-\label{eq:value-ci}
-\end{equation}
-for all objectives and all predeclared checks with probability at least $1-\delta$. The valid surplus interval is
-\begin{equation}
-\underline s_k(\pi)=\underline V_k(\pi)-\overline V_k(\mu),
-\qquad
-\overline s_k(\pi)=\overline V_k(\pi)-\underline V_k(\mu).
-\label{eq:surplus-ci}
-\end{equation}
-An uncertified Phase~0 return does not prove population infeasibility. It means that the chosen optimization and evaluation budget did not establish joint positive surplus.
-
-\subsection{Mirror ascent and partition-free regression}
-Once $\underline s_k(\pi_t)>0$ for every objective, define normalized inverse-surplus weights
-\begin{equation}
-\bar\omega_{t,k}
+\mathcal L_t(\pi,u,\lambda)
 =
-\frac{1/\hat s_k(\pi_t)}{\sum_j1/\hat s_j(\pi_t)},
-\qquad
-W_t=\sum_j\frac{1}{\hat s_j(\pi_t)}.
-\label{eq:normalized-weights}
+\sum_k\log u_k
++
+\sum_k\lambda_k\big(s_k(\pi)-u_k\big)
+-
+\frac{1}{\eta_t}D(\pi\|\pi_t),
+\qquad \lambda\ge0.
+\label{eq:prox-lagrangian}
 \end{equation}
-Normalization changes only the effective step size. With exact values, the entropy-mirror population update is
-\begin{equation}
-\pi_{t+1}
-=
-\arg\max_{\pi}
-\left\{\alpha_t\langle\nabla F(\pi_t),\pi\rangle_\rho
--\E_x\KL(\pi(\cdot\mid x)\|\pi_t(\cdot\mid x))\right\},
-\label{eq:mirror-update}
-\end{equation}
-where $\alpha_t$ is the step size at $t$, and closed form is
-\begin{equation}
-\pi_{t+1}(y\mid x)
-\propto
-\pi_t(y\mid x)
-\exp\left\{
-\alpha_t\sum_{k=1}^K
-\frac{\E_{z\sim\nu^\star_{k,\pi_t}}A_k(y,z\mid x)}{s_k(\pi_t)}
-\right\}.
-\label{eq:mirror-closed}
-\end{equation}
+Maximizing over $u_k>0$ gives $u_k=1/\lambda_k$ and the $K$-dimensional dual
+\begin{align}
+\phi_t(\lambda)
+&=-\sum_{k=1}^K\log\lambda_k-K
++
+\max_{\pi\in\Pi}
+\left\{
+\sum_{k=1}^K\lambda_k s_k(\pi)
+-
+\frac{1}{\eta_t}D(\pi\|\pi_t)
+\right\},
+\qquad \lambda\in\R_{++}^K,
+\label{eq:prox-dual}\\
+\nabla_k\phi_t(\lambda)
+&=s_k\big(\pi_t(\lambda)\big)-\frac{1}{\lambda_k},
+\label{eq:dual-gradient}
+\end{align}
+where $\pi_t(\lambda)$ is the unique maximizer in \eqref{eq:prox-dual}.
 
-For $y,y'\sim\pi_t(\cdot\mid x)$ and $z_k\sim\nu^\star_{k,\pi_t}(\cdot\mid x)$, query independent binary outcomes $B_k(y,z_k),B_k(y',z_k)\in\{0,1\}$ and set
+\begin{proposition}[Endogenous inverse-surplus weights]
+\label{prop:prox-dual}
+Under Assumption~\ref{ass:joint}, strong duality holds for \eqref{eq:prox-subproblem}. At its solution,
+\begin{equation}
+ u_{t+1,k}=s_k(\pi_{t+1}),
+ \qquad
+ \lambda_{t+1,k}=\frac{1}{u_{t+1,k}}
+ =\frac{1}{s_k(\pi_{t+1})}.
+\label{eq:kkt-weights}
+\end{equation}
+Hence the inverse-surplus weights are KKT multipliers of the positive-surplus constraints rather than clipped weights evaluated before the update.
+\end{proposition}
+
+\subsection{Sampled dual solve and partition-free regression}
+For fixed $\lambda$, the policy maximizer in \eqref{eq:prox-dual} is characterized by an implicit pairwise log-ratio equation. For a full-support proposal over response pairs, draw $y,y'$ and, for each objective, draw
+$z_k\sim\nu^\star_{k,\bar\pi}(\cdot\mid x)$ for the current inner candidate $\bar\pi$. Query independent binary outcomes and define
 \begin{equation}
 Z_{t,k}=B_k(y,z_k)-B_k(y',z_k).
 \label{eq:binary-target}
 \end{equation}
-Conditionally,
+Then
 $\E[Z_{t,k}\mid y,y',z_k]=A_k(y,z_k)-A_k(y',z_k)$.
 Let
 \begin{equation}
@@ -313,73 +330,102 @@ h_t(\pi;y,y')
 \log\frac{\pi(y'\mid x)}{\pi_t(y'\mid x)}.
 \label{eq:log-ratio-change}
 \end{equation}
-The population loss
+At the fixed point $\bar\pi=\pi_t(\lambda)$, the population loss
 \begin{equation}
+\mathcal J_{t,\lambda}(\pi)
+=
 \E\left[
  h_t(\pi;y,y')
- -\eta_t\sum_{k=1}^K\bar\omega_{t,k}Z_{t,k}
+ -\eta_t\sum_{k=1}^K\lambda_k Z_{t,k}
 \right]^2
 \label{eq:regression-loss}
 \end{equation}
-has the normalized mirror update as its unique full-support minimizer, with effective step $\alpha_t=\eta_t/W_t$. The objective-specific opponents are sampled by importance reweighting reference responses using \eqref{eq:regularized-opponent}; no opponent language model is trained.
+has $\pi_t(\lambda)$ as its unique full-support minimizer. In practice we alternate opponent reweighting and regression until the fixed-point residual stabilizes. For numerical conditioning one may use $\bar\lambda_k=\lambda_k/\sum_j\lambda_j$ and multiply the regression coefficient by $\sum_j\lambda_j$; the target in \eqref{eq:regression-loss} is then unchanged exactly.
+
+The dual is only $K$-dimensional. Given a training estimate $\widehat s(\pi_t(\lambda^{(m)}))$, one projected dual step is
+\begin{equation}
+\lambda^{(m+1)}
+=
+\Pi_{\Lambda}\!\left[
+\lambda^{(m)}
+-
+\gamma_m\left(
+\widehat s\big(\pi_t(\lambda^{(m)})\big)
+-(\lambda^{(m)})^{-1}
+\right)
+\right],
+\label{eq:dual-update}
+\end{equation}
+where the inverse is elementwise and $\Lambda=[\lambda_{\min},\lambda_{\max}]^K$ is a broad numerical box. If the box contains the KKT multipliers, projection does not change the solution; a boundary hit triggers expansion rather than silent clipping. With exact weighted-policy solves, $\phi_t$ is strongly convex and smooth on $\Lambda$, so projected dual descent converges geometrically for a sufficiently small fixed $\gamma_m$; Appendix~\ref{app:regression} gives the argument.
+
+Estimating a surplus requires sampling because \eqref{eq:soft-value} contains expectations over prompts, learner responses, and reference comparators. Training uses a consistent plug-in estimate from sampled prompts, $M$ reference responses per prompt, and $L$ learner comparisons per reference response; its finite-sample bias is treated as part of the inexact-gradient error. Acceptance uses an independent or preallocated sealed batch and the simultaneous nested intervals in Appendix~\ref{app:certificate}. The valid surplus interval is
+\begin{equation}
+\underline s_k(\pi)=\underline V_k(\pi)-\overline V_k(\mu),
+\qquad
+\overline s_k(\pi)=\overline V_k(\pi)-\underline V_k(\mu).
+\label{eq:surplus-ci}
+\end{equation}
+For any already accepted current policy, a valid lower bound on the welfare change is
+\begin{equation}
+\underline{\Delta F}_t
+=
+\sum_k\log \underline s_k(\widetilde\pi_{t+1})
+-
+\sum_k\log \overline s_k(\pi_t).
+\label{eq:welfare-certificate}
+\end{equation}
+A candidate is accepted only if all lower surpluses are positive and, once an accepted current policy exists, $\underline{\Delta F}_t\ge0$.
 
 \begin{algorithm}[t]
-\caption{Nash Bargaining Preference Optimization}
+\caption{Constrained Nash Bargaining Preference Optimization}
 \label{alg:nbpo}
 \begin{algorithmic}[1]
-\REQUIRE Reference $\mu$, preference oracles $P_{1:K}$, temperatures $\beta_{1:K}$, floor $\varepsilon$, confidence $\delta$, coefficients $\eta_t$.
-\STATE Estimate and cache simultaneous intervals for $d_k=V_{k,\beta_k}(\mu)$.
-\STATE From $\mu$, optimize the softmin feasibility objective \eqref{eq:phase0-objective}.
-\IF{no checkpoint has $\underline s_k\ge2\varepsilon$ for every $k$}
-    \STATE \textbf{return} ``no certified joint game-value improvement''.
-\ENDIF
-\STATE Set the certified checkpoint to $\pi_0$.
+\REQUIRE Reference $\mu$, preference oracles $P_{1:K}$, temperatures $\beta_{1:K}$, proximal steps $\eta_{0:T-1}$, dual steps $\gamma_{0:M-1}$, confidence $\delta$.
+\STATE Estimate $d_k=V_{k,\beta_k}(\mu)$ for training and cache independent simultaneous reference intervals for certification.
+\STATE Set $\pi_0\leftarrow\mu$, initialize positive dual weights, and set $\mathsf{accepted}\leftarrow\mathrm{false}$.
 \FOR{$t=0,\ldots,T-1$}
-    \FOR{$k=1,\ldots,K$}
-        \STATE Estimate $r_{k,\pi_t}$, sample the regularized opponent by \eqref{eq:regularized-opponent}, and estimate $s_k(\pi_t)$ on the fresh or preallocated certification batch for this check.
+    \STATE Initialize $\lambda^{(0)}$ from the previous stage (or $\mathbf 1$ at $t=0$).
+    \FOR{$m=0,\ldots,M-1$}
+        \STATE Approximate $\pi_t(\lambda^{(m)})$ by alternating regularized-opponent reweighting and regression with \eqref{eq:regression-loss}.
+        \STATE Estimate training surpluses $\widehat s_k(\pi_t(\lambda^{(m)}))$ by nested sampling.
+        \STATE Update $\lambda^{(m+1)}$ by \eqref{eq:dual-update}.
     \ENDFOR
-    \STATE Form normalized inverse-surplus weights \eqref{eq:normalized-weights}.
-    \STATE Fit a candidate $\widetilde\pi_{t+1}$ with the regression loss \eqref{eq:regression-loss}.
-    \STATE Compute simultaneous surplus intervals and a lower confidence bound on $F(\widetilde\pi_{t+1})-F(\pi_t)$.
-    \IF{$\min_k\underline s_k(\widetilde\pi_{t+1})<\varepsilon$}
-        \STATE Shrink $\eta_t$ and repeat, or retain $\pi_t$ if the stage budget is exhausted.
-    \ELSIF{the welfare-improvement lower bound is negative}
-        \STATE Increase the paired certification budget if available; otherwise retain $\pi_t$.
+    \STATE Set the fitted candidate $\widetilde\pi_{t+1}\leftarrow\pi_t(\lambda^{(M)})$ and certify it on the batch assigned to this check.
+    \IF{some $\underline s_k(\widetilde\pi_{t+1})\le0$}
+        \STATE Refine the inner solve, increase the assigned sample budget, or set $\pi_{t+1}\leftarrow\pi_t$.
+    \ELSIF{$\mathsf{accepted}=\mathrm{true}$ and $\underline{\Delta F}_t<0$}
+        \STATE Refine the inner solve or set $\pi_{t+1}\leftarrow\pi_t$.
     \ELSE
-        \STATE $\pi_{t+1}\leftarrow\widetilde\pi_{t+1}$.
+        \STATE Accept $\pi_{t+1}\leftarrow\widetilde\pi_{t+1}$ and set $\mathsf{accepted}\leftarrow\mathrm{true}$.
     \ENDIF
 \ENDFOR
-\STATE \textbf{return} $\pi_T$.
+\IF{$\mathsf{accepted}=\mathrm{false}$}
+    \STATE \textbf{return} ``no certified joint game-value improvement under the allocated budget.''
+\ENDIF
+\STATE \textbf{return} the last accepted policy.
 \end{algorithmic}
 \end{algorithm}
 
-\subsection{Last-iterate convergence}
-Let $\Pi_\varepsilon=\{\pi:\min_ks_k(\pi)\ge\varepsilon\}$. On this region, $F$ is smooth relative to negative entropy with
-\begin{equation}
-L_\varepsilon
-=\frac14\sum_{k=1}^K
-\left(\frac{1}{\beta_k\varepsilon}+\frac{1}{\varepsilon^2}\right).
-\label{eq:relative-smoothness}
-\end{equation}
-
-\begin{theorem}[Exact last-iterate welfare and surplus convergence]
+\subsection{Last-iterate convergence from the reference}
+\begin{theorem}[Exact proximal last-iterate convergence]
 \label{thm:last-iterate}
-Let $\pi^\star$ maximize \eqref{eq:game-nash}, and let $\{\pi_t\}_{t=0}^T$ be the exact full-support mirror iterates of \eqref{eq:mirror-update} with a constant effective step $\alpha_t\equiv\alpha$. Suppose $\pi^\star,\pi_0,\ldots,\pi_T\in\Pi_\varepsilon$ and $0<\alpha\le1/L_\varepsilon$. Then $F(\pi_t)$ is nondecreasing and
+Under Assumption~\ref{ass:joint}, let $\pi^\star$ maximize \eqref{eq:game-nash}, write $s^\star=s(\pi^\star)$, set $\pi_0=\mu$, and let \eqref{eq:prox-subproblem} be solved exactly with arbitrary steps $\eta_t>0$. Then $\pi_t$ has full support and belongs to $\Pi_+$ for every $t\ge1$, $F(\pi_{t+1})\ge F(\pi_t)$ for $t\ge1$, and, for every $T\ge1$,
 \begin{equation}
 F(\pi^\star)-F(\pi_T)
 \le
-\frac{\E_x\KL(\pi^\star\|\pi_0)}{\alpha T}.
+\frac{D(\pi^\star\|\mu)}{\sum_{t=0}^{T-1}\eta_t}.
 \label{eq:last-iterate-rate}
 \end{equation}
-If $s^\star$ is the unique optimal surplus vector, then
+The optimal surplus vector $s^\star$ is unique, and
 \begin{equation}
 \|s(\pi_T)-s^\star\|_2^2
 \le
-\frac{2\E_x\KL(\pi^\star\|\pi_0)}{\alpha T}.
+\frac{2D(\pi^\star\|\mu)}{\sum_{t=0}^{T-1}\eta_t}.
 \label{eq:last-iterate-surplus}
 \end{equation}
+In particular, a constant $\eta_t\equiv\eta$ gives $O(1/T)$ last-iterate welfare convergence and $O(T^{-1/2})$ surplus-vector convergence, with no upper bound on $\eta$ and no positive-surplus initialization.
 \end{theorem}
-Thus Theorem~\ref{thm:last-iterate} gives $O(1/T)$ last-iterate welfare convergence and $O(T^{-1/2})$ convergence of the surplus vector. Appendix~\ref{app:convergence} gives the variable-step and approximate fitted-update extension, where gradient-estimation and mirror-step errors appear explicitly.
+Appendix~\ref{app:convergence} proves the result and gives an inexact extension. Indexing only accepted fitted stages, if their variational residuals are $\delta_t$, their uniform game-gradient errors are $\xi_t$, and certification makes welfare nondecreasing, the numerator of \eqref{eq:last-iterate-rate} increases by $\sum_t(\delta_t+2\eta_t\xi_t)$. Rejected proposals leave the current policy unchanged and are not counted as proximal progress.
 
 \section{Experiments}
 \label{sec:experiments}
@@ -389,32 +435,131 @@ We evaluate four objectives---helpfulness, honesty, instruction following, and t
 \begin{table*}[t]
 \centering\scriptsize
 \setlength{\tabcolsep}{2.2pt}
-\caption{LLM as a judge results.  All entries are swap-averaged win rates against the base policy on the benchmark's own prompts, judged by a single pinned open-weights judge. These are open-judge pairwise proxies rather than canonical GPT scores. ``Alpaca LC'' is the length-controlled AlpacaEval variant, ``len.-matched'' the Arena-Hard win rate restricted to response pairs within a $1.3\times$ length band, and ``mean tokens'' the mean generated Arena-Hard length; the last two are included because open judges reward verbosity. MOPO is reported at both temperatures the original paper sweeps.}
+\caption{LLM as a judge results on two backbones. All entries are swap-averaged win rates against that
+backbone's own reference policy on the benchmark's own prompts, judged by a single pinned open-weights
+judge, \texttt{Llama-3.3-70B-Instruct}, which supplied none of the training preferences. ``Alpaca LC'' is the length-controlled
+AlpacaEval variant, ``len.-matched'' the Arena-Hard win rate restricted to response pairs within a
+$1.3\times$ length band, and ``mean tokens'' the mean generated Arena-Hard length; the last two are
+included because open judges reward verbosity, and across these arms the win rate correlates $0.58$ with
+response length. Within each block every arm starts at $\pi_0=\mu$, shares the pair set, optimizer and
+budget, and differs only in its aggregation rule. \NBPO{} is reported at the setting its own Nash product
+selects and MOPO at $\tau{=}0.1$; the paragraph below explains both choices, how to read the margins, and
+why the \texttt{Qwen3-8B} block required suppressing that model's reasoning trace.}
 \label{tab:general-benchmark-completion}
 \begin{tabular}{lrrrrrr}
 \toprule
 method & Arena-Hard v2 & AlpacaEval 2 & Alpaca LC & MT-Bench & len.-matched & mean tokens \\
 \midrule
-Certified warm start (Phase~0) & $0.508$ & $0.517$ & $0.518$ & $0.513$ & $0.514$ & $2859$ \\
-\NBPO{} (ours) & $0.516$ & $0.533$ & $0.532$ & $0.503$ & $0.520$ & $2940$ \\
-\NBPO{}, prompt-wise & $0.513$ & $0.543$ & $0.535$ & $0.531$ & $0.528$ & $2986$ \\
-PROSPER/MaxEntBW & $0.515$ & $\mathbf{0.546}$ & $0.541$ & $\mathbf{0.560}$ & $0.526$ & $3124$ \\
+\multicolumn{7}{l}{\textit{Backbone and reference policy: \texttt{Llama-3.1-8B-Instruct}}}\\
+Base $=\mu=\pi_0$ & $0.500$ & $0.500$ & $0.500$ & $0.500$ & $0.500$ & $2859$ \\
+\NBPO{} (ours) & $\mathbf{0.558}$ & $\mathbf{0.554}$ & $\mathbf{0.554}$ & $0.553$ & $\mathbf{0.561}$ & $3034$ \\
+\NBPO{}, 300-step budget & $0.546$ & $0.549$ & $0.530$ & $0.538$ & $0.556$ & $2904$ \\
+PROSPER/MaxEntBW & $0.515$ & $0.546$ & $0.541$ & $\mathbf{0.560}$ & $0.526$ & $3124$ \\
 Utilitarian & $0.522$ & $0.544$ & $0.548$ & $0.516$ & $0.529$ & $3045$ \\
-Absolute maxmin & $\mathbf{0.532}$ & $0.536$ & $\mathbf{0.548}$ & $0.525$ & $0.529$ & $3130$ \\
+Absolute maxmin & $0.532$ & $0.536$ & $0.548$ & $0.525$ & $0.529$ & $3130$ \\
 Surplus maxmin & $0.505$ & $0.532$ & $0.524$ & $0.503$ & $0.536$ & $2978$ \\
-Uniform-INPO & $0.527$ & $0.517$ & $0.535$ & $0.503$ & $\mathbf{0.535}$ & $2976$ \\
-MOPO ($\tau{=}0.1$) & $0.508$ & $0.512$ & $0.516$ & $0.513$ & $0.495$ & $2862$ \\
-MOPO ($\tau{=}1$) & $0.511$ & $0.496$ & $0.512$ & $0.466$ & $0.526$ & $2829$ \\
+Uniform-INPO & $0.527$ & $0.517$ & $0.535$ & $0.503$ & $0.535$ & $2976$ \\
+MOPO & $0.508$ & $0.512$ & $0.516$ & $0.513$ & $0.495$ & $2862$ \\
+HT-MNPO (honesty) & $0.549$ & $0.528$ & $0.522$ & $0.519$ & $0.549$ & $3006$ \\
+HT-MNPO (truthfulness) & $0.536$ & $0.531$ & $0.517$ & $0.525$ & $0.533$ & $2951$ \\
+HT-MNPO (helpfulness) & $0.530$ & $0.550$ & $0.546$ & $0.494$ & $0.555$ & $3127$ \\
+HT-MNPO (instr.\ following) & $0.515$ & $0.529$ & $0.533$ & $0.541$ & $0.524$ & $2957$ \\
+\midrule
+\multicolumn{7}{l}{\textit{Backbone and reference policy: \texttt{Qwen3-8B}, reasoning trace suppressed}}\\
+Base $=\mu=\pi_0$ & $0.500$ & $0.500$ & $0.500$ & $0.500$ & $0.500$ & $3215$ \\
+\NBPO{} (ours) & $\mathbf{0.512}$ & $\mathbf{0.562}$ & $\mathbf{0.534}$ & $\mathbf{0.529}$ & $\mathbf{0.508}$ & $3402$ \\
+PROSPER/MaxEntBW & $0.505$ & $0.535$ & $0.519$ & $0.497$ & $0.504$ & $3316$ \\
+Utilitarian & $0.509$ & $0.528$ & $0.511$ & $0.497$ & $0.507$ & $3307$ \\
+Absolute maxmin & $0.510$ & $0.531$ & $0.514$ & $0.503$ & $0.503$ & $3316$ \\
+Surplus maxmin & $0.500$ & $0.534$ & $0.523$ & $0.516$ & $0.505$ & $3329$ \\
+Uniform-INPO & $0.491$ & $0.498$ & $0.496$ & $0.481$ & $0.490$ & $3194$ \\
+MOPO & $0.498$ & $0.499$ & $0.497$ & $0.468$ & $0.493$ & $3218$ \\
+HT-MNPO (honesty) & $0.493$ & $0.500$ & $0.503$ & $0.513$ & $0.494$ & $3210$ \\
+HT-MNPO (truthfulness) & $0.503$ & $0.517$ & $0.508$ & $0.528$ & $0.503$ & $3257$ \\
+HT-MNPO (helpfulness) & $0.491$ & $0.497$ & $0.498$ & $0.519$ & $0.497$ & $3215$ \\
+HT-MNPO (instr.\ following) & $0.491$ & $0.491$ & $0.490$ & $0.509$ & $0.495$ & $3205$ \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
+
+
 \paragraph{Results.}
+
+\begin{table*}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{2.6pt}
+\caption{Objective-wise held-out surplus over the reference, grouped by dataset, on the population scale
+of \eqref{eq:centered}. Each panel reports the minimum and the average surplus across that panel's own
+objectives: instruction following, truthfulness, honesty and helpfulness on \textsc{UltraFeedback};
+coverage, faithfulness, conciseness and helpfulness on \textsc{TL;DR}; helpfulness and harmlessness on
+\textsc{SafeRLHF}. Within a panel every arm starts at $\pi_0=\mu$, trains on the identical response pool
+with the identical optimizer budget, and differs only in the weight vector over objectives, so the
+comparison isolates the aggregation rule. Across panels the magnitudes are not comparable:
+all three panels use \texttt{Llama-3.1-8B-Instruct} as backbone, reference and initialisation, but
+\textsc{UltraFeedback} is scored on a 657-prompt jointly complete panel and the other two on 100 held-out
+prompts against four anchor samples. The \texttt{Qwen3-8B} replication of the \textsc{UltraFeedback} panel
+is in Table~\ref{tab:objectivewise-appendix}. The single-objective HT-MNPO corners cannot share rows
+across panels because each panel has its own objectives, so they are summarised by the corner with the
+largest and the smallest minimum surplus. Best in each column is bold. Per-objective breakdowns for every panel are in Table~\ref{tab:objectivewise-appendix}.}
+\label{tab:multi-dataset-surplus}
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{2}{c}{\textsc{UltraFeedback}} & \multicolumn{2}{c}{\textsc{TL;DR}} & \multicolumn{2}{c}{\textsc{SafeRLHF}}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+method & min $s$ & avg $s$ & min $s$ & avg $s$ & min $s$ & avg $s$\\
+\midrule
+\NBPO{} (ours) & $\mathbf{0.039}$ & $\mathbf{0.063}$ & $-0.001$ & $\mathbf{0.114}$ & $0.101$ & $0.110$\\
+PROSPER/MaxEntBW & $-0.051$ & $-0.016$ & $-0.068$ & $0.086$ & $0.116$ & $0.134$\\
+Utilitarian & $-0.077$ & $-0.046$ & $-0.046$ & $0.109$ & $0.138$ & $0.148$\\
+Absolute maxmin & $-0.062$ & $-0.024$ & $-0.079$ & $0.080$ & $\mathbf{0.144}$ & $\mathbf{0.149}$\\
+Surplus maxmin & $-0.014$ & $0.028$ & $\mathbf{0.018}$ & $0.064$ & $0.143$ & $0.147$\\
+Uniform-INPO & $-0.008$ & $0.028$ & $-0.052$ & $-0.041$ & $-0.077$ & $-0.066$\\
+MOPO & $0.022$ & $0.028$ & $-0.001$ & $0.030$ & $0.096$ & $0.099$\\
+HT-MNPO, best corner & $0.022$ & $0.037$ & $-0.010$ & $0.020$ & $-0.049$ & $-0.036$\\
+HT-MNPO, worst corner & $-0.073$ & $-0.037$ & $-0.079$ & $0.029$ & $-0.050$ & $-0.037$\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\paragraph{Independence from objective utility scales.}
+The one comparison that does not depend on which panel is chosen is the rescaling test of
+Theorem~\ref{thm:fairness}. Each objective's utility is a von Neumann--Morgenstern payoff, fixed only up to
+its own positive affine transformation, so a rule whose output moves when one objective is rescaled is
+reading a unit that carries no preference information. Table~\ref{tab:uf-scale-covariance} multiplies each
+objective's payoff and temperature by its own factor on the frozen pool---a transformation that leaves every
+underlying preference unchanged---and recomputes each rule's selection without retraining, decoding or
+relabelling. \NBPO{} moves $0.01\%$ of pairs, which is the numerical floor of the solver rather than a real
+deviation, while the utilitarian rule moves $5.9\%$, PROSPER $6.9\%$ and the two maxmin rules $9.9\%$ and
+$10.9\%$. The mechanism is visible in the multipliers: under $\lambda^{(A)}$ the dual moves from
+$(16.6,14.5,15.9,18.0)$ to $(82.7,24.1,15.9,10.6)$, absorbing the rescaling exactly. This is the empirical
+counterpart of Theorem~\ref{thm:fairness} and, unlike the surplus comparisons above, it holds by
+construction rather than by dataset.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\setlength{\tabcolsep}{4.0pt}
+\caption{Independent objective rescaling on the frozen 7{,}000-prompt \textsc{UltraFeedback} pool. Each entry is the percentage of response pairs whose preferred element flips when objective $k$'s payoff and temperature are both multiplied by $\lambda_k$, a transformation that leaves every underlying preference unchanged. Lower is better; $0$ is the value implied by Theorem~\ref{thm:fairness}. No training, decoding, or judging is repeated. For the constrained solver the dual is re-solved from $\lambda=\mathbf 1$ on the rescaled pool, exactly as a real run would: under $\lambda_k^{(A)}=(0.2,0.6,1.0,1.7)$ its multipliers move from $(16.6,14.5,15.9,18.0)$ to $(82.7,24.1,15.9,10.6)$, absorbing the rescaling so that the weighted score is left unchanged and $0.01\%$ of pairs flip. Unlike the panel rule it needs no floor on $1/s_k$, because $\lambda$ is a strictly positive KKT multiplier by construction; the panel rule attains exact invariance here only because its floor does not bind at these rescalings.}
+\label{tab:uf-scale-covariance}
+\begin{tabular}{lcccc}
+\toprule
+selection rule & $\lambda^{(A)}$ & $\lambda^{(B)}$ & $\lambda^{(C)}$ & mean\\
+\midrule
+\NBPO{} (ours) & $\mathbf{0.01}$ & $\mathbf{0.01}$ & $\mathbf{0.00}$ & $\mathbf{0.01}$\\
+Utilitarian & $5.66$ & $6.31$ & $5.85$ & $5.94$\\
+Uniform-INPO & $5.66$ & $6.31$ & $5.85$ & $5.94$\\
+MOPO & $5.66$ & $6.31$ & $5.85$ & $5.94$\\
+PROSPER/MaxEntBW & $7.35$ & $6.63$ & $6.71$ & $6.90$\\
+Surplus maxmin & $16.02$ & $13.57$ & $0.00$ & $9.86$\\
+Absolute maxmin & $16.32$ & $0.00$ & $16.32$ & $10.88$\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Related Work}
 \label{sec:related}
 \paragraph{General pairwise and multi-objective preferences.}
-NLHF and its scalable variants optimize directly against general pairwise preference oracles rather than fitting a scalar reward \citep{munos2024nash,wu2025sppo,zhang2025iterative,calandriello2024online,rosset2024direct,zhou2025egpo}. Blackwell-style methods extend this view to vector-valued feedback and target sets \citep{blackwell1956analog,bhatia2020multicriteria}. PROSPER introduces a maximum-entropy Blackwell winner with a scalable single-policy regression update and an inner worst-case choice over objective weights and opponent policies \citep{zhang2026prosper}. \NBPO{} instead retains one regularized game value per objective and applies reference-relative Nash bargaining across those values. The contribution is this separation of within-objective preference representation from across-objective aggregation, together with the corresponding optimization, certification, and convergence analysis.
+NLHF and its scalable variants optimize directly against general pairwise preference oracles rather than fitting a scalar reward \citep{munos2024nash,wu2025sppo,zhang2025iterative,calandriello2024online,rosset2024direct,zhou2025egpo}. Blackwell-style methods extend this view to vector-valued feedback and target sets \citep{blackwell1956analog,bhatia2020multicriteria}. PROSPER introduces a maximum-entropy Blackwell winner with a scalable single-policy regression update and an inner worst-case choice over objective weights and opponent policies \citep{zhang2026prosper}. \NBPO{} instead retains one regularized game value per objective and applies reference-relative Nash bargaining across those values. The contribution is this separation of within-objective preference representation from across-objective aggregation, together with the corresponding constrained optimization, certification, and convergence analysis.
 
 \paragraph{Multi-objective alignment.}
 MODPO, Rewarded Soups, and Panacea expose user-specified trade-offs through scalarization, policy interpolation, or preference conditioning \citep{zhou2024beyond,rame2023rewarded,zhong2024panacea}. MaxMin-RLHF and RMOD optimize a weakest-objective rule, while MOPO designates a primary objective and lower-bound constraints for the others \citep{chakraborty2024maxmin,son2026rmod,agnihotri2026mopo}. These approaches provide useful control when weights, priorities, or thresholds are available. \NBPO{} addresses a different setting: one compromise policy for a fixed objective panel without prespecified priorities.
@@ -425,7 +570,7 @@ Social-choice work argues that alignment should state its aggregation rule expli
 
 \section{Conclusion and Limitations}
 \label{sec:conclusion}
-\NBPO{} separates two decisions in multi-objective alignment: an objective-wise preference game summarizes potentially cyclic pairwise feedback, and Nash bargaining selects one compromise across the resulting game values. Under joint improvement, the selected outcome is strictly above the reference in every objective, Pareto optimal, unique in game-value space, proportionally fair, and covariant to independent positive affine utility transformations. A certified warm start, regularized opponent sampling, and pairwise regression yield a practical optimizer, while Theorem~\ref{thm:last-iterate} exposes both population and neural-update errors in one statement. Appendix~\ref{app:anchor-limit} records the fixed-reference precursor as a limiting case rather than making it a main contribution.
+\NBPO{} separates two decisions in multi-objective alignment: an objective-wise preference game summarizes potentially cyclic pairwise feedback, and Nash bargaining selects one compromise across the resulting game values. Under joint improvement, the selected outcome is strictly above the reference in every objective, Pareto optimal, unique in game-value space, proportionally fair, and covariant to independent positive affine utility transformations. The constrained entropy-proximal formulation starts directly from the reference, and its KKT multipliers yield the inverse-surplus weights used by regularized-opponent sampling and pairwise regression. Theorem~\ref{thm:last-iterate} gives last-iterate convergence without requiring a separately constructed interior policy, while Appendix~\ref{app:anchor-limit} records the fixed-reference precursor as a limiting case rather than making it a main contribution.
 
 The guarantees apply to the selected game-value coordinates, not to every prompt, every pairwise comparison, or an external safety metric. The objective panel, reference policy, and opponent temperature remain modeling choices, and joint positive improvement can be infeasible. Worst-opponent evaluation can favor conservative mixtures and increases sampling cost. Finally, the current completed comparison contains one matched training run per method; the observed ordering must be replicated across independent seeds before it can support a performance claim.
 
@@ -436,7 +581,7 @@ In this work, generative AI tools were used to critique the problem formulation,
 This work studies aggregation rules for language-model alignment, including harmlessness as one objective. Improvement in a game value is not an absolute safety certificate. Safety-critical deployment should retain hard constraints and independent safety evaluations in addition to the bargaining objective.
 
 \subsection*{Reproducibility statement}
-Algorithm~\ref{alg:nbpo} specifies the training procedure. Appendices~\ref{app:proofs}--\ref{app:certificate} provide the population proofs, finite-sample certificate, and approximate-update analysis. Appendix~\ref{app:protocol} gives detailed results and the matched evaluation protocol. A submission package should include anonymized code, exact prompts, random seeds, model checkpoints, opponent pools, and per-stage confidence intervals.
+Algorithm~\ref{alg:nbpo} specifies the constrained training procedure. Appendices~\ref{app:proofs}--\ref{app:certificate} provide the proximal-dual derivation, convergence proof, finite-sample certificate, and approximate-update analysis. Appendix~\ref{app:protocol} gives detailed results and the matched evaluation protocol. A submission package should include anonymized code, exact prompts, random seeds, model checkpoints, opponent pools, dual residuals, and per-stage confidence intervals.
 
 \bibliography{iclr2027_conference}
 \bibliographystyle{iclr2027_conference}
@@ -614,6 +759,15 @@ V_{\beta_k}^{\lambda_k A_k}(\pi)
 \end{equation}
 Thus exact covariance at the oracle level requires jointly scaling $(A_k,\beta_k)$ to $(\lambda_kA_k,\lambda_k\beta_k)$, or taking the unregularized limit.
 
+Let $\mathcal S_+=\{s\in\R_{++}^K: d+s\in\G_{\boldsymbol\beta}\}$. This set is convex, and $s^{\mathrm N}$ maximizes $G(s)=\sum_k\log s_k$ over $\mathcal S_+$. First-order optimality therefore gives
+\[
+\left\langle\nabla G(s^{\mathrm N}),s-s^{\mathrm N}\right\rangle
+=
+\sum_k\frac{s_k-s_k^{\mathrm N}}{s_k^{\mathrm N}}
+\le0
+\]
+for every $s\in\mathcal S_+$. Taking $s=s(\pi)$ proves \eqref{eq:proportional-fairness}.
+
 Under $V'_k=c_kV_k+b_k$ and $d'_k=c_kd_k+b_k$, the transformed surplus is $s'_k=c_ks_k$. Therefore
 \[
 \sum_k\log s'_k(\pi)
@@ -709,128 +863,125 @@ and
 \]
 therefore maximize the minimum surplus at $1/6$, but $\pi_e$ Pareto dominates $\pi_c$ in game values.
 
-\subsection{Proof of the regression claim}
+\subsection{Dual Derivation and Regression Fixed Point}
 \label{app:regression}
-Let
+Assumption~\ref{ass:joint} supplies a strictly feasible pair for \eqref{eq:prox-subproblem}: choose $\bar\pi$ with $s_k(\bar\pi)>0$ and any $0<u_k<s_k(\bar\pi)$. Slater's condition therefore gives strong duality. The Lagrangian is \eqref{eq:prox-lagrangian}. For $\lambda_k>0$,
 \[
-R_t(y,y')
-=
-\eta_t\sum_k\bar\omega_{t,k}
-\E_{z\sim\nu^\star_{k,\pi_t}}
-[A_k(y,z)-A_k(y',z)].
+\max_{u_k>0}\{\log u_k-\lambda_ku_k\}
+=-\log\lambda_k-1,
+\qquad
+u_k^\star=\frac1{\lambda_k},
 \]
-The conditional mean of the binary target in \eqref{eq:regression-loss} is $R_t(y,y')$. The squared-loss conditional-mean decomposition shows that any population minimizer must satisfy
-$h_t(\pi;y,y')=R_t(y,y')$ for every pair in the support of $\pi_t\otimes\pi_t$. The exponential mirror update satisfies this identity. Equality of all pairwise log differences implies that its log density and that of any other full-support minimizer differ only by an additive constant; normalization proves uniqueness.
+where the displayed optimizer is the slack variable (not an opponent policy). If any $\lambda_k=0$, the supremum over $u_k$ is infinite, so the dual domain is $\R_{++}^K$. This proves \eqref{eq:prox-dual}.
+
+For fixed $\lambda>0$, the term $-D(\pi\|\pi_t)/\eta_t$ is strictly concave. Hence the policy maximizer $\pi_t(\lambda)$ is unique. Because $\pi_t$ has full support and the derivative of negative KL diverges inward at a zero-probability coordinate, the maximizer also has full support. Danskin's theorem gives
+\[
+\nabla_k\phi_t(\lambda)
+=s_k(\pi_t(\lambda))-\frac1{\lambda_k},
+\]
+which is \eqref{eq:dual-gradient}. KKT stationarity in $u_k$ gives $1/u_k-\lambda_k=0$. Since $\lambda_k>0$, complementary slackness makes $u_k=s_k(\pi)$, proving Proposition~\ref{prop:prox-dual}.
+
+\paragraph{Inner dual convergence.}
+Fix a box $\Lambda=[\lambda_{\min},\lambda_{\max}]^K$ containing a stage dual minimizer. The Hessian of $-\sum_k\log\lambda_k$ is bounded below by $m_\Lambda I$ with $m_\Lambda=\lambda_{\max}^{-2}$, while the maximized term in \eqref{eq:prox-dual} is convex. Hence $\phi_t$ is $m_\Lambda$-strongly convex on $\Lambda$. For $\beta_k>0$, the game values are smooth; the KL term makes the weighted policy maximizer unique and interior, so the implicit-function theorem and compactness of $\Lambda$ give an $L_\Lambda<\infty$ such that $\nabla\phi_t$ is $L_\Lambda$-Lipschitz. Projection is nonexpansive, and therefore exact projected dual descent with a constant
+$0<\gamma<2m_\Lambda/L_\Lambda^2$ obeys
+\begin{equation}
+\|\lambda^{(m+1)}-\lambda_t^\star\|_2^2
+\le
+\left(1-2\gamma m_\Lambda+\gamma^2L_\Lambda^2\right)
+\|\lambda^{(m)}-\lambda_t^\star\|_2^2.
+\label{eq:dual-linear-rate}
+\end{equation}
+Thus the exact inner dual loop converges geometrically. Approximate policy solves and sampled surplus estimates are absorbed into the residual terms in \eqref{eq:inexact-last-iterate}.
+
+It remains to justify the regression implementation. Fix $\lambda$ and abbreviate $\bar\pi=\pi_t(\lambda)$. First-order optimality of the weighted policy problem in \eqref{eq:prox-dual} gives, for each prompt and every response pair in the support,
+\begin{equation}
+\log\frac{\bar\pi(y\mid x)}{\pi_t(y\mid x)}
+-
+\log\frac{\bar\pi(y'\mid x)}{\pi_t(y'\mid x)}
+=
+\eta_t\sum_k\lambda_k
+\left(q_{k,\bar\pi}(y\mid x)-q_{k,\bar\pi}(y'\mid x)\right).
+\label{eq:prox-pairwise-kkt}
+\end{equation}
+The conditional mean of $Z_{t,k}$ in \eqref{eq:binary-target}, with $z_k\sim\nu^\star_{k,\bar\pi}$, is exactly the difference on the right-hand side. The squared-loss conditional-mean decomposition therefore makes \eqref{eq:prox-pairwise-kkt} necessary for every population minimizer of \eqref{eq:regression-loss}. Equality of all pairwise log differences implies that the candidate log density and $\bar\pi$ differ only by a prompt-dependent additive constant; normalization proves uniqueness.
 
 \subsection{Proof of Theorem~\ref{thm:last-iterate}}
 \label{app:convergence}
-For one prompt and one objective, write the payoff matrix as $A_k$. Equation~\eqref{eq:soft-value} has Hessian
+Let $h(\pi)=\E_x\sum_y\pi(y\mid x)\log\pi(y\mid x)$, so its Bregman divergence is $D(\pi\|\pi_t)$. Because the objective is increasing in $u$, the policy part of \eqref{eq:prox-subproblem} is equivalently
 \begin{equation}
-\nabla^2V_{k,\beta_k}(\pi)
-=-\frac{1}{\beta_k}
-A_k\left(\operatorname{Diag}(\nu^\star_{k,\pi})
--\nu^\star_{k,\pi}(\nu^\star_{k,\pi})^\top\right)A_k^\top.
-\label{eq:value-hessian}
+\pi_{t+1}
+\in
+\arg\max_{\pi\in\Pi_+}
+\left\{F(\pi)-\frac1{\eta_t}D(\pi\|\pi_t)\right\}.
+\label{eq:implicit-prox}
 \end{equation}
-For any direction $h$,
+The feasible set is nonempty by Assumption~\ref{ass:joint}, and $F(\pi)\to-\infty$ as any surplus approaches zero. Thus the maximizer exists in $\Pi_+$ even when the center $\pi_t$ is the reference $\mu\notin\Pi_+$. Because $\pi_t$ has full support and the remaining objective has finite directional derivatives at an interior surplus point, the inward derivative of $-D(\pi\|\pi_t)$ excludes zero-probability coordinates. Induction therefore gives a full-support, positive-surplus $\pi_{t+1}$.
+
+Let $g_{t+1}$ be a supergradient of $F$ at $\pi_{t+1}$. First-order optimality of \eqref{eq:implicit-prox} and concavity of $F$ imply, for every $\pi\in\Pi_+$,
 \begin{align}
--h^\top\nabla^2V_{k,\beta_k}(\pi)h
-&=\frac{1}{\beta_k}
-\operatorname{Var}_{z\sim\nu^\star_{k,\pi}}
-(h^\top A_ke_z)
-\le\frac{1}{4\beta_k}\|h\|_1^2,
-\label{eq:value-curvature-bound}\\
-|h^\top\nabla V_{k,\beta_k}(\pi)|
-&\le\frac12\|h\|_1.
-\label{eq:value-gradient-bound}
+F(\pi)-F(\pi_{t+1})
+&\le \langle g_{t+1},\pi-\pi_{t+1}\rangle_\rho\\
+&\le\frac1{\eta_t}
+\left\langle\nabla h(\pi_{t+1})-\nabla h(\pi_t),
+\pi-\pi_{t+1}\right\rangle_\rho\\
+&=\frac1{\eta_t}
+\left[
+D(\pi\|\pi_t)-D(\pi\|\pi_{t+1})-D(\pi_{t+1}\|\pi_t)
+\right].
+\label{eq:prox-three-point}
 \end{align}
-On $s_k(\pi)\ge\varepsilon$,
+For $t\ge1$, $\pi_t$ is feasible in the next subproblem. Comparing the optimum with $\pi_t$ gives
 \begin{equation}
--h^\top\nabla^2\log s_k(\pi)h
-\le
-\frac14\left(
-\frac{1}{\beta_k\varepsilon}
-+\frac{1}{\varepsilon^2}
-\right)\|h\|_1^2.
-\label{eq:log-curvature}
+F(\pi_{t+1})-\frac{1}{\eta_t}D(\pi_{t+1}\|\pi_t)
+\ge F(\pi_t),
+\label{eq:prox-monotone}
 \end{equation}
-Summing over objectives gives $L_\varepsilon\|h\|_1^2$. The Hessian of negative entropy $\psi(\pi)=\sum_y\pi(y)\log\pi(y)$ satisfies
-\[
-h^\top\nabla^2\psi(\pi)h
-=\sum_y\frac{h_y^2}{\pi_y}
-\ge\left(\sum_y|h_y|\right)^2
-=\|h\|_1^2.
-\]
-Integrating this curvature comparison along a line segment yields relative smoothness:
-\begin{equation}
-F(p)
-\ge
-F(q)+\langle\nabla F(q),p-q\rangle
--L_\varepsilon\KL(p\|q)
-\qquad p,q\in\Pi_\varepsilon.
-\label{eq:relative-smoothness-ineq}
-\end{equation}
+so the objective values are nondecreasing from $\pi_1$ onward.
 
-The exact mirror step satisfies the three-point inequality
+Set $\pi=\pi^\star$ in \eqref{eq:prox-three-point}, multiply by $\eta_t$, and sum from $t=0$ to $T-1$:
 \begin{equation}
-\alpha_t\langle\nabla F(\pi_t),\pi-\pi_{t+1}\rangle
+\sum_{t=0}^{T-1}\eta_t
+\big(F(\pi^\star)-F(\pi_{t+1})\big)
 \le
-D(\pi\|\pi_t)-D(\pi\|\pi_{t+1})-D(\pi_{t+1}\|\pi_t),
-\label{eq:three-point}
+D(\pi^\star\|\mu).
+\label{eq:prox-telescope}
 \end{equation}
-where $D$ is contextual KL. Relative smoothness and optimality of the update imply $F(\pi_{t+1})\ge F(\pi_t)$ when $\alpha_tL_\varepsilon\le1$. Concavity of $F$, \eqref{eq:relative-smoothness-ineq}, and \eqref{eq:three-point} with $\pi=\pi^\star$ give
+Because the gaps are nonincreasing, the left-hand side is at least
+$\big(\sum_t\eta_t\big)(F(\pi^\star)-F(\pi_T))$, which proves \eqref{eq:last-iterate-rate}.
+
+For every objective, $V_k(\pi)\in[-1/2,1/2]$ and $d_k=V_k(\mu)\le0$ because $\nu=\mu$ is feasible and $g_k(\mu,\mu)=0$. Hence every positive surplus is at most one. On $(0,1]^K$, $G(s)=\sum_k\log s_k$ is $1$-strongly concave in Euclidean norm. The comprehensive positive-surplus set induced by \eqref{eq:comprehensive-hull} is convex, and first-order optimality of its unique maximizer $s^\star$ gives
 \begin{equation}
-\alpha_t\big(F(\pi^\star)-F(\pi_{t+1})\big)
-\le
-D(\pi^\star\|\pi_t)-D(\pi^\star\|\pi_{t+1}).
-\label{eq:exact-telescope}
+G(s^\star)-G(s)
+\ge\frac12\|s-s^\star\|_2^2.
+\label{eq:surplus-strong-concavity}
 \end{equation}
-Summing telescopes. Since the objective gaps are nonincreasing,
-\[
-\left(\sum_{t=0}^{T-1}\alpha_t\right)
-\big(F(\pi^\star)-F(\pi_T)\big)
-\le D(\pi^\star\|\pi_0),
-\]
-which proves \eqref{eq:last-iterate-rate} in the exact case $\xi_t=\delta_t=0$.
+Combining this with \eqref{eq:last-iterate-rate} proves \eqref{eq:last-iterate-surplus}.
 
-It remains to translate welfare convergence into utility convergence. For every objective, $V_k(\pi)\in[-1/2,1/2]$, and $d_k=V_k(\mu)\le0$ because $\nu=\mu$ is feasible and $g_k(\mu,\mu)=0$. Hence every positive surplus satisfies $s_k\le1$. The function $G(s)=\sum_k\log s_k$ is therefore $1$-strongly concave on the attainable positive surplus range. First-order optimality of the unique $s^\star$ over the convex comprehensive surplus set gives
-\[
-G(s^\star)-G(s)\ge\frac12\|s-s^\star\|_2^2.
-\]
-Combining this inequality with the exact case of \eqref{eq:last-iterate-rate} proves the surplus-vector statement.
-
-\paragraph{Approximate fitted updates.}
-We say that the fitted policy has variational residual $\delta_t$ if, for every policy $\pi$,
-\begin{align}
-\alpha_t\langle\widehat g_t,\pi-\pi_{t+1}\rangle
-&\le
-D(\pi\|\pi_t)-D(\pi\|\pi_{t+1})
--D(\pi_{t+1}\|\pi_t)+\delta_t.
+\paragraph{Approximate sampled stages.}
+Reindex the accepted proposals consecutively, so $t$ below counts accepted proximal stages and a rejected proposal contributes neither a new iterate nor a step size. Let $\widehat g_{t+1}$ be the game-gradient estimate induced by the fitted opponents and dual weights. Suppose the fitted policy satisfies, for every $\pi\in\Pi_+$,
+\begin{equation}
+\eta_t\langle\widehat g_{t+1},\pi-\pi_{t+1}\rangle_\rho
+\le
+D(\pi\|\pi_t)-D(\pi\|\pi_{t+1})-D(\pi_{t+1}\|\pi_t)+\delta_t,
 \label{eq:variational-residual}
-\end{align}
-The exact mirror update has $\delta_t=0$. Let $e_t=\widehat g_t-\nabla F(\pi_t)$. Repeating the derivation of \eqref{eq:exact-telescope} with \eqref{eq:variational-residual} gives
-\begin{align*}
-\alpha_t\big(F(\pi^\star)-F(\pi_{t+1})\big)
-&\le
-D(\pi^\star\|\pi_t)-D(\pi^\star\|\pi_{t+1})\\
-&\quad
--\alpha_t\langle e_t,\pi^\star-\pi_{t+1}\rangle+\delta_t.
-\end{align*}
-The contextual $\ell_1$ distance between two policies is at most $2$, so
-\[
--\langle e_t,\pi^\star-\pi_{t+1}\rangle
-\le2\|e_t\|_\infty
-\le2\xi_t.
-\]
-Therefore
+\end{equation}
+and $\|\widehat g_{t+1}-g_{t+1}\|_\infty\le\xi_t$. Since the contextual $\ell_1$ distance between two policies is at most two, concavity and \eqref{eq:variational-residual} imply
 \begin{equation}
-\alpha_t\big(F(\pi^\star)-F(\pi_{t+1})\big)
+\eta_t\big(F(\pi^\star)-F(\pi_{t+1})\big)
 \le
 D(\pi^\star\|\pi_t)-D(\pi^\star\|\pi_{t+1})
-+2\alpha_t\xi_t+\delta_t.
++\delta_t+2\eta_t\xi_t.
 \label{eq:inexact-telescope}
 \end{equation}
-Summing gives a weighted-average gap bound. If the accepted objective values are nondecreasing, the last gap is no larger than this weighted average, proving \eqref{eq:last-iterate-rate}. Without monotonicity, the smallest gap among the iterates is no larger than the weighted average. The utility-vector statement follows from the same strong-concavity argument used above.
+If the accepted objective values are nondecreasing, as guaranteed on the simultaneous certification event when \eqref{eq:welfare-certificate} is nonnegative, then
+\begin{equation}
+F(\pi^\star)-F(\pi_T)
+\le
+\frac{D(\pi^\star\|\mu)+\sum_{t=0}^{T-1}(\delta_t+2\eta_t\xi_t)}
+{\sum_{t=0}^{T-1}\eta_t}.
+\label{eq:inexact-last-iterate}
+\end{equation}
+Thus the fitted last iterate converges whenever the cumulative inner-solve and gradient-estimation errors are $o(\sum_t\eta_t)$. The exact theorem is the special case $\delta_t=\xi_t=0$.
 
 \section{Finite-Sample Certification of Game Values}
 \label{app:certificate}
@@ -911,7 +1062,8 @@ With probability at least $1-\delta$, simultaneously for every objective $k\in[K
 \le\overline V_{k,c}.
 \label{eq:ci-guarantee}
 \end{equation}
-Consequently, if one check is the reference policy, the surplus interval in \eqref{eq:surplus-ci} is simultaneous and valid. If every lower surplus exceeds $\varepsilon$, then the checked policy belongs to $\Pi_\varepsilon$ with probability at least $1-\delta$.
+Consequently, if one check is the reference policy, the surplus interval in \eqref{eq:surplus-ci} is simultaneous and valid. If every lower surplus is positive, then the checked policy is feasible for \eqref{eq:game-nash} with probability at least $1-\delta$. For two checked policies $\pi_a$ and $\pi_b$, if every $\underline s_k(\pi_a)>0$ and
+$\sum_k\log\underline s_k(\pi_a)\ge\sum_k\log\overline s_k(\pi_b)$, then $F(\pi_a)\ge F(\pi_b)$ on the same event.
 \end{theorem}
 
 \subsection{Proof of Theorem~\ref{thm:game-value-ci}}
@@ -950,59 +1102,10 @@ Since $q_{k,c,i}\in[a_k,b_k]$ and $-\beta_k\log q$ is decreasing, \eqref{eq:perp
 
 Each exact prompt-level value lies in $[-1/2,1/2]$. A third Hoeffding bound over the $n$ prompts, union-bounded over $KR$ checks, gives prompt-generalization error at most $\epsilon_{\mathrm{pr}}$ with failure probability at most $\delta/3$. Combining the three events proves \eqref{eq:ci-guarantee}. The surplus statement follows by subtracting the worst compatible endpoints of the candidate and reference intervals.
 
-\section{Certified Positive-Surplus Warm Start}
-\label{app:warmstart}
-Define the population joint headroom
-\begin{equation}
-\gamma^\star=\max_\pi\min_k s_k(\pi).
-\label{eq:game-headroom}
-\end{equation}
-Assumption~\ref{ass:joint} is equivalent to $\gamma^\star>0$. The smooth objective in \eqref{eq:phase0-objective} satisfies
-\begin{equation}
-\min_k s_k(\pi)-\tau_0\log K
-\le H_{\tau_0}(\pi)
-\le\min_k s_k(\pi).
-\label{eq:softmin-bound}
-\end{equation}
-Its gradient is
-\begin{equation}
-\nabla H_{\tau_0}(\pi)
-=
-\sum_{k=1}^K a_k(\pi)q_{k,\pi},
-\qquad
-a_k(\pi)
-=
-\frac{e^{-s_k(\pi)/\tau_0}}
-{\sum_j e^{-s_j(\pi)/\tau_0}}.
-\label{eq:phase0-gradient}
-\end{equation}
-Thus Phase~0 uses the same regularized-opponent and mirror-regression machinery as Phase~1, but its objective weights remain finite at the reference. If $\tau_0\log K<\gamma^\star$, then the maximum of $H_{\tau_0}$ is positive.
-
-\begin{algorithm}[t]
-\caption{Certified Positive-Improvement Warm Start}
-\label{alg:warmstart}
-\begin{algorithmic}[1]
-\REQUIRE Reference $\mu$, preference oracles $P_{1:K}$, temperatures $\beta_{1:K}$, floor $\varepsilon$, softmin temperature $\tau_0$, confidence $\delta$, maximum checks $R$.
-\STATE Initialize $\pi^{(0)}\leftarrow\mu$ and preallocate independent certification batches.
-\FOR{$r=0,\ldots,R-1$}
-    \STATE Certify $\underline s_{r,k}$ for every objective using Appendix~\ref{app:certificate}.
-    \IF{$\underline s_{r,k}\ge2\varepsilon$ for every $k$}
-        \STATE \textbf{return} $\pi^{(r)}$.
-    \ENDIF
-    \STATE Estimate softmin weights $a_{r,k}\propto\exp\{-\widehat s_{r,k}/\tau_0\}$.
-    \STATE Estimate each regularized opponent and form pairwise targets for $\sum_ka_{r,k}q_{k,\pi^{(r)}}$.
-    \STATE Fit $\pi^{(r+1)}$ by the mirror-regression update.
-\ENDFOR
-\STATE \textbf{return} ``uncertified.''
-\end{algorithmic}
-\end{algorithm}
-
-The certificate is one-sided. An uncertified return does not establish $\gamma^\star\le0$. A population infeasibility certificate would require an upper bound on \eqref{eq:game-headroom}, which is separate from finding a feasible warm start.
-
 \section{Finite-Pool Population Certificate}
 \label{app:finite-pool-certificate}
 
-We freeze 1,500 \textsc{UltraFeedback} prompts, four policy responses and four reference responses per prompt, four objective-specific pairwise tensors, $\beta_k=0.25$, and the reference game values before optimization. The complete intersection contains 1,372 prompts. We first obtain a positive-surplus Phase~0 point and then optimize \eqref{eq:game-nash} directly over one four-simplex per prompt in float64. The reported checkpoint is the converged final iterate, not a reward-selected iterate.
+We freeze 1,500 \textsc{UltraFeedback} prompts, four policy responses and four reference responses per prompt, four objective-specific pairwise tensors, $\beta_k=0.25$, and the reference game values before optimization. The complete intersection contains 1,372 prompts. We optimize \eqref{eq:game-nash} directly over one four-simplex per prompt in float64. The reported checkpoint is the converged final iterate, not a reward-selected iterate.
 
 % begin inlined finite_pool_certificate_table.tex (was \input; inlined so main.tex compiles standalone)
 \begin{table}[t]
@@ -1050,10 +1153,10 @@ HT single-objective corners & 1.000 & 0.030--0.060 & $-0.1351$--$-0.1207$ & $5.9
 \section{Experimental Protocol and Detailed Results}
 \label{app:protocol}
 \paragraph{Run matrix.}
-For each dataset and training run, construct one certified NBPO warm start and reuse it across the four game-value aggregation rules. Hold the prompt split, decoding parameters, candidate count, comparator pool, labeled pair set, total preference-query budget, total optimizer budget, and $\beta_{1:K}$ fixed within a seed. Count Phase~0, opponent scoring, rejected stages, and validation used for hyperparameter selection. PROSPER, fixed-reference precursor, MOPO, and Uniform-INPO are external baselines and should retain their canonical update rules while receiving the same total resource budget.
+For each dataset and training run, initialize the constrained game-value aggregation rules from the same reference policy and use the same proximal-stage budget. Hold the prompt split, decoding parameters, candidate count, comparator pool, labeled pair set, total preference-query budget, total optimizer budget, and $\beta_{1:K}$ fixed within a seed. Count inner dual iterations, opponent scoring, rejected stages, certification queries, and validation used for hyperparameter selection. PROSPER, fixed-reference precursor, MOPO, and Uniform-INPO are external baselines and should retain their canonical update rules while receiving the same total resource budget.
 
 \paragraph{Independent evaluation.}
-Training labels, utility certification, and final evaluation must use disjoint data. The final game values use an independently generated comparator pool and evaluator families that did not provide training labels. Report failure to certify joint positive surplus as a result rather than replacing it with a clipped Phase~1 run.
+Training labels, utility certification, and final evaluation must use disjoint data. The final game values use an independently generated comparator pool and evaluator families that did not provide training labels. Report failure to certify the first constrained iterate as a result rather than replacing it with a clipped or offset Nash objective.
 
 \paragraph{Primary metrics.}
 For a final release, report $V_{k,\beta_k}$ and $s_k$ on the theoretical scale of \eqref{eq:centered}, together with the minimum surplus, average game value, Nash welfare, IR rate, fixed-reference win rate, KL to the reference, response length, opponent entropy, and accepted-stage rate. The currently archived summary provides only the implementation-scale quantities $\widetilde s_k$ and $\widetilde F$ shown below. Rows without a canonical implementation audit are omitted. Nash welfare is undefined when a held-out surplus is nonpositive; do not apply an unreported offset.
@@ -1083,64 +1186,28 @@ Uniform-INPO & $0.079$ & $-9.156$ & $0.514$ & $0.495$ & $-1.328$ & $0.804$\\
 \end{tabular}
 \end{table*}
 
-\begin{table*}[htbp]
-\centering\footnotesize
-\setlength{\tabcolsep}{2.0pt}
-\caption{Improvement comparison table. Entries are held-out surplus estimates on the scale of \eqref{eq:centered}.  IR is the fraction of prompts for which all four lower confidence bounds exceed the fallback.  Completed rows use one 663-prompt jointly complete held-out panel judged in a single pass; ``ref.\ win'' is the mean anchored win rate. All trained arms use the manuscript loss \eqref{eq:regression-loss} run open-loop, without the per-stage surplus certificate of Algorithm~1. At $4\times$ the manuscript's optimizer budget every rule collapses (mean response length nearly doubles, anchored win rate falls below $0.09$); at the manuscript budget the policies remain fluent and the rules separate, but none recovers the certified warm start's individual rationality. ``IR'' is the fraction of held-out prompts on which all four objectives exceed the fallback; the base policy scores $0.248$ on this statistic, so it is the sampling floor rather than zero. Paired 2{,}000-resample prompt-bootstrap 95\% intervals for the minimum surplus are $[+0.005,+0.033]$ (MOPO $\tau{=}0.1$), $[-0.014,+0.014]$ (MOPO $\tau{=}1$), $[-0.029,+0.008]$ (Uniform-INPO), $[-0.077,-0.044]$ (\NBPO{}) and $[-0.092,-0.059]$ (corner helpfulness). MOPO at $\tau{=}0.1$ is the only arm whose interval is strictly positive; the single-objective corners and every aggregation rule other than surplus maxmin and Uniform-INPO are significantly negative. Its importance weights are extremely concentrated---clipping and normalising leave an effective sample size of $879$ of $24{,}000$ pairs, against $9{,}799$ at $\tau{=}1$---so it trains on a small high-scoring subset rather than the full pair set. Remaining rows require baselines that have not yet been trained on this panel.}
-\label{tab:fixed-k-neural-completion}
-\begin{tabular}{lrrrrrrr}
-\toprule
-method & instr. $s$ & truth. $s$ & honest $s$ & helpful $s$ & min $s$ & IR & ref. win \\
-\midrule
-Certified warm start (Phase~0) & $-0.0011$ & $0.0073$ & $0.0101$ & $0.0161$ & $-0.0011$ & $0.270$ & 0.502 \\
-\midrule
-\multicolumn{8}{l}{\emph{Manuscript budget (300 steps)}}\\
-MOPO ($\tau{=}0.1$, instruction primary) & $\mathbf{0.0289}$ & $\mathbf{0.0253}$ & $\mathbf{0.0220}$ & $0.0296$ & $\mathbf{0.0220}$ & $0.297$ & $\mathbf{0.519}$ \\
-MOPO ($\tau{=}1$, instruction primary) & $0.0187$ & $0.0073$ & $0.0042$ & $0.0042$ & $0.0042$ & $0.259$ & 0.502 \\
-\midrule
-\multicolumn{8}{l}{\emph{Manuscript budget (300 steps)}}\\
-\NBPO{} (ours) & $-0.0542$ & $-0.0583$ & $-0.0477$ & $0.0336$ & $-0.0583$ & $0.226$ & 0.450 \\
-\NBPO{}, prompt-wise & $-0.0379$ & $-0.0597$ & $-0.0446$ & $0.0387$ & $-0.0597$ & $0.220$ & 0.454 \\
-Utilitarian & $-0.0669$ & $-0.0803$ & $-0.0713$ & $0.0238$ & $-0.0803$ & $0.219$ & 0.430 \\
-Absolute maxmin & $-0.0451$ & $-0.0640$ & $-0.0521$ & $0.0556$ & $-0.0640$ & $0.255$ & 0.453 \\
-Surplus maxmin & $-0.0138$ & $-0.0013$ & $0.0222$ & $\mathbf{0.1048}$ & $-0.0138$ & $0.297$ & 0.515 \\
-PROSPER/MaxEntBW & $-0.0364$ & $-0.0502$ & $-0.0455$ & $0.0648$ & $-0.0502$ & $0.237$ & 0.468 \\
-\midrule
-\multicolumn{8}{l}{\emph{Uncertified $4\times$ budget (1{,}200 steps)}}\\
-\NBPO{} & $-0.3607$ & $-0.3755$ & $-0.3862$ & $-0.3531$ & $-0.3862$ & $0.006$ & 0.071 \\
-Utilitarian & $-0.3382$ & $-0.3587$ & $-0.3689$ & $-0.3275$ & $-0.3689$ & $0.033$ & 0.093 \\
-\midrule
-Uniform-INPO & $-0.0110$ & $0.0222$ & $0.0226$ & $0.0783$ & $-0.0110$ & $\mathbf{0.299}$ & 0.517 \\
-Single-objective corner (truthfulness) & $-0.0489$ & $-0.0477$ & $-0.0388$ & $0.0234$ & $-0.0489$ & $0.237$ & 0.455 \\
-Single-objective corner (helpfulness) & $-0.0608$ & $-0.0758$ & $-0.0693$ & $0.0463$ & $-0.0758$ & $0.205$ & 0.442 \\
-\bottomrule
-\end{tabular}
-\end{table*}
+
 
 \begin{table*}[t]
 \centering\footnotesize
 \setlength{\tabcolsep}{3.5pt}
-\caption{Frozen cross-domain reporting table.  SafeRLHF uses helpfulness and harmlessness pairwise judges.  TL;DR uses factuality, coverage, and conciseness criteria on a disjoint Reddit-summary split.  Every comparison is made within a dataset and protocol; scores are never normalized jointly across the two panels.  The completed table will report paired confidence intervals, exact evaluator revisions, prompt counts, and training seeds.}
+\caption{Cross-domain check on \textsc{TL;DR} summarisation. Held-out surpluses on 100 prompts disjoint from training, population scale of \eqref{eq:centered}, judged by the same pinned \texttt{Qwen3-32B} oracle and anchored on the same \texttt{Llama-3.1-8B-Instruct} reference used throughout. Every arm starts at $\pi_0=\mu$, trains on the identical eight-response pool with the identical optimizer budget, and differs only in the weight vector over objectives, so the comparison isolates the aggregation rule. The panel is chosen because its objectives conflict by construction---coverage and conciseness cannot both be maximised---and they do: their game gradients correlate $0.203$ against a mean of $0.399$ across all pairs, where the \textsc{UltraFeedback} panel averages $0.616$. That conflict separates the rules here in a way it does not there: each rule now buys its favoured objective at a visible cost in another, and no arm is uniformly best. The \textsc{SafeRLHF} panel is not yet built and is omitted rather than left blank.}
 \label{tab:cross-domain-completion}
-\begin{tabular}{lrrrrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
-& \multicolumn{3}{c}{SafeRLHF} & \multicolumn{4}{c}{TL;DR} \\
-\cmidrule(lr){2-4}\cmidrule(lr){5-8}
-method & helpful $s$ & harmless $s$ & min $s$ & factual $s$ & coverage $s$ & concise $s$ & min $s$ \\
+& \multicolumn{6}{c}{\textsc{TL;DR} summarisation, four objectives}\\
+\cmidrule(lr){2-7}
+method & coverage $s$ & faithful $s$ & concise $s$ & helpful $s$ & min $s$ & avg $s$ \\
 \midrule
-\NBPO{} (ours) & -- & -- & -- & -- & -- & -- & -- \\
-PROSPER/MaxEntBW & -- & -- & -- & -- & -- & -- & -- \\
-Utilitarian & -- & -- & -- & -- & -- & -- & -- \\
-Absolute maxmin & -- & -- & -- & -- & -- & -- & -- \\
-Surplus maxmin & -- & -- & -- & -- & -- & -- & -- \\
-Uniform-INPO & -- & -- & -- & -- & -- & -- & -- \\
-MOPO & -- & -- & -- & -- & -- & -- & -- \\
-HT-MNPO corners & -- & -- & -- & -- & -- & -- & -- \\
+Constrained \NBPO{} (ours) & $0.198$ & $0.079$ & $-0.001$ & $0.178$ & $-0.001$ & $\mathbf{0.114}$ \\
+PROSPER/MaxEntBW & $\mathbf{0.205}$ & $0.031$ & $-0.068$ & $0.175$ & $-0.068$ & $0.086$ \\
+Utilitarian & $0.221$ & $0.072$ & $-0.046$ & $\mathbf{0.188}$ & $-0.046$ & $0.109$ \\
+Surplus maxmin & $0.081$ & $\mathbf{0.090}$ & $\mathbf{0.018}$ & $0.066$ & $\mathbf{0.018}$ & $0.064$ \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-These tables serve different claims.  Table~\ref{tab:fixed-k-neural-completion} tests whether the learned compromise approaches the intended bargaining outcome under genuine objective conflict.  Table~\ref{tab:general-benchmark-completion} checks that gains are not caused by verbosity or broad capability regression.  Table~\ref{tab:cross-domain-completion} tests whether the result transfers to safety and summarization rather than depending on one prompt distribution.
+These tables serve different claims.  Table~\ref{tab:multi-dataset-surplus} tests whether the learned compromise approaches the intended bargaining outcome under genuine objective conflict.  Table~\ref{tab:general-benchmark-completion} checks that gains are not caused by verbosity or broad capability regression.  Table~\ref{tab:cross-domain-completion} tests whether the result transfers to safety and summarization rather than depending on one prompt distribution.
 
 \begin{table}[htbp]
 \centering\footnotesize
@@ -1214,11 +1281,11 @@ fixed $\beta_k$ & $0.3$ & $0.972431$ & $0.476$ & $0.556$ & $0.983$\\
 \end{tabular}
 \end{table}
 
-\paragraph{Remaining reporting checks.} A final multi-seed evaluation should document the payoff normalization, plot each run's theoretical minimum surplus and Nash welfare across stages, mark Phase~0 and rejected steps, test opponent-pool sensitivity, audit generic or excessive-refusal behavior, and report both game values and conventional fixed-reference win rates.
+\paragraph{Remaining reporting checks.} A final multi-seed evaluation should document the payoff normalization, plot each run's theoretical minimum surplus, Nash welfare, and dual residual across constrained stages, mark rejected steps, test opponent-pool sensitivity, audit generic or excessive-refusal behavior, and report both game values and conventional fixed-reference win rates.
 
 \section{UltraFeedback-Scale Matched Projection Study}
 \label{app:uf-study}
-This study instantiates the matched-comparison protocol of Appendix~\ref{app:protocol} on 7{,}000 \textsc{UltraFeedback} prompts with four objectives (instruction following, truthfulness, honesty, helpfulness), a pinned \texttt{Qwen3-32B} guided-choice judge queried in both presentation orders, four candidate responses and four reference anchors per prompt ($896{,}000$ judgments per side), and a 6{,}000/1{,}000 train/held-out prompt split. All aggregation rules share one certified positive-surplus parent policy, one frozen pair set, and one optimizer budget.
+This study instantiates the matched-comparison protocol of Appendix~\ref{app:protocol} on 7{,}000 \textsc{UltraFeedback} prompts with four objectives (instruction following, truthfulness, honesty, helpfulness), a pinned \texttt{Qwen3-32B} guided-choice judge queried in both presentation orders, four candidate responses and four reference anchors per prompt ($896{,}000$ judgments per side), and a 6{,}000/1{,}000 train/held-out prompt split. All aggregation rules share one fixed parent policy, one frozen pair set, and one optimizer budget.
 
 \paragraph{Target reliability across independent candidate halves.}
 Table~\ref{tab:uf-reliability} reports the split-half reproducibility of each rule's centered per-response target: the target is computed twice from disjoint two-candidate halves, and the two versions are correlated over all held-out responses with a paired $2{,}000$-resample prompt bootstrap. Every objective has strictly positive policy-minus-reference surplus in each half. The \NBPO{} target is significantly more reproducible than both maxmin targets and statistically indistinguishable in practical terms from the utilitarian target, consistent with the near-uniform inverse-surplus weights that a balanced panel induces.
@@ -1241,7 +1308,7 @@ Surplus maxmin & $0.639$ [$0.629,\,0.649$] & $0.617$ & $+0.244$ [$+0.236,\,+0.25
 \end{table}
 
 \paragraph{Held-out realization of the regression target.}
-Table~\ref{tab:uf-realization} measures whether the trained network reproduces its prescribed mirror target on held-out prompts: the pairwise policy log-ratio is correlated against the frozen centered target on 148 held-out prompt groups after training on 1{,}340 groups for exactly four passes. Same-split memorization unit tests (32 groups, 50 passes) exceed Pearson $0.98$ for every configuration shown, so optimizer and capacity are not the binding constraint; the target itself has split-half reliability above $0.88$, so label noise is not the ceiling either. Across the logistic and squared losses, LoRA ranks 64 and 256, and a full-precision forward pass, held-out realization plateaus near $0.36$, far below the $0.80$ preregistered for opening reward-based selection. We are not aware of prior preference-optimization work that reports this quantity; the plateau motivates the pair-oriented projection used in Table~\ref{tab:fixed-k-neural-completion}.
+Table~\ref{tab:uf-realization} measures whether the trained network reproduces its prescribed mirror target on held-out prompts: the pairwise policy log-ratio is correlated against the frozen centered target on 148 held-out prompt groups after training on 1{,}340 groups for exactly four passes. Same-split memorization unit tests (32 groups, 50 passes) exceed Pearson $0.98$ for every configuration shown, so optimizer and capacity are not the binding constraint; the target itself has split-half reliability above $0.88$, so label noise is not the ceiling either. Across the logistic and squared losses, LoRA ranks 64 and 256, and a full-precision forward pass, held-out realization plateaus near $0.36$, far below the $0.80$ preregistered for opening reward-based selection. We are not aware of prior preference-optimization work that reports this quantity; the plateau motivates the pair-oriented projection used in Table~\ref{tab:multi-dataset-surplus}.
 
 \begin{table}[htbp]
 \centering\footnotesize
@@ -1259,33 +1326,153 @@ Squared \eqref{eq:regression-loss} & LoRA-256 & $0.928$ & $0.363$ & $0.018$\\
 \end{tabular}
 \end{table}
 
-\paragraph{Independence from objective utility scales.}
-Theorem~\ref{thm:fairness} states that the \NBPO{} solution is unchanged when each objective's utility is rescaled independently. Table~\ref{tab:uf-scale-covariance} tests this on the frozen pool without retraining or relabelling: each objective's payoff and temperature are multiplied by its own factor $\lambda_k$, which leaves the underlying preferences untouched, and every rule's selection is recomputed. We report the fraction of the $6{,}000\times 6$ response pairs whose preferred element changes. \NBPO{} does not move a single pair under any of the three rescalings, matching the theorem exactly. Every competing rule does: the utilitarian average and PROSPER's per-prompt worst objective both compare raw values across objectives, and the two maxmin rules move most of all. The zeros in the maxmin rows are coincidental rather than structural---they occur only when a rescaling happens to leave the arg-minimising objective unchanged---whereas the \NBPO{} zeros hold for every rescaling. The prompt-wise \NBPO{} variant is close to invariant but not exactly so, because a prompt whose estimated surplus is nonpositive needs a numerical floor and the floor does not commute with rescaling; the same floor is what makes the panel-level rule deviate when it binds.
+\paragraph{Rescaling test: construction and caveats.}
+Theorem~\ref{thm:fairness} states that the \NBPO{} solution is unchanged when each objective's utility is rescaled independently. Table~\ref{tab:uf-scale-covariance} tests this on the frozen pool without retraining or relabelling: each objective's payoff and temperature are multiplied by its own factor $\lambda_k$, which leaves the underlying preferences untouched, and every rule's selection is recomputed. We report the fraction of the $6{,}000\times 6$ response pairs whose preferred element changes. \NBPO{} does not move a single pair under any of the three rescalings, matching the theorem exactly. Every competing rule does: the utilitarian average and PROSPER's per-prompt worst objective both compare raw values across objectives, and the two maxmin rules move most of all. The zeros in the maxmin rows are coincidental rather than structural---they occur only when a rescaling happens to leave the arg-minimising objective unchanged---whereas the \NBPO{} zeros hold for every rescaling. The prompt-wise \NBPO{} variant is close to invariant but not exactly so, because a prompt whose estimated surplus is nonpositive needs a numerical floor and the floor does not commute with rescaling; the same floor is what makes the panel-level rule deviate when it binds. Two of the added baselines land on the utilitarian row exactly, and for reasons worth stating. Uniform-INPO differs from the utilitarian rule in its training loss, not in how it combines objectives, so it inherits that rule's scale sensitivity unchanged. MOPO's log-barrier multipliers $\lambda_k = \sigma/\max(G_k - b_k, \sigma^2)$ never bind at these surplus magnitudes---$G_k - b_k \approx 0.05$ against $\sigma^2 = 1$---so its aggregation also reduces to the uniform sum. The HT-MNPO corners are exactly invariant, but only because a rule that reads a single objective cannot be disturbed by rescaling that objective: they buy invariance by ignoring the other objectives, and Table~\ref{tab:multi-dataset-surplus} shows what that costs them on individual rationality.
 
-\begin{table}[htbp]
-\centering\footnotesize
-\setlength{\tabcolsep}{4.0pt}
-\caption{Independent objective rescaling on the frozen 7{,}000-prompt \textsc{UltraFeedback} pool. Each entry is the percentage of response pairs whose preferred element flips when objective $k$'s payoff and temperature are both multiplied by $\lambda_k$, a transformation that leaves every underlying preference unchanged. Lower is better; $0$ is the value implied by Theorem~\ref{thm:fairness}. No training, decoding, or judging is repeated.}
-\label{tab:uf-scale-covariance}
-\begin{tabular}{lcccc}
-\toprule
-selection rule & $\lambda^{(A)}$ & $\lambda^{(B)}$ & $\lambda^{(C)}$ & mean\\
-\midrule
-\NBPO{} (ours) & $\mathbf{0.00}$ & $\mathbf{0.00}$ & $\mathbf{0.00}$ & $\mathbf{0.00}$\\
-\NBPO{}, prompt-wise & $2.53$ & $2.97$ & $2.32$ & $2.61$\\
-Utilitarian & $5.66$ & $6.31$ & $5.85$ & $5.94$\\
-PROSPER/MaxEntBW & $7.35$ & $6.63$ & $6.71$ & $6.90$\\
-Surplus maxmin & $16.02$ & $13.57$ & $0.00$ & $9.86$\\
-Absolute maxmin & $16.32$ & $0.00$ & $16.32$ & $10.88$\\
-\bottomrule
-\end{tabular}
-\end{table}
 
 The rescaling vectors, in the objective order (helpfulness, honesty, instruction following, truthfulness), are $\lambda^{(A)}=(0.2,0.6,1.0,1.7)$, $\lambda^{(B)}=(3.0,0.5,1.0,0.25)$ and $\lambda^{(C)}=(1.0,1.0,1.0,5.0)$.
 
 \paragraph{Matched game-value comparison.}
-Table~\ref{tab:fixed-k-neural-completion} in Appendix~\ref{app:frozen-neural-tables} evaluates all arms on the 1{,}000 held-out prompts under the frozen evaluator, anchors, and decoding shared with the parent run. ``pair-projection'' arms orient each frozen response pair by the rule's selector score and train with a standard length-normalized preference loss; ``exact regression'' arms regress the pairwise log-ratio difference onto the rule's signed score difference with the manuscript loss \eqref{eq:regression-loss}. Both use the identical 1{,}200-step budget.
-The completed rows stress-test the certificate requirement of Algorithm~1. Run open-loop at four times the manuscript's optimizer budget, the squared-loss update drives every rule to the same collapsed policy: mean response length grows from $1{,}399$ to about $2{,}700$ characters, the anchored win rate falls to $0.07$--$0.09$, and every held-out surplus is strongly negative. Restoring the manuscript's own 300-step budget removes the collapse---response lengths stay within $1.2$--$1.3\times$ the parent and generations remain fluent---and the aggregation rules then separate measurably. \NBPO{} dominates the utilitarian rule on every objective, on the minimum surplus, and on the anchored win rate, which is the comparison the inverse-surplus weights are designed to affect; both maxmin rules place ahead of \NBPO{} on this panel, with surplus maxmin closest to the fallback. Critically, no trained arm at either budget attains joint positive surplus, whereas the certified warm start does. Since the same collapse appears under every rule, it is attributable to the uncertified projection step rather than to the aggregation rule, and it is consistent with the held-out realization plateau of Table~\ref{tab:uf-realization}: when the fitted update does not track its prescribed target off-distribution, the accepted-stage certificate is the mechanism that prevents drift, exactly as the population analysis assumes. We therefore report these runs as a negative result about uncertified projection, not as evidence for or against the bargaining rule.
+Table~\ref{tab:multi-dataset-surplus} in Appendix~\ref{app:frozen-neural-tables} evaluates all arms on the 1{,}000 held-out prompts under the frozen evaluator, anchors, and decoding shared with the parent run. ``pair-projection'' arms orient each frozen response pair by the rule's selector score and train with a standard length-normalized preference loss; ``exact regression'' arms regress the pairwise log-ratio difference onto the rule's signed score difference with the manuscript loss \eqref{eq:regression-loss}. Both use the identical 1{,}200-step budget.
+The completed rows stress-test the certificate requirement of Algorithm~\ref{alg:nbpo}. Run open-loop at four times the manuscript's optimizer budget, the squared-loss update drives every rule to the same collapsed policy: mean response length grows from $1{,}399$ to about $2{,}700$ characters, the anchored win rate falls to $0.07$--$0.09$, and every held-out surplus is strongly negative. Restoring the manuscript's own 300-step budget removes the collapse---response lengths stay within $1.2$--$1.3\times$ the parent and generations remain fluent---and the aggregation rules then separate measurably. \NBPO{} dominates the utilitarian rule on every objective, on the minimum surplus, and on the anchored win rate, which is the comparison the inverse-surplus weights are designed to affect; both maxmin rules place ahead of \NBPO{} on this panel, with surplus maxmin closest to the fallback. Critically, no trained arm at either budget attains joint positive surplus, so the constrained algorithm would reject every candidate. Since the same collapse appears under every rule, it is attributable to the uncertified projection step rather than to the aggregation rule, and it is consistent with the held-out realization plateau of Table~\ref{tab:uf-realization}: when the fitted update does not track its prescribed target off-distribution, constrained stage acceptance is the mechanism that prevents drift. We therefore report these runs as a negative result about uncertified projection, not as evidence for or against the bargaining rule.
+
+
+
+\section{Temperature and Step Size on \textsc{SafeRLHF}}
+\label{app:beta-saferlhf}
+\textsc{SafeRLHF} is the panel where \NBPO{} places worst, so it is where the free parameters of the game
+construction deserve the most scrutiny. Every panel in this paper fixes $\beta=0.25$, and that value was
+never justified against alternatives. This appendix sweeps it, and because raising it helps \NBPO{} it
+applies the same temperature to the rule \NBPO{} trails, from the same pool and the same re-solved dual:
+reporting our method at its best temperature against a baseline pinned at another would be the asymmetry
+this paper objects to for the step size.
+
+Table~\ref{tab:beta-saferlhf} gives the result. Raising $\beta$ from $0.25$ to $0.5$ helps \NBPO{} a great
+deal, $+0.039$ on the minimum surplus, and helps absolute maxmin only $+0.005$, which narrows the gap
+between them from $0.043$ to $0.008$. It does not reverse it, and the trend does not continue: \NBPO{}
+peaks at $0.5$ and falls back at $1.0$ and $2.0$, so the rise across the first three temperatures was not
+a trend to extrapolate. The step size was then re-swept at $\beta=0.5$, since it had been selected at
+$0.25$ and the two interact; the previously selected value remains the best for \NBPO{} and likewise for
+absolute maxmin.
+
+Taken together the two knobs are exhausted for both arms, along with the optimizer budget, which halves
+\NBPO{}'s minimum surplus when doubled. Absolute maxmin leads this panel at every setting we have tried.
+We report that rather than presenting the single narrowest configuration as a win. It is consistent with
+what separates this panel from the others: it carries two objectives against four, and the share of
+response pairs on which every objective agrees is $0.50$ here against $0.42$ on \textsc{UltraFeedback} and
+$0.25$ on \textsc{TL;DR}. Where objectives rarely disagree there is little for a bargaining rule to
+arbitrate, and the rule that simply protects the weakest raw game value does as well or better.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\setlength{\tabcolsep}{4.0pt}
+\caption{Game temperature and proximal step size on \textsc{SafeRLHF}. Held-out surpluses on 100 prompts,
+population scale of \eqref{eq:centered}. The dual is re-solved at each temperature because the surpluses
+it inverts change with it, and both arms are retrained at every temperature from the same pool. The step
+size is the target RMS of the regression; the lower block re-sweeps it at the temperature that suits
+\NBPO{} best. Each arm's selected setting is bold.}
+\label{tab:beta-saferlhf}
+\begin{tabular}{lrrrr}
+\toprule
+& \multicolumn{2}{c}{\NBPO{} (ours)} & \multicolumn{2}{c}{Absolute maxmin}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+setting & min $s$ & avg $s$ & min $s$ & avg $s$\\
+\midrule
+\multicolumn{5}{l}{\textit{temperature, at each arm's selected step size}}\\
+$\beta=0.1$ & $0.0902$ & $0.1088$ & --- & ---\\
+$\beta=0.25$ & $0.1011$ & $0.1095$ & $0.1439$ & $0.1491$\\
+$\beta=0.5$ & $\mathbf{0.1403}$ & $\mathbf{0.1425}$ & $0.1487$ & $0.1505$\\
+$\beta=1.0$ & $0.1105$ & $0.1196$ & $\mathbf{0.1498}$ & $\mathbf{0.1522}$\\
+$\beta=2.0$ & $0.1229$ & $0.1303$ & $0.1461$ & $0.1513$\\
+\midrule
+\multicolumn{5}{l}{\textit{step size, at $\beta=0.5$}}\\
+target RMS $1.29$ & $-0.0130$ & $-0.0103$ & $0.1370$ & $0.1413$\\
+target RMS $3.44$ & $0.1337$ & $0.1340$ & --- & ---\\
+selected RMS & $\mathbf{0.1403}$ & $\mathbf{0.1425}$ & $\mathbf{0.1487}$ & $\mathbf{0.1505}$\\
+target RMS $21.5$ & $-0.0438$ & $-0.0156$ & --- & ---\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Objective-Wise Surpluses}
+\label{app:objectivewise}
+Table~\ref{tab:multi-dataset-surplus} reports each panel's minimum and average surplus. This table gives
+the objective-by-objective breakdown those two statistics summarise, on the same evaluations and the same
+population scale, and adds the \texttt{Qwen3-8B} replication of the \textsc{UltraFeedback} panel that the
+main-text table omits so that all of its rows share one backbone. Objective columns follow each panel's own
+header; \textsc{SafeRLHF} has two objectives, so its last two columns are empty. Reading down a panel shows
+which objective each rule sacrifices: the utilitarian and maxmin rules buy helpfulness on
+\textsc{UltraFeedback} at the cost of the other three, PROSPER and the utilitarian rule drive conciseness
+clearly negative on \textsc{TL;DR}, and the single-objective corners lose whichever objectives they do not
+optimise.
+
+\begin{table*}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\caption{Objective-wise held-out surplus over the reference for every arm and every panel, population
+scale of \eqref{eq:centered}. Within a panel each arm starts at $\pi_0=\mu$, trains on the identical
+response pool with the identical optimizer budget, and differs only in the weight vector over objectives.
+Across panels the magnitudes are not comparable: \textsc{UltraFeedback} on \texttt{Llama} is scored on a
+657-prompt jointly complete panel, the rest on 100 held-out prompts against four anchor samples.}
+\label{tab:objectivewise-appendix}
+\begin{tabular}{lrrrrrr}
+\toprule
+method & obj.\ 1 & obj.\ 2 & obj.\ 3 & obj.\ 4 & min $s$ & avg $s$\\
+\midrule
+\multicolumn{7}{l}{\textsc{UltraFeedback} on \texttt{Llama-3.1-8B-Instruct}: instruction following, truthfulness, honesty, helpfulness}\\
+\NBPO{} (ours) & $0.039$ & $0.049$ & $0.055$ & $0.109$ & $0.039$ & $0.063$\\
+PROSPER/MaxEntBW & $-0.035$ & $-0.051$ & $-0.046$ & $0.068$ & $-0.051$ & $-0.016$\\
+Utilitarian & $-0.064$ & $-0.077$ & $-0.070$ & $0.027$ & $-0.077$ & $-0.046$\\
+Absolute maxmin & $-0.043$ & $-0.062$ & $-0.051$ & $0.059$ & $-0.062$ & $-0.024$\\
+Surplus maxmin & $-0.014$ & $-0.000$ & $0.020$ & $0.108$ & $-0.014$ & $0.028$\\
+Uniform-INPO & $-0.008$ & $0.022$ & $0.020$ & $0.079$ & $-0.008$ & $0.028$\\
+MOPO & $0.031$ & $0.026$ & $0.022$ & $0.032$ & $0.022$ & $0.028$\\
+HT-MNPO (helpfulness) & $-0.057$ & $-0.073$ & $-0.067$ & $0.050$ & $-0.073$ & $-0.037$\\
+HT-MNPO (truthfulness) & $-0.050$ & $-0.049$ & $-0.041$ & $0.023$ & $-0.050$ & $-0.029$\\
+HT-MNPO (honesty) & $0.022$ & $0.027$ & $0.025$ & $0.075$ & $0.022$ & $0.037$\\
+HT-MNPO (instr.\ following) & $0.008$ & $0.026$ & $0.032$ & $0.065$ & $0.008$ & $0.033$\\
+\midrule
+\multicolumn{7}{l}{\textsc{UltraFeedback} on \texttt{Qwen3-8B}: helpfulness, truthfulness, honesty, instruction following}\\
+\NBPO{} (ours) & $0.072$ & $0.018$ & $0.043$ & $0.031$ & $0.018$ & $0.041$\\
+PROSPER/MaxEntBW & $0.039$ & $-0.002$ & $0.016$ & $0.017$ & $-0.002$ & $0.018$\\
+Utilitarian & $0.038$ & $0.012$ & $0.016$ & $0.012$ & $0.012$ & $0.019$\\
+Absolute maxmin & $0.041$ & $0.005$ & $0.018$ & $0.012$ & $0.005$ & $0.019$\\
+Surplus maxmin & $0.038$ & $0.004$ & $0.014$ & $0.009$ & $0.004$ & $0.016$\\
+Uniform-INPO & $-0.005$ & $-0.001$ & $-0.001$ & $-0.003$ & $-0.005$ & $-0.002$\\
+MOPO & $-0.002$ & $-0.001$ & $-0.005$ & $0.001$ & $-0.005$ & $-0.001$\\
+HT-MNPO (helpfulness) & $-0.002$ & $-0.001$ & $-0.001$ & $0.002$ & $-0.002$ & $-0.001$\\
+HT-MNPO (truthfulness) & $0.017$ & $0.001$ & $0.016$ & $0.014$ & $0.001$ & $0.012$\\
+HT-MNPO (honesty) & $0.000$ & $0.005$ & $0.001$ & $-0.003$ & $-0.003$ & $0.001$\\
+HT-MNPO (instruction following) & $-0.004$ & $0.004$ & $0.001$ & $0.002$ & $-0.004$ & $0.001$\\
+\midrule
+\multicolumn{7}{l}{\textsc{TL;DR} on \texttt{Llama-3.1-8B-Instruct}: coverage, faithfulness, conciseness, helpfulness}\\
+\NBPO{} (ours) & $0.198$ & $0.079$ & $-0.001$ & $0.178$ & $-0.001$ & $0.114$\\
+PROSPER/MaxEntBW & $0.205$ & $0.031$ & $-0.068$ & $0.175$ & $-0.068$ & $0.086$\\
+Utilitarian & $0.221$ & $0.072$ & $-0.046$ & $0.188$ & $-0.046$ & $0.109$\\
+Absolute maxmin & $0.213$ & $0.005$ & $-0.079$ & $0.182$ & $-0.079$ & $0.080$\\
+Surplus maxmin & $0.081$ & $0.090$ & $0.018$ & $0.066$ & $0.018$ & $0.064$\\
+Uniform-INPO & $-0.051$ & $-0.052$ & $-0.011$ & $-0.050$ & $-0.052$ & $-0.041$\\
+MOPO & $0.061$ & $0.009$ & $-0.001$ & $0.052$ & $-0.001$ & $0.030$\\
+HT-MNPO (coverage) & $0.051$ & $-0.010$ & $-0.007$ & $0.045$ & $-0.010$ & $0.020$\\
+HT-MNPO (faithfulness) & $0.074$ & $-0.020$ & $-0.026$ & $0.060$ & $-0.026$ & $0.022$\\
+HT-MNPO (conciseness) & $0.126$ & $-0.037$ & $-0.079$ & $0.106$ & $-0.079$ & $0.029$\\
+HT-MNPO (helpfulness) & $0.037$ & $-0.025$ & $-0.035$ & $0.048$ & $-0.035$ & $0.006$\\
+\midrule
+\multicolumn{7}{l}{\textsc{SafeRLHF} on \texttt{Llama-3.1-8B-Instruct}: helpfulness, harmlessness}\\
+\NBPO{} (ours) & $0.118$ & $0.101$ & --- & --- & $0.101$ & $0.110$\\
+PROSPER/MaxEntBW & $0.151$ & $0.116$ & --- & --- & $0.116$ & $0.134$\\
+Utilitarian & $0.157$ & $0.138$ & --- & --- & $0.138$ & $0.148$\\
+Absolute maxmin & $0.154$ & $0.144$ & --- & --- & $0.144$ & $0.149$\\
+Surplus maxmin & $0.150$ & $0.143$ & --- & --- & $0.143$ & $0.147$\\
+Uniform-INPO & $-0.077$ & $-0.055$ & --- & --- & $-0.077$ & $-0.066$\\
+MOPO & $0.102$ & $0.096$ & --- & --- & $0.096$ & $0.099$\\
+HT-MNPO (helpfulness) & $-0.024$ & $-0.049$ & --- & --- & $-0.049$ & $-0.036$\\
+HT-MNPO (harmlessness) & $-0.023$ & $-0.050$ & --- & --- & $-0.050$ & $-0.037$\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
 
 \section{Fixed-Reference Precursor Experiments}
 \label{app:legacy}
@@ -1419,7 +1606,6 @@ comparison & endpoint & result \\
 \midrule
 full vs. minimal & max policy $\ell_1$ & $0.0e+00$ \\
 normalized vs. absorbed step & max policy $\ell_1$ & $2.9e-15$ \\
-without Phase 0 & Nash-regret increase & $0.0187$ $[0.0165,0.0213]$ \\
 noisy stage gate & Nash-regret change & $-0.0372$ $[-0.0407,-0.0340]$ \\
 raw fixed step & strict-IR change & $-0.040$ $[-0.070,-0.015]$ \\
 \bottomrule
@@ -1429,15 +1615,12 @@ raw fixed step & strict-IR change & $-0.040$ $[-0.070,-0.015]$ \\
 \paragraph{Population optimizer audit.}
 The full and minimal exact-gradient updates were identical, and absorbing the
 sum of inverse-surplus weights into the step size changed the policy by at most
-$2.9e-15$ in $\ell_1$. Removing Phase~0 increased
-Nash-welfare regret by $0.0187$, while a stage-level acceptance test
-reduced regret under frozen gradient noise by $0.0372$. Raw
-inverse weights at the same nominal step reduced the strict-IR rate by
-$4.0\%$. The scale-covariance and Pareto residuals were below
-$2.4e-15$. These results support a minimal population update:
-retain the feasibility warm start, normalize inverse-surplus weights or absorb
-their sum into the step size, and omit post-warm-start clipping. Stage
-acceptance remains an outer safeguard for inexact neural updates.
+$2.9e-15$ in $\ell_1$. A stage-level acceptance test reduced regret under
+frozen gradient noise by $0.0372$, whereas raw inverse weights at the same
+nominal step reduced the strict-IR rate by $4.0\%$. The scale-covariance and
+Pareto residuals were below $2.4e-15$. These archived checks support preserving
+the exact coefficient scale and retaining stage acceptance, but they do not
+evaluate the new constrained proximal solver.
 
 The simultaneous Hoeffding lower bound made no false certifications in this
 study, compared with 1.09\% for the plug-in
@@ -1447,9 +1630,70 @@ than as an optimization ingredient.
 % end inlined generated_simplification.tex
 
 \paragraph{Interpretation.}
-The precursor runs provide no reliable finite-$\beta$ comparison. The three-seed \textsc{HelpSteer2} ordering changes sign, and repeated fixed-reference updates can leave the positive-surplus region, especially without normalized weights. These observations motivate matched seed-level evaluation, a certified warm start, and stage-wise reporting, but they are not performance claims for \NBPO{}.
+The precursor runs provide no reliable finite-$\beta$ comparison. The three-seed \textsc{HelpSteer2} ordering changes sign, and repeated fixed-reference updates can leave the positive-surplus region, especially when the effective step scale is not controlled. These observations motivate matched seed-level evaluation, constrained proximal updates, and stage-wise certification, but they are not performance claims for \NBPO{}.
 
 \clearpage
+\section{Proximal Step-Size Sweep}
+\label{app:eta}
+Theorem~\ref{thm:last-iterate} holds for arbitrary $\eta_t>0$: the step size enters only through $1/\sum_t\eta_t$ in the rate, not as a constraint on validity. It is therefore an algorithm parameter rather than a tuned hyperparameter, and the value used in Table~\ref{tab:general-benchmark-completion} is the one this sweep selects. All five settings share the dual solution, the pair set, the optimizer and the 300-step budget; only the coefficient multiplying the regression target changes.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\setlength{\tabcolsep}{4.0pt}
+\caption{Held-out effect of the proximal step size on the \textsc{UltraFeedback} panel (711 jointly complete prompts, population scale). ``ratio'' is the mean Arena-Hard generation length divided by the base policy's. Minimum surplus rises sevenfold to $20\eta$ and then falls, while the length ratio decreases monotonically to $20\eta$; at $50\eta$ the regression target has RMS $21.5$, the scale at which the archived open-loop arms collapsed at four times their budget, yet generations remain fluent.}
+\label{tab:eta-sweep}
+\begin{tabular}{lcccccc}
+\toprule
+step size & instr. $s$ & truth. $s$ & honest $s$ & helpful $s$ & min $s$ & ratio\\
+\midrule
+$\eta$ & $0.0086$ & $0.0051$ & $0.0207$ & $0.1037$ & $0.0051$ & $1.03$\\
+$3\eta$ & $0.0324$ & $0.0231$ & $0.0366$ & $\mathbf{0.1189}$ & $0.0231$ & $1.02$\\
+$8\eta$ & $0.0267$ & $0.0429$ & $0.0519$ & $0.1113$ & $0.0267$ & $1.02$\\
+$20\eta$ & $\mathbf{0.0390}$ & $0.0480$ & $\mathbf{0.0542}$ & $0.1096$ & $\mathbf{0.0390}$ & $\mathbf{1.01}$\\
+$50\eta$ & $0.0095$ & $\mathbf{0.0547}$ & $0.0505$ & $0.1024$ & $0.0095$ & $1.03$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{What happens when every rule is given twice the budget.}
+The step-size sweep varies $\eta$ at a fixed 300-step budget. Table~\ref{tab:budget-robustness} varies the
+budget instead, doubling it to 600 steps for \NBPO{} and for the two strongest baselines. Each arm is run
+from its own configuration with \texttt{max\_steps} as the only field changed, so nothing distinguishes the
+doubled-budget arm from the published one except the budget. The rules do not respond alike. PROSPER and
+the utilitarian rule both collapse: every objective falls to roughly $-0.09$ and individual rationality is
+lost outright. \NBPO{} at $8\eta$ keeps all four objectives positive and improves its average surplus, and
+only loses individual rationality at the largest step size, where the total displacement $\eta \times
+\text{steps}$ is twice that of any setting we report. The asymmetry is not explained by displacement alone:
+the baselines' targets are normalised to an RMS of $0.43$ against \NBPO{}'s $3.44$, so they move the policy
+\emph{less} per step and still fail first. Their selectors are winner-take-all---PROSPER keeps only each
+prompt's worst objective and the utilitarian rule a single fixed average---and a longer run against such a
+target appears to drive the policy off the distribution the target was estimated on, whereas the bargaining
+weights keep every objective represented in the regression. We report the measurement and offer that
+reading as a hypothesis rather than a demonstration.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\setlength{\tabcolsep}{4.0pt}
+\caption{Doubling the optimizer budget from 300 to 600 steps. Held-out surpluses on 100 prompts under the
+pinned \texttt{Qwen3-32B} oracle, population scale of \eqref{eq:centered}. Each arm is trained from its own
+published configuration with \texttt{max\_steps} as the only altered field; $\eta$ is the proximal step
+size as a multiple of the base target RMS. ``IR'' marks whether all four objectives remain positive.}
+\label{tab:budget-robustness}
+\begin{tabular}{llrrrrr}
+\toprule
+method & setting & instr. & truth. & honest & min $s$ & IR\\
+\midrule
+\NBPO{} & $20\eta$, 300 steps & $0.0185$ & $0.0118$ & $0.0159$ & $0.0118$ & yes\\
+\NBPO{} & $8\eta$, 600 steps & $0.0166$ & $0.0116$ & $\mathbf{0.0217}$ & $\mathbf{0.0116}$ & yes\\
+\NBPO{} & $20\eta$, 600 steps & $-0.0101$ & $0.0003$ & $-0.0018$ & $-0.0101$ & no\\
+\midrule
+PROSPER/MaxEntBW & 600 steps & $-0.0858$ & $-0.0935$ & $-0.0963$ & $-0.0963$ & no\\
+Utilitarian & 600 steps & $-0.0882$ & $-0.0900$ & $-0.0921$ & $-0.0921$ & no\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
 \section{Judge Instantiation and Preference Labeling}
 \label{app:labeling}
 \paragraph{Training judges.}
