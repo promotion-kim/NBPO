@@ -1383,6 +1383,54 @@ Table~\ref{tab:multi-dataset-surplus} in Appendix~\ref{app:frozen-neural-tables}
 The completed rows stress-test the certificate requirement of Algorithm~\ref{alg:nbpo}. Run open-loop at four times the manuscript's optimizer budget, the squared-loss update drives every rule to the same collapsed policy: mean response length grows from $1{,}399$ to about $2{,}700$ characters, the anchored win rate falls to $0.07$--$0.09$, and every held-out surplus is strongly negative. Restoring the manuscript's own 300-step budget removes the collapse---response lengths stay within $1.2$--$1.3\times$ the parent and generations remain fluent---and the aggregation rules then separate measurably. \NBPO{} dominates the utilitarian rule on every objective, on the minimum surplus, and on the anchored win rate, which is the comparison the inverse-surplus weights are designed to affect; both maxmin rules place ahead of \NBPO{} on this panel, with surplus maxmin closest to the fallback. Critically, no trained arm at either budget attains joint positive surplus, so the constrained algorithm would reject every candidate. Since the same collapse appears under every rule, it is attributable to the uncertified projection step rather than to the aggregation rule, and it is consistent with the held-out realization plateau of Table~\ref{tab:uf-realization}: when the fitted update does not track its prescribed target off-distribution, constrained stage acceptance is the mechanism that prevents drift. We therefore report these runs as a negative result about uncertified projection, not as evidence for or against the bargaining rule.
 
 
+
+\paragraph{Temperature on \textsc{SafeRLHF}.}
+Every panel in this paper uses $\beta=0.25$, and that value was never justified against alternatives.
+\textsc{SafeRLHF} is the panel where \NBPO{} places worst, so it is where the question matters most.
+Table~\ref{tab:beta-saferlhf} sweeps the temperature there, and because raising it helps \NBPO{} it also
+applies the same temperature to the four rules \NBPO{} trails, from the same pool and the same dual:
+reporting our method at its best temperature against baselines pinned at another would be the asymmetry
+this paper objects to for the step size. Raising $\beta$ to $0.5$ helps every arm, and helps \NBPO{} most,
+by $+0.039$ on the minimum against $+0.005$ for absolute maxmin. That moves \NBPO{} from fifth of five to
+third and cuts its distance from the leader from $0.043$ to $0.008$, but it does not make it lead: at a
+common temperature absolute maxmin is still first on this panel. Lowering $\beta$ to $0.1$ hurts
+($0.0902$). We keep $\beta=0.25$ in Table~\ref{tab:multi-dataset-surplus} because that is the setting at
+which all eleven arms of that panel were run, and report the sweep here rather than substituting the
+temperature that flatters one column.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\setlength{\tabcolsep}{4.0pt}
+\caption{Game temperature on \textsc{SafeRLHF}. Held-out surpluses on 100 prompts, population scale of
+\eqref{eq:centered}. The dual is re-solved at each temperature because the surpluses it inverts change
+with it, and at $\beta=0.5$ every listed rule is retrained from the same pool at that temperature. Best in
+each column is bold.}
+\label{tab:beta-saferlhf}
+\begin{tabular}{lrrrr}
+\toprule
+& \multicolumn{2}{c}{$\beta=0.25$} & \multicolumn{2}{c}{$\beta=0.5$}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+method & min $s$ & avg $s$ & min $s$ & avg $s$\\
+\midrule
+\NBPO{} (ours) & $0.1011$ & $0.1095$ & $0.1403$ & $0.1425$\\
+Absolute maxmin & $\mathbf{0.1439}$ & $\mathbf{0.1491}$ & $\mathbf{0.1487}$ & $\mathbf{0.1505}$\\
+Surplus maxmin & $0.1434$ & $0.1468$ & $0.1438$ & $0.1459$\\
+Utilitarian & $0.1382$ & $0.1477$ & $0.1333$ & $0.1454$\\
+PROSPER/MaxEntBW & $0.1162$ & $0.1338$ & $0.1144$ & $0.1346$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Step size and temperature on \textsc{TL;DR}.}
+The same two knobs were swept on \textsc{TL;DR} and neither helps. At a 300-step budget the target RMS was
+varied over $1.29$, $3.44$, $8.6$ and $21.5$, giving minimum surpluses of $-0.0147$, $-0.0076$, $-0.0006$
+and $-0.0248$: the published setting is already the best of the four, and no setting attains individual
+rationality. Temperatures $0.1$ and $0.5$ give $-0.0209$ and $-0.0270$, both worse. Across all six
+settings the binding objective is the same one, conciseness, which stays negative while coverage rises to
+$0.19$--$0.22$. The two objectives conflict by construction on this panel, and neither knob resolves that
+conflict; what changes is only how much coverage is bought with it.
+
+
 \section{Objective-Wise Surpluses}
 \label{app:objectivewise}
 Table~\ref{tab:multi-dataset-surplus} reports each panel's minimum and average surplus. This table gives
