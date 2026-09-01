@@ -48,7 +48,7 @@ Aligning large language models (LLMs) to multiple objectives requires both repre
 \label{sec:intro}
 Preference-based post-training is central to aligning Large Language Models (LLMs) with human judgments \citep{christiano2017deep,ouyang2022training}. Standard Reinforcement Learning from Human Feedback (RLHF) learns a scalar reward from pairwise comparisons, while Direct Preference Optimization removes the separately trained reward model but retains an implicit scalar reward and a Bradley--Terry (BT) representation of preferences \citep{rafailov2023direct,bradley1952rank}. Both approaches require comparisons to be explained by a single scalar score assigned to each response. This assumption is restrictive for multi-objective alignment, where one deployed assistant must satisfy objectives such as helpfulness, harmlessness, correctness, and conciseness.
 
-Even within one named objective, human judgments may depend on several latent attributes whose relative importance changes across annotators, prompts, and response pairs. Consider three answers to the same prompt under a helpfulness criterion. Response A is direct but omits important qualifications, response B is comprehensive but verbose, and response C is clear and well qualified but less complete. Aggregate comparisons may prefer A to B for relevance, B to C for completeness, and C to A for clarity and reliability. No scalar ranking can preserve all three relations: any BT reward model must reverse or tie at least one edge and thereby project the feedback onto a transitive ordering. Optimizing this projection aligns the policy to the fitted ordering rather than the original comparison structure, so a scalar-optimal response can remain vulnerable to another response under the observed preferences.
+Even within one named objective, human judgments may depend on several latent attributes whose relative importance changes across annotators, prompts, and response pairs. Consider three answers to the same prompt under a helpfulness criterion. Response A is direct but omits important qualifications, response B is comprehensive but verbose, and response C is clear and well qualified but less complete. Aggregate comparisons may prefer A to B for relevance, B to C for completeness, and C to A for clarity and reliability. No scalar reward can represent all three preferences simultaneously. For example, fitting $A\succ B$ and $B\succ C$ requires $r(A)>r(B)>r(C)$, which contradicts the observed preference $C\succ A$. A BT reward model must therefore misrepresent at least one pairwise comparison in order to express the cyclic feedback as a transitive scalar ranking. Optimizing this projection aligns the policy to the fitted ordering rather than the original comparison structure, so a scalar-optimal response can remain vulnerable to another response under the observed preferences.
 
 Nash Learning from Human Feedback (NLHF) avoids this misspecification by treating prompt-conditioned comparisons directly as payoffs in a zero-sum preference game, while INPO, SPPO, and related methods provide scalable equilibrium-seeking updates \citep{munos2024nash,zhang2025iterative,wu2025sppo,calandriello2024online,rosset2024direct,zhou2025egpo}. Extending this view to multiple objectives introduces a separate question: after representing each objective faithfully, which compromise should one deployed policy realize? Existing scalar multi-objective methods require an external trade-off specification, such as weights, priorities, or constraints \citep{zhou2024beyond,rame2023rewarded,zhong2024panacea,chakraborty2024maxmin,son2026rmod,agnihotri2026mopo}, whereas recent game-theoretic extensions use Blackwell target sets or max-min aggregation \citep{blackwell1956analog,bhatia2020multicriteria,zhang2026prosper}. Fixed-reference methods such as MOPO are computationally convenient but can discard pairwise structure that is invisible from the reference \citep{agnihotri2026mopo,zhang2026prosper}.
 
@@ -84,8 +84,7 @@ g_k(\pi,\nu)
 =\E_{x\sim\rho,\,y\sim\pi(\cdot\mid x),\,z\sim\nu(\cdot\mid x)}A_k(y,z\mid x).
 \label{eq:game-payoff}
 \end{equation}
-Thus, $g_k(\pi,\nu)>0$ means that $\pi$ is preferred to $\nu$ on average under objective $k$, while $g_k(\pi,\nu)=0$ corresponds to an average tie. No scalar reward representation or transitivity assumption is imposed. We write the contextual policy inner product as
-$\langle q,\pi\rangle_\rho=\E_x\sum_y\pi(y\mid x)q(y\mid x)$ and the contextual KL analogously.
+Thus, $g_k(\pi,\nu)>0$ means that $\pi$ is preferred to $\nu$ on average under objective $k$, while $g_k(\pi,\nu)=0$ corresponds to an average tie. No scalar reward representation or transitivity assumption is imposed.
 
 \paragraph{Bargaining problems.}
 A $K$-dimensional bargaining problem is a feasible utility set $\G\subseteq\R^K$ and disagreement point $d\in\G$. It is nondegenerate if some $u\in\G$ satisfies $u>d$ componentwise. On a compact, convex, comprehensive problem, the Nash solution is
@@ -98,9 +97,10 @@ v^{\mathrm N}
 \end{equation}
 Here, the optimization variable is the feasible value vector $v$, and each $v_k-d_k$ is the surplus over the disagreement point. The Nash solution is optimized over feasible value vectors satisfying $v>d$ componentwise~\citep{nash1950}. Its derivative with respect to coordinate $v_k$ is the inverse surplus, $1/(v_k-d_k)$.
 
+
 \section{Objective-Wise Preference Games}
 \label{sec:game-utility}
-This section turns each objective-wise preference oracle into a scalar policy utility by defining an entropy-regularized preference game, deriving its adaptive opponent and policy gradient, and illustrating why this utility captures cyclic structure that fixed-reference evaluation can miss. The reference policy $\mu$ has two distinct roles. It is the deployed fallback used by the bargaining problem, and it anchors the opponent distribution used to evaluate each objective. Sharing the same policy does not merge these roles.
+This section defines one scalar value for each objective while preserving its full pairwise preference structure. For objective $k$, we evaluate the candidate policy $\pi$ against an adaptive opponent $\nu$ that searches for responses against which $\pi$ performs poorly. The reference policy $\mu$ plays two distinct roles: it anchors this comparator here, and it serves as the deployed fallback in the bargaining problem of Section~\ref{sec:bargaining}.
 
 \begin{definition}[Entropy-regularized game value]
 \label{def:game-value}
@@ -108,22 +108,24 @@ For objective $k$ and temperature $\beta_k>0$, define
 \begin{equation}
 V_{k,\beta_k}(\pi)
 =
-\min_{\nu}
-\left\{
- g_k(\pi,\nu)
- +\beta_k\E_{x\sim\rho}\KL\!\left(\nu(\cdot\mid x)\,\|\,\mu(\cdot\mid x)\right)
-\right\}.
+\min_{\nu} \left\{g_k(\pi,\nu)
++
+\beta_k
+\E_{x\sim\rho}
+\KL\left(
+\nu(\cdot\mid x)\|\mu(\cdot\mid x)
+\right)\right\}.
 \label{eq:game-value}
 \end{equation}
 \end{definition}
-The opponent $\nu$ searches for responses that perform well against $\pi$ under objective $k$. The KL term restricts this search to a neighborhood of $\mu$. Thus, a large $\beta_k$ keeps the opponent close to $\mu$, whereas a small $\beta_k$ gives more weight to worst-case comparisons. The limit $\beta_k\downarrow0$ is the unregularized worst-case game value $\min_\nu g_k(\pi,\nu)$.
+The first term is the centered preference margin of $\pi$ against $\nu$. Because $\nu$ minimizes this margin, it emphasizes responses that expose weaknesses of the current policy, while the KL term keeps the comparator near $\mu$. Hence $\beta_k$ controls the locality of the evaluation: a large $\beta_k$ keeps $\nu$ close to $\mu$, whereas $\beta_k\downarrow0$ recovers the unregularized worst-comparator value $\min_\nu g_k(\pi,\nu)$.
 
-Let
+For a fixed opponent response $z$, define
 \begin{equation}
 r_{k,\pi}(z\mid x)=\E_{y\sim\pi(\cdot\mid x)}A_k(y,z\mid x).
 \label{eq:r-def}
 \end{equation}
-The minimizing opponent and the game value are
+Thus $r_{k,\pi}(z\mid x)$ is the average centered margin of $\pi$ against $z$; smaller values correspond to stronger challenges to the current policy. The KL-regularized inner problem then has the closed-form solution
 \begin{align}
 \nu^\star_{k,\pi}(z\mid x)
 &=
@@ -136,19 +138,27 @@ V_{k,\beta_k}(\pi)
 \exp\{-r_{k,\pi}(z\mid x)/\beta_k\}.
 \label{eq:soft-value}
 \end{align}
+Equation~\eqref{eq:regularized-opponent} therefore upweights responses with smaller margins, and Equation~\eqref{eq:soft-value} is the corresponding soft minimum of the policy's pairwise margins.
 
 \begin{proposition}[Structure]
 \label{prop:game-structure}
-For every $k$ and $\beta_k\ge0$, $V_{k,\beta_k}$ is continuous and concave in $\pi$. For $\beta_k>0$ it is differentiable, with
+For every $k$ and $\beta_k\ge0$, $V_{k,\beta_k}$ is continuous and
+concave in $\pi$. For $\beta_k>0$, it is differentiable, with
+objective-wise policy gradient represented by
 \begin{equation}
 q_{k,\pi}(y\mid x)
-=\E_{z\sim\nu^\star_{k,\pi}(\cdot\mid x)}A_k(y,z\mid x),
-\qquad
-D V_{k,\beta_k}(\pi)[h]=\langle q_{k,\pi},h\rangle_\rho,
+=
+\E_{z\sim\nu^\star_{k,\pi}(\cdot\mid x)}
+A_k(y,z\mid x).
 \label{eq:game-gradient}
 \end{equation}
 \end{proposition}
-where $D$ is the directional derivative operator. The adaptive opponent makes $V_{k,\beta_k}(\pi)$ depend on the full pairwise comparison matrix, rather than only on comparisons with one fixed reference response.
+The quantity $q_{k,\pi}(y\mid x)$ is the expected centered margin of
+response $y$ against the current adaptive opponent. It therefore measures
+the local effect of increasing the probability of $y$ on the objective-$k$
+game value. Concavity will be used to construct the bargaining problem in
+Section~\ref{sec:bargaining}, while this gradient characterization will
+yield the policy update in Section~\ref{sec:algorithm}. This distinction matters when pairwise preferences contain structure that is invisible from the reference alone. The following example shows that two policies can have the same fixed-reference performance while having fundamentally different vulnerability to other responses.
 
 \paragraph{Why a fixed reference can miss cyclic structure.}
 Consider one prompt and one objective. Let $\delta_y$ denote the deterministic policy that always outputs response $y$, and let the reference be $\mu=\delta_r$. Suppose $A$, $B$, and $C$ each beat $r$ with probability $0.75$, but form the deterministic cycle $A\succ B$, $B\succ C$, and $C\succ A$. The pure policy $\delta_A$ and the uniform mixture $\pi_{\rm mix}=(\delta_A+\delta_B+\delta_C)/3$ have the same fixed-reference score, $P(\pi\succ r)-1/2=0.25$. Their worst-case game values differ: at $\beta=0$, response $C$ defeats $\delta_A$, so $V_0(\delta_A)=-0.5$, whereas the uniform mixture ties every response in the cycle, so $V_0(\pi_{\rm mix})=0$. Since $V_0(\mu)=-0.25$, their improvements over the fallback are $-0.25$ and $0.25$, respectively. A fixed reference therefore cannot distinguish a fully exploitable pure response from a balanced mixture once both have the same reference win rate. Appendix~\ref{app:anchor-limit} gives the full calculation and formalizes the limiting relation to the fixed-reference precursor.
@@ -1403,6 +1413,67 @@ target RMS $21.5$ & $-0.0875$ & $-0.0312$ & --- & ---\\
 \end{tabular}
 \end{table}
 
+
+
+
+\section{A Second Judge}
+\label{app:second-judge}
+Every surplus in this paper is scored by the same prompted \texttt{Qwen3-32B} oracle that supplied the
+training preferences. Only the benchmark table uses a judge disjoint from training. That leaves the
+central claim---that bargaining raises the weakest objective---untested against a second evaluator, and a
+reviewer is entitled to ask whether it is a property of the method or of the oracle.
+Table~\ref{tab:second-judge} re-scores two panels with \texttt{Llama-3.3-70B-Instruct}, which supplied
+none of the training preferences. Decoding uses the same seed, so the responses are the ones already
+scored and only the judgment changes.
+
+The two panels answer differently, and the difference is itself the finding. On
+\textsc{UltraFeedback}/\texttt{Qwen3-8B} the ordering is preserved and the numbers barely move: \NBPO{}
+leads under both judges, and its margin over the runner-up is \emph{larger} under the disjoint judge
+($+0.019$ against $+0.014$), so the training oracle was not flattering it. On \textsc{TL;DR} the panel
+does not transfer. The second judge is far harsher on conciseness---surplus maxmin falls from $+0.036$ to
+$-0.055$, the utilitarian rule from $-0.092$ to $-0.362$---so no arm attains individual rationality under
+it, and the ordering reshuffles: \NBPO{} sits third under the training oracle and fourth under the
+disjoint one. We therefore state the \textsc{TL;DR} panel's individual-rationality verdicts as
+judge-dependent, and rest the cross-judge claim on \textsc{UltraFeedback}, where it holds.
+
+One caveat on the \textsc{TL;DR} \NBPO{} row. That arm's checkpoint was lost and had to be retrained from
+the same pool, dual and configuration; its precomputed pair set had also been deleted, so the pairs were
+rebuilt, and the restored arm reaches $-0.038$ on the training oracle against the original's $-0.006$. The
+row above uses the restored arm under both judges, so the comparison between judges is internally
+consistent, but it is not the same weights that produced the main table's \textsc{TL;DR} entry. The
+published checkpoint is the restored one.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\setlength{\tabcolsep}{4.0pt}
+\caption{Minimum held-out surplus under the training oracle and under a judge disjoint from training,
+population scale of \eqref{eq:centered}, same responses in both columns. Arms are ordered by the disjoint
+judge. ``$\Delta$'' is the change induced by swapping the judge.}
+\label{tab:second-judge}
+\begin{tabular}{llrrr}
+\toprule
+panel & method & \texttt{Qwen3-32B} & \texttt{Llama-3.3-70B} & $\Delta$\\
+\midrule
+\multirow{7}{*}{\shortstack[l]{\textsc{UltraFeedback}\\ \texttt{Qwen3-8B}}}
+ & \NBPO{} (ours) & $\mathbf{0.036}$ & $\mathbf{0.033}$ & $-0.002$\\
+ & Absolute maxmin & $0.009$ & $0.015$ & $+0.006$\\
+ & Utilitarian & $0.021$ & $0.012$ & $-0.010$\\
+ & Surplus maxmin & $0.008$ & $0.010$ & $+0.002$\\
+ & MOPO & $-0.009$ & $-0.001$ & $+0.008$\\
+ & Uniform-INPO & $-0.010$ & $-0.007$ & $+0.003$\\
+ & PROSPER/MaxEntBW & $-0.004$ & $-0.011$ & $-0.007$\\
+\midrule
+\multirow{7}{*}{\textsc{TL;DR}}
+ & Surplus maxmin & $\mathbf{0.036}$ & $\mathbf{-0.055}$ & $-0.091$\\
+ & MOPO & $-0.001$ & $-0.083$ & $-0.082$\\
+ & Uniform-INPO & $-0.104$ & $-0.117$ & $-0.014$\\
+ & \NBPO{} (ours) & $-0.038$ & $-0.311$ & $-0.273$\\
+ & Utilitarian & $-0.092$ & $-0.362$ & $-0.270$\\
+ & PROSPER/MaxEntBW & $-0.137$ & $-0.372$ & $-0.235$\\
+ & Absolute maxmin & $-0.159$ & $-0.402$ & $-0.243$\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 
 \section{Bootstrap Intervals on the Held-Out Surpluses}
