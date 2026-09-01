@@ -7,6 +7,7 @@
 \usepackage{url}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage{multirow}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{booktabs}
@@ -47,7 +48,7 @@ Aligning large language models (LLMs) to multiple objectives requires both repre
 \label{sec:intro}
 Preference-based post-training is central to aligning Large Language Models (LLMs) with human judgments \citep{christiano2017deep,ouyang2022training}. Standard Reinforcement Learning from Human Feedback (RLHF) learns a scalar reward from pairwise comparisons, while Direct Preference Optimization removes the separately trained reward model but retains an implicit scalar reward and a Bradley--Terry (BT) representation of preferences \citep{rafailov2023direct,bradley1952rank}. Both approaches require comparisons to be explained by a single scalar score assigned to each response. This assumption is restrictive for multi-objective alignment, where one deployed assistant must satisfy objectives such as helpfulness, harmlessness, correctness, and conciseness.
 
-Even within one named objective, human judgments may depend on several latent attributes whose relative importance changes across annotators, prompts, and response pairs. Consider three answers to the same prompt under a helpfulness criterion. Response A is direct but omits important qualifications, response B is comprehensive but verbose, and response C is clear and well qualified but less complete. Aggregate comparisons may prefer A to B for relevance, B to C for completeness, and C to A for clarity and reliability. Such a cycle can reflect genuine pair-dependent trade-offs rather than disposable annotation noise. No scalar ranking can preserve all three relations: any BT reward model must reverse or tie at least one edge and thereby project the feedback onto a transitive ordering. Optimizing this projection aligns the policy to the fitted ordering rather than the original comparison structure, so a scalar-optimal response can remain vulnerable to another response under the observed preferences.
+Even within one named objective, human judgments may depend on several latent attributes whose relative importance changes across annotators, prompts, and response pairs. Consider three answers to the same prompt under a helpfulness criterion. Response A is direct but omits important qualifications, response B is comprehensive but verbose, and response C is clear and well qualified but less complete. Aggregate comparisons may prefer A to B for relevance, B to C for completeness, and C to A for clarity and reliability. No scalar ranking can preserve all three relations: any BT reward model must reverse or tie at least one edge and thereby project the feedback onto a transitive ordering. Optimizing this projection aligns the policy to the fitted ordering rather than the original comparison structure, so a scalar-optimal response can remain vulnerable to another response under the observed preferences.
 
 Nash Learning from Human Feedback (NLHF) avoids this misspecification by treating prompt-conditioned comparisons directly as payoffs in a zero-sum preference game, while INPO, SPPO, and related methods provide scalable equilibrium-seeking updates \citep{munos2024nash,zhang2025iterative,wu2025sppo,calandriello2024online,rosset2024direct,zhou2025egpo}. Extending this view to multiple objectives introduces a separate question: after representing each objective faithfully, which compromise should one deployed policy realize? Existing scalar multi-objective methods require an external trade-off specification, such as weights, priorities, or constraints \citep{zhou2024beyond,rame2023rewarded,zhong2024panacea,chakraborty2024maxmin,son2026rmod,agnihotri2026mopo}, whereas recent game-theoretic extensions use Blackwell target sets or max-min aggregation \citep{blackwell1956analog,bhatia2020multicriteria,zhang2026prosper}. Fixed-reference methods such as MOPO are computationally convenient but can discard pairwise structure that is invisible from the reference \citep{agnihotri2026mopo,zhang2026prosper}.
 
@@ -55,16 +56,16 @@ We study the complementary setting in which a fixed objective panel must be comb
 
 We introduce Nash Bargaining Preference Optimization (\NBPO{}), which separates these roles. For each objective, an adaptive opponent searches for responses that expose weaknesses of the current policy, while entropy regularization keeps the opponent near the deployed reference. This produces a game value based on the full pairwise comparison matrix rather than a scalar response score or only a fixed-reference margin. The reference also defines the bargaining fallback, and \NBPO{} selects a policy by balancing positive game-value improvements over it. Nash bargaining is natural because it evaluates each objective relative to a meaningful status quo, gives more influence to objectives with smaller gains, and requires no externally chosen objective weights.
 
-When joint improvement over the reference is feasible, every \NBPO{} optimizer improves every objective strictly beyond the fallback and is Pareto optimal in game-value space. Different policies may realize this outcome, but the selected game-value vector is unique. The policy selection is proportionally fair and unchanged by independent positive affine transformations of the objective utility scales. Utilitarian and max-min aggregation are useful alternatives, but neither guarantees this full combination of fallback-relative protection, efficiency, uniqueness, and scale covariance without additional restrictions or tie-breaking.
+When joint improvement over the reference is feasible, every \NBPO{} optimizer improves every objective strictly beyond the fallback and is Pareto optimal in game-value space. Different policies may realize this outcome, but the selected game-value vector is unique. The policy selection is unchanged by independent positive affine transformations of the objective utility scales. Utilitarian and max-min aggregation are useful alternatives, but neither guarantees this full combination of fallback-relative protection, efficiency, uniqueness, and scale covariance without additional restrictions or tie-breaking.
 
 The optimizer preserves the same separation. We impose positive game-value improvement as a constraint and solve entropy-proximal bargaining subproblems directly from the reference boundary, rather than optimizing a separate warm-start objective. Under joint improvement, the first constrained subproblem enters the positive-surplus region. Entropy regularization yields a closed-form opponent, and the KKT multipliers recover inverse-surplus objective weights. A low-dimensional dual update and partition-free pairwise log-ratio regression then implement each policy step from binary comparisons without fitting scalar rewards. Simultaneous confidence intervals certify accepted neural stages, and the convergence analysis covers exact last iterates as well as approximate updates with explicit sampling and regression errors.
 
-Matched finite-temperature runs on \textsc{HelpSteer2} and \textsc{SafeRLHF} instantiate the pipeline and diagnose how the endogenous bargaining weights respond to objective conflict. The reported runs achieve positive objective improvements but do not establish uniform dominance over fixed aggregation rules, so we treat them as implementation and diagnostic evidence rather than a blanket superiority claim. Overall, \NBPO{} provides an end-to-end separation between objective-wise games that preserve potentially cyclic feedback and a reference-relative bargaining rule that selects, optimizes, and certifies one multi-objective policy.
+Overall, \NBPO{} provides an end-to-end separation between objective-wise games that preserve potentially cyclic feedback and a reference-relative bargaining rule that selects, optimizes, and certifies one multi-objective policy.
 
 \section{Background}
 \label{sec:background}
 \paragraph{General preference models.}
-A prompt $x$ is drawn from $\rho$, and a policy $\pi(\cdot\mid x)$ is a distribution over a finite response set $\Y_x$. For the finite-dimensional population analysis, we take the support of $\rho$ and every $\Y_x$ to be finite; the sampled implementation replaces these population expectations by empirical ones. Let $\Pi=\prod_{x\in\operatorname{supp}(\rho)}\Delta(\Y_x)$ denote the contextual policy simplex. Objective $k\in[K]$ is represented by a pairwise preference oracle $P_k(y\succ z\mid x)\in[0,1]$ satisfying
+A prompt $x$ is drawn from $\rho$, and a policy $\pi(\cdot\mid x)$ is a distribution over a finite response set $\Y_x$. For the finite-dimensional population analysis, we take the support of $\rho$ and every $\Y_x$ to be finite. Let $\Pi=\prod_{x\in\operatorname{supp}(\rho)}\Delta(\Y_x)$ denote the contextual policy simplex. Objective $k\in[K]$ is represented by a pairwise preference oracle $P_k(y\succ z\mid x)\in[0,1]$ satisfying
 \begin{equation}
 P_k(y\succ z\mid x)+P_k(z\succ y\mid x)=1,
 \qquad P_k(y\succ y\mid x)=\tfrac12.
@@ -77,22 +78,25 @@ A_k(y,z\mid x)=P_k(y\succ z\mid x)-\tfrac12,
 A_k(y,z\mid x)=-A_k(z,y\mid x),
 \label{eq:centered}
 \end{equation}
-and, for policies $\pi$ and $\nu$,
+and the objective-$k$ expected centered pairwise payoff of policy $\pi$ against comparator policy $\nu$,
 \begin{equation}
 g_k(\pi,\nu)
 =\E_{x\sim\rho,\,y\sim\pi(\cdot\mid x),\,z\sim\nu(\cdot\mid x)}A_k(y,z\mid x).
 \label{eq:game-payoff}
 \end{equation}
-No scalar reward representation or transitivity assumption is imposed. We write the contextual policy inner product as
+Thus, $g_k(\pi,\nu)>0$ means that $\pi$ is preferred to $\nu$ on average under objective $k$, while $g_k(\pi,\nu)=0$ corresponds to an average tie. No scalar reward representation or transitivity assumption is imposed. We write the contextual policy inner product as
 $\langle q,\pi\rangle_\rho=\E_x\sum_y\pi(y\mid x)q(y\mid x)$ and the contextual KL analogously.
 
 \paragraph{Bargaining problems.}
-A $K$-dimensional bargaining problem is a feasible utility set $\G\subseteq\R^K$ and disagreement point $d\in\G$. It is nondegenerate if some $u\in\G$ satisfies $u>d$ componentwise. On a compact, convex, comprehensive problem, the Nash solution maximizes
+A $K$-dimensional bargaining problem is a feasible utility set $\G\subseteq\R^K$ and disagreement point $d\in\G$. It is nondegenerate if some $u\in\G$ satisfies $u>d$ componentwise. On a compact, convex, comprehensive problem, the Nash solution is
 \begin{equation}
-\sum_{k=1}^K\log(u_k-d_k)
+v^{\mathrm N}
+\in
+\arg\max_{v\in\G,v>d}
+\sum_{k=1}^K\log(v_k-d_k).
 \label{eq:classical-nash}
 \end{equation}
-over utilities strictly above disagreement \citep{nash1950}. Its derivative in coordinate $k$ is the inverse surplus $1/(u_k-d_k)$.
+Here, the optimization variable is the feasible value vector $v$, and each $v_k-d_k$ is the surplus over the disagreement point. The Nash solution is optimized over feasible value vectors satisfying $v>d$ componentwise~\citep{nash1950}. Its derivative with respect to coordinate $v_k$ is the inverse surplus, $1/(v_k-d_k)$.
 
 \section{Objective-Wise Preference Games}
 \label{sec:game-utility}
@@ -501,7 +505,7 @@ all three panels use \texttt{Llama-3.1-8B-Instruct} as backbone, reference and i
 prompts against four anchor samples. The \texttt{Qwen3-8B} replication of the \textsc{UltraFeedback} panel
 is in Table~\ref{tab:objectivewise-appendix}. The single-objective HT-MNPO corners cannot share rows
 across panels because each panel has its own objectives, so they are summarised by the corner with the
-largest and the smallest minimum surplus. Best in each column is bold. Per-objective breakdowns for every panel are in Table~\ref{tab:objectivewise-appendix}.}
+largest and the smallest minimum surplus. Best in each column is bold. Bootstrap intervals and paired significance tests for every entry are in Table~\ref{tab:bootstrap-ci}; per-objective breakdowns are in Table~\ref{tab:objectivewise-appendix}.}
 \label{tab:multi-dataset-surplus}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -509,15 +513,15 @@ largest and the smallest minimum surplus. Best in each column is bold. Per-objec
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
 method & min $s$ & avg $s$ & min $s$ & avg $s$ & min $s$ & avg $s$\\
 \midrule
-\NBPO{} (ours) & $\mathbf{0.039}$ & $\mathbf{0.063}$ & $-0.001$ & $\mathbf{0.114}$ & $0.101$ & $0.110$\\
-PROSPER/MaxEntBW & $-0.051$ & $-0.016$ & $-0.068$ & $0.086$ & $0.116$ & $0.134$\\
-Utilitarian & $-0.077$ & $-0.046$ & $-0.046$ & $0.109$ & $0.138$ & $0.148$\\
-Absolute maxmin & $-0.062$ & $-0.024$ & $-0.079$ & $0.080$ & $\mathbf{0.144}$ & $\mathbf{0.149}$\\
-Surplus maxmin & $-0.014$ & $0.028$ & $\mathbf{0.018}$ & $0.064$ & $0.143$ & $0.147$\\
-Uniform-INPO & $-0.008$ & $0.028$ & $-0.052$ & $-0.041$ & $-0.077$ & $-0.066$\\
-MOPO & $0.022$ & $0.028$ & $-0.001$ & $0.030$ & $0.096$ & $0.099$\\
-HT-MNPO, best corner & $0.022$ & $0.037$ & $-0.010$ & $0.020$ & $-0.049$ & $-0.036$\\
-HT-MNPO, worst corner & $-0.073$ & $-0.037$ & $-0.079$ & $0.029$ & $-0.050$ & $-0.037$\\
+\NBPO{} (ours) & $\mathbf{0.039}$ & $\mathbf{0.063}$ & $-0.001$ & $\mathbf{0.227}$ & $0.202$ & $0.219$\\
+PROSPER/MaxEntBW & $-0.051$ & $-0.016$ & $-0.137$ & $0.171$ & $0.232$ & $0.268$\\
+Utilitarian & $-0.077$ & $-0.046$ & $-0.092$ & $0.218$ & $0.276$ & $0.295$\\
+Absolute maxmin & $-0.062$ & $-0.024$ & $-0.159$ & $0.160$ & $\mathbf{0.288}$ & $\mathbf{0.298}$\\
+Surplus maxmin & $-0.014$ & $0.028$ & $\mathbf{0.036}$ & $0.128$ & $0.287$ & $0.294$\\
+Uniform-INPO & $-0.008$ & $0.028$ & $-0.104$ & $-0.082$ & $-0.154$ & $-0.132$\\
+MOPO & $0.022$ & $0.028$ & $-0.001$ & $0.061$ & $0.191$ & $0.197$\\
+HT-MNPO, best corner & $0.022$ & $0.037$ & $-0.020$ & $0.039$ & $-0.098$ & $-0.073$\\
+HT-MNPO, worst corner & $-0.073$ & $-0.037$ & $-0.158$ & $0.058$ & $-0.100$ & $-0.074$\\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1199,10 +1203,10 @@ Uniform-INPO & $0.079$ & $-9.156$ & $0.514$ & $0.495$ & $-1.328$ & $0.804$\\
 \cmidrule(lr){2-7}
 method & coverage $s$ & faithful $s$ & concise $s$ & helpful $s$ & min $s$ & avg $s$ \\
 \midrule
-Constrained \NBPO{} (ours) & $0.198$ & $0.079$ & $-0.001$ & $0.178$ & $-0.001$ & $\mathbf{0.114}$ \\
-PROSPER/MaxEntBW & $\mathbf{0.205}$ & $0.031$ & $-0.068$ & $0.175$ & $-0.068$ & $0.086$ \\
-Utilitarian & $0.221$ & $0.072$ & $-0.046$ & $\mathbf{0.188}$ & $-0.046$ & $0.109$ \\
-Surplus maxmin & $0.081$ & $\mathbf{0.090}$ & $\mathbf{0.018}$ & $0.066$ & $\mathbf{0.018}$ & $0.064$ \\
+\NBPO{} (ours) & $0.396$ & $0.157$ & $-0.001$ & $0.357$ & $-0.001$ & $\mathbf{0.227}$ \\
+PROSPER/MaxEntBW & $0.410$ & $0.063$ & $-0.137$ & $0.351$ & $-0.137$ & $0.171$ \\
+Utilitarian & $\mathbf{0.442}$ & $0.144$ & $-0.092$ & $\mathbf{0.377}$ & $-0.092$ & $0.218$ \\
+Surplus maxmin & $0.162$ & $\mathbf{0.181}$ & $\mathbf{0.036}$ & $0.132$ & $\mathbf{0.036}$ & $0.128$ \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1348,16 +1352,21 @@ reporting our method at its best temperature against a baseline pinned at anothe
 this paper objects to for the step size.
 
 Table~\ref{tab:beta-saferlhf} gives the result. Raising $\beta$ from $0.25$ to $0.5$ helps \NBPO{} a great
-deal, $+0.039$ on the minimum surplus, and helps absolute maxmin only $+0.005$, which narrows the gap
-between them from $0.043$ to $0.008$. It does not reverse it, and the trend does not continue: \NBPO{}
+deal, $+0.078$ on the minimum surplus, and helps absolute maxmin only $+0.010$, which narrows the gap
+between them from $0.086$ to $0.017$. It does not reverse it, and the trend does not continue: \NBPO{}
 peaks at $0.5$ and falls back at $1.0$ and $2.0$, so the rise across the first three temperatures was not
-a trend to extrapolate. The step size was then re-swept at $\beta=0.5$, since it had been selected at
+a trend to extrapolate. Table~\ref{tab:bootstrap-ci} puts that residual gap in context: on this panel the
+top three arms are mutually indistinguishable at the resolution of a hundred evaluation prompts, so a gap
+of $0.017$ is below what this evaluation can resolve and no setting of either knob could have been
+credited with closing it. The step size was then re-swept at $\beta=0.5$, since it had been selected at
 $0.25$ and the two interact; the previously selected value remains the best for \NBPO{} and likewise for
 absolute maxmin.
 
 Taken together the two knobs are exhausted for both arms, along with the optimizer budget, which halves
-\NBPO{}'s minimum surplus when doubled. Absolute maxmin leads this panel at every setting we have tried.
-We report that rather than presenting the single narrowest configuration as a win. It is consistent with
+\NBPO{}'s minimum surplus when doubled. Absolute maxmin leads this panel at every setting we have tried, and
+Table~\ref{tab:bootstrap-ci} confirms that \NBPO{}'s deficit there is significant while the differences
+among the three leading arms are not. We report that rather than presenting the single narrowest
+configuration as a win. It is consistent with
 what separates this panel from the others: it carries two objectives against four, and the share of
 response pairs on which every objective agrees is $0.50$ here against $0.42$ on \textsc{UltraFeedback} and
 $0.25$ on \textsc{TL;DR}. Where objectives rarely disagree there is little for a bargaining rule to
@@ -1379,17 +1388,79 @@ size is the target RMS of the regression; the lower block re-sweeps it at the te
 setting & min $s$ & avg $s$ & min $s$ & avg $s$\\
 \midrule
 \multicolumn{5}{l}{\textit{temperature, at each arm's selected step size}}\\
-$\beta=0.1$ & $0.0902$ & $0.1088$ & --- & ---\\
-$\beta=0.25$ & $0.1011$ & $0.1095$ & $0.1439$ & $0.1491$\\
-$\beta=0.5$ & $\mathbf{0.1403}$ & $\mathbf{0.1425}$ & $0.1487$ & $0.1505$\\
-$\beta=1.0$ & $0.1105$ & $0.1196$ & $\mathbf{0.1498}$ & $\mathbf{0.1522}$\\
-$\beta=2.0$ & $0.1229$ & $0.1303$ & $0.1461$ & $0.1513$\\
+$\beta=0.1$ & $0.1805$ & $0.2176$ & --- & ---\\
+$\beta=0.25$ & $0.2022$ & $0.2191$ & $0.2878$ & $0.2982$\\
+$\beta=0.5$ & $\mathbf{0.2806}$ & $\mathbf{0.2851}$ & $0.2973$ & $0.3009$\\
+$\beta=1.0$ & $0.2209$ & $0.2391$ & $\mathbf{0.2995}$ & $\mathbf{0.3045}$\\
+$\beta=2.0$ & $0.2458$ & $0.2606$ & $0.2922$ & $0.3025$\\
 \midrule
 \multicolumn{5}{l}{\textit{step size, at $\beta=0.5$}}\\
-target RMS $1.29$ & $-0.0130$ & $-0.0103$ & $0.1370$ & $0.1413$\\
-target RMS $3.44$ & $0.1337$ & $0.1340$ & --- & ---\\
-selected RMS & $\mathbf{0.1403}$ & $\mathbf{0.1425}$ & $\mathbf{0.1487}$ & $\mathbf{0.1505}$\\
-target RMS $21.5$ & $-0.0438$ & $-0.0156$ & --- & ---\\
+target RMS $1.29$ & $-0.0261$ & $-0.0205$ & $0.2739$ & $0.2826$\\
+target RMS $3.44$ & $0.2675$ & $0.2680$ & --- & ---\\
+selected RMS & $\mathbf{0.2806}$ & $\mathbf{0.2851}$ & $\mathbf{0.2973}$ & $\mathbf{0.3009}$\\
+target RMS $21.5$ & $-0.0875$ & $-0.0312$ & --- & ---\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\section{Bootstrap Intervals on the Held-Out Surpluses}
+\label{app:bootstrap}
+The surpluses in Table~\ref{tab:multi-dataset-surplus} are averages over one hundred held-out prompts, and
+until now they carried no interval. That mattered: the benchmark table's gaps were already known to sit
+inside a per-arm seed standard deviation of $0.014$, and without intervals on the surpluses there was no
+way to tell which of their orderings were real either. Table~\ref{tab:bootstrap-ci} resamples prompts,
+paired across arms so that a difference reflects the arms rather than which prompts were drawn, and
+recomputes the panel statistic inside each replicate.
+
+Three of the paper's readings survive and one does not. On \textsc{UltraFeedback}/\texttt{Qwen3-8B}
+\NBPO{} has the largest minimum surplus and is significantly ahead of PROSPER, uniform-INPO and MOPO, but
+its margins over the utilitarian rule, absolute maxmin and surplus maxmin all straddle zero: it leads that
+panel, but not distinguishably so. On \textsc{TL;DR} and \textsc{SafeRLHF} its deficits against the panel
+leader are significant, $-0.038$ and $-0.086$, so those losses are real rather than noise. On
+\textsc{SafeRLHF} the top three arms are mutually indistinguishable, which also settles a question raised
+by the sweeps of Appendix~\ref{app:beta-saferlhf}: the $0.008$ gap those sweeps were narrowing was smaller
+than the resolution of the evaluation, so no setting of the temperature or the step size could have been
+credited with closing it.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\setlength{\tabcolsep}{3.4pt}
+\caption{Held-out surplus with $95\%$ bootstrap intervals, 2000 replicates resampling the one hundred
+evaluation prompts, paired across arms. The right column is the difference in minimum surplus against that
+panel's leading arm, with its own paired interval; ``sig.'' marks intervals excluding zero.}
+\label{tab:bootstrap-ci}
+\begin{tabular}{llrr}
+\toprule
+panel & method & min $s$ \ [95\% CI] & vs.\ leader\\
+\midrule
+\multirow{7}{*}{\textsc{TL;DR}}
+ & Surplus maxmin & $0.036$ \ $[0.008, 0.065]$ & leader\\
+ & \NBPO{} (ours) & $-0.001$ \ $[-0.028, 0.027]$ & $-0.038$ \ sig.\\
+ & MOPO & $-0.001$ \ $[-0.026, 0.024]$ & $-0.038$ \ sig.\\
+ & Utilitarian & $-0.092$ \ $[-0.124, -0.059]$ & $-0.128$ \ sig.\\
+ & Uniform-INPO & $-0.104$ \ $[-0.151, -0.074]$ & $-0.140$ \ sig.\\
+ & PROSPER/MaxEntBW & $-0.137$ \ $[-0.169, -0.104]$ & $-0.173$ \ sig.\\
+ & Absolute maxmin & $-0.159$ \ $[-0.191, -0.125]$ & $-0.195$ \ sig.\\
+\midrule
+\multirow{7}{*}{\textsc{SafeRLHF}}
+ & Absolute maxmin & $0.288$ \ $[0.251, 0.324]$ & leader\\
+ & Surplus maxmin & $0.287$ \ $[0.245, 0.323]$ & $-0.001$\\
+ & Utilitarian & $0.276$ \ $[0.237, 0.314]$ & $-0.011$\\
+ & PROSPER/MaxEntBW & $0.232$ \ $[0.194, 0.271]$ & $-0.056$ \ sig.\\
+ & \NBPO{} (ours) & $0.202$ \ $[0.162, 0.244]$ & $-0.086$ \ sig.\\
+ & MOPO & $0.191$ \ $[0.156, 0.228]$ & $-0.096$ \ sig.\\
+ & Uniform-INPO & $-0.154$ \ $[-0.194, -0.118]$ & $-0.442$ \ sig.\\
+\midrule
+\multirow{7}{*}{\shortstack[l]{\textsc{UltraFeedback}\\ \texttt{Qwen3-8B}}}
+ & \NBPO{} (ours) & $0.036$ \ $[0.006, 0.064]$ & leader\\
+ & Utilitarian & $0.021$ \ $[-0.010, 0.037]$ & $-0.015$\\
+ & Absolute maxmin & $0.009$ \ $[-0.017, 0.032]$ & $-0.027$\\
+ & Surplus maxmin & $0.008$ \ $[-0.019, 0.026]$ & $-0.028$\\
+ & PROSPER/MaxEntBW & $-0.004$ \ $[-0.035, 0.025]$ & $-0.040$ \ sig.\\
+ & MOPO & $-0.009$ \ $[-0.031, 0.007]$ & $-0.045$ \ sig.\\
+ & Uniform-INPO & $-0.010$ \ $[-0.035, 0.004]$ & $-0.046$ \ sig.\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1413,8 +1484,7 @@ optimise.
 \caption{Objective-wise held-out surplus over the reference for every arm and every panel, population
 scale of \eqref{eq:centered}. Within a panel each arm starts at $\pi_0=\mu$, trains on the identical
 response pool with the identical optimizer budget, and differs only in the weight vector over objectives.
-Across panels the magnitudes are not comparable: \textsc{UltraFeedback} on \texttt{Llama} is scored on a
-657-prompt jointly complete panel, the rest on 100 held-out prompts against four anchor samples.}
+Across panels the magnitudes are not comparable: \textsc{UltraFeedback} on \texttt{Llama} is a $\beta$-regularised game-value difference on a 657-prompt jointly complete panel, while the other three are anchored win-rate margins $P_k-\tfrac12$ on 100 held-out prompts against four anchor samples. Bootstrap intervals for the latter three are in Table~\ref{tab:bootstrap-ci}.}
 \label{tab:objectivewise-appendix}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -1434,41 +1504,41 @@ HT-MNPO (honesty) & $0.022$ & $0.027$ & $0.025$ & $0.075$ & $0.022$ & $0.037$\\
 HT-MNPO (instr.\ following) & $0.008$ & $0.026$ & $0.032$ & $0.065$ & $0.008$ & $0.033$\\
 \midrule
 \multicolumn{7}{l}{\textsc{UltraFeedback} on \texttt{Qwen3-8B}: helpfulness, truthfulness, honesty, instruction following}\\
-\NBPO{} (ours) & $0.072$ & $0.018$ & $0.043$ & $0.031$ & $0.018$ & $0.041$\\
-PROSPER/MaxEntBW & $0.039$ & $-0.002$ & $0.016$ & $0.017$ & $-0.002$ & $0.018$\\
-Utilitarian & $0.038$ & $0.012$ & $0.016$ & $0.012$ & $0.012$ & $0.019$\\
-Absolute maxmin & $0.041$ & $0.005$ & $0.018$ & $0.012$ & $0.005$ & $0.019$\\
-Surplus maxmin & $0.038$ & $0.004$ & $0.014$ & $0.009$ & $0.004$ & $0.016$\\
-Uniform-INPO & $-0.005$ & $-0.001$ & $-0.001$ & $-0.003$ & $-0.005$ & $-0.002$\\
-MOPO & $-0.002$ & $-0.001$ & $-0.005$ & $0.001$ & $-0.005$ & $-0.001$\\
-HT-MNPO (helpfulness) & $-0.002$ & $-0.001$ & $-0.001$ & $0.002$ & $-0.002$ & $-0.001$\\
-HT-MNPO (truthfulness) & $0.017$ & $0.001$ & $0.016$ & $0.014$ & $0.001$ & $0.012$\\
-HT-MNPO (honesty) & $0.000$ & $0.005$ & $0.001$ & $-0.003$ & $-0.003$ & $0.001$\\
-HT-MNPO (instruction following) & $-0.004$ & $0.004$ & $0.001$ & $0.002$ & $-0.004$ & $0.001$\\
+\NBPO{} (ours) & $0.144$ & $0.036$ & $0.085$ & $0.061$ & $0.036$ & $0.082$\\
+PROSPER/MaxEntBW & $0.079$ & $-0.003$ & $0.032$ & $0.034$ & $-0.003$ & $0.035$\\
+Utilitarian & $0.076$ & $0.024$ & $0.032$ & $0.023$ & $0.023$ & $0.039$\\
+Absolute maxmin & $0.082$ & $0.010$ & $0.036$ & $0.023$ & $0.010$ & $0.038$\\
+Surplus maxmin & $0.075$ & $0.008$ & $0.029$ & $0.017$ & $0.008$ & $0.032$\\
+Uniform-INPO & $-0.010$ & $-0.002$ & $-0.002$ & $-0.006$ & $-0.010$ & $-0.005$\\
+MOPO & $-0.003$ & $-0.001$ & $-0.009$ & $0.002$ & $-0.009$ & $-0.003$\\
+HT-MNPO (helpfulness) & $-0.004$ & $-0.002$ & $-0.002$ & $0.004$ & $-0.004$ & $-0.001$\\
+HT-MNPO (truthfulness) & $0.034$ & $0.002$ & $0.033$ & $0.028$ & $0.002$ & $0.024$\\
+HT-MNPO (honesty) & $0.001$ & $0.010$ & $0.003$ & $-0.005$ & $-0.005$ & $0.002$\\
+HT-MNPO (instruction following) & $-0.008$ & $0.009$ & $0.001$ & $0.004$ & $-0.008$ & $0.001$\\
 \midrule
 \multicolumn{7}{l}{\textsc{TL;DR} on \texttt{Llama-3.1-8B-Instruct}: coverage, faithfulness, conciseness, helpfulness}\\
-\NBPO{} (ours) & $0.198$ & $0.079$ & $-0.001$ & $0.178$ & $-0.001$ & $0.114$\\
-PROSPER/MaxEntBW & $0.205$ & $0.031$ & $-0.068$ & $0.175$ & $-0.068$ & $0.086$\\
-Utilitarian & $0.221$ & $0.072$ & $-0.046$ & $0.188$ & $-0.046$ & $0.109$\\
-Absolute maxmin & $0.213$ & $0.005$ & $-0.079$ & $0.182$ & $-0.079$ & $0.080$\\
-Surplus maxmin & $0.081$ & $0.090$ & $0.018$ & $0.066$ & $0.018$ & $0.064$\\
-Uniform-INPO & $-0.051$ & $-0.052$ & $-0.011$ & $-0.050$ & $-0.052$ & $-0.041$\\
-MOPO & $0.061$ & $0.009$ & $-0.001$ & $0.052$ & $-0.001$ & $0.030$\\
-HT-MNPO (coverage) & $0.051$ & $-0.010$ & $-0.007$ & $0.045$ & $-0.010$ & $0.020$\\
-HT-MNPO (faithfulness) & $0.074$ & $-0.020$ & $-0.026$ & $0.060$ & $-0.026$ & $0.022$\\
-HT-MNPO (conciseness) & $0.126$ & $-0.037$ & $-0.079$ & $0.106$ & $-0.079$ & $0.029$\\
-HT-MNPO (helpfulness) & $0.037$ & $-0.025$ & $-0.035$ & $0.048$ & $-0.035$ & $0.006$\\
+\NBPO{} (ours) & $0.396$ & $0.157$ & $-0.001$ & $0.357$ & $-0.001$ & $0.227$\\
+PROSPER/MaxEntBW & $0.410$ & $0.062$ & $-0.137$ & $0.350$ & $-0.137$ & $0.171$\\
+Utilitarian & $0.442$ & $0.144$ & $-0.092$ & $0.377$ & $-0.092$ & $0.218$\\
+Absolute maxmin & $0.426$ & $0.010$ & $-0.159$ & $0.363$ & $-0.159$ & $0.160$\\
+Surplus maxmin & $0.162$ & $0.180$ & $0.036$ & $0.132$ & $0.036$ & $0.128$\\
+Uniform-INPO & $-0.102$ & $-0.104$ & $-0.022$ & $-0.099$ & $-0.104$ & $-0.082$\\
+MOPO & $0.122$ & $0.018$ & $-0.001$ & $0.103$ & $-0.001$ & $0.060$\\
+HT-MNPO (coverage) & $0.101$ & $-0.020$ & $-0.015$ & $0.090$ & $-0.020$ & $0.039$\\
+HT-MNPO (faithfulness) & $0.147$ & $-0.041$ & $-0.052$ & $0.119$ & $-0.052$ & $0.043$\\
+HT-MNPO (conciseness) & $0.252$ & $-0.075$ & $-0.158$ & $0.212$ & $-0.158$ & $0.058$\\
+HT-MNPO (helpfulness) & $0.073$ & $-0.050$ & $-0.070$ & $0.096$ & $-0.070$ & $0.013$\\
 \midrule
 \multicolumn{7}{l}{\textsc{SafeRLHF} on \texttt{Llama-3.1-8B-Instruct}: helpfulness, harmlessness}\\
-\NBPO{} (ours) & $0.118$ & $0.101$ & --- & --- & $0.101$ & $0.110$\\
-PROSPER/MaxEntBW & $0.151$ & $0.116$ & --- & --- & $0.116$ & $0.134$\\
-Utilitarian & $0.157$ & $0.138$ & --- & --- & $0.138$ & $0.148$\\
-Absolute maxmin & $0.154$ & $0.144$ & --- & --- & $0.144$ & $0.149$\\
-Surplus maxmin & $0.150$ & $0.143$ & --- & --- & $0.143$ & $0.147$\\
-Uniform-INPO & $-0.077$ & $-0.055$ & --- & --- & $-0.077$ & $-0.066$\\
-MOPO & $0.102$ & $0.096$ & --- & --- & $0.096$ & $0.099$\\
-HT-MNPO (helpfulness) & $-0.024$ & $-0.049$ & --- & --- & $-0.049$ & $-0.036$\\
-HT-MNPO (harmlessness) & $-0.023$ & $-0.050$ & --- & --- & $-0.050$ & $-0.037$\\
+\NBPO{} (ours) & $0.236$ & $0.202$ & --- & --- & $0.202$ & $0.219$\\
+PROSPER/MaxEntBW & $0.303$ & $0.232$ & --- & --- & $0.232$ & $0.268$\\
+Utilitarian & $0.314$ & $0.276$ & --- & --- & $0.276$ & $0.295$\\
+Absolute maxmin & $0.309$ & $0.288$ & --- & --- & $0.288$ & $0.298$\\
+Surplus maxmin & $0.300$ & $0.287$ & --- & --- & $0.287$ & $0.294$\\
+Uniform-INPO & $-0.154$ & $-0.110$ & --- & --- & $-0.154$ & $-0.132$\\
+MOPO & $0.203$ & $0.191$ & --- & --- & $0.191$ & $0.197$\\
+HT-MNPO (helpfulness) & $-0.048$ & $-0.098$ & --- & --- & $-0.098$ & $-0.073$\\
+HT-MNPO (harmlessness) & $-0.047$ & $-0.100$ & --- & --- & $-0.100$ & $-0.074$\\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1683,12 +1753,12 @@ size as a multiple of the base target RMS. ``IR'' marks whether all four objecti
 \toprule
 method & setting & instr. & truth. & honest & min $s$ & IR\\
 \midrule
-\NBPO{} & $20\eta$, 300 steps & $0.0185$ & $0.0118$ & $0.0159$ & $0.0118$ & yes\\
-\NBPO{} & $8\eta$, 600 steps & $0.0166$ & $0.0116$ & $\mathbf{0.0217}$ & $\mathbf{0.0116}$ & yes\\
-\NBPO{} & $20\eta$, 600 steps & $-0.0101$ & $0.0003$ & $-0.0018$ & $-0.0101$ & no\\
+\NBPO{} & $20\eta$, 300 steps & $0.0370$ & $\mathbf{0.0236}$ & $0.0318$ & $\mathbf{0.0236}$ & yes\\
+\NBPO{} & $8\eta$, 600 steps & $0.0332$ & $0.0232$ & $\mathbf{0.0434}$ & $0.0232$ & yes\\
+\NBPO{} & $20\eta$, 600 steps & $-0.0202$ & $0.0006$ & $-0.0036$ & $-0.0202$ & no\\
 \midrule
-PROSPER/MaxEntBW & 600 steps & $-0.0858$ & $-0.0935$ & $-0.0963$ & $-0.0963$ & no\\
-Utilitarian & 600 steps & $-0.0882$ & $-0.0900$ & $-0.0921$ & $-0.0921$ & no\\
+PROSPER/MaxEntBW & 600 steps & $-0.1716$ & $-0.1870$ & $-0.1926$ & $-0.1926$ & no\\
+Utilitarian & 600 steps & $-0.1764$ & $-0.1800$ & $-0.1842$ & $-0.1842$ & no\\
 \bottomrule
 \end{tabular}
 \end{table}
