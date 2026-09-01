@@ -552,8 +552,8 @@ construction rather than by dataset. It is a statement about the selection rule 
 Appendix~\ref{app:scale-pipeline} carries the same rescaling through dual solving and training and
 finds that the exactness is a property of the solution rather than of any particular run: it survives
 a numerically re-solved dual only as a margin over the utilitarian control, and at the level of trained
-policies the movement of both rules falls inside the evaluation's resolution, so that stage is
-currently undecided.
+policies both rules move less than a change of random seed does, so that stage is currently
+undecided in either direction.
 
 \begin{table}[htbp]
 \centering\footnotesize
@@ -1576,7 +1576,11 @@ pairs whose regression target changes sign under rescaling; ``max $|\Delta|$'' i
 one objective's held-out surplus between the two trained arms, and ``$\Delta$ min $s$'' the change in the
 minimum. Held-out quantities are on $100$ prompts under the pinned \texttt{Qwen3-32B} oracle, the protocol
 of Table~\ref{tab:multi-dataset-surplus}, whose paired bootstrap resolution on a minimum surplus is
-approximately $\pm0.03$---wider than either rule's movement in the bottom block.}
+approximately $\pm0.03$---wider than either rule's movement in that block. The generated-text block
+decodes greedily at temperature $0$ and asks how often the rescaled arm reproduces its unrescaled twin
+token for token, alongside the floor obtained by retraining the unrescaled arm on identical targets with
+a different seed. Its rows are not bolded because the informative contrast there is between an effect and
+its own floor within a rule, not between the two rules.}
 \label{tab:scale-pipeline}
 \begin{tabular}{llcc}
 \toprule
@@ -1593,6 +1597,12 @@ level & quantity & \NBPO{} & Utilitarian\\
 \multicolumn{4}{l}{\emph{Trained policy}, held-out surplus after $300$ steps}\\
 \quad objective-wise drift & max $|\Delta|$ & $\mathbf{0.0154}$ & $0.0260$\\
 \quad minimum surplus & $\Delta$ min $s$ & $+0.0048$ & $\mathbf{-0.0004}$\\
+\midrule
+\multicolumn{4}{l}{\emph{Generated text}, greedy decoding on $500$ shared prompts}\\
+\quad rescaled vs.\ identity & exact match \% & $7.0$ & $4.4$\\
+\quad \emph{seed replicate floor} & exact match \% & $2.4$ & $0.4$\\
+\quad rescaled vs.\ identity & prefix agree \% & $23.9$ & $20.5$\\
+\quad \emph{seed replicate floor} & prefix agree \% & $14.6$ & $6.8$\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1609,12 +1619,26 @@ At the level of trained policies the test does not separate the two rules. \NBPO
 movement, $0.0154$, is smaller than the utilitarian rule's $0.0260$, which is the predicted direction, but
 its minimum surplus moves $+0.0048$ where the control moves $-0.0004$, which is the opposite one. Both
 magnitudes sit well inside the $\pm0.03$ bootstrap resolution of this evaluation
-(Appendix~\ref{app:bootstrap}), so the honest conclusion is that a hundred held-out prompts cannot resolve
-a difference of this size in either direction. That is a limitation of the measurement rather than evidence
-against the theorem, but it does bound what the frozen-pool result in
-Table~\ref{tab:uf-scale-covariance} licenses: it shows the rule is invariant, and we cannot currently show
-that a policy trained through the rule inherits the invariance to any accuracy finer than the evaluation's
-own noise.
+(Appendix~\ref{app:bootstrap}), so a hundred held-out prompts cannot resolve a difference of this size in
+either direction.
+
+Greedy decoding is the sharper instrument, since two policies that are the same function emit the same
+tokens and no judge stands in the way, and it is worth reporting what it does and does not establish. The
+rescaled \NBPO{} arm reproduces its unrescaled twin exactly on $7.0\%$ of prompts. Read alone that number
+invites the conclusion that the invariance is absent, and that reading is wrong: two \NBPO{} runs that
+differ \emph{only} in random seed, on identical targets, agree on $2.4\%$. Rescaling every objective
+therefore perturbs the trained policy \emph{less} than rerunning training does, and the same holds for the
+control ($4.4\%$ against a $0.4\%$ floor). Both rules are thus invariant to within training stochasticity,
+and this measurement cannot distinguish them either---if anything the control sits further above its own
+floor than \NBPO{} does above its.
+
+What this bounds is not the theorem but the claim a frozen-pool table can support.
+Table~\ref{tab:uf-scale-covariance} establishes that the selection rule is invariant, and that result is
+exact and reproducible. We cannot presently show that a policy trained through the rule inherits the
+invariance to any accuracy finer than the noise of retraining, because at a $300$-step budget on an $8$B
+model that noise is large: a seed change alone leaves only $2.4\%$ of greedy decodes intact. Separating the
+two would require either a converged optimizer or many seeds per arm, and we report the negative rather
+than presenting the frozen-pool result as though it settled the trained-policy question.
 
 Two further cautions about this panel. The utilitarian arms attain the larger surpluses here
 (minimum $+0.027$ against $-0.008$), which is not a comparison the paper makes elsewhere and should not be
