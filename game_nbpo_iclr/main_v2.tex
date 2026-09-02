@@ -1,0 +1,1902 @@
+% File: main.tex -- NBPO manuscript for ICLR 2027
+% Self-contained source using the official ICLR 2027 style.
+% The current method is called NBPO throughout; earlier fixed-reference results are labeled as a precursor variant.
+\documentclass{article}
+\usepackage{iclr2027_conference,times}
+\usepackage[hidelinks,hypertexnames=false]{hyperref}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{float}
+\usepackage{microtype}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{assumption}{Assumption}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+\theoremstyle{plain}
+
+\newcommand{\Y}{\mathcal{Y}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\KL}{\mathrm{KL}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\NBPO}{\textsc{NBPO}}
+
+\title{Nash Bargaining Preference Optimization}
+\author{Anonymous authors}
+%\iclrfinalcopy
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Aligning large language models (LLMs) to multiple objectives requires both representing preferences within each objective and selecting a compromise across objectives. Human comparisons need not admit a global scalar reward: annotators may weigh latent attributes differently across contexts and response pairs, so aggregate judgments can be cyclic. Most existing methods nevertheless represent each objective through scalar scores over individual responses and cannot capture such cycles. Nash Learning from Human Feedback (NLHF) instead treats prompt-conditioned pairwise preferences directly as game payoffs. A recent multi-objective NLHF approach retains this generality but uses max-min aggregation. However, max-min can select Pareto-dominated outcomes and change under objective rescaling, so the resulting compromise lacks basic efficiency and scale robustness. We introduce Nash Bargaining Preference Optimization (NBPO), which separates these decisions. An entropy-regularized preference game yields one value per objective, and Nash bargaining balances improvements over a reference fallback. The reference becomes a meaningful status quo, while the trade-off follows proportional gains rather than prespecified weights. When joint improvement is feasible, NBPO strictly improves every objective over the fallback, selects a Pareto-optimal and unique game-value vector, and leaves the set of optimal policies unchanged under independent positive affine transformations of objective utilities. A closed-form regularized opponent avoids training an additional opponent model, while partition-free pairwise log-ratio regression removes policy normalizers and learns from binary comparisons without fitting scalar rewards. The resulting constrained entropy-proximal solver starts directly from the reference, recovers inverse-surplus weights, and admits $O(1/T)$ last-iterate convergence for exact proximal updates.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+Preference-based post-training is central to aligning Large Language Models (LLMs) with human judgments \citep{christiano2017deep,ouyang2022training}. Standard Reinforcement Learning from Human Feedback (RLHF) learns a scalar reward from pairwise comparisons, while Direct Preference Optimization removes the separately trained reward model but retains an implicit scalar reward and a Bradley--Terry (BT) representation of preferences \citep{rafailov2023direct,bradley1952rank}. Both approaches require comparisons to be explained by a single scalar score assigned to each response. This assumption is restrictive for multi-objective alignment, where one deployed assistant must satisfy objectives such as helpfulness, harmlessness, correctness, and conciseness.
+
+Even within one named objective, human judgments may depend on several latent attributes whose relative importance changes across annotators, prompts, and response pairs. Consider three answers to the same prompt under a helpfulness criterion. Response A is direct but omits important qualifications, response B is comprehensive but verbose, and response C is clear and well qualified but less complete. Aggregate comparisons may prefer A to B for relevance, B to C for completeness, and C to A for clarity and reliability. No scalar reward can represent all three preferences simultaneously. For example, fitting $A\succ B$ and $B\succ C$ requires $r(A)>r(B)>r(C)$, which contradicts the observed preference $C\succ A$. A BT reward model must therefore misrepresent at least one pairwise comparison in order to express the cyclic feedback as a transitive scalar ranking. Optimizing this projection aligns the policy to the fitted ordering rather than the original comparison structure, so a scalar-optimal response can remain vulnerable to another response under the observed preferences.
+
+Nash Learning from Human Feedback (NLHF) avoids this misspecification by treating prompt-conditioned comparisons directly as payoffs in a zero-sum preference game, while INPO, SPPO, and related methods provide scalable equilibrium-seeking updates \citep{munos2024nash,zhang2025iterative,wu2025sppo,calandriello2024online,rosset2024direct,zhou2025egpo}. Extending this view to multiple objectives introduces a separate question: after representing each objective faithfully, which compromise should one deployed policy realize? Existing scalar multi-objective methods require an external trade-off specification, such as weights, priorities, or constraints \citep{zhou2024beyond,rame2023rewarded,zhong2024panacea,chakraborty2024maxmin,son2026rmod,agnihotri2026mopo}, whereas recent game-theoretic extensions use Blackwell target sets or max-min aggregation \citep{blackwell1956analog,bhatia2020multicriteria,zhang2026prosper}. Fixed-reference methods such as MOPO are computationally convenient but can discard pairwise structure that is invisible from the reference \citep{agnihotri2026mopo,zhang2026prosper}.
+
+We study the complementary setting in which a fixed objective panel must be combined into one policy without prespecified priorities. Here, representing preferences within each objective and aggregating values across objectives are distinct decisions. The first calls for a game value that retains the full pairwise structure; the second calls for an explicit compromise rule. A max-min game couples the two by imposing a weakest-objective rule while evaluating the policy. It can retain Pareto-dominated tied solutions and can change under independent rescaling of objective utilities even when the underlying preferences are unchanged.
+
+We introduce Nash Bargaining Preference Optimization (\NBPO{}), which separates these roles. For each objective, an adaptive opponent searches for responses that expose weaknesses of the current policy, while entropy regularization keeps the opponent near the deployed reference. This produces a game value based on the full pairwise comparison matrix rather than a scalar response score or only a fixed-reference margin. The reference also defines the bargaining fallback, and \NBPO{} selects a policy by balancing positive game-value improvements over it. Nash bargaining is natural because it evaluates each objective relative to a meaningful status quo, gives more influence to objectives with smaller gains, and requires no externally chosen objective weights.
+
+When joint improvement over the reference is feasible, every \NBPO{} optimizer improves every objective strictly beyond the fallback and is Pareto optimal in game-value space. Different policies may realize this outcome, but the selected game-value vector is unique. The policy selection is unchanged by independent positive affine transformations of the objective utility scales. Utilitarian and max-min aggregation are useful alternatives, but neither guarantees this full combination of fallback-relative protection, efficiency, uniqueness, and scale covariance without additional restrictions or tie-breaking.
+
+The optimizer preserves the same separation. We impose positive game-value improvement as a constraint and solve entropy-proximal bargaining subproblems directly from the reference boundary, rather than optimizing a separate warm-start objective. Under joint improvement, the first constrained subproblem enters the positive-surplus region. Entropy regularization yields a closed-form opponent, and the KKT multipliers recover inverse-surplus objective weights. A low-dimensional dual update and partition-free pairwise log-ratio regression then implement each policy step from binary comparisons without fitting scalar rewards. The population proximal iteration admits a direct last-iterate convergence guarantee.
+
+Overall, \NBPO{} provides an end-to-end separation between objective-wise games that preserve potentially cyclic feedback and a reference-relative bargaining rule that selects and optimizes one multi-objective policy.
+
+\section{Background}
+\label{sec:background}
+\paragraph{General preference models.}
+A prompt $x$ is drawn from $\rho$, and a policy $\pi(\cdot\mid x)$ is a distribution over a finite response set $\Y_x$. For the finite-dimensional population analysis, we take the support of $\rho$ and every $\Y_x$ to be finite. Let $\Pi=\prod_{x\in\operatorname{supp}(\rho)}\Delta(\Y_x)$ denote the contextual policy simplex. Objective $k\in[K]$ is represented by a pairwise preference model $P_k(y\succ z\mid x)\in[0,1]$ satisfying
+\begin{equation}
+P_k(y\succ z\mid x)+P_k(z\succ y\mid x)=1,
+\qquad P_k(y\succ y\mid x)=\tfrac12.
+\label{eq:skew}
+\end{equation}
+Define the centered payoff
+\begin{equation}
+A_k(y,z\mid x)=P_k(y\succ z\mid x)-\tfrac12,
+\qquad
+A_k(y,z\mid x)=-A_k(z,y\mid x),
+\label{eq:centered}
+\end{equation}
+and the objective-$k$ expected centered pairwise payoff of policy $\pi$ against comparator policy $\nu$,
+\begin{equation}
+g_k(\pi,\nu)
+=\E_{x\sim\rho,\,y\sim\pi(\cdot\mid x),\,z\sim\nu(\cdot\mid x)}A_k(y,z\mid x).
+\label{eq:game-payoff}
+\end{equation}
+Thus, $g_k(\pi,\nu)>0$ means that $\pi$ is preferred to $\nu$ on average under objective $k$, while $g_k(\pi,\nu)=0$ corresponds to an average tie. No scalar reward representation or transitivity assumption is imposed.
+
+\paragraph{Bargaining problems.}
+A $K$-dimensional bargaining problem consists of a feasible value set
+$\G\subseteq\R^K$ and a disagreement point $d\in\G$, representing the
+fallback outcome if no agreement is reached. A feasible value vector
+$v$ is \emph{individually rational} if $v\ge d$ componentwise, and
+strictly individually rational if $v>d$. The problem is nondegenerate
+if some $v\in\G$ satisfies $v>d$.
+
+On a compact and convex feasible set that is downward closed above the
+disagreement point, the Nash solution is
+\begin{equation}
+v^N
+\in
+\arg\max_{v\in\G,\;v>d}
+\sum_{k=1}^K\log(v_k-d_k).
+\end{equation}
+Here, $v$ is the feasible value vector being optimized, and
+$v_k-d_k$ is the surplus of objective $k$ over the disagreement point.
+
+\section{Objective-Wise Preference Games}
+\label{sec:game-utility}
+This section defines one scalar value for each objective while preserving its full pairwise preference structure. For objective $k$, we evaluate the candidate policy $\pi$ against an adaptive opponent $\nu$ that searches for responses against which $\pi$ performs poorly. The reference policy $\mu$ plays two distinct roles: it anchors this comparator here, and it serves as the deployed fallback in the bargaining problem of Section~\ref{sec:bargaining}.
+
+\begin{definition}[Entropy-regularized game value]
+\label{def:game-value}
+For objective $k$ and temperature $\beta_k>0$, define
+\begin{equation}
+V_{k,\beta_k}(\pi)
+=
+\min_{\nu} \left\{g_k(\pi,\nu)
++
+\beta_k
+\E_{x\sim\rho}
+\KL\left(
+\nu(\cdot\mid x)\|\mu(\cdot\mid x)
+\right)\right\}.
+\label{eq:game-value}
+\end{equation}
+\end{definition}
+The first term is the centered preference margin of $\pi$ against $\nu$. Because $\nu$ minimizes this margin, it emphasizes responses that expose weaknesses of the current policy, while the KL term keeps the comparator near $\mu$. Hence $\beta_k$ controls the locality of the evaluation: a large $\beta_k$ keeps $\nu$ close to $\mu$, whereas $\beta_k\downarrow0$ recovers the unregularized worst-comparator value $\min_\nu g_k(\pi,\nu)$.
+
+For a fixed opponent response $z$, define
+\begin{equation}
+r_{k,\pi}(z\mid x)=\E_{y\sim\pi(\cdot\mid x)}A_k(y,z\mid x).
+\label{eq:r-def}
+\end{equation}
+Thus $r_{k,\pi}(z\mid x)$ is the average centered margin of $\pi$ against $z$; smaller values correspond to stronger challenges to the current policy. The KL-regularized inner problem then has the closed-form solution
+\begin{align}
+\nu^\star_{k,\pi}(z\mid x)
+&=
+\frac{\mu(z\mid x)\exp\{-r_{k,\pi}(z\mid x)/\beta_k\}}
+{\E_{z'\sim\mu(\cdot\mid x)}\exp\{-r_{k,\pi}(z'\mid x)/\beta_k\}},
+\label{eq:regularized-opponent}\\
+V_{k,\beta_k}(\pi)
+&=-\beta_k\E_{x\sim\rho}
+\log\E_{z\sim\mu(\cdot\mid x)}
+\exp\{-r_{k,\pi}(z\mid x)/\beta_k\}.
+\label{eq:soft-value}
+\end{align}
+Equation~\eqref{eq:regularized-opponent} therefore upweights responses with smaller margins, and Equation~\eqref{eq:soft-value} is the corresponding soft minimum of the policy's pairwise margins.
+
+\begin{proposition}[Structure]
+\label{prop:game-structure}
+For every $k$ and $\beta_k\ge0$, $V_{k,\beta_k}$ is continuous and
+concave in $\pi$. For $\beta_k>0$, it is differentiable, with
+objective-wise policy gradient represented by
+\begin{equation}
+q_{k,\pi}(y\mid x)
+=
+\E_{z\sim\nu^\star_{k,\pi}(\cdot\mid x)}
+A_k(y,z\mid x).
+\label{eq:game-gradient}
+\end{equation}
+\end{proposition}
+The proof is given in Appendix~\ref{app:proof-game-structure}. The quantity $q_{k,\pi}(y\mid x)$ is the expected centered margin of
+response $y$ against the current adaptive opponent. It therefore measures
+the local effect of increasing the probability of $y$ on the objective-$k$
+game value. Concavity will be used to construct the bargaining problem in
+Section~\ref{sec:bargaining}, while this gradient characterization will
+yield the policy update in Section~\ref{sec:algorithm}. This distinction matters when pairwise preferences contain structure that is invisible from the reference alone. The following example shows that two policies can have the same fixed-reference performance while having fundamentally different vulnerability to other responses.
+
+\paragraph{Why a fixed reference can miss cyclic structure.}
+Consider one prompt and one objective. Let $\delta_y$ denote the deterministic policy that always outputs response $y$, and let the reference be $\mu=\delta_r$. Suppose $A$, $B$, and $C$ each beat $r$ with probability $0.75$, but form the deterministic cycle $A\succ B$, $B\succ C$, and $C\succ A$. The pure policy $\delta_A$ and the uniform mixture $\pi_{\rm mix}=(\delta_A+\delta_B+\delta_C)/3$ have the same fixed-reference score, $P(\pi\succ r)-1/2=0.25$. Their worst-case game values differ: at $\beta=0$, response $C$ defeats $\delta_A$, so $V_0(\delta_A)=-0.5$, whereas the uniform mixture ties every response in the cycle, so $V_0(\pi_{\rm mix})=0$. Since $V_0(\mu)=-0.25$, their improvements over the fallback are $-0.25$ and $0.25$, respectively. A fixed reference therefore cannot distinguish a fully exploitable pure response from a balanced mixture once both have the same reference win rate. Appendix~\ref{app:anchor-limit} gives the full calculation and formalizes the limiting relation to the fixed-reference precursor.
+
+\section{Nash Bargaining over Game-Value Improvements}
+\label{sec:bargaining}
+This section converts the objective-wise game values from Section~\ref{sec:game-utility} into a bargaining problem over improvements relative to the reference. We treat the reference as the fallback outcome and measure each objective by the gain achieved over this fallback. Nash bargaining then selects a compromise across these objective-wise gains.
+
+The reference therefore defines one fallback value and one bargaining
+surplus per objective:
+\begin{equation}
+d_k=V_{k,\beta_k}(\mu),
+\qquad
+s_k(\pi)=V_{k,\beta_k}(\pi)-d_k.
+\label{eq:game-surplus}
+\end{equation}
+A positive surplus means that $\pi$ has a higher regularized game value than the deployed reference for objective $k$.
+
+To make a reference-relative bargaining problem meaningful, there must exist at least one policy that improves upon the fallback in every objective. We also assume full support of the reference as a technical condition for the KL-proximal optimization developed in Section~\ref{sec:algorithm}.
+
+\begin{assumption}[Joint improvement and support]
+\label{ass:joint}
+The reference $\mu$ has full support, and some policy $\bar\pi$ satisfies $s_k(\bar\pi)>0$ for every $k$.
+\end{assumption}
+The assumption can fail when the reference is already optimal for one
+objective or when no policy jointly improves the full objective set.
+Under Assumption~\ref{ass:joint}, the Nash-bargaining policy directly
+maximizes the log product of positive surpluses,
+\begin{equation}
+\pi^N
+\in
+\arg\max_{\pi\in\Pi_+}
+F(\pi),
+\qquad
+F(\pi)=\sum_{k=1}^K\log s_k(\pi),
+\qquad
+\Pi_+=\{\pi\in\Pi:s_k(\pi)>0,\ \forall k\}.
+\label{eq:nash-welfare}
+\end{equation}
+
+An equivalent constrained form makes the positive-surplus requirements
+explicit and introduces dual variables that will be useful for optimization.
+For each objective, introduce an auxiliary surplus $u_k>0$:
+\begin{equation}
+(\pi^N,u^N)
+\in
+\arg\max_{\pi,\;u\in\mathbb{R}_{++}^K}
+\sum_{k=1}^K\log u_k
+\quad
+\text{s.t.}\quad
+u_k\le s_k(\pi),\ k\in[K],\qquad
+\pi\in\Pi.
+\label{eq:nash-bargaining}
+\end{equation}
+Here,
+$\mathbb{R}_{++}^K=\{u\in\mathbb{R}^K:u_k>0,\ \forall k\}$.
+Because the objective is strictly increasing in every $u_k$, every
+optimum satisfies $u_k^N=s_k(\pi^N)$, so
+\eqref{eq:nash-bargaining} is equivalent to
+\eqref{eq:nash-welfare}. The associated dual variables will recover the
+inverse-surplus weights used by the NBPO optimizer in
+Section~\ref{sec:algorithm}.
+
+To connect this policy-space formulation to the classical bargaining
+problem from Section~\ref{sec:background}, we next construct the feasible
+set of objective-wise values induced by policies. Let
+\[
+V_{\boldsymbol\beta}(\pi)
+=
+(V_{1,\beta_1}(\pi),\ldots,V_{K,\beta_K}(\pi)),
+\qquad
+d=(d_1,\ldots,d_K).
+\]
+We include every value vector that lies componentwise between the
+fallback $d$ and the game values attainable by some policy:
+\begin{equation}
+\G_{\boldsymbol\beta}
+=
+\left\{
+v\in\R^K:
+d\le v\le V_{\boldsymbol\beta}(\pi)
+\text{ componentwise for some }\pi\in\Pi
+\right\}.
+\label{eq:comprehensive-hull}
+\end{equation}
+Thus, if a policy can attain a value vector, $\G_{\boldsymbol\beta}$ also contains every componentwise weaker value vector that remains above the fallback. Including these dominated value vectors makes the feasible set downward closed, as required by the classical bargaining formulation. Because the Nash objective is strictly increasing in every coordinate, these added points cannot change the optimal Nash outcome. The next result verifies that these policy-induced game values form a valid classical bargaining problem.
+
+\begin{theorem}[Bargaining outcome]
+\label{thm:bargaining}
+Under Assumption~\ref{ass:joint},
+$\G_{\boldsymbol\beta}$ is compact, convex, comprehensive, and nondegenerate. The Nash solution of
+$(\G_{\boldsymbol\beta},d)$ is realized exactly by the policies solving \eqref{eq:nash-welfare}, equivalently \eqref{eq:nash-bargaining}. Every optimizer strictly improves every objective over the fallback, is Pareto optimal in $V_{\boldsymbol\beta}$, and all optimizers induce the same game-value vector.
+\end{theorem}
+The proof is given in Appendix~\ref{app:bargaining-proof}.
+The policy itself can remain nonunique because distinct response distributions may realize the same game-value vector. A separate issue is that objective utilities may be expressed on different numerical scales even when the underlying preferences are unchanged. The next result shows that the selected policy does not depend on these arbitrary choices of units.
+
+\begin{theorem}[Scale covariance]
+\label{thm:scale}
+For arbitrary $c_k>0$ and $b_k\in\R$, replacing
+\[
+(V_{k,\beta_k},d_k)
+\quad\text{by}\quad
+(c_kV_{k,\beta_k}+b_k,\;c_kd_k+b_k)
+\]
+for each objective $k$ leaves the set of Nash-bargaining policy
+optimizers unchanged.
+\end{theorem}
+The proof is given in Appendix~\ref{app:scale}.
+To place the Nash guarantees in context, we compare it with three common
+aggregation rules applied to the same objective-wise game values. For
+brevity, write $V_k(\pi)=V_{k,\beta_k}(\pi)$. The positive-weight
+utilitarian rule maximizes a fixed weighted sum
+$\sum_k w_k V_k(\pi)$ with $w_k>0$; absolute maxmin maximizes
+$\min_k V_k(\pi)$; and surplus maxmin instead maximizes the smallest
+improvement over the fallback, $\min_k s_k(\pi)$. Nash bargaining, as
+defined in \eqref{eq:nash-welfare}, maximizes
+$\sum_k\log s_k(\pi)$ over positive surpluses.
+
+Table~\ref{tab:rule-guarantees} compares four population-level
+guarantees under the same joint-improvement assumption. Here,
+\emph{strict individual rationality} (strict IR) means
+$s_k(\pi)>0$ for every objective, \emph{unique value} means that all
+optimal policies induce the same game-value vector, and scale covariance
+means invariance of the optimizer set to independent positive affine
+transformations of each game-value coordinate and its fallback.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\setlength{\tabcolsep}{4.4pt}
+\caption{Population guarantees of four aggregation rules under the
+joint-improvement assumption.}
+\label{tab:rule-guarantees}
+\begin{tabular}{lcccc}
+\toprule
+rule & strict IR & Pareto optimal & unique value & scale covariance\\
+\midrule
+positive-weight utilitarian & no & yes & no & no\\
+absolute maxmin & no & no & no & no\\
+surplus maxmin & yes & no & no & no\\
+Nash bargaining & yes & yes & yes & yes\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Appendix~\ref{app:rule-witnesses} gives explicit finite-game
+counterexamples for the guarantees that fail for the alternative rules.
+
+\section{Nash Bargaining Preference Optimization}
+\label{sec:algorithm}
+This section develops an optimization procedure for \eqref{eq:nash-bargaining} that starts directly from the reference policy, without a separate feasibility phase. Each entropy-proximal subproblem explicitly requires positive objective-wise surpluses, while the corresponding dual variables become the inverse-surplus weights that characterize the Nash bargaining gradient.
+
+\subsection{Constrained proximal update and inverse-surplus weights}
+
+For any positive-surplus policy $\pi\in\Pi_+$, recall that $F(\pi)=\sum_{k=1}^K\log s_k(\pi)$ and $s_k(\pi)=V_{k,\beta_k}(\pi)-d_k$.
+Since $d_k$ is constant with respect to $\pi$, we have $\nabla s_k(\pi)=\nabla V_{k,\beta_k}(\pi)$. Proposition~\ref{prop:game-structure} represents this objective-wise gradient by
+$q_{k,\pi}(y\mid x)=\E_{z\sim\nu^\star_{k,\pi}(\cdot\mid x)}A_k(y,z\mid x)$.
+
+Hence, by the chain rule,
+\begin{equation}
+\nabla F(\pi)
+=
+\sum_{k=1}^K
+\frac{\nabla s_k(\pi)}{s_k(\pi)}
+=
+\sum_{k=1}^K
+\frac{q_{k,\pi}}{s_k(\pi)}.
+\label{eq:nash-gradient}
+\end{equation}
+At the reference policy, $s_k(\mu)=0$ for every objective, so $F(\mu)=-\infty$ and the gradient in \eqref{eq:nash-gradient} cannot be evaluated at $\mu$. A standard gradient step therefore cannot be initialized directly from the reference. We instead use an implicit proximal update that takes $\mu$ as its initial center while optimizing over policies with positive surplus. Let
+$D(\pi\|\pi_t)=\E_{x\sim\rho}\KL(\pi(\cdot\mid x)\|\pi_t(\cdot\mid x))$.
+Introducing auxiliary variables $u_k>0$ to make the positive-surplus requirements explicit, stage $t$, starting from $\pi_0=\mu$, solves
+\begin{equation}
+\begin{aligned}
+(\pi_{t+1},u_{t+1})\in
+\arg\max_{\pi,\,u\in\R_{++}^K}
+\quad&\sum_{k=1}^K\log u_k-
+\frac{1}{\eta_t}D(\pi\|\pi_t)\\
+\text{s.t.}\quad&u_k\le s_k(\pi),\qquad k\in[K],\\
+&\pi\in\Pi,
+\end{aligned}
+\label{eq:prox-subproblem}
+\end{equation}
+where $\eta_t>0$ is a step size. Because the objective is strictly increasing in each $u_k$, every optimum satisfies
+$u_{t+1,k}=s_k(\pi_{t+1})$. Thus \eqref{eq:prox-subproblem} is equivalent to maximizing the Nash welfare with a KL proximal penalty over the positive-surplus domain.
+
+Under Assumption~\ref{ass:joint}, a strictly positive-surplus policy exists, so the subproblem is feasible at the initial full-support center $\pi_0=\mu$. Its first solution therefore lies in $\Pi_+$, allowing subsequent updates to proceed without ever evaluating $F$ or $\nabla F$ at the reference.
+
+For each constraint $u_k\le s_k(\pi)$, introduce a nonnegative dual variable $\lambda_k\ge0$. The Lagrangian of \eqref{eq:prox-subproblem} is
+\begin{equation}
+\mathcal L_t(\pi,u,\lambda)
+=
+\sum_{k=1}^K \log u_k
++
+\sum_{k=1}^K \lambda_k\bigl(s_k(\pi)-u_k\bigr)
+-
+\frac{1}{\eta_t}D(\pi\|\pi_t),
+\qquad
+\lambda\ge0.
+\label{eq:prox-lagrangian}
+\end{equation}
+
+To obtain the dual problem, we first maximize the Lagrangian over the auxiliary variables $u$. For fixed $\lambda$, each $u_k$ appears only through $\log u_k-\lambda_k u_k$.
+
+When $\lambda_k>0$, its first-order condition gives
+\[
+\frac{1}{u_k}-\lambda_k=0,
+\qquad\text{so}\qquad
+u_k^\star=\frac{1}{\lambda_k}.
+\]
+Substituting this solution back yields
+\[
+\max_{u_k>0}\{\log u_k-\lambda_k u_k\}
+=
+-\log\lambda_k-1.
+\]
+If $\lambda_k=0$, the maximization over $u_k$ is unbounded, so any finite dual solution must satisfy $\lambda_k>0$.
+
+We therefore define the dual function by maximizing the Lagrangian over the primal variables:
+\[
+\phi_t(\lambda)
+:=
+\max_{\pi\in\Pi,\,u\in\R_{++}^K}
+\mathcal L_t(\pi,u,\lambda).
+\]
+Using the closed-form maximizer over $u$, this becomes
+\begin{equation}
+\phi_t(\lambda) = -\sum_{k=1}^K\log\lambda_k-K + \max_{\pi\in\Pi} \left\{ \sum_{k=1}^K\lambda_k s_k(\pi) - \frac{1}{\eta_t}D(\pi\|\pi_t) \right\},
+\qquad
+\lambda\in\R_{++}^K.
+\label{eq:prox-dual}
+\end{equation}
+The corresponding dual problem is
+\[
+\min_{\lambda\in\R_{++}^K}\phi_t(\lambda).
+\]
+
+For a fixed dual vector $\lambda$, the inner maximization in \eqref{eq:prox-dual} is a weighted proximal policy update. We denote its unique maximizer by
+\begin{equation}
+\pi_t^\star(\lambda)
+:=
+\arg\max_{\pi\in\Pi}
+\left\{
+\sum_{k=1}^K\lambda_k s_k(\pi)
+-
+\frac{1}{\eta_t}D(\pi\|\pi_t)
+\right\}.
+\label{eq:weighted-policy}
+\end{equation}
+Here, $\pi_t$ is the current policy serving as the proximal center, whereas $\pi_t^\star(\lambda)$ is the policy obtained after solving the inner problem for a fixed candidate weight vector $\lambda$. The KL term makes this inner objective strictly concave for the full-support centers generated by the algorithm, so the maximizer is unique.
+
+To solve the dual problem, we need the gradient of $\phi_t(\lambda)$. Although the inner optimizer
+$\pi_t^\star(\lambda)$ itself depends on $\lambda$, we do not need to differentiate through this
+dependence. Since the inner maximizer is unique, Danskin's theorem~\citep{danskin1967theory}
+states that the derivative of the optimized value with respect to $\lambda_k$ is obtained by
+differentiating the inner objective while holding the optimizer fixed. The weighted policy term
+therefore contributes the achieved surplus
+$s_k(\pi_t^\star(\lambda))$, while the derivative of $-\log\lambda_k$ contributes
+$-1/\lambda_k$. Hence,
+\begin{equation}
+\nabla_k\phi_t(\lambda)
+=
+s_k\bigl(\pi_t^\star(\lambda)\bigr)
+-
+\frac{1}{\lambda_k}.
+\label{eq:dual-gradient}
+\end{equation}
+
+Equation~\eqref{eq:dual-gradient} has a direct interpretation: for the current dual weight
+$\lambda_k$, the inner policy achieves surplus $s_k(\pi_t^\star(\lambda))$, whereas maximizing
+over the auxiliary variable gives $u_k^\star=1/\lambda_k$. The dual gradient measures the
+mismatch between these two quantities, and dual minimization adjusts $\lambda$ to make them
+consistent. The resulting relation at the optimum is formalized below.
+
+\begin{proposition}[Inverse-surplus weights from the constraints]
+\label{prop:prox-dual}
+Under Assumption~\ref{ass:joint}, the constrained problem
+\eqref{eq:prox-subproblem} and its dual have the same optimum.
+At the optimal primal--dual solution,
+\begin{equation}
+u_{t+1,k}
+=
+s_k(\pi_{t+1}),
+\qquad
+\lambda_{t+1,k}
+=
+\frac{1}{u_{t+1,k}}
+=
+\frac{1}{s_k(\pi_{t+1})}.
+\label{eq:kkt-weights}
+\end{equation}
+Thus, the dual weight associated with objective $k$ is the inverse of its achieved surplus.
+Objectives with smaller surplus therefore receive larger weights automatically.
+These inverse-surplus weights are determined by the constraints of
+\eqref{eq:prox-subproblem}, rather than specified before optimization.
+\end{proposition}
+The proof is given in Appendix~\ref{app:prox-dual}.
+
+\subsection{Sampled dual optimization and partition-free regression}
+For a fixed dual vector $\lambda$, we solve the weighted proximal policy problem in
+\eqref{eq:weighted-policy}. This problem is implicit because each objective-specific
+opponent $\nu^\star_{k,\pi}$ depends on the policy being optimized. We therefore
+use a fixed-point iteration. At a fixed outer iteration $t$ and dual vector
+$\lambda$, let $\pi^{(r)}$ denote the policy at fixed-point iteration $r$. Given
+$\pi^{(r)}$, we first construct the objective-specific opponents and then fit the
+next policy iterate.
+
+Define
+\[
+q_k^{(r)}(y\mid x)
+:=
+q_{k,\pi^{(r)}}(y\mid x)
+=
+\E_{z\sim\nu^\star_{k,\pi^{(r)}}(\cdot\mid x)}
+A_k(y,z\mid x).
+\]
+If these opponents are held fixed, the weighted entropy-proximal update has the
+exponential form
+\begin{equation}
+\pi^{(r+1)}(y\mid x)
+\propto
+\pi_t(y\mid x)
+\exp\left\{
+\eta_t\sum_{k=1}^K\lambda_k q_k^{(r)}(y\mid x)
+\right\}.
+\label{eq:fixed-opponent-update}
+\end{equation}
+The normalizing constant in \eqref{eq:fixed-opponent-update} is generally
+intractable for a language model. It disappears when we compare two responses.
+For a candidate policy $\pi$, define
+\begin{equation}
+h_t(\pi;y,y')
+=
+\log\frac{\pi(y\mid x)}{\pi_t(y\mid x)}
+-
+\log\frac{\pi(y'\mid x)}{\pi_t(y'\mid x)}.
+\label{eq:log-ratio-change}
+\end{equation}
+Taking the log-ratio of \eqref{eq:fixed-opponent-update} gives
+\begin{equation}
+h_t(\pi^{(r+1)};y,y')
+=
+\eta_t\sum_{k=1}^K\lambda_k
+\left(
+q_k^{(r)}(y\mid x)-q_k^{(r)}(y'\mid x)
+\right).
+\label{eq:fixed-opponent-pairwise}
+\end{equation}
+
+We estimate the right-hand side of \eqref{eq:fixed-opponent-pairwise} from binary
+preference comparisons. Let $\xi(\cdot,\cdot\mid x)$ be any full-support
+proposal over response pairs and draw
+$(y,y')\sim\xi(\cdot,\cdot\mid x)$. For each objective $k$, draw
+\[
+z_k\sim\nu^\star_{k,\pi^{(r)}}(\cdot\mid x),
+\]
+and then draw independent binary outcomes
+\[
+B_k\sim\operatorname{Bernoulli}\!\left(P_k(y\succ z_k\mid x)\right),
+\qquad
+B'_k\sim\operatorname{Bernoulli}\!\left(P_k(y'\succ z_k\mid x)\right).
+\]
+Define
+\begin{equation}
+Z_{t,k}=B_k-B'_k.
+\label{eq:binary-target}
+\end{equation}
+Conditioning on the sampled opponent response,
+\[
+\E[Z_{t,k}\mid x,y,y',z_k]
+=
+A_k(y,z_k\mid x)-A_k(y',z_k\mid x).
+\]
+Averaging also over $z_k$ gives
+\begin{equation}
+\E[Z_{t,k}\mid x,y,y']
+=
+q_k^{(r)}(y\mid x)-q_k^{(r)}(y'\mid x).
+\label{eq:binary-target-mean}
+\end{equation}
+Thus, $\eta_t\sum_k\lambda_k Z_{t,k}$ is an unbiased sampled target for the
+pairwise log-ratio in \eqref{eq:fixed-opponent-pairwise}. This leads to the
+population regression loss
+\begin{equation}
+\mathcal J^{(r)}_{t,\lambda}(\pi)
+=
+\E_{\substack{
+x\sim\rho,\;(y,y')\sim\xi(\cdot,\cdot\mid x),\\
+z_k\sim\nu^\star_{k,\pi^{(r)}}(\cdot\mid x),\\
+B_k\sim\operatorname{Bern}(P_k(y\succ z_k\mid x)),\\
+B'_k\sim\operatorname{Bern}(P_k(y'\succ z_k\mid x)),\;k\in[K]
+}}
+\left[
+h_t(\pi;y,y')
+-
+\eta_t\sum_{k=1}^K\lambda_k Z_{t,k}
+\right]^2.
+\label{eq:regression-loss}
+\end{equation}
+We fit
+\[
+\pi^{(r+1)}
+\approx
+\arg\min_{\pi}\mathcal J^{(r)}_{t,\lambda}(\pi)
+\]
+and then recompute the opponents using $\pi^{(r+1)}$. At a fixed point, the
+policy used to construct the opponents agrees with the policy returned by the
+regression, and the resulting policy satisfies the optimality condition of
+\eqref{eq:weighted-policy}. Hence the fixed point is
+$\pi_t^\star(\lambda)$. This alternating procedure implements the weighted
+proximal policy solve using sampled pairwise comparisons without evaluating the
+normalizing constant in \eqref{eq:fixed-opponent-update}.
+
+Given \eqref{eq:dual-gradient}, we approximately minimize the dual using sampled
+surplus estimates. In our implementation, dual iteration $m$ uses
+\begin{equation}
+\lambda^{(m+1)}
+=
+\Pi_{\Lambda}\!\left[
+\lambda^{(m)}
+-
+\gamma_m\left(
+\widehat s\bigl(\pi_t^\star(\lambda^{(m)})\bigr)
+-
+(\lambda^{(m)})^{-1}
+\right)
+\right],
+\label{eq:dual-update}
+\end{equation}
+where the inverse is elementwise and $\Pi_\Lambda$ projects onto a positive
+bounded box $\Lambda=[\lambda_{\min},\lambda_{\max}]^K$. Here $m$ indexes the
+dual iterations, while $r$ indexes the fixed-point policy iterations used within
+each weighted-policy solve. The projection is used only to keep the numerical
+dual weights positive and bounded.
+
+\begin{algorithm}[t]
+\caption{Nash Bargaining Preference Optimization}
+\label{alg:nbpo}
+\begin{algorithmic}[1]
+\REQUIRE Reference $\mu$, general preference models $P_{1:K}$, temperatures $\beta_{1:K}$, proximal steps $\eta_{0:T-1}$, dual steps $\gamma_{0:M-1}$.
+\STATE Estimate the reference game values $d_k=V_{k,\beta_k}(\mu)$ and set $\pi_0\leftarrow\mu$.
+\STATE Initialize positive dual weights.
+\FOR{$t=0,\ldots,T-1$}
+    \STATE Initialize $\lambda^{(0)}$ from the previous stage (or $\mathbf 1$ at $t=0$).
+    \FOR{$m=0,\ldots,M-1$}
+        \STATE Approximate $\pi_t^\star(\lambda^{(m)})$ by alternating regularized-opponent reweighting and regression with \eqref{eq:regression-loss}.
+        \STATE Estimate the surplus vector $\widehat s(\pi_t^\star(\lambda^{(m)}))$ from sampled comparisons.
+        \STATE Update $\lambda^{(m+1)}$ by \eqref{eq:dual-update}.
+    \ENDFOR
+    \STATE Approximate the final weighted-policy solution $\widetilde\pi_{t+1}\leftarrow\pi_t^\star(\lambda^{(M)})$ using \eqref{eq:regression-loss}.
+    \STATE Estimate $\widehat s(\widetilde\pi_{t+1})$ on a held-out batch.
+    \IF{$\min_k \widehat s_k(\widetilde\pi_{t+1})\le0$}
+        \STATE Retain $\pi_{t+1}\leftarrow\pi_t$ and flag the stage as empirically infeasible.
+    \ELSE
+        \STATE Set $\pi_{t+1}\leftarrow\widetilde\pi_{t+1}$.
+    \ENDIF
+\ENDFOR
+\STATE \textbf{return} $\pi_T$.
+\end{algorithmic}
+\end{algorithm}
+
+The held-out surplus check in Algorithm~\ref{alg:nbpo} is a practical safeguard for approximate neural fitting. The convergence result below concerns the exact population proximal update in \eqref{eq:prox-subproblem}.
+
+\subsection{Last-iterate convergence}
+We now analyze the exact population proximal iteration generated by \eqref{eq:prox-subproblem}. Since the algorithm returns the final policy $\pi_T$, we establish convergence of the last iterate itself.
+
+\begin{theorem}[Last-iterate convergence]
+\label{thm:last-iterate}
+Under Assumption~\ref{ass:joint}, let $\pi^\star$ maximize
+\eqref{eq:nash-welfare}, set $\pi_0=\mu$, and solve
+\eqref{eq:prox-subproblem} exactly at every outer iteration with arbitrary
+$\eta_t>0$. Then every $\pi_t$ with $t\ge1$ has full support and belongs to
+$\Pi_+$, and the Nash welfare is nondecreasing:
+$F(\pi_{t+1})\ge F(\pi_t)$ for $t\ge1$. Moreover, for every $T\ge1$,
+\begin{equation}
+F(\pi^\star)-F(\pi_T)
+\le
+\frac{D(\pi^\star\|\mu)}
+{\sum_{t=0}^{T-1}\eta_t}.
+\label{eq:last-iterate-rate}
+\end{equation}
+\end{theorem}
+
+Thus, for a constant proximal step $\eta_t\equiv\eta$, the final-iterate
+Nash-welfare gap decreases as $O(1/T)$. Appendix~\ref{app:convergence} gives
+the proof.
+
+\section{Experiments}
+\label{sec:experiments}
+\paragraph{Setup.}
+We evaluate fixed objective panels on three datasets. \textsc{UltraFeedback} uses instruction following, truthfulness, honesty, and helpfulness; \textsc{TL;DR} uses coverage, faithfulness, conciseness, and helpfulness; and \textsc{SafeRLHF} uses helpfulness and harmlessness. The primary backbone, reference policy, and initialization are \texttt{Llama-3.1-8B-Instruct}; Table~\ref{tab:general-benchmark-completion} also includes a \texttt{Qwen3-8B} replication. A prompted \texttt{Qwen3-32B} oracle supplies objective-specific training comparisons. Each pair is queried in both presentation orders and swap-averaged, while the primary held-out evaluation uses \texttt{Llama-3.3-70B-Instruct}, which provides none of the training labels. Appendix~\ref{app:labeling} gives the judge templates and label construction. Appendix~\ref{app:hyperparameters} records the data splits, generation and judging settings, policy optimization, NBPO-specific loop parameters, and compute needed to reproduce each panel.
+
+\paragraph{Baselines and evaluation.}
+We compare \NBPO{} with matched aggregation controls that use the same game-value objectives but replace Nash bargaining with equal-weight utilitarian, absolute-maxmin, or surplus-maxmin aggregation. We additionally report PROSPER/MaxEntBW, Uniform-INPO, MOPO, and the single-objective HT-MNPO corners. Within each dataset panel, methods start from the same reference and use matched response pools and optimizer budgets whenever their update rules permit. Our primary metrics are the objective-wise game-value surpluses $s_k$, their minimum, and their average; when every surplus is positive, we also report the Nash welfare $F(\pi)=\sum_k\log s_k(\pi)$. The minimum directly tests whether all objectives improve over the fallback, while the average records the overall gain. Appendix~\ref{app:objectivewise} reports every objective separately. As secondary capability checks, Table~\ref{tab:general-benchmark-completion} reports swap-averaged win rates on Arena-Hard v2, AlpacaEval 2, its length-controlled variant (Alpaca LC), and MT-Bench. The current entries are single-run results and should be replaced by mean $\pm$ standard deviation over independent training seeds in the final comparison.
+
+\begin{table*}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{4.0pt}
+\caption{General benchmark win rates against each backbone's reference policy, judged by \texttt{Llama-3.3-70B-Instruct}. Higher is better.}
+\label{tab:general-benchmark-completion}
+\begin{tabular}{lrrrr}
+\toprule
+method & Arena-Hard v2 & AlpacaEval 2 & Alpaca LC & MT-Bench \\
+\midrule
+\multicolumn{5}{l}{\textit{Backbone and reference policy: \texttt{Llama-3.1-8B-Instruct}}}\\
+Base $=\mu=\pi_0$ & $0.500$ & $0.500$ & $0.500$ & $0.500$ \\
+\NBPO{} (ours) & $\mathbf{0.558}$ & $\mathbf{0.554}$ & $\mathbf{0.554}$ & $0.553$ \\
+PROSPER/MaxEntBW & $0.515$ & $0.546$ & $0.541$ & $\mathbf{0.560}$ \\
+Utilitarian & $0.522$ & $0.544$ & $0.548$ & $0.516$ \\
+Absolute maxmin & $0.532$ & $0.536$ & $0.548$ & $0.525$ \\
+Surplus maxmin & $0.505$ & $0.532$ & $0.524$ & $0.503$ \\
+Uniform-INPO & $0.527$ & $0.517$ & $0.535$ & $0.503$ \\
+MOPO & $0.508$ & $0.512$ & $0.516$ & $0.513$ \\
+HT-MNPO (honesty) & $0.549$ & $0.528$ & $0.522$ & $0.519$ \\
+HT-MNPO (truthfulness) & $0.536$ & $0.531$ & $0.517$ & $0.525$ \\
+HT-MNPO (helpfulness) & $0.530$ & $0.550$ & $0.546$ & $0.494$ \\
+HT-MNPO (instr.\ following) & $0.515$ & $0.529$ & $0.533$ & $0.541$ \\
+\midrule
+\multicolumn{5}{l}{\textit{Backbone and reference policy: \texttt{Qwen3-8B}, reasoning trace suppressed}}\\
+Base $=\mu=\pi_0$ & $0.500$ & $0.500$ & $0.500$ & $0.500$ \\
+\NBPO{} (ours) & $\mathbf{0.512}$ & $\mathbf{0.562}$ & $\mathbf{0.534}$ & $\mathbf{0.529}$ \\
+PROSPER/MaxEntBW & $0.505$ & $0.535$ & $0.519$ & $0.497$ \\
+Utilitarian & $0.509$ & $0.528$ & $0.511$ & $0.497$ \\
+Absolute maxmin & $0.510$ & $0.531$ & $0.514$ & $0.503$ \\
+Surplus maxmin & $0.500$ & $0.534$ & $0.523$ & $0.516$ \\
+Uniform-INPO & $0.491$ & $0.498$ & $0.496$ & $0.481$ \\
+MOPO & $0.498$ & $0.499$ & $0.497$ & $0.468$ \\
+HT-MNPO (honesty) & $0.493$ & $0.500$ & $0.503$ & $0.513$ \\
+HT-MNPO (truthfulness) & $0.503$ & $0.517$ & $0.508$ & $0.528$ \\
+HT-MNPO (helpfulness) & $0.491$ & $0.497$ & $0.498$ & $0.519$ \\
+HT-MNPO (instr.\ following) & $0.491$ & $0.491$ & $0.490$ & $0.509$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\paragraph{Main multi-objective results.}
+Table~\ref{tab:multi-dataset-surplus} summarizes the minimum and average held-out surplus in each objective panel. On \textsc{UltraFeedback}, \NBPO{} attains the largest minimum and average surplus and improves all four objectives over the reference. On \textsc{TL;DR}, it attains the largest average surplus but its minimum is slightly negative, whereas surplus maxmin is the only reported rule with a clearly positive minimum. On \textsc{SafeRLHF}, \NBPO{} improves both objectives, but absolute maxmin attains the largest minimum and average. These single-run results show that the aggregation rules select materially different compromises.
+
+\begin{table*}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{2.6pt}
+\caption{Minimum and average held-out game-value surplus over the reference across three objective panels. Higher is better; per-objective values are in Appendix~\ref{app:objectivewise}.}
+\label{tab:multi-dataset-surplus}
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{2}{c}{\textsc{UltraFeedback}} & \multicolumn{2}{c}{\textsc{TL;DR}} & \multicolumn{2}{c}{\textsc{SafeRLHF}}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+method & min $s$ & avg $s$ & min $s$ & avg $s$ & min $s$ & avg $s$\\
+\midrule
+\NBPO{} (ours) & $\mathbf{0.039}$ & $\mathbf{0.063}$ & $-0.001$ & $\mathbf{0.114}$ & $0.101$ & $0.110$\\
+PROSPER/MaxEntBW & $-0.051$ & $-0.016$ & $-0.068$ & $0.086$ & $0.116$ & $0.134$\\
+Utilitarian & $-0.077$ & $-0.046$ & $-0.046$ & $0.109$ & $0.138$ & $0.148$\\
+Absolute maxmin & $-0.062$ & $-0.024$ & $-0.079$ & $0.080$ & $\mathbf{0.144}$ & $\mathbf{0.149}$\\
+Surplus maxmin & $-0.014$ & $0.028$ & $\mathbf{0.018}$ & $0.064$ & $0.143$ & $0.147$\\
+Uniform-INPO & $-0.008$ & $0.028$ & $-0.052$ & $-0.041$ & $-0.077$ & $-0.066$\\
+MOPO & $0.022$ & $0.028$ & $-0.001$ & $0.030$ & $0.096$ & $0.099$\\
+HT-MNPO, best corner & $0.022$ & $0.037$ & $-0.010$ & $0.020$ & $-0.049$ & $-0.036$\\
+HT-MNPO, worst corner & $-0.073$ & $-0.037$ & $-0.079$ & $0.029$ & $-0.050$ & $-0.037$\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\paragraph{Why adaptive game values and Nash bargaining matter.}
+Table~\ref{tab:multi-dataset-surplus} already compares Nash, utilitarian, and maxmin aggregation under matched game-value objectives. To isolate the other design choice---whether each objective is represented by an adaptive game value or only by a fixed-reference margin---Table~\ref{tab:component-ablation} specifies a matched factorial ablation. The fixed-reference NBPO row changes only the within-objective representation, while the utilitarian and surplus-maxmin rows change only the aggregation rule. Existing results are filled where directly available from Table~\ref{tab:multi-dataset-surplus}; the remaining cells are left blank until the corresponding matched measurements are completed. The reference-win column should report the objective-averaged held-out win rate against $\mu$ under the same evaluation oracles.
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{2.2pt}
+\caption{Matched component ablation on \textsc{UltraFeedback}, all four rows scored on the same $698$
+held-out prompts, audited to be disjoint from every arm's training pairs and reference pool. ``--'' means
+$F$ is undefined because some surplus is nonpositive. The aggregation comparison is decisive: both Nash
+rows beat the utilitarian and surplus-maxmin rows by margins whose paired bootstrap intervals exclude zero
+($-0.112$ and $-0.084$ against the leading row). The representation comparison is not: replacing the
+adaptive game value by a fixed-reference margin changes the minimum surplus by $-0.011$ with interval
+$[-0.023,+0.001]$, so on this panel the regularised opponent carries no measurable advantage, and the point
+estimate favours the simpler representation. The two representations do produce different targets---their
+regression targets correlate $0.913$ and disagree in sign on $8.4\%$ of pairs---so this is a statement
+about the resulting policies rather than about the construction.}
+\label{tab:component-ablation}
+\begin{tabular}{lllrrrr}
+\toprule
+variant & objective representation & aggregation & min $s$ & avg $s$ & $F(\pi)$ & avg. ref. win \\
+\midrule
+\NBPO{} & adaptive game value & Nash & $0.028$ & $0.056$ & $-11.82$ & $0.556$ \\
+Fixed-reference NBPO & fixed-reference margin & Nash & $\mathbf{0.040}$ & $\mathbf{0.061}$ & $\mathbf{-11.40}$ & $\mathbf{0.561}$ \\
+Game-utilitarian & adaptive game value & utilitarian & $-0.073$ & $-0.048$ & -- & $0.452$ \\
+Game-surplus-maxmin & adaptive game value & surplus maxmin & $-0.044$ & $-0.006$ & -- & $0.494$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The rescaling experiment provides a complementary structural test of the bargaining rule. Table~\ref{tab:uf-scale-covariance} independently rescales each objective's payoff and temperature on a frozen response pool, which preserves the underlying pairwise preferences, and then recomputes each selection rule without retraining. \NBPO{} changes $0.01\%$ of selected pairs, compared with $5.9\%$ for utilitarian aggregation, $6.9\%$ for PROSPER, and $9.9$--$10.9\%$ for the two maxmin rules. Under the first rescaling, $\lambda^{(A)}=(0.2,0.6,1.0,1.7)$, the dual multipliers absorb the change, moving from $(16.6,14.5,15.9,18.0)$ to $(82.7,24.1,15.9,10.6)$. This is the empirical counterpart of Theorem~\ref{thm:scale}; the remaining rescaling vectors and numerical tolerances should be recorded in Appendix~\ref{app:hyperparameters}.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\setlength{\tabcolsep}{4.0pt}
+\caption{Preferred-pair flips (\%) under three independent objective rescalings on the frozen \textsc{UltraFeedback} pool. Lower is better; zero is ideal.}
+\label{tab:uf-scale-covariance}
+\begin{tabular}{lcccc}
+\toprule
+selection rule & $\lambda^{(A)}$ & $\lambda^{(B)}$ & $\lambda^{(C)}$ & mean\\
+\midrule
+\NBPO{} (ours) & $\mathbf{0.01}$ & $\mathbf{0.01}$ & $\mathbf{0.00}$ & $\mathbf{0.01}$\\
+Utilitarian & $5.66$ & $6.31$ & $5.85$ & $5.94$\\
+Uniform-INPO & $5.66$ & $6.31$ & $5.85$ & $5.94$\\
+MOPO & $5.66$ & $6.31$ & $5.85$ & $5.94$\\
+PROSPER/MaxEntBW & $7.35$ & $6.63$ & $6.71$ & $6.90$\\
+Surplus maxmin & $16.02$ & $13.57$ & $0.00$ & $9.86$\\
+Absolute maxmin & $16.32$ & $0.00$ & $16.32$ & $10.88$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Optimization analysis and robustness.}
+Table~\ref{tab:general-benchmark-completion} checks whether optimizing the multi-objective criterion degrades general instruction-following quality. In the current single-run evaluation, \NBPO{} gives the highest Arena-Hard and AlpacaEval win rates on the \texttt{Llama} backbone, while PROSPER is slightly higher on MT-Bench; on the \texttt{Qwen} replication, \NBPO{} is highest on all four reported benchmarks. These results should be interpreted as a capability-retention check until replicated across seeds. The method-specific robustness study should additionally vary the opponent temperature $\beta$, fixed-point budget $R$, dual budget $M$, and comparator sample count while reporting opponent entropy, the regression loss in \eqref{eq:regression-loss}, and the dual residual $\|\widehat s-(\lambda)^{-1}\|_\infty$. Appendix~\ref{app:optimization-diagnostics} provides a fill-ready table for these experiments; Appendix~\ref{app:hyperparameters} lists the settings required to reproduce them.
+
+\section{Related Work}
+\label{sec:related}
+\paragraph{General pairwise and multi-objective preferences.}
+NLHF and its scalable variants optimize directly against general pairwise preference oracles rather than fitting a scalar reward \citep{munos2024nash,wu2025sppo,zhang2025iterative,calandriello2024online,rosset2024direct,zhou2025egpo}. Blackwell-style methods extend this view to vector-valued feedback and target sets \citep{blackwell1956analog,bhatia2020multicriteria}. PROSPER introduces a maximum-entropy Blackwell winner with a scalable single-policy regression update and an inner worst-case choice over objective weights and opponent policies \citep{zhang2026prosper}. \NBPO{} instead retains one regularized game value per objective and applies Nash bargaining across those values. The contribution is this separation of within-objective preference representation from across-objective aggregation, together with the corresponding constrained optimization and convergence analysis.
+
+\paragraph{Multi-objective alignment.}
+MODPO, Rewarded Soups, and Panacea expose user-specified trade-offs through scalarization, policy interpolation, or preference conditioning \citep{zhou2024beyond,rame2023rewarded,zhong2024panacea}. MaxMin-RLHF and RMOD optimize a weakest-objective rule, while MOPO designates a primary objective and lower-bound constraints for the others \citep{chakraborty2024maxmin,son2026rmod,agnihotri2026mopo}. These approaches provide useful control when weights, priorities, or thresholds are available. \NBPO{} addresses a different setting: one compromise policy for a fixed objective panel without prespecified priorities.
+RACO applies clipped conflict-averse gradient combination to objective-specific preference losses and traces a Pareto frontier for user-specified weights \citep{chen2026raco}. It is therefore a relevant frontier method, but does not select a single priority-free compromise.
+
+\paragraph{Social choice and bargaining.}
+Social-choice work argues that alignment should state its aggregation rule explicitly \citep{conitzer2024social}. Multi-party RLHF studies utilitarian, Nash, and leximin welfare over party-specific learned rewards, and separately considers reward-free von Neumann solutions \citep{zhong2024nashwelfare}. Nash bargaining has also been used to combine task gradients in multi-task learning \citep{navon2022nashmtl}. Our setting applies the Nash rule to improvements in objective-wise game values derived directly from separate pairwise preference oracles.
+
+\section{Conclusion and Limitations}
+\label{sec:conclusion}
+\NBPO{} separates two decisions in multi-objective alignment: an objective-wise preference game summarizes potentially cyclic pairwise feedback, and Nash bargaining selects one compromise across the resulting game values. Under joint improvement, the selected outcome is strictly above the reference in every objective, Pareto optimal, unique in game-value space, and covariant to independent positive affine utility transformations. The constrained entropy-proximal formulation starts directly from the reference, and its KKT multipliers yield the inverse-surplus weights used by regularized-opponent sampling and pairwise regression. Theorem~\ref{thm:last-iterate} gives last-iterate convergence without requiring a separately constructed interior policy, while Appendix~\ref{app:anchor-limit} records the fixed-reference precursor as a limiting case rather than making it a main contribution.
+
+The guarantees apply to the selected game-value coordinates, not to every prompt, every pairwise comparison, or an external safety metric. The objective panel, reference policy, and opponent temperature remain modeling choices, and joint positive improvement can be infeasible. Worst-opponent evaluation can favor conservative mixtures and increases sampling cost. Finally, the current completed comparison contains one matched training run per method; the observed ordering must be replicated across independent seeds before it can support a performance claim.
+
+\subsection*{AI use statement}
+In this work, generative AI tools were used to critique the problem formulation, assist with mathematical derivations and proof presentation, propose experimental checks, and edit manuscript text. The authors are responsible for independently verifying every theorem, citation, implementation, empirical result, and disclosure in the final submission.
+
+\subsection*{Ethics statement}
+This work studies aggregation rules for language-model alignment, including harmlessness as one objective. Improvement in a game value is not an absolute safety certificate. Safety-critical deployment should retain hard constraints and independent safety evaluations in addition to the bargaining objective.
+
+\subsection*{Reproducibility statement}
+Algorithm~\ref{alg:nbpo} specifies the constrained training procedure. Appendix~\ref{app:proofs} provides the proximal-dual derivation and population convergence proof, while Appendix~\ref{app:protocol} gives detailed results and the matched evaluation protocol. A submission package should include anonymized code, exact prompts, random seeds, model checkpoints, opponent pools, dual traces, and the sampling budgets used for the regression and surplus estimates.
+
+\bibliography{iclr2027_conference}
+\bibliographystyle{iclr2027_conference}
+
+\appendix
+
+\section{Proofs}
+\label{app:proofs}
+
+\subsection{Proof of Proposition~\ref{prop:game-structure}}
+\label{app:proof-game-structure}
+For fixed $\nu$, define
+\[
+J_\nu(\pi)
+=
+g_k(\pi,\nu)
++
+\beta_k\E_{x\sim\rho}
+\KL\!\left(\nu(\cdot\mid x)\,\|\,\mu(\cdot\mid x)\right).
+\]
+Since $g_k(\pi,\nu)$ is linear in $\pi$ and the KL term is independent
+of $\pi$, $J_\nu$ is affine. Hence, for any $\theta\in[0,1]$,
+\[
+V_{k,\beta_k}(\theta\pi_1+(1-\theta)\pi_2)
+=
+\min_\nu
+\bigl\{
+\theta J_\nu(\pi_1)+(1-\theta)J_\nu(\pi_2)
+\bigr\}
+\ge
+\theta V_{k,\beta_k}(\pi_1)
++
+(1-\theta)V_{k,\beta_k}(\pi_2),
+\]
+so $V_{k,\beta_k}$ is concave. Moreover, since
+$|A_k|\le 1/2$,
+\[
+|V_{k,\beta_k}(\pi)-V_{k,\beta_k}(\pi')|
+\le
+\frac12\E_{x\sim\rho}
+\|\pi(\cdot\mid x)-\pi'(\cdot\mid x)\|_1,
+\]
+which also establishes continuity.
+
+For $\beta_k>0$, the inner minimization in
+\eqref{eq:game-value} separates across prompts. Fix a prompt $x$ and
+write $r(z)=r_{k,\pi}(z\mid x)$. The corresponding problem is
+\[
+\min_{\nu\in\Delta(\Y_x)}
+\sum_z \nu(z)r(z)
++
+\beta_k\sum_z \nu(z)\log\frac{\nu(z)}{\mu(z)}.
+\]
+Introducing a multiplier $\lambda_x$ for the normalization constraint
+$\sum_z\nu(z)=1$, the Lagrangian is
+\[
+\mathcal{L}(\nu,\lambda_x)
+=
+\sum_z \nu(z)r(z)
++
+\beta_k\sum_z\nu(z)\log\frac{\nu(z)}{\mu(z)}
++
+\lambda_x\!\left(\sum_z\nu(z)-1\right).
+\]
+The first-order condition with respect to $\nu(z)$ gives
+\[
+r(z)
++
+\beta_k\!\left(
+\log\frac{\nu(z)}{\mu(z)}+1
+\right)
++
+\lambda_x
+=
+0,
+\]
+or equivalently
+\[
+\nu(z)
+\propto
+\mu(z)\exp\{-r(z)/\beta_k\}.
+\]
+Normalizing over $z$ yields
+\eqref{eq:regularized-opponent}. Substituting this optimizer back into
+the objective gives the soft-min representation
+\eqref{eq:soft-value}. The minimizer is unique because the KL term is strictly convex on the
+support of $\mu$. We can therefore apply Danskin's
+theorem~\citep{danskin1967theory}: when the inner minimizer is unique,
+the directional derivative of the optimized value is obtained by
+differentiating the inner objective with respect to $\pi$ while holding
+the optimal opponent fixed. Thus, for any feasible policy direction
+$h$, with $\sum_y h(y\mid x)=0$ for every $x$,
+\begin{align}
+D V_{k,\beta_k}(\pi)[h]
+&=
+D_\pi J_k(\pi,\nu^\star_{k,\pi})[h] \\
+&=
+D_\pi g_k(\pi,\nu^\star_{k,\pi})[h] \\
+&=
+\E_{x\sim\rho}\sum_y h(y\mid x)
+\E_{z\sim\nu^\star_{k,\pi}(\cdot\mid x)}
+A_k(y,z\mid x),
+\end{align}
+where the second equality uses that the KL term is independent of
+$\pi$. Therefore
+\[
+q_{k,\pi}(y\mid x)
+=
+\E_{z\sim\nu^\star_{k,\pi}(\cdot\mid x)}
+A_k(y,z\mid x)
+\]
+represents the objective-wise policy gradient, proving
+\eqref{eq:game-gradient}.
+
+\subsection{Connection to the Fixed-Reference}
+\label{app:anchor-limit}
+Define the fixed-reference improvement
+\begin{equation}
+a_k(\pi)=g_k(\pi,\mu)=P_k(\pi\succ\mu)-\tfrac12.
+\label{eq:anchor-margin}
+\end{equation}
+Skew-symmetry gives $a_k(\mu)=0$.
+
+\paragraph{Full cyclic example.}
+For one prompt, let $\mu=\delta_r$, where $\delta_y$ is the deterministic
+policy that always outputs $y$. Suppose $A$, $B$, and $C$ each beat $r$
+with probability $0.75$ and form the deterministic cycle
+\[
+A\succ B,\qquad B\succ C,\qquad C\succ A.
+\]
+Both
+\[
+\pi_{\rm pure}=\delta_A
+\qquad\text{and}\qquad
+\pi_{\rm mix}=\frac{\delta_A+\delta_B+\delta_C}{3}
+\]
+have the same fixed-reference improvement,
+\[
+a(\pi_{\rm pure})
+=
+a(\pi_{\rm mix})
+=
+0.75-\frac12
+=
+0.25.
+\]
+
+Their worst-opponent values are nevertheless different. For the pure
+policy, response $C$ defeats $A$ deterministically, so
+\[
+V_0(\pi_{\rm pure})
+=
+\min_{\nu} g(\pi_{\rm pure},\nu)
+=
+g(\delta_A,\delta_C)
+=
+-\frac12.
+\]
+
+For the uniform mixture, consider first the pure opponent $\delta_A$.
+The mixture outputs $A$, $B$, and $C$ with equal probability. Against
+$A$, these responses respectively tie, lose, and win, giving centered
+payoffs $0$, $-1/2$, and $+1/2$. Hence
+\[
+g(\pi_{\rm mix},\delta_A)
+=
+\frac13
+\left(
+0-\frac12+\frac12
+\right)
+=
+0.
+\]
+By symmetry,
+\[
+g(\pi_{\rm mix},\delta_B)
+=
+g(\pi_{\rm mix},\delta_C)
+=
+0.
+\]
+Against the reference,
+\[
+g(\pi_{\rm mix},\delta_r)=0.25,
+\]
+because every response in the mixture beats $r$ with probability $0.75$.
+Since $g(\pi_{\rm mix},\nu)$ is linear in $\nu$, no mixed opponent can
+achieve a value below the minimum over these pure opponents. Therefore
+\[
+V_0(\pi_{\rm mix})
+=
+\min_{\nu}g(\pi_{\rm mix},\nu)
+=
+\min\{0,0,0,0.25\}
+=
+0.
+\]
+
+Finally, the reference itself has
+\[
+V_0(\mu)
+=
+\min_{\nu}g(\delta_r,\nu)
+=
+-0.25,
+\]
+since $r$ loses to each of $A$, $B$, and $C$ with probability $0.75$.
+Thus
+\[
+\begin{array}{c|ccc}
+& a(\pi) & V_0(\pi) & V_0(\pi)-V_0(\mu)\\
+\hline
+\pi_{\rm pure} & 0.25 & -0.50 & -0.25\\
+\pi_{\rm mix}  & 0.25 & 0     &  0.25
+\end{array}
+\]
+The fixed reference therefore assigns the two policies the same score,
+even though the pure policy is fully exploitable by one response whereas
+the balanced mixture guarantees an average tie against every response
+in the cycle.
+
+\subsection{Proof of Theorem~\ref{thm:bargaining}}
+\label{app:bargaining-proof}
+
+\paragraph{Compactness and feasible-set structure.}
+Since $\Pi$ is compact and each $V_{k,\beta_k}$ is continuous,
+$V_{\boldsymbol\beta}(\pi)$ is bounded over $\Pi$. Because every
+$v\in\G_{\boldsymbol\beta}$ satisfies
+$d\le v\le V_{\boldsymbol\beta}(\pi)$ for some $\pi\in\Pi$,
+$\G_{\boldsymbol\beta}$ is therefore bounded.
+
+To show that $\G_{\boldsymbol\beta}$ is closed, let
+$v_n\in\G_{\boldsymbol\beta}$ with $v_n\to v$. For each $n$, choose
+$\pi_n\in\Pi$ such that
+\[
+d\le v_n\le V_{\boldsymbol\beta}(\pi_n).
+\]
+Compactness of $\Pi$ gives a subsequence
+$\pi_{n_j}\to\pi\in\Pi$, and continuity of
+$V_{\boldsymbol\beta}$ yields
+\[
+d\le v\le V_{\boldsymbol\beta}(\pi).
+\]
+Hence $v\in\G_{\boldsymbol\beta}$, so
+$\G_{\boldsymbol\beta}$ is closed. Since it is closed and bounded in
+$\R^K$, it is compact.
+
+Moreover, if $v\in\G_{\boldsymbol\beta}$ and
+$d\le v'\le v$, then the same policy satisfying
+$v\le V_{\boldsymbol\beta}(\pi)$ also satisfies
+$v'\le V_{\boldsymbol\beta}(\pi)$. Thus
+$v'\in\G_{\boldsymbol\beta}$, establishing the required downward
+closure.
+
+\paragraph{Convexity and nondegeneracy.}
+Take any $v^1,v^2\in\G_{\boldsymbol\beta}$. By definition, there exist
+policies $\pi_1,\pi_2\in\Pi$ such that
+\[
+d\le v^i\le V_{\boldsymbol\beta}(\pi_i),
+\qquad i\in\{1,2\}.
+\]
+For any $\lambda\in[0,1]$, Proposition~\ref{prop:game-structure}
+gives
+\[
+V_{\boldsymbol\beta}
+\bigl(\lambda\pi_1+(1-\lambda)\pi_2\bigr)
+\ge
+\lambda V_{\boldsymbol\beta}(\pi_1)
++
+(1-\lambda)V_{\boldsymbol\beta}(\pi_2)
+\]
+componentwise. Therefore,
+\[
+d
+\le
+\lambda v^1+(1-\lambda)v^2
+\le
+V_{\boldsymbol\beta}
+\bigl(\lambda\pi_1+(1-\lambda)\pi_2\bigr),
+\]
+so
+$\lambda v^1+(1-\lambda)v^2\in\G_{\boldsymbol\beta}$.
+Hence $\G_{\boldsymbol\beta}$ is convex.
+
+Assumption~\ref{ass:joint} provides a policy $\bar\pi$ satisfying
+$V_{\boldsymbol\beta}(\bar\pi)>d$ componentwise. Thus the feasible set
+contains a value vector strictly above the fallback, and the bargaining
+problem is nondegenerate.
+
+\paragraph{Equivalence to the policy-space Nash problem.}
+For any $v\in\G_{\boldsymbol\beta}$ with $v>d$, the definition of
+$\G_{\boldsymbol\beta}$ guarantees a policy $\pi\in\Pi$ such that
+\[
+v\le V_{\boldsymbol\beta}(\pi)
+\]
+componentwise. Since the Nash objective is increasing in every
+coordinate,
+\[
+\sum_{k=1}^K\log(v_k-d_k)
+\le
+\sum_{k=1}^K
+\log\!\left(V_{k,\beta_k}(\pi)-d_k\right)
+=
+F(\pi).
+\]
+Conversely, every $\pi\in\Pi_+$ induces the feasible value vector
+$V_{\boldsymbol\beta}(\pi)\in\G_{\boldsymbol\beta}$.
+Hence the classical Nash problem over
+$(\G_{\boldsymbol\beta},d)$ and the policy-space problem
+\eqref{eq:nash-welfare} have the same optimum.
+
+\paragraph{Existence and strict improvement over the fallback.}
+Assumption~\ref{ass:joint} guarantees at least one feasible value vector
+$\bar v>d$, so the Nash objective is finite at $\bar v$. In contrast,
+if any surplus $v_k-d_k$ approaches zero, then
+\[
+\sum_{k=1}^K\log(v_k-d_k)\to-\infty.
+\]
+Hence an optimal solution cannot lie on the boundary
+$v_k=d_k$ for any objective. Since $\G_{\boldsymbol\beta}$ is compact,
+the maximum is attained at some $v^N\in\G_{\boldsymbol\beta}$ with
+$v^N>d$. Thus a Nash solution exists and strictly improves every
+objective over the fallback.
+
+\paragraph{Pareto optimality.}
+Let $\pi^\star$ be an optimizer. Suppose, for contradiction, that
+another feasible policy $\pi'$ satisfies
+\[
+V_{k,\beta_k}(\pi')
+\ge
+V_{k,\beta_k}(\pi^\star)
+\qquad\text{for every }k,
+\]
+with strict inequality for at least one objective. Since $d_k$ is fixed,
+\[
+s_k(\pi')
+\ge
+s_k(\pi^\star)
+\qquad\text{for every }k,
+\]
+again with strict inequality for at least one $k$. Because $\log$ is
+strictly increasing,
+\[
+F(\pi')
+=
+\sum_{k=1}^K\log s_k(\pi')
+>
+\sum_{k=1}^K\log s_k(\pi^\star)
+=
+F(\pi^\star),
+\]
+contradicting the optimality of $\pi^\star$. Hence every optimizer is
+Pareto optimal in game-value space.
+
+\paragraph{Uniqueness of the game-value vector.}
+Suppose, for contradiction, that two optimizers $\pi_1$ and $\pi_2$
+induce different surplus vectors,
+$s(\pi_1)\neq s(\pi_2)$. Consider their mixture
+\[
+\bar\pi=\frac12\pi_1+\frac12\pi_2.
+\]
+By the objective-wise concavity of $V_{\boldsymbol\beta}$,
+\[
+s(\bar\pi)
+=
+V_{\boldsymbol\beta}(\bar\pi)-d
+\ge
+\frac12s(\pi_1)+\frac12s(\pi_2)
+\]
+componentwise. Since $\log$ is increasing,
+\[
+F(\bar\pi)
+\ge
+\sum_{k=1}^K
+\log\!\left(
+\frac{s_k(\pi_1)+s_k(\pi_2)}{2}
+\right).
+\]
+Moreover, $\sum_k\log s_k$ is strictly concave on $\R_{++}^K$, and
+$s(\pi_1)\neq s(\pi_2)$, so
+\[
+\sum_{k=1}^K
+\log\!\left(
+\frac{s_k(\pi_1)+s_k(\pi_2)}{2}
+\right)
+>
+\frac12F(\pi_1)+\frac12F(\pi_2).
+\]
+Because $\pi_1$ and $\pi_2$ are both optimal, the right-hand side is
+the optimal Nash welfare. Hence $F(\bar\pi)$ would be strictly larger
+than the optimum, a contradiction. Therefore all optimal policies
+induce the same surplus vector, and hence the same game-value vector
+because $d$ is fixed.
+
+\subsection{Proof of Theorem~\ref{thm:scale}}
+\label{app:scale}
+
+Under the transformation
+\[
+V'_k(\pi)=c_kV_k(\pi)+b_k,
+\qquad
+d'_k=c_kd_k+b_k,
+\qquad c_k>0,
+\]
+the corresponding surplus becomes
+\[
+s'_k(\pi)
+=
+V'_k(\pi)-d'_k
+=
+c_k\bigl(V_k(\pi)-d_k\bigr)
+=
+c_ks_k(\pi).
+\]
+Therefore,
+\[
+\sum_{k=1}^K\log s'_k(\pi)
+=
+\sum_{k=1}^K\log s_k(\pi)
++
+\sum_{k=1}^K\log c_k.
+\]
+The second term does not depend on $\pi$, so the transformed objective
+has exactly the same policy optimizers as the original one. This proves
+the scale covariance in Theorem~\ref{thm:scale}.
+
+\subsection{Counterexamples for Alternative Aggregation Rules}
+\label{app:rule-witnesses}
+
+The positive guarantees in Table~\ref{tab:rule-guarantees} follow
+directly from the corresponding objectives. Because $w_k>0$, the
+positive-weight utilitarian objective $\sum_k w_k V_k(\pi)$ is strictly
+increasing in every game-value coordinate, so none of its optimizers can
+be Pareto dominated. Under Assumption~\ref{ass:joint}, surplus maxmin
+also attains a strictly positive minimum surplus because a jointly
+improving policy exists. The examples below establish the guarantees
+that can fail for the alternative rules.
+
+All examples use three responses, so a policy is a probability vector
+$\pi=(\pi_1,\pi_2,\pi_3)\in\Delta_3$, and use the uniform reference
+$\mu=(1/3,1/3,1/3)$. For objective $k$, $A_k$ is the skew-symmetric
+pairwise payoff matrix: $(A_k)_{ij}$ is the centered payoff of response
+$i$ against response $j$. At $\beta_k=0$,
+\[
+V_k(\pi)
+=
+\min_j(\pi^\top A_k)_j,
+\qquad
+d_k=V_k(\mu),
+\qquad
+s_k(\pi)=V_k(\pi)-d_k.
+\]
+Thus $\pi^\top A_k$ contains the expected payoff of $\pi$ against each
+pure opponent, and $V_k(\pi)$ is its smallest coordinate.
+
+Because each $V_k$ is the minimum of linear functions, the optimizers
+below are obtained from small linear programs. For example,
+equal-weight utilitarian optimization can be written as
+\[
+\max_{\pi,t_1,t_2}\ t_1+t_2
+\quad\text{s.t.}\quad
+t_k\le(\pi^\top A_k)_j
+\ \ \forall k,j,\qquad
+\pi\in\Delta_3.
+\]
+Absolute maxmin uses one variable $t$ with
+$t\le(\pi^\top A_k)_j$, while surplus maxmin uses
+$t+d_k\le(\pi^\top A_k)_j$ for every $k,j$.
+
+\paragraph{Utilitarian failure of strict improvement.}
+Let
+\[
+A_1=
+\begin{pmatrix}
+0&-1/2&-1/2\\
+1/2&0&-1/2\\
+1/2&1/2&0
+\end{pmatrix},
+\qquad
+A_2=
+\begin{pmatrix}
+0&-1/2&1/4\\
+1/2&0&-1/2\\
+-1/4&1/2&0
+\end{pmatrix}.
+\]
+For the uniform reference,
+\[
+\mu^\top A_1=(1/3,0,-1/3),
+\qquad
+\mu^\top A_2=(1/12,0,-1/12),
+\]
+and hence
+\[
+d=(-1/3,-1/12).
+\]
+
+First, joint improvement is feasible. The policy
+\[
+\bar\pi=(1/4,1/4,1/2)
+\]
+is only a feasibility witness; it gives
+\[
+\bar\pi^\top A_1=(3/8,1/8,-1/4),
+\qquad
+\bar\pi^\top A_2=(0,1/8,-1/16).
+\]
+Therefore
+\[
+V(\bar\pi)=(-1/4,-1/16),
+\qquad
+s(\bar\pi)
+=
+V(\bar\pi)-d
+=
+(1/12,1/48)>0.
+\]
+
+In contrast, solving the equal-weight utilitarian problem
+$\max_\pi V_1(\pi)+V_2(\pi)$ gives
+\[
+\pi_{\rm U}=(0,1/5,4/5).
+\]
+For this policy,
+\[
+\pi_{\rm U}^\top A_1=(1/2,2/5,-1/10),
+\qquad
+\pi_{\rm U}^\top A_2=(-1/10,2/5,-1/10),
+\]
+so
+\[
+V(\pi_{\rm U})=(-1/10,-1/10),
+\qquad
+s(\pi_{\rm U})
+=
+(7/30,-1/60).
+\]
+Thus joint improvement is possible, yet a utilitarian optimum falls
+below the fallback on objective~2.
+
+\paragraph{Absolute-maxmin failure of strict improvement.}
+Let
+\[
+A_1=
+\begin{pmatrix}
+0&-1/2&1/4\\
+1/2&0&1/2\\
+-1/4&-1/2&0
+\end{pmatrix},
+\qquad
+A_2=
+\begin{pmatrix}
+0&1/4&-1/2\\
+-1/4&0&1/2\\
+1/2&-1/2&0
+\end{pmatrix}.
+\]
+Again,
+\[
+d=(-1/3,-1/12).
+\]
+Joint improvement is feasible, as witnessed by
+\[
+\bar\pi=(1/3,7/15,1/5),
+\]
+for which
+\[
+V(\bar\pi)=(-4/15,-1/60)
+\]
+and therefore
+\[
+s(\bar\pi)=(1/15,1/15)>0.
+\]
+
+Absolute maxmin instead solves
+\[
+\max_{\pi}\min\{V_1(\pi),V_2(\pi)\},
+\]
+whose linear-program solution is
+\[
+\pi_{\rm AM}=(0,4/5,1/5).
+\]
+For this policy,
+\[
+\pi_{\rm AM}^\top A_1=(7/20,-1/10,2/5),
+\qquad
+\pi_{\rm AM}^\top A_2=(-1/10,-1/10,2/5),
+\]
+so
+\[
+V(\pi_{\rm AM})=(-1/10,-1/10)
+\]
+and
+\[
+s(\pi_{\rm AM})
+=
+(7/30,-1/60).
+\]
+Thus absolute maxmin maximizes the smallest \emph{absolute} game value
+while allowing objective~2 to fall below its own fallback.
+
+\paragraph{A Pareto-dominated surplus-maxmin optimum.}
+Let
+\[
+A_1=
+\begin{pmatrix}
+0&-1/2&1/2\\
+1/2&0&1/2\\
+-1/2&-1/2&0
+\end{pmatrix},
+\qquad
+A_2=
+\begin{pmatrix}
+0&0&1/2\\
+0&0&1/2\\
+-1/2&-1/2&0
+\end{pmatrix}.
+\]
+The uniform reference gives
+\[
+d=(-1/3,-1/6).
+\]
+For objective~2, no policy can achieve $V_2(\pi)>0$, while every mixture
+supported on the first two responses achieves $V_2(\pi)=0$.
+Consequently,
+\[
+s_2(\pi)\le 1/6
+\]
+for every policy, so the optimal surplus-maxmin value cannot exceed
+$1/6$.
+
+The two policies
+\[
+\pi_c=(1/3,2/3,0),
+\qquad
+\pi_e=(0,1,0)
+\]
+satisfy
+\[
+V(\pi_c)=(-1/6,0),
+\qquad
+s(\pi_c)=(1/6,1/6),
+\]
+and
+\[
+V(\pi_e)=(0,0),
+\qquad
+s(\pi_e)=(1/3,1/6).
+\]
+Both therefore maximize
+\[
+\min_k s_k(\pi)
+\]
+at $1/6$. However,
+\[
+s(\pi_e)>s(\pi_c)
+\]
+in the first coordinate and is equal in the second, so
+$\pi_e$ Pareto dominates $\pi_c$. Thus the surplus-maxmin optimizer set
+can contain Pareto-dominated policies.
+
+\subsection{Proof of Proposition~\ref{prop:prox-dual}}
+\label{app:prox-dual}
+We first show that the constrained proximal problem can be characterized exactly
+through its dual variables. By Assumption~\ref{ass:joint}, there exists a policy
+$\bar\pi$ such that
+\[
+s_k(\bar\pi)>0,
+\qquad k\in[K].
+\]
+We can therefore choose auxiliary variables $\bar u_k$ satisfying
+\[
+0<\bar u_k<s_k(\bar\pi),
+\qquad k\in[K].
+\]
+Thus, $(\bar\pi,\bar u)$ satisfies every inequality constraint in
+\eqref{eq:prox-subproblem} with strict slack.
+
+This strict feasibility is the standard Slater condition for a convex
+optimization problem. Here, each $s_k(\pi)$ is concave, so the constraints
+$u_k\le s_k(\pi)$ define a convex feasible set, while the objective in
+\eqref{eq:prox-subproblem} is concave in $(\pi,u)$. Slater's condition therefore
+implies that the primal problem and its dual have the same optimal value and that
+optimal dual variables exist.
+
+Let $(\pi_{t+1},u_{t+1})$ be an optimal primal solution and
+$\lambda_{t+1}$ an associated optimal dual vector. We now determine the relation
+between $u_{t+1,k}$, the achieved surplus, and its dual weight.
+
+From the Lagrangian in \eqref{eq:prox-lagrangian}, the terms involving $u_k$ are
+\[
+\log u_k-\lambda_k u_k.
+\]
+At the optimum, differentiating with respect to $u_k$ gives
+\[
+\frac{1}{u_{t+1,k}}-\lambda_{t+1,k}=0,
+\]
+and hence
+\begin{equation}
+\lambda_{t+1,k}
+=
+\frac{1}{u_{t+1,k}}.
+\label{eq:app-dual-u-relation}
+\end{equation}
+Because $u_{t+1,k}>0$, we also have $\lambda_{t+1,k}>0$.
+
+The dual variable $\lambda_{t+1,k}$ is associated with the constraint
+\[
+u_k\le s_k(\pi).
+\]
+At an optimal primal--dual solution, a constraint with a strictly positive dual
+weight must be tight. Equivalently,
+\[
+\lambda_{t+1,k}
+\bigl(
+s_k(\pi_{t+1})-u_{t+1,k}
+\bigr)
+=
+0.
+\]
+Since $\lambda_{t+1,k}>0$, it follows that
+\begin{equation}
+u_{t+1,k}
+=
+s_k(\pi_{t+1}).
+\label{eq:app-active-surplus}
+\end{equation}
+Combining \eqref{eq:app-dual-u-relation} and
+\eqref{eq:app-active-surplus} yields
+\[
+\lambda_{t+1,k}
+=
+\frac{1}{u_{t+1,k}}
+=
+\frac{1}{s_k(\pi_{t+1})},
+\]
+which proves Proposition~\ref{prop:prox-dual}.
+
+\paragraph{Regression fixed point.}
+It remains to justify the regression implementation. Fix $\lambda$ and let
+$\pi_t^\star(\lambda)$ denote the unique solution of
+\eqref{eq:weighted-policy}. First-order optimality gives, for each prompt and
+every response pair in the support,
+\begin{equation}
+\log\frac{\pi_t^\star(\lambda)(y\mid x)}{\pi_t(y\mid x)}
+-
+\log\frac{\pi_t^\star(\lambda)(y'\mid x)}{\pi_t(y'\mid x)}
+=
+\eta_t\sum_k\lambda_k
+\left(
+q_{k,\pi_t^\star(\lambda)}(y\mid x)
+-
+q_{k,\pi_t^\star(\lambda)}(y'\mid x)
+\right).
+\label{eq:prox-pairwise-kkt}
+\end{equation}
+At a fixed point of the alternating inner solve,
+$\pi^{(r)}=\pi^{(r+1)}=\pi_t^\star(\lambda)$, so the opponents used in
+\eqref{eq:regression-loss} are
+$\nu^\star_{k,\pi_t^\star(\lambda)}$. By
+\eqref{eq:binary-target-mean}, the conditional mean of $Z_{t,k}$ is exactly the
+corresponding difference on the right-hand side of
+\eqref{eq:prox-pairwise-kkt}. The squared-loss conditional-mean decomposition
+therefore implies that a population minimizer of the fixed-point regression loss
+must satisfy \eqref{eq:prox-pairwise-kkt}. Because the response-pair proposal has
+full support, equality of all pairwise log differences determines the policy up
+to a prompt-dependent additive log-normalization constant; normalization then
+recovers $\pi_t^\star(\lambda)$.
+
+\subsection{Proof of Theorem~\ref{thm:last-iterate}}
+\label{app:convergence}
+Let $h(\pi)=\E_x\sum_y\pi(y\mid x)\log\pi(y\mid x)$, so its Bregman divergence is $D(\pi\|\pi_t)$. Because the objective is increasing in $u$, the policy part of \eqref{eq:prox-subproblem} is equivalently
+\begin{equation}
+\pi_{t+1}
+\in
+\arg\max_{\pi\in\Pi_+}
+\left\{F(\pi)-\frac1{\eta_t}D(\pi\|\pi_t)\right\}.
+\label{eq:implicit-prox}
+\end{equation}
+The feasible set is nonempty by Assumption~\ref{ass:joint}, and $F(\pi)\to-\infty$ as any surplus approaches zero. Thus the maximizer exists in $\Pi_+$ even when the center $\pi_t$ is the reference $\mu\notin\Pi_+$. Because $\pi_t$ has full support and the remaining objective has finite directional derivatives at an interior surplus point, the inward derivative of $-D(\pi\|\pi_t)$ excludes zero-probability coordinates. Induction therefore gives a full-support, positive-surplus $\pi_{t+1}$.
+
+Let $g_{t+1}$ be a supergradient of $F$ at $\pi_{t+1}$. First-order optimality of \eqref{eq:implicit-prox} and concavity of $F$ imply, for every $\pi\in\Pi_+$,
+\begin{align}
+F(\pi)-F(\pi_{t+1})
+&\le \langle g_{t+1},\pi-\pi_{t+1}\rangle_\rho\\
+&\le\frac1{\eta_t}
+\left\langle\nabla h(\pi_{t+1})-\nabla h(\pi_t),
+\pi-\pi_{t+1}\right\rangle_\rho\\
+&=\frac1{\eta_t}
+\left[
+D(\pi\|\pi_t)-D(\pi\|\pi_{t+1})-D(\pi_{t+1}\|\pi_t)
+\right].
+\label{eq:prox-three-point}
+\end{align}
+For $t\ge1$, $\pi_t$ is feasible in the next subproblem. Comparing the optimum with $\pi_t$ gives
+\begin{equation}
+F(\pi_{t+1})-\frac{1}{\eta_t}D(\pi_{t+1}\|\pi_t)
+\ge F(\pi_t),
+\label{eq:prox-monotone}
+\end{equation}
+so the objective values are nondecreasing from $\pi_1$ onward.
+
+Set $\pi=\pi^\star$ in \eqref{eq:prox-three-point}, multiply by $\eta_t$, and sum from $t=0$ to $T-1$:
+\begin{equation}
+\sum_{t=0}^{T-1}\eta_t
+\big(F(\pi^\star)-F(\pi_{t+1})\big)
+\le
+D(\pi^\star\|\mu).
+\label{eq:prox-telescope}
+\end{equation}
+Because the gaps are nonincreasing, the left-hand side is at least
+$\big(\sum_t\eta_t\big)(F(\pi^\star)-F(\pi_T))$, which proves \eqref{eq:last-iterate-rate}.
+
+\begin{corollary}[Convergence of the surplus profile]
+\label{cor:surplus-convergence}
+Under the conditions of Theorem~\ref{thm:last-iterate}, let
+$s^\star=s(\pi^\star)$ denote the unique surplus vector induced by a
+Nash-optimal policy. Then
+\begin{equation}
+\|s(\pi_T)-s^\star\|_2^2
+\le
+\frac{2D(\pi^\star\|\mu)}
+{\sum_{t=0}^{T-1}\eta_t}.
+\label{eq:last-iterate-surplus}
+\end{equation}
+Hence a constant proximal step gives
+$\|s(\pi_T)-s^\star\|_2=O(T^{-1/2})$.
+\end{corollary}
+
+\begin{proof}
+This is a stronger consequence of Nash-welfare convergence rather than a
+separate requirement for the NBPO update. For every objective,
+$V_k(\pi)\in[-1/2,1/2]$, and
+$d_k=V_k(\mu)\le0$ because $\nu=\mu$ is feasible and
+$g_k(\mu,\mu)=0$. Hence every positive surplus is at most one. On
+$(0,1]^K$, the function
+$G(s)=\sum_k\log s_k$ is $1$-strongly concave in Euclidean norm.
+Theorem~\ref{thm:bargaining} implies that all Nash-optimal policies induce the
+same game-value vector, and therefore the same surplus vector $s^\star$.
+First-order optimality over the convex comprehensive surplus set induced by
+\eqref{eq:comprehensive-hull} gives
+\begin{equation}
+G(s^\star)-G(s)
+\ge
+\frac12\|s-s^\star\|_2^2.
+\label{eq:surplus-strong-concavity}
+\end{equation}
+Applying this inequality to $s=s(\pi_T)$ and using
+\eqref{eq:last-iterate-rate} proves \eqref{eq:last-iterate-surplus}.
+\end{proof}
+
+\section{Objective-wise Surpluses}
+\label{app:objectivewise}
+Table~\ref{tab:multi-dataset-surplus} reports each panel's minimum and average surplus. This table gives
+the objective-by-objective breakdown those two statistics summarise, on the same evaluations and the same
+population scale, and adds the \texttt{Qwen3-8B} replication of the \textsc{UltraFeedback} panel that the
+main-text table omits so that all of its rows share one backbone. Objective columns follow each panel's own
+header; \textsc{SafeRLHF} has two objectives, so its last two columns are empty. Reading down a panel shows
+which objective each rule sacrifices: the utilitarian and maxmin rules buy helpfulness on
+\textsc{UltraFeedback} at the cost of the other three, PROSPER and the utilitarian rule drive conciseness
+clearly negative on \textsc{TL;DR}, and the single-objective corners lose whichever objectives they do not
+optimise.
+
+\begin{table*}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\caption{Objective-wise held-out surplus over the reference for every arm and every panel, population
+scale of \eqref{eq:centered}. Within a panel each arm starts at $\pi_0=\mu$, trains on the identical
+response pool with the identical optimizer budget, and differs only in the weight vector over objectives.
+Across panels the magnitudes are not comparable: \textsc{UltraFeedback} on \texttt{Llama} is scored on a
+657-prompt jointly complete panel, the rest on 100 held-out prompts against four anchor samples.}
+\label{tab:objectivewise-appendix}
+\begin{tabular}{lrrrrrr}
+\toprule
+method & obj.\ 1 & obj.\ 2 & obj.\ 3 & obj.\ 4 & min $s$ & avg $s$\\
+\midrule
+\multicolumn{7}{l}{\textsc{UltraFeedback} on \texttt{Llama-3.1-8B-Instruct}: instruction following, truthfulness, honesty, helpfulness}\\
+\NBPO{} (ours) & $0.039$ & $0.049$ & $0.055$ & $0.109$ & $0.039$ & $0.063$\\
+PROSPER/MaxEntBW & $-0.035$ & $-0.051$ & $-0.046$ & $0.068$ & $-0.051$ & $-0.016$\\
+Utilitarian & $-0.064$ & $-0.077$ & $-0.070$ & $0.027$ & $-0.077$ & $-0.046$\\
+Absolute maxmin & $-0.043$ & $-0.062$ & $-0.051$ & $0.059$ & $-0.062$ & $-0.024$\\
+Surplus maxmin & $-0.014$ & $-0.000$ & $0.020$ & $0.108$ & $-0.014$ & $0.028$\\
+Uniform-INPO & $-0.008$ & $0.022$ & $0.020$ & $0.079$ & $-0.008$ & $0.028$\\
+MOPO & $0.031$ & $0.026$ & $0.022$ & $0.032$ & $0.022$ & $0.028$\\
+HT-MNPO (helpfulness) & $-0.057$ & $-0.073$ & $-0.067$ & $0.050$ & $-0.073$ & $-0.037$\\
+HT-MNPO (truthfulness) & $-0.050$ & $-0.049$ & $-0.041$ & $0.023$ & $-0.050$ & $-0.029$\\
+HT-MNPO (honesty) & $0.022$ & $0.027$ & $0.025$ & $0.075$ & $0.022$ & $0.037$\\
+HT-MNPO (instr.\ following) & $0.008$ & $0.026$ & $0.032$ & $0.065$ & $0.008$ & $0.033$\\
+\midrule
+\multicolumn{7}{l}{\textsc{UltraFeedback} on \texttt{Qwen3-8B}: helpfulness, truthfulness, honesty, instruction following}\\
+\NBPO{} (ours) & $0.072$ & $0.018$ & $0.043$ & $0.031$ & $0.018$ & $0.041$\\
+PROSPER/MaxEntBW & $0.039$ & $-0.002$ & $0.016$ & $0.017$ & $-0.002$ & $0.018$\\
+Utilitarian & $0.038$ & $0.012$ & $0.016$ & $0.012$ & $0.012$ & $0.019$\\
+Absolute maxmin & $0.041$ & $0.005$ & $0.018$ & $0.012$ & $0.005$ & $0.019$\\
+Surplus maxmin & $0.038$ & $0.004$ & $0.014$ & $0.009$ & $0.004$ & $0.016$\\
+Uniform-INPO & $-0.005$ & $-0.001$ & $-0.001$ & $-0.003$ & $-0.005$ & $-0.002$\\
+MOPO & $-0.002$ & $-0.001$ & $-0.005$ & $0.001$ & $-0.005$ & $-0.001$\\
+HT-MNPO (helpfulness) & $-0.002$ & $-0.001$ & $-0.001$ & $0.002$ & $-0.002$ & $-0.001$\\
+HT-MNPO (truthfulness) & $0.017$ & $0.001$ & $0.016$ & $0.014$ & $0.001$ & $0.012$\\
+HT-MNPO (honesty) & $0.000$ & $0.005$ & $0.001$ & $-0.003$ & $-0.003$ & $0.001$\\
+HT-MNPO (instruction following) & $-0.004$ & $0.004$ & $0.001$ & $0.002$ & $-0.004$ & $0.001$\\
+\midrule
+\multicolumn{7}{l}{\textsc{TL;DR} on \texttt{Llama-3.1-8B-Instruct}: coverage, faithfulness, conciseness, helpfulness}\\
+\NBPO{} (ours) & $0.198$ & $0.079$ & $-0.001$ & $0.178$ & $-0.001$ & $0.114$\\
+PROSPER/MaxEntBW & $0.205$ & $0.031$ & $-0.068$ & $0.175$ & $-0.068$ & $0.086$\\
+Utilitarian & $0.221$ & $0.072$ & $-0.046$ & $0.188$ & $-0.046$ & $0.109$\\
+Absolute maxmin & $0.213$ & $0.005$ & $-0.079$ & $0.182$ & $-0.079$ & $0.080$\\
+Surplus maxmin & $0.081$ & $0.090$ & $0.018$ & $0.066$ & $0.018$ & $0.064$\\
+Uniform-INPO & $-0.051$ & $-0.052$ & $-0.011$ & $-0.050$ & $-0.052$ & $-0.041$\\
+MOPO & $0.061$ & $0.009$ & $-0.001$ & $0.052$ & $-0.001$ & $0.030$\\
+HT-MNPO (coverage) & $0.051$ & $-0.010$ & $-0.007$ & $0.045$ & $-0.010$ & $0.020$\\
+HT-MNPO (faithfulness) & $0.074$ & $-0.020$ & $-0.026$ & $0.060$ & $-0.026$ & $0.022$\\
+HT-MNPO (conciseness) & $0.126$ & $-0.037$ & $-0.079$ & $0.106$ & $-0.079$ & $0.029$\\
+HT-MNPO (helpfulness) & $0.037$ & $-0.025$ & $-0.035$ & $0.048$ & $-0.035$ & $0.006$\\
+\midrule
+\multicolumn{7}{l}{\textsc{SafeRLHF} on \texttt{Llama-3.1-8B-Instruct}: helpfulness, harmlessness}\\
+\NBPO{} (ours) & $0.118$ & $0.101$ & --- & --- & $0.101$ & $0.110$\\
+PROSPER/MaxEntBW & $0.151$ & $0.116$ & --- & --- & $0.116$ & $0.134$\\
+Utilitarian & $0.157$ & $0.138$ & --- & --- & $0.138$ & $0.148$\\
+Absolute maxmin & $0.154$ & $0.144$ & --- & --- & $0.144$ & $0.149$\\
+Surplus maxmin & $0.150$ & $0.143$ & --- & --- & $0.143$ & $0.147$\\
+Uniform-INPO & $-0.077$ & $-0.055$ & --- & --- & $-0.077$ & $-0.066$\\
+MOPO & $0.102$ & $0.096$ & --- & --- & $0.096$ & $0.099$\\
+HT-MNPO (helpfulness) & $-0.024$ & $-0.049$ & --- & --- & $-0.049$ & $-0.036$\\
+HT-MNPO (harmlessness) & $-0.023$ & $-0.050$ & --- & --- & $-0.050$ & $-0.037$\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Implementation and Hyperparameters}
+\label{app:hyperparameters}
+Following prior preference-optimization and multi-objective alignment work, we report response generation, preference scoring, policy optimization, method-specific loop parameters, and compute separately \citep{munos2024nash,zhang2025iterative,zhong2024panacea,zhang2026prosper}. Tables~\ref{tab:data-sampling-hparams} and~\ref{tab:policy-training-hparams} are fill-ready records for the final experiments. Values already stated in the manuscript are prefilled; empty cells should be completed from the released configurations rather than inferred.
+
+\begin{table*}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{1.1pt}
+\caption{Data, sampling, evaluation, and NBPO-specific settings. Empty cells are fill-ready placeholders.}
+\label{tab:data-sampling-hparams}
+\begin{tabular}{@{}p{0.24\textwidth}p{0.177\textwidth}p{0.177\textwidth}p{0.177\textwidth}p{0.177\textwidth}@{}}
+\toprule
+setting & \textsc{UltraFeedback}/Llama & \textsc{UltraFeedback}/Qwen & \textsc{TL;DR}/Llama & \textsc{SafeRLHF}/Llama \\
+\midrule
+Objective panel & instr. following; truthfulness; honesty; helpfulness & helpfulness; truthfulness; honesty; instr. following & coverage; faithfulness; conciseness; helpfulness & helpfulness; harmlessness \\
+Base/reference policy & \texttt{Llama-3.1-8B-\allowbreak Instruct} & \texttt{Qwen3-8B} & \texttt{Llama-3.1-8B-\allowbreak Instruct} & \texttt{Llama-3.1-8B-\allowbreak Instruct} \\
+Training preference judge & \texttt{Qwen3-32B} & \texttt{Qwen3-32B} & \texttt{Qwen3-32B} & \texttt{Qwen3-32B} \\
+Primary evaluation judge & \texttt{Llama-3.3-70B-\allowbreak Instruct} & \texttt{Llama-3.3-70B-\allowbreak Instruct} & \texttt{Llama-3.3-70B-\allowbreak Instruct} & \texttt{Llama-3.3-70B-\allowbreak Instruct} \\
+Training prompts & $7{,}000$ & $300$ & $600$ & $600$ \\
+Validation prompts & $10\%$ pair-level split & $10\%$ pair-level split & $10\%$ pair-level split & $10\%$ pair-level split \\
+Held-out evaluation prompts & $657$ & $100$ & $100$ & $100$ \\
+Outer proximal stages $T$ & $1$ & $1$ & $1$ & $1$ \\
+Dual iterations per stage $M$ & $40{,}000$ & $4{,}000$ & $300{,}000$ & $300{,}000$ \\
+Fixed-point iterations per dual step $R$ & $1$ & $1$ & $1$ & $1$ \\
+Proximal coefficient $\eta_t$ & $1.0$ & $1.0$ & $1.0$ & $1.0$ \\
+Dual step size $\gamma_m$ & $0.5$ & $0.05$ & $2.0$ & $2.0$ \\
+Opponent temperatures $\beta_{1:K}$ & $0.25$ (all $k$) & $0.25$ (all $k$) & $0.25$ (all $k$) & $0.25$ (all $k$) \\
+Dual box $[\lambda_{\min},\lambda_{\max}]$ & $[10^{-3},10^{3}]$ & $[10^{-3},10^{3}]$ & $[10^{-3},10^{3}]$ & $[10^{-3},10^{3}]$ \\
+Dual initialization/warm start & $\lambda^{(0)}=\mathbf 1$, no warm start & $\lambda^{(0)}=\mathbf 1$, no warm start & $\lambda^{(0)}=\mathbf 1$, no warm start & $\lambda^{(0)}=\mathbf 1$, no warm start \\
+Inner stopping criterion and tolerance & fixed budget $M$; KKT residual $<4\times10^{-15}$ & fixed budget $M$; KKT residual $6.6\times10^{-3}$ & fixed budget $M$ & fixed budget $M$ \\
+Policy responses per prompt & $4$ & $4$ & $4$ & $4$ \\
+Opponent candidate pool per prompt & $4$ & $4$ & $4$ & $4$ \\
+Reference comparators per prompt & $4$ & $4$ & $4$ & $4$ \\
+Learner comparisons per comparator $L$ & $4$ & $4$ & $4$ & $4$ \\
+Response-pair proposal $\xi$ & all $6$ unordered pairs & all $6$ unordered pairs & all $6$ unordered pairs & all $6$ unordered pairs \\
+Presentation orders per judged pair & $2$ & $2$ & $2$ & $2$ \\
+Judge repetitions per order & $1$ & $1$ & $1$ & $1$ \\
+Training response temperature & & $0.9$ & $0.9$ & $0.9$ \\
+Training response top-$p$/top-$k$ & & $0.95$ / -- & $0.95$ / -- & $0.95$ / -- \\
+Maximum training response tokens &  & $512$ & $512$ & $512$ \\
+Training-judge temperature & $0.0$ (greedy) & $0.0$ (greedy) & $0.0$ (greedy) & $0.0$ (greedy) \\
+Training-judge top-$p$/top-$k$ & -- / -- & -- / -- & -- / -- & -- / -- \\
+Maximum judge tokens & $512$ & $512$ & $512$ & $512$ \\
+Evaluation generation temperature & $0.7$ & $0.7$ & $0.7$ & $0.7$ \\
+Evaluation generation top-$p$/top-$k$ & $0.9$ / -- & $0.9$ / -- & $0.9$ / -- & $0.9$ / -- \\
+Maximum evaluation response tokens & $1{,}024$ & $1{,}024$ & $1{,}024$ & $1{,}024$ \\
+Held-out monitoring batch size & & & & \\
+Total judged comparisons/query budget & $448{,}000$ & $28{,}725$ & $38{,}363$ & $38{,}400$ \\
+Scale-test vectors & $\lambda^{(A)}=(0.2,0.6,1.0,1.7)$; $\lambda^{(B)}=(3.0,0.5,1.0,0.25)$; $\lambda^{(C)}=(1.0,1.0,1.0,5.0)$ & -- & -- & -- \\
+Scale-test solver tolerance & surplus floor $5\times10^{-3}$; KKT residual $<4\times10^{-15}$ & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{1.1pt}
+\caption{Policy optimization, model adaptation, tuning, and compute settings. Empty cells are fill-ready placeholders.}
+\label{tab:policy-training-hparams}
+\begin{tabular}{@{}p{0.24\textwidth}p{0.177\textwidth}p{0.177\textwidth}p{0.177\textwidth}p{0.177\textwidth}@{}}
+\toprule
+setting & \textsc{UltraFeedback}/Llama & \textsc{UltraFeedback}/Qwen & \textsc{TL;DR}/Llama & \textsc{SafeRLHF}/Llama \\
+\midrule
+Adaptation mode (full/PEFT) & full fine-tuning & full fine-tuning & full fine-tuning & full fine-tuning \\
+Trainable modules & all transformer parameters & all transformer parameters & all transformer parameters & all transformer parameters \\
+LoRA rank/scale/dropout & -- (no PEFT) & -- (no PEFT) & -- (no PEFT) & -- (no PEFT) \\
+LoRA target modules & -- (no PEFT) & -- (no PEFT) & -- (no PEFT) & -- (no PEFT) \\
+Optimizer and $\epsilon$ & Adafactor, default $\epsilon$ & Adafactor, default $\epsilon$ & Adafactor, default $\epsilon$ & Adafactor, default $\epsilon$ \\
+Peak learning rate & $5\times10^{-7}$ & $5\times10^{-7}$ & $5\times10^{-7}$ & $5\times10^{-7}$ \\
+Learning-rate scheduler & cosine & cosine & cosine & cosine \\
+Warmup ratio/steps & $0.1$ / -- & $0.1$ / -- & $0.1$ / -- & $0.1$ / -- \\
+Weight decay & $0$ & $0$ & $0$ & $0$ \\
+Per-device batch size & $2$ & $2$ & $2$ & $2$ \\
+Gradient accumulation steps & $8$ & $8$ & $8$ & $8$ \\
+Global batch size & $16$ & $16$ & $16$ & $16$ \\
+Epochs or optimizer updates per stage & $300$ updates & $300$ updates & $300$ updates & $300$ updates \\
+Maximum input length & $1{,}024$ & $1{,}024$ & $1{,}024$ & $1{,}024$ \\
+Maximum sequence length & $2{,}048$ & $2{,}048$ & $2{,}048$ & $2{,}048$ \\
+Gradient clipping & $1.0$ (framework default) & $1.0$ (framework default) & $1.0$ (framework default) & $1.0$ (framework default) \\
+Numerical precision (fp16/bf16/tf32) & bf16 & bf16 & bf16 & bf16 \\
+Gradient checkpointing & yes (non-reentrant) & yes (non-reentrant) & yes (non-reentrant) & yes (non-reentrant) \\
+Distributed-training strategy & single device (no sharding) & single device (no sharding) & single device (no sharding) & single device (no sharding) \\
+Random seeds & $42$ & $42$ & $42$ & $42$ \\
+Hyperparameters tuned and candidate grid & & & & \\
+Validation set and selection metric & & & & \\
+Number of tuning trials & & & & \\
+Hardware and number of accelerators & $1\times$ H200 (train); $4\times$ H200 (decode/judge) & $1\times$ H200 (train); $4\times$ H200 (decode/judge) & $1\times$ H200 (train); $4\times$ H200 (decode/judge) & $1\times$ H200 (train); $4\times$ H200 (decode/judge) \\
+Wall-clock time/GPU-hours per run & & & & \\
+Total/trainable parameter count & $8.03$\,B / $8.03$\,B & $8.03$\,B / $8.03$\,B & $8.03$\,B / $8.03$\,B & $8.03$\,B / $8.03$\,B \\
+Checkpoint reported in the main tables & final update ($300$) & final update ($300$) & final update ($300$) & final update ($300$) \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Optimization Diagnostics and Robustness}
+\label{app:optimization-diagnostics}
+The final robustness study should change one implementation factor at a time while keeping prompts, judged comparisons, initialization, and total optimization budget matched. Report both outcome metrics and solver diagnostics: opponent entropy measures comparator concentration; the fixed-point residual records the policy--opponent stopping criterion; the dual residual is $\|\widehat s-(\lambda)^{-1}\|_\infty$; and regression MSE is the empirical counterpart of \eqref{eq:regression-loss}. Table~\ref{tab:optimization-ablation} is intentionally blank until these matched runs are completed.
+
+\begin{table*}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{3.0pt}
+\caption{Sensitivity analysis and solver diagnostics on the $698$ audited held-out prompts of
+Table~\ref{tab:component-ablation}. Blank cells denote runs not completed; report $F$ only for
+positive-surplus rows. Opponent entropy is the mean entropy in nats of the regularised comparator
+distribution over the four reference responses; $\log 4=1.386$ is the uniform value. Three entries need
+their reasoning stated rather than a number. The fixed-point budget $R$ is not swept: the released solver
+performs one fixed-point step per dual iteration and exposes no budget, so varying it would change the
+algorithm rather than a setting. The two dual-budget rows re-solve the dual but are not retrained, because
+the solve has already converged at the published budget---multipliers agree to three decimals across
+$M=4{,}000$, $40{,}000$ and $400{,}000$, and the resulting regression targets differ by at most
+$1.1\times10^{-3}$ against an RMS of $8.56$, a relative difference of $1.3\times10^{-4}$ that is far inside
+seed noise. Training those arms would have measured the seed, not the budget. The entropy column shows what
+the temperature actually controls: raising $\beta$ moves the opponent toward the uniform comparator, and the
+fixed-reference variant of Table~\ref{tab:component-ablation} is its $\beta\to\infty$ limit at entropy
+$1.386$. The two objective representations the ablation contrasts are therefore endpoints of one axis
+rather than separate constructions.}
+\label{tab:optimization-ablation}
+\begin{tabular}{llrrrrrrr}
+\toprule
+ablation & setting & min $s$ & avg $s$ & $F(\pi)$ & opp. entropy & fixed-point res. & dual res. & reg. MSE \\
+\midrule
+Default configuration & $\beta=0.25$, $M=40{,}000$ & $0.028$ & $0.056$ & $-11.82$ & $1.160$ & -- & $3.6\times10^{-15}$ & $73.9$ \\
+Opponent temperature $\beta$ & $\beta=0.15$ & & & & $0.956$ & -- & $3.6\times10^{-15}$ & $74.1$ \\
+Opponent temperature $\beta$ & $\beta=0.50$ & & & & $1.315$ & -- & $3.6\times10^{-15}$ & \\
+Fixed-point budget $R$ & not exposed & & & & & & & \\
+Fixed-point budget $R$ & not exposed & & & & & & & \\
+Dual budget $M$ & $M=4{,}000$ & & & & $1.160$ & -- & $2.0\times10^{-5}$ & \\
+Dual budget $M$ & $M=400{,}000$ & & & & $1.160$ & -- & $3.6\times10^{-15}$ & \\
+Reference comparator count & & & & & & & & \\
+Response-pair sample count & & & & & & & & \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Judge Instantiation and Preference Labeling}
+\label{app:labeling}
+\paragraph{Training judges.}
+Use the same prompted pairwise interface on both panels. For each objective, \texttt{Qwen3-32B} compares two responses under an attribute-specific rubric. Each pair is queried in both presentation orders, and the verdicts are swap-averaged. The fixed-reference precursor also contains deterministic Beaver reward and cost heads; those runs should not be conflated with the prompted-oracle main comparison.
+
+\paragraph{Evaluation judges.}
+Evaluation is separate from training and uses \texttt{Phi-4} and \texttt{Llama-3.3-70B}. Each evaluator returns \texttt{[[A]]}, \texttt{[[B]]}, or \texttt{[[TIE]]}, scored as $1$, $0$, or $1/2$, in both presentation orders. This makes the empirical evaluation oracle skew-symmetric after averaging.
+
+\paragraph{Rubrics.}
+Helpfulness asks which response better accomplishes the user's stated goal; correctness asks which is more accurate; coherence asks which is clearer and better organized; conciseness asks which conveys the needed content with less padding; and harmlessness asks which is safer. The judge is instructed to evaluate only the designated objective.
+
+\paragraph{Prompt template.}
+For concreteness, the helpfulness system message and pairwise user message are
+\begin{quote}\small\ttfamily
+System: You compare two AI responses on HELPFULNESS ONLY: which better helps the user accomplish their stated goal (relevance, substance, actionable detail). Ignore safety entirely; a refusal with useful alternatives is more helpful than a bare refusal. End with exactly [[A]] or [[B]] or [[TIE]].
+
+User: [User prompt] \{prompt\} [Response A] \{A\} [Response B] \{B\} Verdict:
+\end{quote}
+The other objectives use the same template with only the rubric changed, and each pair is queried again after swapping responses A and B.
+
+\paragraph{From verdicts to regularized opponents.}
+For a current policy $\pi_t$ and a reference comparator $z$, estimate
+\[
+\widehat r_{k,\pi_t}(z\mid x)
+=\frac1L\sum_{\ell=1}^L
+\left(B_k(y_\ell,z)-\tfrac12\right),
+\qquad y_\ell\sim\pi_t(\cdot\mid x).
+\]
+Reference responses are reweighted by
+$\exp\{-\widehat r_{k,\pi_t}(z\mid x)/\beta_k\}$ and normalized to sample $z_k\sim\widehat\nu^\star_{k,\pi_t}$. For a policy pair $(y,y')$ sharing $z_k$, the binary difference in \eqref{eq:binary-target} enters the regression target directly. No scalar reward model or value function is fitted by \NBPO{}.
+
+\end{document}
