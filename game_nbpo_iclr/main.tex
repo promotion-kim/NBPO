@@ -513,7 +513,10 @@ comparison isolates the aggregation rule. Across panels the magnitudes are not c
 all three panels use \texttt{Llama-3.1-8B-Instruct} as backbone, reference and initialisation, but
 \textsc{UltraFeedback} is scored on a 657-prompt jointly complete panel and the other two on 100 held-out
 prompts against four anchor samples. The \texttt{Qwen3-8B} replication of the \textsc{UltraFeedback} panel
-is in Table~\ref{tab:objectivewise-appendix}. The single-objective HT-MNPO corners cannot share rows
+is in Table~\ref{tab:objectivewise-appendix}, rescored on $400$ prompts audited to be disjoint from
+training. Appendix~\ref{app:overlap} reports that audit for every panel: \textsc{UltraFeedback} here is
+clean, but the \textsc{TL;DR} and \textsc{SafeRLHF} columns of this table are measured on prompts
+overlapping training by $40\%$ and $100\%$, and are provisional pending a fresh evaluation slice. The single-objective HT-MNPO corners cannot share rows
 across panels because each panel has its own objectives, so they are summarised by the corner with the
 largest and the smallest minimum surplus. Best in each column is bold. Bootstrap intervals and paired significance tests for every entry are in Table~\ref{tab:bootstrap-ci}; per-objective breakdowns are in Table~\ref{tab:objectivewise-appendix}.}
 \label{tab:multi-dataset-surplus}
@@ -1503,9 +1506,13 @@ credited with closing it.
 \begin{table}[htbp]
 \centering\footnotesize
 \setlength{\tabcolsep}{3.4pt}
-\caption{Held-out surplus with $95\%$ bootstrap intervals, 2000 replicates resampling the one hundred
-evaluation prompts, paired across arms. The right column is the difference in minimum surplus against that
-panel's leading arm, with its own paired interval; ``sig.'' marks intervals excluding zero.}
+\caption{Held-out surplus with $95\%$ bootstrap intervals, 2000 replicates resampling the evaluation
+prompts, paired across arms. The right column is the difference in minimum surplus against that panel's
+leading arm, with its own paired interval; ``sig.'' marks intervals excluding zero. The
+\texttt{Qwen3-8B} panel is scored on $400$ prompts audited to be disjoint from training
+(Appendix~\ref{app:overlap}); the \textsc{TL;DR} and \textsc{SafeRLHF} blocks are the original $100$-prompt
+evaluations, which that audit found to overlap training by $40\%$ and $100\%$ respectively and which are
+being rescored---their intervals should be read as provisional.}
 \label{tab:bootstrap-ci}
 \begin{tabular}{llrr}
 \toprule
@@ -1529,18 +1536,75 @@ panel & method & min $s$ \ [95\% CI] & vs.\ leader\\
  & MOPO & $0.191$ \ $[0.156, 0.228]$ & $-0.096$ \ sig.\\
  & Uniform-INPO & $-0.154$ \ $[-0.194, -0.118]$ & $-0.442$ \ sig.\\
 \midrule
-\multirow{7}{*}{\shortstack[l]{\textsc{UltraFeedback}\\ \texttt{Qwen3-8B}}}
- & \NBPO{} (ours) & $0.036$ \ $[0.006, 0.064]$ & leader\\
- & Utilitarian & $0.021$ \ $[-0.010, 0.037]$ & $-0.015$\\
- & Absolute maxmin & $0.009$ \ $[-0.017, 0.032]$ & $-0.027$\\
- & Surplus maxmin & $0.008$ \ $[-0.019, 0.026]$ & $-0.028$\\
- & PROSPER/MaxEntBW & $-0.004$ \ $[-0.035, 0.025]$ & $-0.040$ \ sig.\\
- & MOPO & $-0.009$ \ $[-0.031, 0.007]$ & $-0.045$ \ sig.\\
- & Uniform-INPO & $-0.010$ \ $[-0.035, 0.004]$ & $-0.046$ \ sig.\\
+\multirow{7}{*}{\shortstack[l]{\textsc{UltraFeedback}\\ \texttt{Qwen3-8B}\\ \emph{audited,}\\ \emph{400 prompts}}}
+ & \NBPO{} (ours) & $0.025$ \ $[0.011, 0.038]$ & leader\\
+ & PROSPER/MaxEntBW & $0.012$ \ $[0.001, 0.025]$ & $-0.013$\\
+ & Surplus maxmin & $0.010$ \ $[-0.002, 0.021]$ & $-0.015$ \ sig.\\
+ & Absolute maxmin & $0.009$ \ $[-0.002, 0.020]$ & $-0.016$ \ sig.\\
+ & Utilitarian & $0.004$ \ $[-0.007, 0.015]$ & $-0.021$ \ sig.\\
+ & MOPO & $0.004$ \ $[-0.009, 0.010]$ & $-0.021$ \ sig.\\
+ & Uniform-INPO & $-0.005$ \ $[-0.017, 0.004]$ & $-0.030$ \ sig.\\
 \bottomrule
 \end{tabular}
 \end{table}
 
+
+\section{Prompt-Overlap Audit of the Held-Out Evaluations}
+\label{app:overlap}
+Every surplus in this paper is described as held out. While extending one panel's evaluation we checked
+that description directly, by matching the user turn of each evaluation prompt against the user turn of
+every prompt appearing in that panel's training pairs and in the reference pool its dual was solved on.
+Matching is on text rather than on prompt index: the pair files store a prompt as a chat message list and
+the same prompt can carry different indices in different files, so an index comparison silently reports no
+overlap where the text is identical. Table~\ref{tab:overlap-audit} gives the result. It is not uniform, and
+it was not what the paper assumed.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\setlength{\tabcolsep}{5.0pt}
+\caption{Fraction of each panel's evaluation prompts that appear in its own training. The
+\textsc{UltraFeedback}/\texttt{Llama} panel, which the main text leads with, is clean. The other three are
+not, and the \texttt{Qwen3-8B} panel has since been rescored on prompts audited to be disjoint.}
+\label{tab:overlap-audit}
+\begin{tabular}{llcc}
+\toprule
+panel & backbone & eval prompts & in training\\
+\midrule
+\textsc{UltraFeedback} & \texttt{Llama-3.1-8B-Instruct} & $1000$ & $\mathbf{0}$ \ ($0\%$)\\
+\textsc{UltraFeedback} & \texttt{Qwen3-8B} \emph{(original)} & $100$ & $99$ \ ($99\%$)\\
+\textsc{UltraFeedback} & \texttt{Qwen3-8B} \emph{(rescored)} & $400$ & $\mathbf{0}$ \ ($0\%$)\\
+\textsc{TL;DR} & \texttt{Llama-3.1-8B-Instruct} & $100$ & $40$ \ ($40\%$)\\
+\textsc{SafeRLHF} & \texttt{Llama-3.1-8B-Instruct} & $100$ & $100$ \ ($100\%$)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The mechanism is the same in each contaminated case and is worth naming so that it can be avoided rather
+than merely patched. A panel is built by drawing a response pool over a prompt set, solving the dual on
+that pool, and constructing training pairs from it; the evaluation then takes the first $100$ prompts of a
+separate prompt file. Where that file was itself the source of the pool, the two sets coincide, and nothing
+in the pipeline objects, because the evaluation regenerates fresh responses and so looks like a held-out
+measurement from the inside. The \textsc{UltraFeedback}/\texttt{Llama} panel escaped only because its pool
+was drawn from a $7{,}000$-prompt corpus whose evaluation slice was reserved in advance.
+
+For the \texttt{Qwen3-8B} panel we rescored all eleven arms on $400$ prompts excluded from both the
+training pairs and the reference pool, under the same anchor, the same pinned \texttt{Qwen3-32B} oracle,
+the same objectives and the same sampling budget. Those are the numbers reported in
+Tables~\ref{tab:bootstrap-ci} and~\ref{tab:objectivewise-appendix}. Correcting the leak did not soften the
+comparison but sharpened it: on the contaminated evaluation \NBPO{} led the panel but its margins over the
+utilitarian rule, absolute maxmin and surplus maxmin all straddled zero, whereas on the audited prompts all
+three become significant, as do the margins over uniform-INPO, MOPO and three of the four HT-MNPO corners.
+Only PROSPER remains statistically indistinguishable. The absolute surpluses fall---\NBPO{}'s minimum
+surplus moves from $0.036$ to $0.025$---which is the expected direction when in-sample fit is removed, and
+the four-fold larger prompt set accounts for the narrower intervals.
+
+The \textsc{TL;DR} and \textsc{SafeRLHF} panels are not yet corrected, and their entries in
+Table~\ref{tab:multi-dataset-surplus} and Table~\ref{tab:bootstrap-ci} should be read as provisional
+in-sample fits rather than as held-out surpluses. \textsc{TL;DR} retains $60$ uncontaminated prompts and
+\textsc{SafeRLHF} only $60$ of the $600$ in its pool, so both need a fresh evaluation slice rather than a
+filter of the existing one. We report the defect here rather than withholding the panels, because the
+claims those panels support in the main text are claims \emph{against} \NBPO{}---it does not lead either
+one---and removing them would flatter the method.
 
 \section{How Far the Scale Invariance Survives the Pipeline}
 \label{app:scale-pipeline}
@@ -1640,6 +1704,12 @@ model that noise is large: a seed change alone leaves only $2.4\%$ of greedy dec
 two would require either a converged optimizer or many seeds per arm, and we report the negative rather
 than presenting the frozen-pool result as though it settled the trained-policy question.
 
+A third caution supersedes both of the following: this experiment's evaluation prompts are themselves
+drawn from the pool its arms trained on, the defect audited in Appendix~\ref{app:overlap}, so its
+held-out surpluses are in-sample fits. That inflates the levels but applies identically to all four arms,
+which are compared only with their own rescaled twins, and it does not touch the target-level or
+greedy-decode rows, which never consult the evaluation prompts at all.
+
 Two further cautions about this panel. The utilitarian arms attain the larger surpluses here
 (minimum $+0.027$ against $-0.008$), which is not a comparison the paper makes elsewhere and should not be
 read as one: these are $300$-step arms trained on the $7{,}000$-prompt pool and evaluated on $100$ prompts,
@@ -1685,18 +1755,18 @@ HT-MNPO (truthfulness) & $-0.050$ & $-0.049$ & $-0.041$ & $0.023$ & $-0.050$ & $
 HT-MNPO (honesty) & $0.022$ & $0.027$ & $0.025$ & $0.075$ & $0.022$ & $0.037$\\
 HT-MNPO (instr.\ following) & $0.008$ & $0.026$ & $0.032$ & $0.065$ & $0.008$ & $0.033$\\
 \midrule
-\multicolumn{7}{l}{\textsc{UltraFeedback} on \texttt{Qwen3-8B}: helpfulness, truthfulness, honesty, instruction following}\\
-\NBPO{} (ours) & $0.144$ & $0.036$ & $0.085$ & $0.061$ & $0.036$ & $0.082$\\
-PROSPER/MaxEntBW & $0.079$ & $-0.003$ & $0.032$ & $0.034$ & $-0.003$ & $0.035$\\
-Utilitarian & $0.076$ & $0.024$ & $0.032$ & $0.023$ & $0.023$ & $0.039$\\
-Absolute maxmin & $0.082$ & $0.010$ & $0.036$ & $0.023$ & $0.010$ & $0.038$\\
-Surplus maxmin & $0.075$ & $0.008$ & $0.029$ & $0.017$ & $0.008$ & $0.032$\\
-Uniform-INPO & $-0.010$ & $-0.002$ & $-0.002$ & $-0.006$ & $-0.010$ & $-0.005$\\
-MOPO & $-0.003$ & $-0.001$ & $-0.009$ & $0.002$ & $-0.009$ & $-0.003$\\
-HT-MNPO (helpfulness) & $-0.004$ & $-0.002$ & $-0.002$ & $0.004$ & $-0.004$ & $-0.001$\\
-HT-MNPO (truthfulness) & $0.034$ & $0.002$ & $0.033$ & $0.028$ & $0.002$ & $0.024$\\
-HT-MNPO (honesty) & $0.001$ & $0.010$ & $0.003$ & $-0.005$ & $-0.005$ & $0.002$\\
-HT-MNPO (instruction following) & $-0.008$ & $0.009$ & $0.001$ & $0.004$ & $-0.008$ & $0.001$\\
+\multicolumn{7}{l}{\textsc{UltraFeedback} on \texttt{Qwen3-8B}: helpfulness, truthfulness, honesty, instruction following \emph{(400 audited held-out prompts)}}\\
+\NBPO{} (ours) & $\mathbf{0.129}$ & $\mathbf{0.025}$ & $\mathbf{0.062}$ & $\mathbf{0.032}$ & $\mathbf{0.025}$ & $\mathbf{0.062}$\\
+PROSPER/MaxEntBW & $0.077$ & $0.012$ & $0.035$ & $0.031$ & $0.012$ & $0.039$\\
+Utilitarian & $0.075$ & $0.004$ & $0.035$ & $0.015$ & $0.004$ & $0.032$\\
+Absolute maxmin & $0.071$ & $0.009$ & $0.039$ & $0.032$ & $0.009$ & $0.038$\\
+Surplus maxmin & $0.075$ & $0.010$ & $0.035$ & $0.023$ & $0.010$ & $0.036$\\
+Uniform-INPO & $-0.005$ & $0.002$ & $0.003$ & $-0.001$ & $-0.005$ & $-0.000$\\
+MOPO & $0.007$ & $0.009$ & $0.004$ & $0.004$ & $0.004$ & $0.006$\\
+HT-MNPO (helpfulness) & $0.009$ & $0.003$ & $0.005$ & $0.004$ & $0.003$ & $0.005$\\
+HT-MNPO (truthfulness) & $0.045$ & $0.013$ & $0.024$ & $0.012$ & $0.012$ & $0.024$\\
+HT-MNPO (honesty) & $0.011$ & $0.004$ & $0.008$ & $0.010$ & $0.004$ & $0.008$\\
+HT-MNPO (instruction following) & $0.009$ & $0.004$ & $0.003$ & $0.005$ & $0.003$ & $0.005$\\
 \midrule
 \multicolumn{7}{l}{\textsc{TL;DR} on \texttt{Llama-3.1-8B-Instruct}: coverage, faithfulness, conciseness, helpfulness}\\
 \NBPO{} (ours) & $0.396$ & $0.157$ & $-0.001$ & $0.357$ & $-0.001$ & $0.227$\\
