@@ -1578,17 +1578,17 @@ it was not what the paper assumed.
 \begin{table}[htbp]
 \centering\footnotesize
 \setlength{\tabcolsep}{5.0pt}
-\caption{Fraction of each panel's evaluation prompts that appear in its own training. The
-\textsc{UltraFeedback}/\texttt{Llama} panel, which the main text leads with, was clean as built. The other
-three were not, and all three have since been rescored on $400$ prompts each, audited to be disjoint from
-their arms' training pairs and reference pools. Every surplus reported in this paper now comes from a
-rescored or originally clean row.}
+\caption{Fraction of each panel's evaluation prompts that appear in its own training. No panel was
+clean as built, including the \textsc{UltraFeedback}/\texttt{Llama} panel the main text leads with. All
+four have been rescored on prompts audited to be disjoint from their arms' training pairs and reference
+pools.}
 \label{tab:overlap-audit}
 \begin{tabular}{llcc}
 \toprule
 panel & backbone & eval prompts & in training\\
 \midrule
-\textsc{UltraFeedback} & \texttt{Llama-3.1-8B-Instruct} & $1000$ & $\mathbf{0}$ \ ($0\%$)\\
+\textsc{UltraFeedback} & \texttt{Llama-3.1-8B-Instruct} \emph{(original)} & $1000$ & $300$ \ ($30\%$)\\
+\textsc{UltraFeedback} & \texttt{Llama-3.1-8B-Instruct} \emph{(rescored)} & $698$ & $\mathbf{0}$ \ ($0\%$)\\
 \textsc{UltraFeedback} & \texttt{Qwen3-8B} \emph{(original)} & $100$ & $99$ \ ($99\%$)\\
 \textsc{UltraFeedback} & \texttt{Qwen3-8B} \emph{(rescored)} & $400$ & $\mathbf{0}$ \ ($0\%$)\\
 \textsc{TL;DR} & \texttt{Llama-3.1-8B-Instruct} \emph{(original)} & $100$ & $100$ \ ($100\%$)\\
@@ -1599,13 +1599,24 @@ panel & backbone & eval prompts & in training\\
 \end{tabular}
 \end{table}
 
-The mechanism is the same in each contaminated case and is worth naming so that it can be avoided rather
-than merely patched. A panel is built by drawing a response pool over a prompt set, solving the dual on
-that pool, and constructing training pairs from it; the evaluation then takes the first $100$ prompts of a
-separate prompt file. Where that file was itself the source of the pool, the two sets coincide, and nothing
-in the pipeline objects, because the evaluation regenerates fresh responses and so looks like a held-out
-measurement from the inside. The \textsc{UltraFeedback}/\texttt{Llama} panel escaped only because its pool
-was drawn from a $7{,}000$-prompt corpus whose evaluation slice was reserved in advance.
+The mechanism is the same in each case and is worth naming so that it can be avoided rather than merely
+patched. A panel is built by drawing a response pool over a prompt set, solving the dual on that pool, and
+constructing training pairs from it; the evaluation then takes prompts from a separate file. Where that
+file was itself the source of the pool, the two sets coincide, and nothing in the pipeline objects, because
+the evaluation regenerates fresh responses and so looks like a held-out measurement from the inside. The
+\textsc{UltraFeedback}/\texttt{Llama} panel overlaps partially rather than wholly for an incidental reason:
+its pairs cover prompt indices $0$--$6299$ of a $7{,}000$-prompt pool while its evaluation file spans
+$6000$--$6999$, so the first $300$ evaluation prompts are in-sample and the remaining $700$ sit in that
+arm's own test split. Those $700$ are what the rescoring uses.
+
+The audit itself needed two passes, and the reason is worth recording because it is the same trap. Our
+first pass compared each evaluation slice against pair files sitting near the panel---for
+\textsc{TL;DR} the arms in one of its three directories, for \textsc{UltraFeedback}/\texttt{Llama} the
+parent bridge model's pairs rather than the published arms' own. Both comparisons were against files the
+evaluated arms had not trained on, and both returned reassuring numbers: $40\%$ for \textsc{TL;DR} and
+$0\%$ here. Comparing against the union of what each arm actually optimised gives $100\%$ and $30\%$. An
+overlap audit is only as complete as its inventory of what was trained on, and a partial inventory fails
+in the safe-looking direction.
 
 For the \texttt{Qwen3-8B} panel we rescored all eleven arms on $400$ prompts excluded from both the
 training pairs and the reference pool, under the same anchor, the same pinned \texttt{Qwen3-32B} oracle,
@@ -1629,6 +1640,10 @@ mutual indistinguishability also survives. Absolute levels move as in-sample fit
 $0.235$---but the orderings and their significance are unchanged. That these two panels support claims
 \emph{against} \NBPO{} and that correcting them did not soften those claims is worth stating: the audit was
 run on every panel, not only the one it was likely to help.
+
+The \textsc{UltraFeedback}/\texttt{Llama} rescoring is in progress on the $698$ audited prompts, so the
+entries this paper draws from that panel---the main-text surplus column and the component
+ablation---remain the partially in-sample measurements until it lands.
 
 One reading did shift, and not in the levels. On \textsc{TL;DR} the contaminated evaluation put \NBPO{}'s
 binding objective at conciseness, $-0.001$; on audited prompts conciseness is $+0.203$ and the minimum falls
