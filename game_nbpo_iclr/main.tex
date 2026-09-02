@@ -516,7 +516,7 @@ prompts against four anchor samples. The \texttt{Qwen3-8B} replication of the \t
 is in Table~\ref{tab:objectivewise-appendix}, rescored on $400$ prompts audited to be disjoint from
 training. Appendix~\ref{app:overlap} reports that audit for every panel: \textsc{UltraFeedback} here is
 clean, but the \textsc{TL;DR} and \textsc{SafeRLHF} columns of this table are measured on prompts
-overlapping training by $40\%$ and $100\%$, and are provisional pending a fresh evaluation slice. The single-objective HT-MNPO corners cannot share rows
+that lie entirely within training, and are provisional pending a fresh evaluation slice. The single-objective HT-MNPO corners cannot share rows
 across panels because each panel has its own objectives, so they are summarised by the corner with the
 largest and the smallest minimum surplus. Best in each column is bold. Bootstrap intervals and paired significance tests for every entry are in Table~\ref{tab:bootstrap-ci}; per-objective breakdowns are in Table~\ref{tab:objectivewise-appendix}.}
 \label{tab:multi-dataset-surplus}
@@ -1511,8 +1511,8 @@ prompts, paired across arms. The right column is the difference in minimum surpl
 leading arm, with its own paired interval; ``sig.'' marks intervals excluding zero. The
 \texttt{Qwen3-8B} panel is scored on $400$ prompts audited to be disjoint from training
 (Appendix~\ref{app:overlap}); the \textsc{TL;DR} and \textsc{SafeRLHF} blocks are the original $100$-prompt
-evaluations, which that audit found to overlap training by $40\%$ and $100\%$ respectively and which are
-being rescored---their intervals should be read as provisional.}
+evaluations, which that audit found to overlap training entirely and which are being
+rescored---their intervals should be read as provisional.}
 \label{tab:bootstrap-ci}
 \begin{tabular}{llrr}
 \toprule
@@ -1573,7 +1573,7 @@ panel & backbone & eval prompts & in training\\
 \textsc{UltraFeedback} & \texttt{Llama-3.1-8B-Instruct} & $1000$ & $\mathbf{0}$ \ ($0\%$)\\
 \textsc{UltraFeedback} & \texttt{Qwen3-8B} \emph{(original)} & $100$ & $99$ \ ($99\%$)\\
 \textsc{UltraFeedback} & \texttt{Qwen3-8B} \emph{(rescored)} & $400$ & $\mathbf{0}$ \ ($0\%$)\\
-\textsc{TL;DR} & \texttt{Llama-3.1-8B-Instruct} & $100$ & $40$ \ ($40\%$)\\
+\textsc{TL;DR} & \texttt{Llama-3.1-8B-Instruct} & $100$ & $100$ \ ($100\%$)\\
 \textsc{SafeRLHF} & \texttt{Llama-3.1-8B-Instruct} & $100$ & $100$ \ ($100\%$)\\
 \bottomrule
 \end{tabular}
@@ -1600,11 +1600,19 @@ the four-fold larger prompt set accounts for the narrower intervals.
 
 The \textsc{TL;DR} and \textsc{SafeRLHF} panels are not yet corrected, and their entries in
 Table~\ref{tab:multi-dataset-surplus} and Table~\ref{tab:bootstrap-ci} should be read as provisional
-in-sample fits rather than as held-out surpluses. \textsc{TL;DR} retains $60$ uncontaminated prompts and
-\textsc{SafeRLHF} only $60$ of the $600$ in its pool, so both need a fresh evaluation slice rather than a
-filter of the existing one. We report the defect here rather than withholding the panels, because the
-claims those panels support in the main text are claims \emph{against} \NBPO{}---it does not lead either
-one---and removing them would flatter the method.
+in-sample fits rather than as held-out surpluses. Neither retains a usable remainder: each drew a
+$600$-prompt pool from a $600$-prompt source file and then evaluated on prompts from that same set, so
+filtering the existing slice leaves nothing and the replacement has to come from outside. For \textsc{TL;DR}
+it does---the dataset's own test split, untouched by this project, supplies $400$ audited prompts, and that
+rescoring is in progress. We report the defect here rather than withholding the panels, because the claims
+those panels support in the main text are claims \emph{against} \NBPO{}---it does not lead either one---and
+removing them would flatter the method.
+
+A note on how the audit itself can mislead. Our first pass compared each evaluation slice against the
+training pairs of the arms sitting in the same directory, which understated \textsc{TL;DR} at $40\%$; the
+panel had been filled in over several runs and its arms are spread across three directories, so the union
+over all of them is the only correct comparison and gives $100\%$. An overlap audit is only as complete as
+its inventory of what was trained on.
 
 \section{How Far the Scale Invariance Survives the Pipeline}
 \label{app:scale-pipeline}
