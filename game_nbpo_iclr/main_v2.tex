@@ -1849,13 +1849,16 @@ seed noise. Training those arms would have measured the seed, not the budget. Th
 the temperature actually controls: raising $\beta$ moves the opponent toward the uniform comparator, and the
 fixed-reference variant of Table~\ref{tab:component-ablation} is its $\beta\to\infty$ limit at entropy
 $1.386$. The two objective representations the ablation contrasts are therefore endpoints of one axis
-rather than separate constructions, and the sweep along that axis is monotone in the wrong direction for
-the adaptive representation: minimum surplus rises from $0.014$ at $\beta=0.15$ to $0.028$ at the published
-$\beta=0.25$ to $0.040$ in the $\beta\to\infty$ limit, with $F$ rising from $-13.07$ to $-11.82$ to
-$-11.37$. The step down to $\beta=0.15$ is significant ($-0.015$, interval $[-0.026,-0.004]$); the step up
-to the fixed-reference limit is not ($+0.012$, interval $[-0.000,+0.023]$). Concentrating the regularised
-opponent hurts on this panel and removing it entirely does not, so the evidence here supports the Nash
-aggregation but not the adaptive game-value representation.}
+rather than separate constructions. Sweeping that axis gives minimum surpluses of $0.014$, $0.028$,
+$0.023$ and $0.040$ at $\beta=0.15$, $0.25$, $0.50$ and $\beta\to\infty$. The trend is not monotone---the
+$\beta=0.50$ point sits below the published $\beta=0.25$---so only the endpoints carry a reading.
+Tightening the opponent to $\beta=0.15$ is significantly worse than the published setting ($-0.015$,
+interval $[-0.026,-0.004]$); loosening it to $0.50$ is indistinguishable ($-0.005$, $[-0.016,+0.006]$);
+removing it entirely is nominally best but also indistinguishable ($+0.012$, $[-0.000,+0.023]$). The honest
+summary is therefore narrower than a trend: concentrating the regularised opponent hurts on this panel,
+and relaxing or removing it neither helps nor hurts measurably. The evidence supports the Nash aggregation;
+it does not support the adaptive game-value representation, and it does not establish that the
+representation is harmful either.}
 \label{tab:optimization-ablation}
 \begin{tabular}{llrrrrrrr}
 \toprule
@@ -1863,7 +1866,7 @@ ablation & setting & min $s$ & avg $s$ & $F(\pi)$ & opp. entropy & fixed-point r
 \midrule
 Default configuration & $\beta=0.25$, $M=40{,}000$ & $0.028$ & $0.056$ & $-11.82$ & $1.160$ & -- & $3.6\times10^{-15}$ & $73.9$ \\
 Opponent temperature $\beta$ & $\beta=0.15$ & $0.014$ & $0.046$ & $-13.07$ & $0.956$ & -- & $3.6\times10^{-15}$ & $74.1$ \\
-Opponent temperature $\beta$ & $\beta=0.50$ & & & & $1.315$ & -- & $3.6\times10^{-15}$ & \\
+Opponent temperature $\beta$ & $\beta=0.50$ & $0.023$ & $0.048$ & $-12.44$ & $1.315$ & -- & $3.6\times10^{-15}$ & $73.3$ \\
 Fixed-point budget $R$ & not exposed & & & & & & & \\
 Fixed-point budget $R$ & not exposed & & & & & & & \\
 Dual budget $M$ & $M=4{,}000$ & & & & $1.160$ & -- & $2.0\times10^{-5}$ & \\
