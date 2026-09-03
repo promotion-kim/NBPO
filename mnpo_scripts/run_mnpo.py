@@ -242,17 +242,23 @@ def main():
     if str(getattr(training_args, "loss_type", "")).lower() == "nbpo":
         from mnpo_scripts.mnpo_trainer import validate_nbpo_args
         from mnpo_scripts.precompute_provenance import (
+            checkpoint_fingerprint,
             read_precompute_meta,
             tokenizer_content_hashes,
         )
 
         hashes = tokenizer_content_hashes(tokenizer)
+        # The model being trained is initialised from pi_t, so its content
+        # fingerprint is the proximal centre history0 must bind to.
+        parent_fp = (checkpoint_fingerprint(model_args.model_name_or_path)
+                     if os.path.isdir(model_args.model_name_or_path) else None)
         validate_nbpo_args(
             training_args,
             dataset_columns=column_names,
             precompute_meta=read_precompute_meta(dataset_path),
             tokenizer_hash=hashes["tokenizer_hash"],
             chat_template_hash=hashes["chat_template_hash"],
+            expected_parent_fingerprint=parent_fp,
         )
         logger.info("NBPO configuration validated against the precompute artifact.")
 

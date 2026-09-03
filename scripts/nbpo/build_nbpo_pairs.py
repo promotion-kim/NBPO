@@ -2,10 +2,11 @@
 """Build NBPO regression pairs with objective-specific opponents (Section 5.2).
 
 For each prompt: all six unordered pairs from the four learner responses
-(the full-support proposal ``xi`` of Eq. (26)); for each objective ``k`` one
-opponent ``z_k`` is sampled from the regularized opponent ``nu*_k`` of the
-solver artifact and SHARED by ``y`` and ``y'`` within that objective
-(different objectives may select different ``z_k``). Target modes:
+(the full-support proposal ``xi`` of Eq. (26)). For EACH pair and EACH
+objective ``k`` one opponent ``z_k`` is sampled from ``nu_update`` of the
+solver artifact (the opponent that generated the policy) and SHARED by ``y``
+and ``y'`` of that row; other rows of the same prompt and other objectives draw
+independently (``opponent_sampling_scope: pair_objective``). Target modes:
 
 - ``sampled`` (manuscript default, Eq. (24) ``eq:binary-target``):
   ``B_k ~ Bernoulli(P_k(y > z_k))``, ``B'_k ~ Bernoulli(P_k(y' > z_k))``,
@@ -56,11 +57,6 @@ def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_see
     I = A_policy.shape[2]
     policy_ids = meta_ids["policy_learner_ids"]
     comparator_ids = meta_ids["comparator_ids"]
-    # One opponent draw per (prompt, objective), shared across the prompt's pairs.
-    opponent_idx = np.empty((len(prompt_ids), K), dtype=np.int64)
-    for x in range(len(prompt_ids)):
-        for k in range(K):
-            opponent_idx[x, k] = rng.choice(len(comparator_ids), p=nu[k, x])
     rows = []
     for x, pid in enumerate(prompt_ids):
         seed0 = policy_ids[0].split(":", 1)[1]
@@ -68,7 +64,10 @@ def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_see
         for i1, i2 in itertools.combinations(range(I), 2):
             z, opp = {}, {}
             for k, obj in enumerate(objectives):
-                j = int(opponent_idx[x, k])
+                # Eq. (26): draw (y, y') first, THEN one z_k ~ nu*_k for this pair and
+                # objective. The same z_k serves both y and y' of the row; other rows
+                # of the same prompt and other objectives draw independently.
+                j = int(rng.choice(len(comparator_ids), p=nu[k, x]))
                 p1 = float(A_policy[k, x, i1, j]) + 0.5
                 p2 = float(A_policy[k, x, i2, j]) + 0.5
                 if target_mode == "sampled":
@@ -91,6 +90,7 @@ def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_see
                 "lambda_raw": {obj: float(lam[k]) for k, obj in enumerate(objectives)},
                 "opponent_response_id": opp,
                 "opponent_beta": {obj: float(betas[k]) for k, obj in enumerate(objectives)},
+                "opponent_sampling_scope": "pair_objective",
                 "target_mode": target_mode,
                 **provenance,
             })
@@ -106,8 +106,24 @@ def build_pairs_from_artifacts(tensor_dir: Path, solver_dir: Path, policy_file_s
         raise ValueError(f"target_mode must be one of {TARGET_MODES}, got {target_mode!r}")
     meta = json.loads((tensor_dir / "meta.json").read_text())
     A_policy = np.load(tensor_dir / "tensor_policy.npz")["A"]
-    nu = np.load(solver_dir / "nu.npz")["nu"]
     solution = json.loads((solver_dir / "solution.json").read_text())
+    # The regression opponent is nu_update (the opponent that generated the
+    # policy through Eq. (21)), never nu_final_policy. Verify both files against
+    # the hashes the solver recorded so a swapped or stale file cannot pass.
+    recorded = solution.get("artifact_hashes") or {}
+    for fname in ("nu_update.npz", "nu_final_policy.npz"):
+        f = solver_dir / fname
+        if not f.exists():
+            raise FileNotFoundError(f"solver artifact lacks {fname}; re-run solve_nbpo_dual")
+        if fname not in recorded:
+            raise ValueError(f"solution.json records no hash for {fname}; refusing to use it")
+        got = sha256_file(f)
+        if got != recorded[fname]:
+            raise ValueError(
+                f"{fname} hash {got[:12]} != recorded {recorded[fname][:12]}: the solver "
+                "artifact was modified or its opponent files were swapped"
+            )
+    nu = np.load(solver_dir / "nu_update.npz")["nu"]
     objectives = meta["objectives"]
     lam = np.asarray(solution["lambda_raw"], dtype=np.float64)
     betas = np.asarray(solution["config"]["beta"], dtype=np.float64)
@@ -151,6 +167,9 @@ def build_pairs_from_artifacts(tensor_dir: Path, solver_dir: Path, policy_file_s
         "lambda_raw": [float(v) for v in lam],
         "aggregation": solution["aggregation"],
         "note": "nbpo_weighted_z is unscaled: eta is applied exactly once, in the trainer",
+        "opponent_sampling_scope": "pair_objective",
+        "opponent_source": "nu_update.npz",
+        "opponent_source_hash": recorded["nu_update.npz"],
         **provenance,
     }
     write_json(out_dir / "pairs_summary.json", summary)

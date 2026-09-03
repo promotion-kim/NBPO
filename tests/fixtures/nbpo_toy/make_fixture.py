@@ -44,6 +44,13 @@ def main() -> None:
             json.dumps(rows(MONITORING, "ref", f"r{s}"), indent=1) + "\n")
     (DATA / "monitoring_prompts.json").write_text(json.dumps(MONITORING) + "\n")
     (DATA / "final_eval_prompts.json").write_text(json.dumps(FINAL) + "\n")
+    # jsonl with texts: the candidate decoder needs the prompt text, and the
+    # stage runner derives the monitoring/final prompt SETS from these files
+    for name, ids in (("monitoring_prompts.jsonl", MONITORING), ("final_eval_prompts.jsonl", FINAL)):
+        (DATA / name).write_text("".join(
+            json.dumps({"prompt_id": pid,
+                        "prompt": f"Toy prompt {pid}: describe the object in two sentences."})
+            + "\n" for pid in ids))
     print(f"fixture data regenerated under {DATA}")
 
 

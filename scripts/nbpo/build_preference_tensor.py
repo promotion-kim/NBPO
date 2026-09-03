@@ -29,7 +29,12 @@ from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
+import torch
 
+from mnpo_scripts.nbpo_core import (
+    validate_centered_preference_tensor,
+    validate_reference_tensor,
+)
 from scripts.nbpo.nbpo_common import (
     SCHEMA_VERSION,
     load_response_files,
@@ -68,20 +73,7 @@ def aggregate_cells(rows, allow_single_order=False):
     return payoff
 
 
-def fill_tensor(payoff, objectives, prompt_ids, learner_ids, comparator_ids, pool):
-    """Dense (K, X, I, J) tensor; ref self-pairs are the Eq. (1) identity A = 0."""
-    K, X, I, J = len(objectives), len(prompt_ids), len(learner_ids), len(comparator_ids)
-    A = np.full((K, X, I, J), np.nan, dtype=np.float64)
-    for k, obj in enumerate(objectives):
-        for x, pid in enumerate(prompt_ids):
-            for i, lid in enumerate(learner_ids):
-                for j, cid in enumerate(comparator_ids):
-                    if pool == "reference" and lid == cid:
-                        A[k, x, i, j] = 0.0
-                        continue
-                    val = payoff.get((pid, obj, pool, lid, cid))
-                    if val is not None:
-                        A[k, x, i, j] = val
+def _report_missing(A, objectives, prompt_ids, learner_ids, comparator_ids, pool):
     if np.isnan(A).any():
         missing = list(zip(*np.nonzero(np.isnan(A))))[:10]
         named = [
@@ -93,7 +85,87 @@ def fill_tensor(payoff, objectives, prompt_ids, learner_ids, comparator_ids, poo
             f"{int(np.isnan(A).sum())} missing swap-averaged cells; first: {named} "
             "-- missing comparisons are never imputed as ties"
         )
+
+
+def fill_policy_tensor(payoff, objectives, prompt_ids, learner_ids, comparator_ids):
+    """Dense (K, X, I, J) tensor for learner responses vs reference comparators.
+
+    Learner and comparator supports are DIFFERENT response sets, so no
+    symmetry is assumed or imposed here.
+    """
+    K, X, I, J = len(objectives), len(prompt_ids), len(learner_ids), len(comparator_ids)
+    A = np.full((K, X, I, J), np.nan, dtype=np.float64)
+    for k, obj in enumerate(objectives):
+        for x, pid in enumerate(prompt_ids):
+            for i, lid in enumerate(learner_ids):
+                for j, cid in enumerate(comparator_ids):
+                    val = payoff.get((pid, obj, "policy", lid, cid))
+                    if val is not None:
+                        A[k, x, i, j] = val
+    _report_missing(A, objectives, prompt_ids, learner_ids, comparator_ids, "policy")
     return A
+
+
+def fill_reference_tensor(payoff, objectives, prompt_ids, ref_ids):
+    """Square (K, X, J, J) reference-as-learner tensor with EXACT skew symmetry.
+
+    One response set sits on both sides, so the paper's assumptions
+    ``A(i, j) = -A(j, i)`` and ``A(i, i) = 0`` (Eqs. (1)-(2)) hold by
+    construction: each unordered pair ``i < j`` contributes one swap-averaged
+    ``a_ij`` written as ``A[i, j] = a_ij`` and ``A[j, i] = -a_ij``.
+
+    Legacy verdict files judged both ordered directions independently. For
+    those, both directions are read, the pre-projection skew residual
+    ``max |a_ij + a_ji|`` is reported, and the tensor is projected onto the
+    skew-symmetric subspace ``0.5 (A - A^T)``. Returns ``(A, stats)``.
+    """
+    K, X, J = len(objectives), len(prompt_ids), len(ref_ids)
+    A = np.zeros((K, X, J, J), dtype=np.float64)
+    found = np.zeros((K, X, J, J), dtype=bool)
+    residuals = []
+    projected_cells = 0
+    for k, obj in enumerate(objectives):
+        for x, pid in enumerate(prompt_ids):
+            for i in range(J):
+                found[k, x, i, i] = True                      # Eq. (1) identity, A = 0
+                for j in range(i + 1, J):
+                    fwd = payoff.get((pid, obj, "reference", ref_ids[i], ref_ids[j]))
+                    bwd = payoff.get((pid, obj, "reference", ref_ids[j], ref_ids[i]))
+                    if fwd is None and bwd is None:
+                        continue
+                    if fwd is not None and bwd is not None:   # legacy: both directions judged
+                        residuals.append(abs(fwd + bwd))
+                        projected_cells += 1
+                        a = 0.5 * (fwd - bwd)
+                    elif fwd is not None:
+                        a = fwd
+                    else:
+                        a = -bwd
+                    A[k, x, i, j] = a
+                    A[k, x, j, i] = -a
+                    found[k, x, i, j] = found[k, x, j, i] = True
+    if not found.all():
+        A_nan = A.copy(); A_nan[~found] = np.nan
+        _report_missing(A_nan, objectives, prompt_ids, ref_ids, ref_ids, "reference")
+    stats = {
+        "reference_pairs": "unordered i<j, both presentation orders",
+        "skew_projection_applied": projected_cells > 0,
+        "skew_projected_cells": int(projected_cells),
+        "skew_residual_pre_projection_max": (float(max(residuals)) if residuals else 0.0),
+        "skew_residual_pre_projection_mean": (float(np.mean(residuals)) if residuals else 0.0),
+        "skew_residual_post": float(np.abs(A + np.swapaxes(A, -1, -2)).max()),
+        "diagonal_zero": bool((np.diagonal(A, axis1=-2, axis2=-1) == 0).all()),
+    }
+    return A, stats
+
+
+def fill_tensor(payoff, objectives, prompt_ids, learner_ids, comparator_ids, pool):
+    """Backward-compatible wrapper: policy tensor, or reference tensor without stats."""
+    if pool == "reference":
+        if list(learner_ids) != list(comparator_ids):
+            raise ValueError("reference pool must use one response set on both sides")
+        return fill_reference_tensor(payoff, objectives, prompt_ids, list(comparator_ids))[0]
+    return fill_policy_tensor(payoff, objectives, prompt_ids, learner_ids, comparator_ids)
 
 
 def main() -> None:
@@ -122,8 +194,10 @@ def main() -> None:
 
     rows = read_jsonl(args.verdicts)
     payoff = aggregate_cells(rows, allow_single_order=args.allow_single_order_ablation)
-    A_policy = fill_tensor(payoff, objectives, prompt_ids, policy_ids, ref_ids, "policy")
-    A_ref = fill_tensor(payoff, objectives, prompt_ids, ref_ids, ref_ids, "reference")
+    A_policy = fill_policy_tensor(payoff, objectives, prompt_ids, policy_ids, ref_ids)
+    A_ref, skew_stats = fill_reference_tensor(payoff, objectives, prompt_ids, ref_ids)
+    validate_centered_preference_tensor(torch.from_numpy(A_policy), "A_policy")
+    validate_reference_tensor(torch.from_numpy(A_ref), "A_ref")
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(args.out_dir / "tensor_policy.npz", A=A_policy)
@@ -147,6 +221,8 @@ def main() -> None:
         "both_orders_required": not args.allow_single_order_ablation,
         "single_order_ablation": bool(args.allow_single_order_ablation),
         "self_pairs": "identity_zero (Eq. (1): P_k(y>y|x)=1/2 exactly; not an imputation)",
+        "reference_skew": skew_stats,
+        "tensor_kind": "centered_preference",
         "shape_policy": list(A_policy.shape),
         "shape_ref": list(A_ref.shape),
     }

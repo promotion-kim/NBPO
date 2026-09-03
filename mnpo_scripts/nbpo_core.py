@@ -68,16 +68,64 @@ def validate_distribution(
     return p
 
 
-def validate_payoff_tensor(A: torch.Tensor, name: str = "A") -> torch.Tensor:
-    """Check a centered payoff tensor ``A[k, x, i, j]`` (Eq. (2)): finite, in [-1/2, 1/2]."""
+def validate_game_utility_tensor(A: torch.Tensor, name: str = "A") -> torch.Tensor:
+    """Check a game-utility tensor ``A[k, x, i, j]``: 4-D and finite, any scale.
+
+    The game algebra (Eqs. (6)-(9), (21)) is covariant under the positive
+    rescaling ``A_k -> c_k A_k, beta_k -> c_k beta_k`` (Theorem `thm:scale`),
+    so the solver must accept utilities outside the probability range. Range
+    checks belong to the RAW artifact, see ``validate_centered_preference_tensor``.
+    """
     A = as_float64(A)
     if A.dim() != 4:
         raise ValueError(f"{name} must have shape (K, X, I, J), got {tuple(A.shape)}")
     if not torch.isfinite(A).all():
         raise ValueError(f"{name} contains non-finite values")
-    if (A.abs() > 0.5 + _SUM_ATOL).any():
-        raise ValueError(f"{name} entries must lie in [-1/2, 1/2] (centered payoffs)")
     return A
+
+
+def validate_centered_preference_tensor(A: torch.Tensor, name: str = "A") -> torch.Tensor:
+    """Check a RAW centered-preference tensor ``P - 1/2`` (Eq. (2)): 4-D, finite, in [-1/2, 1/2].
+
+    Applies to artifacts written from judge verdicts. Rescaled utilities
+    (``c_k A_k``) are NOT centered preferences and must go through
+    ``validate_game_utility_tensor`` instead.
+    """
+    A = validate_game_utility_tensor(A, name)
+    if (A.abs() > 0.5 + _SUM_ATOL).any():
+        raise ValueError(f"{name} entries must lie in [-1/2, 1/2] (centered preferences)")
+    return A
+
+
+# Backward-compatible alias: the math functions validate utilities, not ranges.
+validate_payoff_tensor = validate_game_utility_tensor
+
+REFERENCE_SKEW_TOL = 1e-12
+
+
+def validate_reference_tensor(A_ref: torch.Tensor, name: str = "A_ref") -> torch.Tensor:
+    """Check the reference-as-learner tensor: square, exactly skew-symmetric, zero diagonal.
+
+    The paper's assumption for one response set on both sides of the game is
+    ``A_k(i, j) = -A_k(j, i)`` and ``A_k(i, i) = 0`` (Eqs. (1)-(2)). The tensor
+    builder enforces it exactly (one judged unordered pair -> ``a`` and ``-a``);
+    legacy artifacts are projected and the residual recorded. This check is the
+    hard gate the solver and ``d_k`` computation apply.
+    """
+    A_ref = validate_game_utility_tensor(A_ref, name)
+    if A_ref.shape[2] != A_ref.shape[3]:
+        raise ValueError(
+            f"{name} must be square over one response set (I == J), got {tuple(A_ref.shape)}"
+        )
+    diag = torch.diagonal(A_ref, dim1=-2, dim2=-1)
+    if (diag != 0).any():
+        raise ValueError(f"{name} diagonal must be exactly zero (Eq. (1): P(y > y) = 1/2)")
+    skew = (A_ref + A_ref.transpose(-1, -2)).abs().max().item()
+    if skew >= REFERENCE_SKEW_TOL:
+        raise ValueError(
+            f"{name} is not skew-symmetric: max |A + A^T| = {skew:.3e} >= {REFERENCE_SKEW_TOL:g}"
+        )
+    return A_ref
 
 
 def _validate_positive_vector(v: TensorLike, k: int, name: str) -> torch.Tensor:
@@ -271,7 +319,7 @@ def compute_disagreement_point(
     negative for skew-symmetric payoffs at beta < infinity and is never
     replaced by ``g_k(mu, mu) = 0``.
     """
-    A_ref = validate_payoff_tensor(A_ref, "A_ref")
+    A_ref = validate_reference_tensor(A_ref, "A_ref")
     pi_ref = uniform_policy(A_ref.shape[1], A_ref.shape[2])
     r_ref = compute_margins(A_ref, pi_ref)
     return compute_regularized_game_value(r_ref, mu, beta, form="softmin")

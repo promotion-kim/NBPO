@@ -6,10 +6,11 @@ objectives:
   config: objectives.yaml
   names: [clarity, brevity]
 judge:
-  backend: mock
-  model_path: mock-judge-v1
-  max_retries: 2
-  mock_invalid_rate: 0.05   # exercises the retry loop deterministically
+  # Three judge roles are recorded separately; the training judge is never
+  # silently reused for held-out evaluation.
+  training:   {backend: mock, model_path: mock-judge-train-v1, max_retries: 2, mock_invalid_rate: 0.05}
+  monitoring: {backend: mock, model_path: mock-judge-monitor-v1, max_retries: 2}
+  final_eval: {backend: mock, model_path: mock-judge-final-v1, max_retries: 2}
 responses:
   policy_files:
     s0: assets/train_policy_s0.json
@@ -22,21 +23,23 @@ responses:
     r2: assets/train_ref_r2.json
     r3: assets/train_ref_r3.json
 monitoring:
-  prompts_file: assets/monitoring_prompts.json
-  candidate_policy_files:
-    s0: assets/mon_candidate_s0.json
-    s1: assets/mon_candidate_s1.json
-    s2: assets/mon_candidate_s2.json
-    s3: assets/mon_candidate_s3.json
+  prompts_file: assets/monitoring_prompts.jsonl
+  decode: {seeds: [0, 1, 2, 3], temperature: 0.9, top_p: 0.95, max_new_tokens: 512}
   reference_files:
     r0: assets/mon_ref_r0.json
     r1: assets/mon_ref_r1.json
     r2: assets/mon_ref_r2.json
     r3: assets/mon_ref_r3.json
+dry_run:
+  # Pre-baked candidate responses: read ONLY under --dry-run. Real mode derives
+  # the candidate responses from the decode manifest and refuses static files.
+  candidate_policy_files:
+    s0: assets/mon_candidate_s0.json
+    s1: assets/mon_candidate_s1.json
+    s2: assets/mon_candidate_s2.json
+    s3: assets/mon_candidate_s3.json
 final_eval:
-  # Required and DISJOINT from monitoring: the monitoring batch is never reused
-  # for final reporting (enforced by run_nbpo_stage).
-  prompts_file: assets/final_eval_prompts.json
+  prompts_file: assets/final_eval_prompts.jsonl   # required and DISJOINT from monitoring
 solver:
   eta: 1.0
   opponent_betas: [0.25, 0.25]

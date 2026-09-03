@@ -1,8 +1,11 @@
 """Pair-target and judging-matrix tests (scripts/nbpo).
 
-Covers spec tests 11 (shared opponent), 12 (all six pairs), 13 (orientation
-flip), 14 (missing judgments are errors, never ties), plus target-mode
-recording, the eta-is-not-applied-in-the-builder contract, and the retry loop.
+Covers shared opponent inside one row/objective, per-pair/objective opponent
+sampling with frequencies matching nu_update, all six pairs, orientation flip,
+missing judgments as errors (never ties), judge backend cardinality, exact skew
+symmetry / zero diagonal of the reference tensor, swapped-opponent-file
+rejection, target-mode recording, the eta-is-not-applied-in-the-builder
+contract, and the retry loop.
 """
 import json
 from pathlib import Path
@@ -14,7 +17,8 @@ import torch
 from mnpo_scripts.nbpo_core import uniform_policy
 from mnpo_scripts.nbpo_solver import solve_nbpo_dual
 from scripts.nbpo.build_nbpo_pairs import build_pairs_from_artifacts, flip_pair_row
-from scripts.nbpo.build_preference_tensor import aggregate_cells, fill_tensor
+from scripts.nbpo.build_preference_tensor import (aggregate_cells, fill_reference_tensor,
+                                                  fill_tensor)
 from scripts.nbpo.judge_pairwise_matrix import MockJudge, build_task_grid, run_judging
 from scripts.nbpo.nbpo_common import read_jsonl, sha256_file, write_json
 from scripts.nbpo.solve_nbpo_dual import write_solution_artifact
@@ -50,7 +54,7 @@ def _build_artifacts(tmp: Path, target_mode="sampled", invalid_rate=0.0):
     policy_ids = [f"policy:{s}" for s in sorted(policy)]
     ref_ids = [f"ref:{s}" for s in sorted(reference)]
     A_policy = fill_tensor(payoff, objectives, PROMPTS, policy_ids, ref_ids, "policy")
-    A_ref = fill_tensor(payoff, objectives, PROMPTS, ref_ids, ref_ids, "reference")
+    A_ref, _skew = fill_reference_tensor(payoff, objectives, PROMPTS, ref_ids)
     tensor_dir = tmp / "tensor"
     tensor_dir.mkdir()
     np.savez_compressed(tensor_dir / "tensor_policy.npz", A=A_policy)
@@ -77,7 +81,7 @@ def _build_artifacts(tmp: Path, target_mode="sampled", invalid_rate=0.0):
         (solver_dir / "solution.json").read_text())
 
 
-def test_all_six_unordered_pairs_and_shared_opponent(tmp_path):
+def test_all_six_unordered_pairs(tmp_path):
     rows, _ = _build_artifacts(tmp_path)
     by_prompt = {}
     for r in rows:
@@ -88,10 +92,113 @@ def test_all_six_unordered_pairs_and_shared_opponent(tmp_path):
         pairs = {(r["chosen_response_id"], r["rejected_response_id"]) for r in prows}
         assert len(pairs) == 6
         assert all(a < b for a, b in pairs)  # canonical orientation
-        # 11: within an objective, every pair of this prompt shares the same z_k;
-        # objectives may select different opponents
-        for obj in ("clarity", "brevity"):
-            assert len({r["opponent_response_id"][obj] for r in prows}) == 1
+
+
+def test_shared_opponent_within_row(tmp_path):
+    # 11: inside one row and objective, y and y' are compared against the SAME z_k.
+    # rao_blackwell exposes it exactly: Z_k = P(y>z_k) - P(y'>z_k) for one shared j.
+    rows, _ = _build_artifacts(tmp_path, target_mode="rao_blackwell")
+    A = np.load(tmp_path / "tensor" / "tensor_policy.npz")["A"]
+    meta = json.loads((tmp_path / "tensor" / "meta.json").read_text())
+    pidx = {p: i for i, p in enumerate(meta["prompt_ids"])}
+    cidx = {c: j for j, c in enumerate(meta["comparator_ids"])}
+    lidx = {l: i for i, l in enumerate(meta["policy_learner_ids"])}
+    for r in rows:
+        assert r["opponent_sampling_scope"] == "pair_objective"
+        x = pidx[r["prompt_id"]]
+        i1, i2 = lidx[r["chosen_response_id"]], lidx[r["rejected_response_id"]]
+        for k, obj in enumerate(meta["objectives"]):
+            j = cidx[r["opponent_response_id"][obj]]          # one z_k per row/objective
+            expected = (A[k, x, i1, j] + 0.5) - (A[k, x, i2, j] + 0.5)
+            assert abs(r["nbpo_z"][obj] - expected) < 1e-12
+
+
+def test_opponent_sampled_per_pair_objective(tmp_path):
+    # Eq. (26) draws z_k AFTER (y, y'): different rows of a prompt may draw
+    # different z_k, objectives may differ, and the empirical draw frequencies
+    # over repeated builds match nu_update.
+    rows, _ = _build_artifacts(tmp_path)
+    by_prompt = {}
+    for r in rows:
+        by_prompt.setdefault(r["prompt_id"], []).append(r)
+    varies = any(len({r["opponent_response_id"][obj] for r in prows}) > 1
+                 for prows in by_prompt.values() for obj in ("clarity", "brevity"))
+    assert varies, "per-pair sampling must let rows of one prompt draw different opponents"
+    assert any(r["opponent_response_id"]["clarity"] != r["opponent_response_id"]["brevity"]
+               for r in rows), "objectives may select different opponents"
+    # frequency check: rebuild with many seeds and compare draw rates to nu_update
+    nu = np.load(tmp_path / "solver" / "nu_update.npz")["nu"]
+    meta = json.loads((tmp_path / "tensor" / "meta.json").read_text())
+    counts = np.zeros_like(nu)
+    n_builds = 40
+    specs = [f"s{i}={tmp_path}/policy_s{i}.json" for i in range(4)]
+    for seed in range(n_builds):
+        build_pairs_from_artifacts(tmp_path / "tensor", tmp_path / "solver", specs,
+                                   tmp_path / f"pairs_freq{seed}", target_mode="sampled",
+                                   seed=1000 + seed, stage=0)
+        for r in read_jsonl(tmp_path / f"pairs_freq{seed}" / "pairs_train.jsonl"):
+            x = meta["prompt_ids"].index(r["prompt_id"])
+            for k, obj in enumerate(meta["objectives"]):
+                counts[k, x, meta["comparator_ids"].index(r["opponent_response_id"][obj])] += 1
+    freq = counts / counts.sum(axis=-1, keepdims=True)   # 40 builds x 6 pairs = 240 draws per cell
+    assert np.abs(freq - nu).max() < 0.09, np.abs(freq - nu).max()
+
+
+def test_solver_artifact_rejects_swapped_nu_file(tmp_path):
+    _build_artifacts(tmp_path)
+    solver = tmp_path / "solver"
+    a, b = solver / "nu_update.npz", solver / "nu_final_policy.npz"
+    tmp = solver / "swap.tmp"
+    a.rename(tmp); b.rename(a); tmp.rename(b)          # swap the two opponent files
+    specs = [f"s{i}={tmp_path}/policy_s{i}.json" for i in range(4)]
+    with pytest.raises(ValueError, match="swapped|hash"):
+        build_pairs_from_artifacts(tmp_path / "tensor", solver, specs, tmp_path / "pairs_swapped",
+                                   target_mode="sampled", seed=1, stage=0)
+
+
+def test_reference_tensor_is_exactly_skew_symmetric(tmp_path):
+    _build_artifacts(tmp_path)
+    A_ref = np.load(tmp_path / "tensor" / "tensor_ref.npz")["A"]
+    assert np.abs(A_ref + np.swapaxes(A_ref, -1, -2)).max() == 0.0    # exact, not approximate
+    assert (A_ref != 0).any()                                            # nontrivial
+    # legacy verdicts with both ordered directions judged inconsistently are
+    # projected, the residual reported, and the result is still exactly skew
+    payoff = {("p0", "clarity", "reference", "ref:r0", "ref:r1"): 0.20,
+              ("p0", "clarity", "reference", "ref:r1", "ref:r0"): -0.10}
+    A, stats = fill_reference_tensor(payoff, ["clarity"], ["p0"], ["ref:r0", "ref:r1"])
+    assert stats["skew_projection_applied"] is True
+    assert abs(stats["skew_residual_pre_projection_max"] - 0.10) < 1e-12
+    assert abs(A[0, 0, 0, 1] - 0.15) < 1e-15 and A[0, 0, 1, 0] == -A[0, 0, 0, 1]
+    assert np.abs(A + np.swapaxes(A, -1, -2)).max() == 0.0
+
+
+def test_reference_tensor_diagonal_is_zero(tmp_path):
+    _build_artifacts(tmp_path)
+    A_ref = np.load(tmp_path / "tensor" / "tensor_ref.npz")["A"]
+    assert (np.diagonal(A_ref, axis1=-2, axis2=-1) == 0.0).all()
+    from mnpo_scripts.nbpo_core import validate_reference_tensor
+    bad = A_ref.copy(); bad[0, 0, 1, 1] = 1e-9
+    with pytest.raises(ValueError, match="diagonal"):
+        validate_reference_tensor(torch.from_numpy(bad))
+    bad2 = A_ref.copy(); bad2[0, 0, 0, 1] += 1e-9
+    with pytest.raises(ValueError, match="skew"):
+        validate_reference_tensor(torch.from_numpy(bad2))
+
+
+def test_judge_short_output_fails_loudly(tmp_path):
+    policy_specs = _write_responses(tmp_path, "policy", ["s0", "s1"])
+    ref_specs = _write_responses(tmp_path, "ref", ["r0", "r1"])
+    from scripts.nbpo.nbpo_common import load_response_files
+
+    tasks = build_task_grid(load_response_files(policy_specs), load_response_files(ref_specs),
+                            ["clarity"], True)
+
+    class ShortJudge:
+        def judge(self, pending, attempt):
+            return [1.0] * (len(pending) - 1)              # one verdict short
+
+    with pytest.raises(RuntimeError, match="returned"):
+        run_judging(tasks, ShortJudge(), tmp_path / "short.jsonl", "mock", 1, max_retries=0)
 
 
 def test_orientation_flip_negates_every_target(tmp_path):

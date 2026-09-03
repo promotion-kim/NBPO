@@ -1,3 +1,4 @@
+import json
 import logging
 import inspect
 import os
@@ -201,6 +202,11 @@ class ScriptArguments:
                 "Defaults to false to match on_policy_data_gen.decode for Qwen."
             )
         },
+    )
+    solver_artifact_path: Optional[str] = field(
+        default=None,
+        metadata={"help": "Optional solution.json of the NBPO dual solve that produced the "
+                          "pair targets; its sha256 is recorded in precompute_meta.json."},
     )
     logp_reduction: Optional[str] = field(
         default="mean",
@@ -747,16 +753,42 @@ def main():
         # tokenizer/chat-template hashes so training can detect a mean/sum or
         # tokenization mismatch (mandatory check for loss_type=nbpo).
         from mnpo_scripts.precompute_provenance import (
+            checkpoint_fingerprint,
+            sha256_file_hex,
             tokenizer_content_hashes,
             write_precompute_meta,
         )
 
+        def _fp(path):
+            return checkpoint_fingerprint(path) if path and os.path.isdir(path) else None
+
+        # Weight-level identity of every policy whose logps are stored: history0 IS
+        # the proximal centre pi_t of Eq. (15), and loss_type=nbpo verifies it.
+        history_paths = list(script_args.history_paths or [])
+        solver_sha = (sha256_file_hex(script_args.solver_artifact_path)
+                      if script_args.solver_artifact_path else None)
+        if solver_sha is None:
+            try:  # pairs from build_nbpo_pairs carry the solver hash on every row
+                with open(script_args.train_dir) as f:
+                    first = json.loads(f.readline())
+                solver_sha = first.get("solver_hash")
+            except Exception:
+                solver_sha = None
         meta = {
             "logp_reduction": str(script_args.logp_reduction).lower(),
             **tokenizer_content_hashes(tokenizer),
             "tokenizer_source": script_args.model_name_or_path,
+            "model_fingerprint": _fp(script_args.model_name_or_path),
             "ref_model": script_args.ref_model,
-            "history_paths": list(script_args.history_paths or []),
+            "reference_fingerprint": _fp(script_args.ref_model),
+            "history_paths": history_paths,
+            "history_fingerprints": [_fp(h) for h in history_paths],
+            "pair_artifact_path": script_args.train_dir,
+            "pair_artifact_sha256": (sha256_file_hex(script_args.train_dir)
+                                     if os.path.isfile(script_args.train_dir) else None),
+            "test_pair_artifact_sha256": (sha256_file_hex(test_path)
+                                          if test_path and os.path.isfile(test_path) else None),
+            "solver_artifact_sha256": solver_sha,
             "max_length": int(script_args.max_length),
             "max_prompt_length": int(script_args.max_prompt_length),
             "apply_chat_template": bool(script_args.apply_chat_template),

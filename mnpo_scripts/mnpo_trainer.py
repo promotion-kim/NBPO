@@ -13,6 +13,7 @@ def validate_nbpo_args(
     precompute_meta=None,
     tokenizer_hash: Optional[str] = None,
     chat_template_hash: Optional[str] = None,
+    expected_parent_fingerprint: Optional[str] = None,
 ) -> None:
     """Hard-error validation for the paper-exact ``loss_type: nbpo`` branch.
 
@@ -28,7 +29,11 @@ def validate_nbpo_args(
     log probabilities, exactly one center/history policy (``pi_t``), the
     ``nbpo_weighted_z`` target column, and a precompute artifact whose logps
     were also computed with ``reduction="sum"`` under the same tokenizer and
-    chat template.
+    chat template. When ``expected_parent_fingerprint`` (the content fingerprint
+    of the checkpoint being trained, i.e. pi_t) is given, the artifact's
+    ``history_fingerprints`` must equal ``[expected_parent_fingerprint]``:
+    tokenizer equality is not weight equality, and history0 must be the true
+    proximal centre of Eq. (15).
     """
     if str(getattr(args, "loss_type", "")).lower() != "nbpo":
         return
@@ -87,6 +92,15 @@ def validate_nbpo_args(
                     "chat-template hash mismatch between the precompute artifact and "
                     "the training tokenizer"
                 )
+            if expected_parent_fingerprint is not None:
+                hist = precompute_meta.get("history_fingerprints")
+                if hist != [expected_parent_fingerprint]:
+                    problems.append(
+                        "history0 is not the proximal centre pi_t: precompute artifact "
+                        f"history_fingerprints={hist} but the checkpoint being trained has "
+                        f"fingerprint [{expected_parent_fingerprint}] (weights differ even if "
+                        "the tokenizer matches)"
+                    )
     if problems:
         raise ValueError("invalid configuration for loss_type=nbpo: " + "; ".join(problems))
 

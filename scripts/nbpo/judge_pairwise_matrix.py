@@ -10,9 +10,11 @@ For every prompt and objective this queries the judge for:
    Eq. (10) -- ``d`` is measured, never assumed zero).
 
 Every semantic comparison is queried in BOTH presentation orders; downstream
-swap-averaging happens in ``build_preference_tensor.py``. Comparisons of a
-reference response with itself are definitional ties (Eq. (1):
-``P_k(y > y | x) = 1/2``) and are excluded from judging rather than imputed.
+swap-averaging happens in ``build_preference_tensor.py``. The reference pool
+sits on both sides of its own game, so only UNORDERED pairs ``i < j`` are
+judged there and the tensor builder writes ``a`` and ``-a``: exact skew
+symmetry by construction. Self-comparisons are the definitional tie of
+Eq. (1) and are neither judged nor imputed.
 
 Invalid verdicts are never counted as completed work: they are retried up to
 ``--max-judge-retries`` times, and if the matrix is still incomplete the script
@@ -60,9 +62,14 @@ def build_task_grid(policy, reference, objectives, include_reference_learner, ma
         if include_reference_learner:
             pools.append(("reference", reference, reference))
         for pool_name, learners, comparators in pools:
-            for lseed, cseed in itertools.product(sorted(learners), sorted(comparators)):
-                if pool_name == "reference" and lseed == cseed:
-                    continue  # definitional tie, Eq. (1); filled as A = 0 by the tensor builder
+            if pool_name == "policy":
+                seed_pairs = list(itertools.product(sorted(learners), sorted(comparators)))
+            else:
+                # One response set on both sides: judge each UNORDERED pair i < j
+                # once (both presentation orders) and let the tensor builder set
+                # A[i, j] = a, A[j, i] = -a, A[i, i] = 0 exactly (Eqs. (1)-(2)).
+                seed_pairs = list(itertools.combinations(sorted(comparators), 2))
+            for lseed, cseed in seed_pairs:
                 lid = f"{'policy' if pool_name == 'policy' else 'ref'}:{lseed}"
                 cid = f"ref:{cseed}"
                 for obj in objectives:
@@ -207,6 +214,12 @@ def run_judging(tasks, backend, output: Path, judge_model: str, rubric_version,
         if not pending:
             break
         wins = backend.judge(pending, attempt)
+        if len(wins) != len(pending):
+            raise RuntimeError(
+                f"judge backend returned {len(wins)} verdicts for {len(pending)} cells "
+                f"on attempt {attempt}; refusing to pair them up (a short output would "
+                "silently drop cells)"
+            )
         rows, still = [], []
         for t, win_of_a in zip(pending, wins):
             pw = to_policy_win(win_of_a, t["presentation_order"])

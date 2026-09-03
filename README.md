@@ -26,26 +26,61 @@ as per-pair targets, so the additions are a dual solver that produces those weig
 objective-wise game values and a pair builder that applies them. MNPO's own baselines remain
 runnable and are used as controls.
 
-## Two NBPO pipelines: paper-exact vs legacy fixed-reference
+## Two NBPO pipelines: finite-pool NBPO realization vs legacy fixed-reference
 
 The repository contains two distinct implementations. Do not conflate them.
 
-**`scripts/nbpo/` — finite-temperature NBPO (Algorithm 1, paper-exact).** The
+**`scripts/nbpo/` — finite-pool NBPO realization of Algorithm 1.** The
 manuscript's construction: adaptive KL-regularized opponents
 ν\*<sub>k,π</sub> ∝ μ·exp(−r/β<sub>k</sub>) (Eq. 7), soft-min game values
 V<sub>k,β</sub> (Eq. 8), a measured disagreement point
-d<sub>k</sub> = V<sub>k,β</sub>(μ) (Eq. 10, never assumed zero), projected dual
-descent on the **raw** multipliers λ ← Π<sub>Λ</sub>[λ − γ(ŝ − 1/λ)] (Eq. 27),
-pairwise regression to (h<sub>t</sub> − η Σ<sub>k</sub> λ<sub>k</sub>Z<sub>k</sub>)²
-with sequence-sum log-probabilities (Eq. 26, `loss_type: nbpo`), and the held-out
+d<sub>k</sub> = V<sub>k,β</sub>(μ) (Eq. 10, never assumed zero; the
+reference-vs-reference tensor is exactly skew-symmetric with a zero diagonal by
+construction), projected dual descent on the **raw** multipliers
+λ ← Π<sub>Λ</sub>[λ − γ(ŝ − 1/λ)] (Eq. 27), pairwise regression to
+(h<sub>t</sub> − η Σ<sub>k</sub> λ<sub>k</sub>Z<sub>k</sub>)² with sequence-sum
+log-probabilities (Eq. 26, `loss_type: nbpo`), and the held-out
 stage-acceptance gate of Algorithm 1. **The dual solver lives in
-`mnpo_scripts/nbpo_solver.py`** (CLI: `scripts/nbpo/solve_nbpo_dual.py`); its
-M = 4e3–3e5 dual iterations run on the frozen finite response pool — cheap
-tensor updates — and the neural policy is fit once afterwards, not per dual step.
-The released configuration uses **R = 1 fixed-point iteration per dual update, a
-disclosed practical approximation** whose residual is logged. λ is raw
-throughout: any normalized weights that appear in logs are display diagnostics
-only, never what the update uses.
+`mnpo_scripts/nbpo_solver.py`** (CLI: `scripts/nbpo/solve_nbpo_dual.py`).
+
+Two disclosed approximations, stated plainly:
+
+- **R = 1.** The released configuration performs one opponent reweighting per
+  dual update instead of iterating the policy–opponent fixed point to
+  convergence. The solver exposes `R`, reports the fixed-point residual and a
+  one-extra-map residual, and writes the *update* opponent (`nu_update.npz`,
+  what Eq. 26 samples z<sub>k</sub> from) separately from the opponent
+  recomputed at the final policy (`nu_final_policy.npz`, diagnostics).
+- **One-shot neural realization after the frozen-pool dual.** The M = 4e3–3e5
+  dual iterations run on the frozen finite response pool — cheap tensor updates
+  — and the neural policy is fit **once** afterwards from the resulting pair
+  targets. No 8B model is retrained per dual step.
+
+λ is raw throughout: any normalized weights in logs are display diagnostics
+only. The solver reports both the inverse-surplus residual ‖ŝ − 1/λ‖<sub>∞</sub>
+and the projected (box-aware) KKT residual with the active-bound coordinates;
+λ = 1/s is an empirical equality only where no box bound is active.
+
+**Provenance binding in real mode.** `run_nbpo_stage.py` materializes the
+run_mnpo YAML and parses it with run_mnpo's own argument dataclasses before any
+model loads; the precompute sidecar must bind history0 to the parent
+checkpoint's *content* fingerprint (every weight shard hashed — tokenizer
+equality is not weight equality); the candidate is decoded synchronously by
+`scripts/nbpo/decode_candidate.py`, whose manifest binds the responses to the
+candidate fingerprint, the exact monitoring prompt set, every seed and every
+file hash; every candidate and reference seed file must carry exactly the
+monitoring prompt set; promotion is versioned and atomic
+(`<pi_next>.versions/stage<t>_<fp>` + symlink swap). Training, monitoring and
+final-evaluation judges are configured and recorded separately
+(`judge.training` / `judge.monitoring` / `judge.final_eval`).
+
+**Status of "paper-exact end-to-end".** The real-mode command, materialization
+and manifest-binding path is exercised end to end by
+`tests/test_nbpo_realmode.py` with stub executables and no LLM (this is the
+test that had to pass before that phrase is used here). A full real-mode run
+with 8B models through this exact path has not yet been executed; the
+finite-pool math and the trainer branch are paper-exact, the orchestration is
+verified at stub level.
 
 **`scripts/bpo/` — fixed-reference Anchored-BPO (β = ∞ baseline, legacy).**
 Fixed-anchor surpluses s<sub>k</sub> = P<sub>k</sub>(π≻μ) − ½ against the frozen
@@ -86,8 +121,9 @@ python -m scripts.nbpo.build_preference_tensor \
 python -m scripts.nbpo.solve_nbpo_dual --tensor-dir tensor/ --out-dir solver/ \
   --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 1 --aggregation nash
 
-# 4. Pair targets: six unordered pairs, per-objective z_k ~ nu*, sampled
-#    Bernoulli Z_k (Eq. 24), UNSCALED sum_k lambda_k Z_k (eta applied in the trainer).
+# 4. Pair targets: six unordered pairs, one z_k ~ nu_update per pair AND objective (shared by
+#    y and y' of that row), sampled Bernoulli Z_k (Eq. 24), UNSCALED sum_k lambda_k Z_k
+#    (eta applied in the trainer). The builder verifies the solver's nu_update.npz hash.
 python -m scripts.nbpo.build_nbpo_pairs --tensor-dir tensor/ --solver-dir solver/ \
   --policy-files s0=pol0.json ... --out-dir pairs/ --target-mode sampled
 
@@ -98,7 +134,13 @@ python -m mnpo_scripts.precompute --logp_reduction sum --ronpo_target_mode none 
   --train_dir pairs/pairs_train.jsonl --output_dir precomputed/ ...
 python -m accelerate.commands.launch --num_processes 1 -m mnpo_scripts.run_mnpo run_config.yaml
 
-# 6. Held-out game-value evaluation + Algorithm-1 gate (or run the whole stage):
+# 6. Synchronous candidate decode with a fingerprint-bound manifest (used by the gate):
+python -m scripts.nbpo.decode_candidate --model-checkpoint $CANDIDATE \
+  --prompts-file monitoring_prompts.jsonl --seeds 42,43,44,45 --temperature 0.9 --top-p 0.95 \
+  --max-new-tokens 512 --output-dir candidate_monitoring/ --manifest candidate_manifest.json
+
+# 7. Held-out game-value evaluation + Algorithm-1 gate (or run the whole stage, which
+#    materializes run_config.yaml, binds sidecar/manifest/fingerprints, and promotes):
 python -m scripts.nbpo.eval_game_value --tensor-dir tensor_holdout/ --beta 0.25
 python -m scripts.nbpo.run_nbpo_stage --config training_configs/nbpo/ultrafeedback_llama.yaml
 
@@ -112,7 +154,7 @@ temperature field — the trainer's `beta: 10.0` is a metrics-only display
 multiplier). The exact objective rubrics are versioned in
 `training_configs/nbpo/objectives/`; the TL;DR rubrics were never committed to
 this repository, so the TL;DR config fails loudly at the rubric loader instead
-of inventing prompt text. Tests: `tests/test_nbpo_*.py`.
+of inventing prompt text. Tests: `tests/test_nbpo_*.py` (the real-mode stub orchestration test is `tests/test_nbpo_realmode.py`).
 
 ## Repository layout
 

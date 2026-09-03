@@ -35,6 +35,8 @@ import torch
 
 from mnpo_scripts.nbpo_core import (
     as_float64,
+    validate_game_utility_tensor,
+    validate_reference_tensor,
     compute_disagreement_point,
     compute_margins,
     compute_objective_gradient,
@@ -66,13 +68,37 @@ def resolve_gamma_schedule(gamma: Union[float, Sequence[float]], M: int) -> torc
 
 @dataclass
 class WeightedPolicySolution:
-    """Result of the fixed-point weighted proximal solve at fixed lambda."""
+    """Result of the fixed-point weighted proximal solve at fixed lambda.
+
+    Two opponents are reported and must not be confused:
+
+    - ``nu_update`` / ``q_update``: the opponent built from the iterate
+      ``pi^(r)`` that GENERATED the returned policy through Eq. (21). This is
+      the opponent the Eq. (26) regression target samples ``z_k`` from.
+    - ``nu_final_policy``: ``nu*`` recomputed AT the returned policy. With
+      ``R = 1`` these differ (the fixed point is not reached); entropy / ESS
+      diagnostics of the solution and evaluation use this one.
+
+    ``fixed_point_residual`` is ``max |pi^(R) - pi^(R-1)|`` (last-iteration
+    change); ``extra_map_residual`` applies the undamped Eq. (21) map once
+    more to the returned policy and reports ``max |T(pi) - pi|``.
+    """
 
     pi: torch.Tensor  # (X, I)
-    nu: torch.Tensor  # (K, X, J) -- the opponent that produced the final pi
-    q: torch.Tensor  # (K, X, I)
-    fixed_point_residual: float  # max |pi_next - pi_r| at the last iteration
+    nu_update: torch.Tensor  # (K, X, J)
+    q_update: torch.Tensor  # (K, X, I)
+    nu_final_policy: torch.Tensor  # (K, X, J)
+    fixed_point_residual: float
+    extra_map_residual: float
     iterations: int
+
+    @property
+    def nu(self) -> torch.Tensor:  # backward-compatible alias (update opponent)
+        return self.nu_update
+
+    @property
+    def q(self) -> torch.Tensor:
+        return self.q_update
 
 
 def solve_weighted_policy(
@@ -117,8 +143,14 @@ def solve_weighted_policy(
             pi_next = (1.0 - damping) * pi_next + damping * pi_r
         residual = (pi_next - pi_r).abs().max().item()
         pi_r = pi_next
+    # Opponent AT the returned policy, and one undamped extra application of the
+    # Eq. (21) map: a true fixed point leaves pi unchanged.
+    nu_final = compute_regularized_opponent(compute_margins(A, pi_r), mu, beta)
+    pi_extra = weighted_policy_update(pi_t, compute_objective_gradient(A, nu_final), lam, eta)
+    extra = (pi_extra - pi_r).abs().max().item()
     return WeightedPolicySolution(
-        pi=pi_r, nu=nu, q=q, fixed_point_residual=residual, iterations=R
+        pi=pi_r, nu_update=nu, q_update=q, nu_final_policy=nu_final,
+        fixed_point_residual=residual, extra_map_residual=extra, iterations=R,
     )
 
 
@@ -139,15 +171,53 @@ class DualSolveResult:
     d: torch.Tensor  # (K,) disagreement point V_{k,beta}(mu)
     surplus: torch.Tensor  # (K,) s = V - d (raw; may be nonpositive)
     pi: torch.Tensor  # (X, I) final finite-pool policy
-    nu: torch.Tensor  # (K, X, J) final opponents
-    q: torch.Tensor  # (K, X, I)
-    kkt_residual: Optional[float]  # ||s - 1/lam||_inf (Nash only)
+    nu_update: torch.Tensor  # (K, X, J) opponent that generated pi (Eq. (26) targets)
+    q_update: torch.Tensor  # (K, X, I)
+    nu_final_policy: torch.Tensor  # (K, X, J) nu* recomputed at pi (diagnostics)
+    kkt_residual: Optional[float]  # inverse-surplus residual ||s - 1/lam||_inf (Nash only)
     control_residual: Optional[float]  # duality gap of the max-min controls
     fixed_point_residual: float
-    opponent_entropy: torch.Tensor  # (K,)
-    opponent_ess: torch.Tensor  # (K,)
+    opponent_entropy: torch.Tensor  # (K,) of nu_final_policy
+    opponent_ess: torch.Tensor  # (K,) of nu_final_policy
     history: List[dict] = field(default_factory=list)
     config: dict = field(default_factory=dict)
+    extra_map_residual: float = float("nan")
+    projected_kkt_residual: Optional[float] = None  # ||lam - Proj(lam - g (s-1/lam))||_inf / g
+    gamma_ref: Optional[float] = None
+    lambda_at_lower_bound: List[int] = field(default_factory=list)
+    lambda_at_upper_bound: List[int] = field(default_factory=list)
+
+    @property
+    def inverse_surplus_residual(self) -> Optional[float]:
+        return self.kkt_residual
+
+    @property
+    def nu(self) -> torch.Tensor:  # backward-compatible alias (update opponent)
+        return self.nu_update
+
+    @property
+    def q(self) -> torch.Tensor:
+        return self.q_update
+
+
+def projected_kkt_residual(lam: torch.Tensor, s: torch.Tensor, gamma_ref: float,
+                           lo: float, hi: float) -> float:
+    """Natural-map residual of the box-constrained dual, Eq. (27).
+
+    ``||lam - Proj_Lambda(lam - gamma_ref (s - 1/lam))||_inf / gamma_ref``. It
+    is zero at a projected stationary point even when a box bound is active,
+    where ``||s - 1/lam||_inf`` is NOT expected to vanish (lambda = 1/s holds
+    only for coordinates strictly inside the box).
+    """
+    step = lam - gamma_ref * (s - 1.0 / lam)
+    proj = torch.clamp(step, min=lo, max=hi)
+    return float((lam - proj).abs().max()) / float(gamma_ref)
+
+
+def box_active_coordinates(lam: torch.Tensor, lo: float, hi: float, rel: float = 1e-9):
+    lower = [int(k) for k in range(lam.numel()) if float(lam[k]) <= lo * (1.0 + rel)]
+    upper = [int(k) for k in range(lam.numel()) if float(lam[k]) >= hi * (1.0 - rel)]
+    return lower, upper
 
 
 def _log_row(m, lam, V, d, s, nu, fp_residual, extra=None):
@@ -185,6 +255,7 @@ def solve_nbpo_dual(
     warm_start_policy: bool = True,
     damping: float = 0.0,
     adversary_step: float = 1.0,
+    weight_l1: Optional[float] = None,
     log_every: int = 0,
 ) -> DualSolveResult:
     """Projected dual descent (Eq. (27)) or a matched control, on the frozen pool.
@@ -195,6 +266,14 @@ def solve_nbpo_dual(
     throughout -- no normalization -- and nonpositive surpluses are used as-is.
     ``lambda_init`` supports warm-starting from the previous outer stage; it
     defaults to ones (t = 0, per Algorithm 1).
+
+    ``weight_l1`` rescales the control weight vector to a common L1 norm before
+    the exponential update. The max-min rules and the utilitarian rule carry
+    weights on the simplex (L1 = 1 and K respectively) while the Nash dual
+    carries raw lambda with L1 of order sum_k 1/s_k, so without this the rules
+    would be compared at very different effective proximal step sizes rather
+    than differing only in the direction of the weight vector. The adversary
+    still plays on the simplex; only the policy update is rescaled.
 
     Matched controls share (A, mu, beta, d, pool, eta, M, R):
     - ``utilitarian``: fixed uniform weights (lambda = 1), no dual variable;
@@ -207,8 +286,8 @@ def solve_nbpo_dual(
     """
     if aggregation not in AGGREGATIONS:
         raise ValueError(f"aggregation must be one of {AGGREGATIONS}, got {aggregation!r}")
-    A_policy = validate_payoff_tensor(A_policy, "A_policy")
-    A_ref = validate_payoff_tensor(A_ref, "A_ref")
+    A_policy = validate_game_utility_tensor(A_policy, "A_policy")
+    A_ref = validate_reference_tensor(A_ref, "A_ref")
     mu = validate_distribution(mu, "mu", require_full_support=True)
     K, X, I, _ = A_policy.shape
     beta = as_float64(beta)
@@ -241,6 +320,8 @@ def solve_nbpo_dual(
     if aggregation in ("nash", "utilitarian"):
         if aggregation == "utilitarian":
             lam = torch.ones(K, dtype=torch.float64)
+            if weight_l1 is not None:
+                lam = lam * (float(weight_l1) / float(lam.sum()))
         for m in range(M):
             sol = solve_weighted_policy(
                 A_policy, mu, pi_t, lam, beta, eta, R, pi_init=pi_warm, damping=damping
@@ -250,46 +331,85 @@ def solve_nbpo_dual(
             V = policy_game_values(A_policy, mu, sol.pi, beta)
             s = V - d
             if log_every and (m % log_every == 0):
-                history.append(_log_row(m, lam, V, d, s, sol.nu, sol.fixed_point_residual))
+                history.append(_log_row(m, lam, V, d, s, sol.nu_final_policy,
+                                        sol.fixed_point_residual))
             if aggregation == "nash":
                 grad = s - 1.0 / lam  # Eq. (19)
                 lam = torch.clamp(lam - gamma_sched[m] * grad, min=lo, max=hi)  # Eq. (27)
     else:
-        # Adversarial max-min controls: w on the simplex, multiplicative weights.
+        # Adversarial max-min controls. The proximal max-min problem
+        #     max_pi min_k [ v_k(pi) ] - D(pi||pi_t)/eta
+        # is convex-concave once min_k is written as min over the simplex, so the
+        # AVERAGED no-regret iterates converge to the saddle point -- the last
+        # iterate does not, and reporting it understates the control. The
+        # adversary runs multiplicative weights (Hedge) with a 1/sqrt(m) step;
+        # the policy best-responds through the same weighted proximal solve.
         w = torch.full((K,), 1.0 / K, dtype=torch.float64)
+        w_sum = torch.zeros(K, dtype=torch.float64)
+        pi_sum = torch.zeros_like(pi_t)
         for m in range(M):
+            w_eff = w if weight_l1 is None else w * (float(weight_l1) / float(w.sum()))
             sol = solve_weighted_policy(
-                A_policy, mu, pi_t, w, beta, eta, R, pi_init=pi_warm, damping=damping
+                A_policy, mu, pi_t, w_eff, beta, eta, R, pi_init=pi_warm, damping=damping
             )
             if warm_start_policy:
                 pi_warm = sol.pi
             V = policy_game_values(A_policy, mu, sol.pi, beta)
             s = V - d
             v = V if aggregation == "absolute_maxmin" else s
+            w_sum += w
+            pi_sum += sol.pi
             if log_every and (m % log_every == 0):
                 history.append(
-                    _log_row(
-                        m, w, V, d, s, sol.nu, sol.fixed_point_residual,
-                        extra={"duality_gap": float((w * v).sum() - v.min())},
-                    )
-                )
-            log_w = torch.log(w) - adversary_step * v
+                    _log_row(m, w, V, d, s, sol.nu_final_policy, sol.fixed_point_residual,
+                             extra={"best_response_value": float((w * v).sum())}))
+            step = adversary_step / ((m + 1) ** 0.5)
+            log_w = torch.log(w) - step * v
             w = torch.exp(log_w - torch.logsumexp(log_w, dim=0))
-        lam = w
+        w_bar = w_sum / M
+        pi_bar = pi_sum / M
+        pi_bar = pi_bar / pi_bar.sum(dim=-1, keepdim=True)
+        # Saddle-point gap at the averaged iterates: the primal side evaluates the
+        # averaged policy against its worst objective, the dual side best-responds
+        # to the averaged weights. Both include the proximal term.
+        w_bar_eff = (w_bar if weight_l1 is None
+                     else w_bar * (float(weight_l1) / float(w_bar.sum())))
+        br = solve_weighted_policy(A_policy, mu, pi_t, w_bar_eff, beta, eta,
+                                   max(R, 8), damping=max(damping, 0.5))
+        V_br = policy_game_values(A_policy, mu, br.pi, beta)
+        v_br = V_br if aggregation == "absolute_maxmin" else V_br - d
+        upper = float((w_bar * v_br).sum()) - proximal_divergence(br.pi, pi_t) / eta
+        V_bar = policy_game_values(A_policy, mu, pi_bar, beta)
+        v_bar = V_bar if aggregation == "absolute_maxmin" else V_bar - d
+        lower = float(v_bar.min()) - proximal_divergence(pi_bar, pi_t) / eta
+        control_residual = upper - lower
+        lam = w_bar
+        pi_warm = pi_bar
 
-    # Final weighted-policy solution at the final multipliers (Algorithm 1, line 10).
+    # Final policy. For the Nash and utilitarian paths this is the weighted
+    # proximal solution at the final multipliers (Algorithm 1, line 10); for the
+    # max-min controls it is the averaged saddle-point iterate computed above.
+    lam_eff = (lam if weight_l1 is None or aggregation == "nash"
+               else lam * (float(weight_l1) / float(lam.sum())))
     final = solve_weighted_policy(
-        A_policy, mu, pi_t, lam, beta, eta, R, pi_init=pi_warm, damping=damping
+        A_policy, mu, pi_t, lam_eff, beta, eta, R, pi_init=pi_warm, damping=damping
     )
+    if aggregation in ("absolute_maxmin", "surplus_maxmin"):
+        nu_bar = compute_regularized_opponent(compute_margins(A_policy, pi_warm), mu, beta)
+        final = WeightedPolicySolution(
+            pi=pi_warm, nu_update=final.nu_update, q_update=final.q_update,
+            nu_final_policy=nu_bar, fixed_point_residual=final.fixed_point_residual,
+            extra_map_residual=final.extra_map_residual, iterations=final.iterations)
     V = policy_game_values(A_policy, mu, final.pi, beta)
     s = V - d
-    if aggregation in ("absolute_maxmin", "surplus_maxmin"):
-        v = V if aggregation == "absolute_maxmin" else s
-        control_residual = float((lam * v).sum() - v.min())
+    lower_active, upper_active = box_active_coordinates(lam, lo, hi)
+    gamma_ref = float(gamma_sched[-1]) if aggregation == "nash" else None
+    proj_res = (projected_kkt_residual(lam, s, gamma_ref, lo, hi)
+                if aggregation == "nash" else None)
     kkt = float((s - 1.0 / lam).abs().max()) if aggregation == "nash" else None
     history.append(
         _log_row(
-            M, lam, V, d, s, final.nu, final.fixed_point_residual,
+            M, lam, V, d, s, final.nu_final_policy, final.fixed_point_residual,
             extra=({"duality_gap": control_residual} if control_residual is not None else None),
         )
     )
@@ -300,13 +420,19 @@ def solve_nbpo_dual(
         d=d,
         surplus=s,
         pi=final.pi,
-        nu=final.nu,
-        q=final.q,
+        nu_update=final.nu_update,
+        q_update=final.q_update,
+        nu_final_policy=final.nu_final_policy,
         kkt_residual=kkt,
         control_residual=control_residual,
         fixed_point_residual=final.fixed_point_residual,
-        opponent_entropy=opponent_entropy(final.nu),
-        opponent_ess=opponent_ess(final.nu),
+        extra_map_residual=final.extra_map_residual,
+        projected_kkt_residual=proj_res,
+        gamma_ref=gamma_ref,
+        lambda_at_lower_bound=lower_active,
+        lambda_at_upper_bound=upper_active,
+        opponent_entropy=opponent_entropy(final.nu_final_policy),
+        opponent_ess=opponent_ess(final.nu_final_policy),
         history=history,
         config={
             "aggregation": aggregation,
@@ -320,6 +446,7 @@ def solve_nbpo_dual(
             "warm_start_policy": bool(warm_start_policy),
             "damping": float(damping),
             "adversary_step": float(adversary_step),
+            "weight_l1": (None if weight_l1 is None else float(weight_l1)),
         },
     )
 
@@ -354,7 +481,7 @@ def dual_objective_phi(
     ``d phi / d lambda_k = s_k(pi^*(lambda)) - 1/lambda_k`` (Eq. (19)) -- the
     identity the finite-difference test checks.
     """
-    A_policy = validate_payoff_tensor(A_policy, "A_policy")
+    A_policy = validate_game_utility_tensor(A_policy, "A_policy")
     K, X, I, _ = A_policy.shape
     if pi_t is None:
         pi_t = uniform_policy(X, I)

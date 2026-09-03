@@ -4,6 +4,7 @@ Covers spec tests 6 (dual finite-difference), 7 (KKT convergence on a jointly
 feasible game), 8 (raw vs normalized lambda), the KKT half of 9 (scaling
 covariance at the converged point), and the max-min control residual.
 """
+import pytest
 import torch
 
 from mnpo_scripts.nbpo_core import (
@@ -118,3 +119,69 @@ def test_maxmin_controls_report_small_duality_gap_and_are_not_static_onehot():
     assert res.kkt_residual is None  # KKT residual is a Nash-path diagnostic
     # the adversarial weights live on the simplex but were not fixed a priori
     assert abs(float(res.lam.sum()) - 1.0) < 1e-9
+
+
+def test_scale_covariance_with_payoffs_outside_probability_range():
+    # A_k -> c A_k with c = 5 leaves the probability range; the solver must accept
+    # the rescaled UTILITIES (only raw artifacts are range-checked) and be exactly
+    # covariant once beta_k -> c beta_k: nu invariant, V/d scale by c, lambda by
+    # 1/c, sum_k lambda_k q_k invariant, selected policy and pair orientation invariant.
+    from mnpo_scripts.nbpo_core import validate_centered_preference_tensor
+    A, A_ref, mu, beta = feasible_game(seed=2, amplitude=1.0)
+    c = 5.0
+    assert float((c * A).abs().max()) > 0.5
+    with pytest.raises(ValueError, match="centered"):
+        validate_centered_preference_tensor(c * A)          # raw check rejects it ...
+    kwargs = dict(eta=1.0, gamma=0.3, M=6000, R=2, damping=0.5)
+    res = solve_nbpo_dual(A, A_ref, mu, beta, **kwargs)
+    res_s = solve_nbpo_dual(c * A, c * A_ref, mu, beta * c, **kwargs)   # ... the solver accepts it
+    assert res.kkt_residual < 1e-4 and res_s.kkt_residual < 1e-4
+    assert torch.allclose(res_s.V, res.V * c, rtol=1e-4, atol=1e-8)
+    assert torch.allclose(res_s.d, res.d * c, rtol=1e-4, atol=1e-8)
+    assert torch.allclose(res_s.surplus, res.surplus * c, rtol=1e-4, atol=1e-8)
+    assert torch.allclose(res_s.lam, res.lam / c, rtol=5e-3)
+    assert torch.allclose(res_s.nu_final_policy, res.nu_final_policy, atol=1e-5)
+    score = torch.einsum("k,kxi->xi", res.lam, res.q_update)
+    score_s = torch.einsum("k,kxi->xi", res_s.lam, res_s.q_update)
+    assert torch.allclose(score, score_s, atol=1e-4)                      # sum_k lambda_k q_k
+    assert torch.equal(res.pi.argmax(-1), res_s.pi.argmax(-1))            # selected policy
+    # pair orientation: sign of the weighted-score difference for every unordered pair
+    d1 = score[:, :, None] - score[:, None, :]
+    d2 = score_s[:, :, None] - score_s[:, None, :]
+    mask = d1.abs() > 1e-6
+    assert torch.equal(torch.sign(d1[mask]), torch.sign(d2[mask]))
+
+
+def test_nu_update_and_nu_final_are_labeled_separately():
+    A, A_ref, mu, beta = feasible_game(seed=3)
+    g = torch.Generator().manual_seed(9)
+    pi_init = torch.softmax(torch.rand(4, 4, generator=g, dtype=torch.float64) * 3, dim=-1)
+    lam = torch.tensor([3.0, 4.0], dtype=torch.float64)
+    sol = solve_weighted_policy(A, mu, uniform_policy(4, 4), lam, beta, 1.0, R=1, pi_init=pi_init)
+    # R=1: the opponent that generated pi (from pi_init) is not the opponent at pi
+    assert not torch.allclose(sol.nu_update, sol.nu_final_policy, atol=1e-6)
+    assert torch.allclose(sol.nu_update, compute_regularized_opponent(
+        compute_margins(A, pi_init), mu, beta), atol=1e-12)
+    assert torch.allclose(sol.nu_final_policy, compute_regularized_opponent(
+        compute_margins(A, sol.pi), mu, beta), atol=1e-12)
+    assert sol.extra_map_residual > 1e-6             # not a fixed point after one map
+    assert sol.nu is sol.nu_update                   # alias points at the UPDATE opponent
+    res = solve_nbpo_dual(A, A_ref, mu, beta, eta=1.0, gamma=0.3, M=50, R=1)
+    assert hasattr(res, "nu_update") and hasattr(res, "nu_final_policy")
+    assert res.opponent_entropy.shape == (2,)        # computed from nu_final_policy
+
+
+def test_projected_kkt_residual_at_lambda_box_boundary():
+    # Objective 1 is infeasible (every payoff -0.3, so s_1 < 0 for every policy):
+    # the dual pushes lambda_1 to the upper bound, where lambda = 1/s cannot hold.
+    A, A_ref, mu, beta = feasible_game(seed=5)
+    A = A.clone(); A[1] = -0.3
+    hi = 10.0
+    res = solve_nbpo_dual(A, A_ref, mu, beta, eta=1.0, gamma=0.5, M=3000, R=1,
+                          lambda_box=(1e-3, hi), damping=0.3)
+    assert res.lambda_at_upper_bound == [1]
+    assert abs(float(res.lam[1]) - hi) < 1e-9
+    assert res.surplus[1] < 0
+    assert res.inverse_surplus_residual > 0.1          # ||s - 1/lambda|| is NOT small here ...
+    assert res.projected_kkt_residual < 1e-6           # ... but the projected residual is
+    assert res.gamma_ref == 0.5

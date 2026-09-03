@@ -14,11 +14,15 @@ is fit afterwards, once, from the targets built by ``build_nbpo_pairs.py`` --
 no 8B model is retrained inside this loop.
 
 Outputs (all raw, none normalized or clamped):
-``solution.json`` -- raw lambda, V, d, surplus, KKT residual
-(``||s - 1/lambda||_inf``), fixed-point residual, opponent entropy/ESS, the
-full config (beta, eta, gamma schedule, M, R, lambda box), input artifact
-hashes, and the iteration history; ``nu.npz`` -- the opponent per objective and
-prompt; ``pi_star.npz`` -- the finite-pool policy.
+``solution.json`` -- raw lambda, V, d, surplus, the inverse-surplus residual
+``||s - 1/lambda||_inf`` AND the projected (box-aware) KKT residual with the
+active-bound coordinates, fixed-point and one-extra-map residuals, opponent
+entropy/ESS of the final policy, the full config (beta, eta, gamma schedule,
+M, R, lambda box), input artifact hashes, hashes of the opponent files, and the
+iteration history; ``nu_update.npz`` -- the opponent that generated the final
+policy (what Eq. (26) pair construction samples from); ``nu_final_policy.npz``
+-- ``nu*`` recomputed at the final policy (diagnostics); ``pi_star.npz`` -- the
+finite-pool policy.
 """
 from __future__ import annotations
 
@@ -29,7 +33,11 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from mnpo_scripts.nbpo_core import uniform_policy
+from mnpo_scripts.nbpo_core import (
+    uniform_policy,
+    validate_centered_preference_tensor,
+    validate_reference_tensor,
+)
 from mnpo_scripts.nbpo_solver import AGGREGATIONS, solve_nbpo_dual
 from scripts.nbpo.nbpo_common import sha256_file, write_json
 
@@ -52,7 +60,11 @@ def write_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashes: dict,
                             tensor_dir: Path, stage: int, lambda_warm_started: bool) -> dict:
     """Persist a DualSolveResult as the versioned solver artifact (shared with run_nbpo_stage)."""
     out_dir.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(out_dir / "nu.npz", nu=res.nu.numpy())
+    # Two opponents, written separately and hashed separately (never confuse them):
+    #   nu_update.npz       -- generated the final policy; Eq. (26) targets sample z_k here
+    #   nu_final_policy.npz -- nu* recomputed AT the final policy; diagnostics only
+    np.savez_compressed(out_dir / "nu_update.npz", nu=res.nu_update.numpy())
+    np.savez_compressed(out_dir / "nu_final_policy.npz", nu=res.nu_final_policy.numpy())
     np.savez_compressed(out_dir / "pi_star.npz", pi=res.pi.numpy())
     solution = {
         "aggregation": res.aggregation,
@@ -64,10 +76,25 @@ def write_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashes: dict,
         "surplus": [float(v) for v in res.surplus],
         "min_surplus": float(res.surplus.min()),
         "kkt_residual": res.kkt_residual,
+        "inverse_surplus_residual": res.kkt_residual,
+        "projected_kkt_residual": res.projected_kkt_residual,
+        "gamma_ref": res.gamma_ref,
+        "lambda_at_lower_bound": res.lambda_at_lower_bound,
+        "lambda_at_upper_bound": res.lambda_at_upper_bound,
+        "kkt_note": ("lambda_k = 1/s_k is an empirical equality only for coordinates "
+                     "strictly inside the box; when a bound is active read "
+                     "projected_kkt_residual, not inverse_surplus_residual"),
         "control_residual": res.control_residual,
         "fixed_point_residual": res.fixed_point_residual,
+        "extra_map_residual": res.extra_map_residual,
         "opponent_entropy": [float(v) for v in res.opponent_entropy],
         "opponent_ess": [float(v) for v in res.opponent_ess],
+        "opponent_diagnostics_from": "nu_final_policy",
+        "artifact_hashes": {
+            "nu_update.npz": sha256_file(out_dir / "nu_update.npz"),
+            "nu_final_policy.npz": sha256_file(out_dir / "nu_final_policy.npz"),
+            "pi_star.npz": sha256_file(out_dir / "pi_star.npz"),
+        },
         "config": res.config,
         "lambda_warm_started": bool(lambda_warm_started),
         "input_hashes": hashes,
@@ -103,9 +130,17 @@ def main() -> None:
     ap.add_argument("--adversary-step", type=float, default=1.0)
     ap.add_argument("--log-every", type=int, default=0)
     ap.add_argument("--stage", type=int, default=0)
+    ap.add_argument("--tensor-kind", choices=["centered_preference", "game_utility"],
+                    default="centered_preference",
+                    help="centered_preference (raw P-1/2, range-checked to [-1/2,1/2]) or "
+                         "game_utility (positively rescaled c_k A_k; finite only)")
     args = ap.parse_args()
 
     meta, A_policy, A_ref, hashes = load_tensor_artifact(args.tensor_dir)
+    if args.tensor_kind == "centered_preference":
+        validate_centered_preference_tensor(A_policy, "A_policy")
+        validate_centered_preference_tensor(A_ref, "A_ref")
+    validate_reference_tensor(A_ref, "A_ref")
     K = A_policy.shape[0]
     beta_vals = [float(b) for b in args.beta.split(",") if b.strip()]
     beta = torch.tensor(beta_vals * K if len(beta_vals) == 1 else beta_vals, dtype=torch.float64)
@@ -132,7 +167,9 @@ def main() -> None:
     )
     print(json.dumps({k: solution[k] for k in
                       ("aggregation", "lambda_raw", "surplus", "min_surplus",
-                       "kkt_residual", "control_residual", "fixed_point_residual")},
+                       "inverse_surplus_residual", "projected_kkt_residual",
+                       "lambda_at_lower_bound", "lambda_at_upper_bound",
+                       "control_residual", "fixed_point_residual", "extra_map_residual")},
                      indent=1))
 
 

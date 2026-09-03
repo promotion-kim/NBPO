@@ -9,13 +9,30 @@ objectives:
   config: ../../training_configs/nbpo/objectives/ultrafeedback.yaml
   names: [instruction_following, truthfulness, honesty, helpfulness]
 judge:
-  backend: vllm
-  model_path: Qwen/Qwen3-32B        # training preference judge (manuscript)
-  max_retries: 2
-  tensor_parallel_size: 4
-  max_model_len: 8192
-  # Qwen3 reasoning trace is suppressed: VllmJudge passes enable_thinking=False
-  # to apply_chat_template (the exact flag the manuscript says to record).
+  # Three roles, recorded separately in every artifact/gate record. The
+  # manuscript's held-out evaluator is Llama-3.3-70B-Instruct; the training
+  # judge (Qwen3-32B) is never silently reused for monitoring or final reporting.
+  training:
+    backend: vllm
+    model_path: Qwen/Qwen3-32B
+    max_retries: 2
+    tensor_parallel_size: 4
+    max_model_len: 8192
+    decoding: {temperature: 0.0, max_tokens: 512, retry_temperature: 0.3, enable_thinking: false}
+  monitoring:
+    backend: vllm
+    model_path: meta-llama/Llama-3.3-70B-Instruct
+    max_retries: 2
+    tensor_parallel_size: 4
+    max_model_len: 8192
+    decoding: {temperature: 0.0, max_tokens: 512, retry_temperature: 0.3}
+  final_eval:
+    backend: vllm
+    model_path: meta-llama/Llama-3.3-70B-Instruct
+    max_retries: 2
+    tensor_parallel_size: 4
+    max_model_len: 8192
+    decoding: {temperature: 0.0, max_tokens: 512, retry_temperature: 0.3}
 sampling:
   policy_responses_per_prompt: 4     # response files below must carry 4 seeds each
   reference_comparators_per_prompt: 4
@@ -34,23 +51,20 @@ responses:
     r2: PLACEHOLDER_REF_R2.json
     r3: PLACEHOLDER_REF_R3.json
 monitoring:
-  # Held-out monitoring batch for the Algorithm-1 gate. The manuscript's
-  # monitoring-batch-size cell is BLANK, so this field is required with no
-  # default; it must be disjoint from training and final-eval prompts
-  # (enforced by run_nbpo_stage).
-  prompts_file: PLACEHOLDER_MONITORING_PROMPTS.json
-  candidate_policy_files:
-    s0: PLACEHOLDER_CANDIDATE_S0.json
-    s1: PLACEHOLDER_CANDIDATE_S1.json
-    s2: PLACEHOLDER_CANDIDATE_S2.json
-    s3: PLACEHOLDER_CANDIDATE_S3.json
+  # Held-out monitoring batch for the Algorithm-1 gate (manuscript cell blank ->
+  # required, no default). A jsonl of {prompt_id, prompt}; must be disjoint from
+  # training and final-eval prompts (enforced). Candidate responses are decoded
+  # by commands.decode_candidate and taken ONLY from its fingerprint-bound
+  # manifest -- there is no static candidate_policy_files entry in real mode.
+  prompts_file: PLACEHOLDER_MONITORING_PROMPTS.jsonl
+  decode: {seeds: [42, 43, 44, 45], temperature: 0.9, top_p: 0.95, max_new_tokens: 512}
   reference_files:
     r0: PLACEHOLDER_MON_REF_R0.json
     r1: PLACEHOLDER_MON_REF_R1.json
     r2: PLACEHOLDER_MON_REF_R2.json
     r3: PLACEHOLDER_MON_REF_R3.json
 final_eval:
-  prompts_file: PLACEHOLDER_FINAL_EVAL_PROMPTS.json   # judged by Llama-3.3-70B-Instruct
+  prompts_file: PLACEHOLDER_FINAL_EVAL_PROMPTS.jsonl   # judged by judge.final_eval
 solver:
   eta: 1.0                            # proximal coefficient eta_t (T = 1 outer stage)
   opponent_betas: [0.25, 0.25, 0.25, 0.25]   # explicit; NOT the metrics-only trainer `beta: 10.0`
@@ -66,16 +80,11 @@ targets:
   seed: 42
 trainer:
   # run_mnpo settings for the candidate fit (tab:policy-training-hparams; full
-  # fine-tuning, single device, seed 42). Materialize into a run_mnpo YAML via
-  # commands.train below.
-  loss_type: nbpo
-  nbpo_target_column: nbpo_weighted_z
-  logp_reduction: sum                 # sequence-sum response logps (required for nbpo)
+  # fine-tuning, single device, seed 42). run_nbpo_stage.materialize_run_config
+  # writes {workdir}/run_config.yaml from these plus the forced NBPO invariants
+  # (loss_type=nbpo, logp_reduction=sum, max_history_t=1, no auxiliary losses)
+  # and parses it with run_mnpo's own dataclasses before anything loads.
   eta: 1.0                            # applied to the target exactly once, in the trainer
-  max_history_t: 1
-  history_weights: [1.0]
-  reference_anchor_weight: 0.0        # no auxiliary anchor loss
-  preference_sft_weight: 0.0          # no preference-SFT loss
   optim: adafactor
   learning_rate: 5.0e-7
   lr_scheduler_type: cosine
@@ -89,22 +98,31 @@ trainer:
   max_grad_norm: 1.0
   bf16: true
   gradient_checkpointing: true
+  gradient_checkpointing_kwargs: {use_reentrant: false}
+  attn_implementation: sdpa
+  beta: 10.0                          # metrics-only display multiplier (NOT the opponent temperature)
   seed: 42
 gate:
   parent_model: PLACEHOLDER_PI_T_CHECKPOINT
   promote_to: PLACEHOLDER_PI_NEXT_CHECKPOINT
 commands:
-  # Real-mode step templates ({workdir}/{pairs_dir}/{candidate}/{parent} are
-  # substituted by run_nbpo_stage). precompute MUST pass --logp_reduction sum so
-  # the provenance sidecar matches the trainer's requirement.
+  # Real-mode step templates. Variables substituted by run_nbpo_stage:
+  # {workdir} {pairs_dir} {precomputed} {solver_dir} {parent} {candidate}
+  # {run_config} {monitoring_prompts} {seeds} {temperature} {top_p}
+  # {max_new_tokens} {decode_out} {decode_manifest}.
+  # precompute MUST use --logp_reduction sum and history0 = the parent pi_t; the
+  # sidecar's history fingerprint is verified against the parent before training.
   precompute: >-
     python -m mnpo_scripts.precompute --model_name_or_path {parent}
     --ref_model meta-llama/Llama-3.1-8B-Instruct --history_paths {parent}
-    --train_dir {pairs_dir}/pairs_train.jsonl --output_dir {workdir}/precomputed
+    --train_dir {pairs_dir}/pairs_train.jsonl --test_dir {pairs_dir}/pairs_test.jsonl
+    --output_dir {precomputed} --solver_artifact_path {solver_dir}/solution.json
     --logp_reduction sum --ronpo_target_mode none --apply_chat_template true
-    --max_length 2048 --max_prompt_length 1024
+    --max_length 2048 --max_prompt_length 1024 --per_device_train_batch_size 2
   train: >-
-    python -m accelerate.commands.launch --num_processes 1 -m mnpo_scripts.run_mnpo
-    {workdir}/run_config.yaml
+    python -m accelerate.commands.launch --num_processes 1 -m mnpo_scripts.run_mnpo {run_config}
   decode_candidate: >-
-    bash scripts/bpo/decode_eval.sh {candidate} {workdir}/candidate_monitoring
+    python -m scripts.nbpo.decode_candidate --model-checkpoint {candidate}
+    --prompts-file {monitoring_prompts} --seeds {seeds} --temperature {temperature}
+    --top-p {top_p} --max-new-tokens {max_new_tokens} --output-dir {decode_out}
+    --manifest {decode_manifest} --backend vllm

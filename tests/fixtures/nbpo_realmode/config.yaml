@@ -1,0 +1,61 @@
+# Real-mode orchestration fixture: NO --dry-run. Every step runs through the
+# real command/materialization/manifest path with stub executables (no LLM):
+# stub precompute (valid sidecar + dataset), stub train (fingerprint-known
+# checkpoint), stub decode (asserts it received that checkpoint, then the real
+# synchronous decoder with the mock backend), mock judges, real gate.
+# gate.parent_model / gate.promote_to are filled in by the test (absolute tmp paths).
+stage: 0
+dataset: nbpo_realmode_stub
+objectives:
+  config: ../nbpo_toy/objectives.yaml
+  names: [clarity, brevity]
+judge:
+  training:   {backend: mock, model_path: mock-judge-train-v1, max_retries: 2}
+  monitoring: {backend: mock, model_path: mock-judge-monitor-v1, max_retries: 2}
+  final_eval: {backend: mock, model_path: mock-judge-final-v1, max_retries: 2}
+responses:
+  policy_files:
+    s0: ../nbpo_toy/assets/train_policy_s0.json
+    s1: ../nbpo_toy/assets/train_policy_s1.json
+    s2: ../nbpo_toy/assets/train_policy_s2.json
+    s3: ../nbpo_toy/assets/train_policy_s3.json
+  reference_files:
+    r0: ../nbpo_toy/assets/train_ref_r0.json
+    r1: ../nbpo_toy/assets/train_ref_r1.json
+    r2: ../nbpo_toy/assets/train_ref_r2.json
+    r3: ../nbpo_toy/assets/train_ref_r3.json
+monitoring:
+  prompts_file: ../nbpo_toy/assets/monitoring_prompts.jsonl
+  decode: {seeds: [0, 1, 2, 3], temperature: 0.9, top_p: 0.95, max_new_tokens: 64}
+  reference_files:
+    r0: ../nbpo_toy/assets/mon_ref_r0.json
+    r1: ../nbpo_toy/assets/mon_ref_r1.json
+    r2: ../nbpo_toy/assets/mon_ref_r2.json
+    r3: ../nbpo_toy/assets/mon_ref_r3.json
+final_eval:
+  prompts_file: ../nbpo_toy/assets/final_eval_prompts.jsonl
+solver: {eta: 1.0, opponent_betas: [0.25, 0.25], lambda_box: [1.0e-3, 1.0e+3], M: 100, gamma: 0.5, R: 1, aggregation: nash}
+targets: {mode: sampled, seed: 42}
+trainer:
+  optim: adafactor
+  learning_rate: 5.0e-7
+  max_steps: 3
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  bf16: false
+  eta: 1.0
+  beta: 10.0
+gate:
+  parent_model: PLACEHOLDER_PARENT
+  promote_to: PLACEHOLDER_PROMOTE
+commands:
+  precompute: >-
+    python -m tests.fixtures.nbpo_realmode.stubs.stub_precompute --parent {parent}
+    --pairs-dir {pairs_dir} --output-dir {precomputed} --solver-dir {solver_dir}
+  train: >-
+    python -m tests.fixtures.nbpo_realmode.stubs.stub_train {run_config}
+  decode_candidate: >-
+    python -m tests.fixtures.nbpo_realmode.stubs.stub_decode --model-checkpoint {candidate}
+    --prompts-file {monitoring_prompts} --seeds {seeds} --temperature {temperature}
+    --top-p {top_p} --max-new-tokens {max_new_tokens} --output-dir {decode_out}
+    --manifest {decode_manifest}
