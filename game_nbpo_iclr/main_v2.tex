@@ -1778,10 +1778,10 @@ Evaluation generation top-$p$/top-$k$ & $0.9$ / -- & $0.9$ / -- & $0.9$ / -- & $
 Maximum evaluation response tokens & $1{,}024$ & $1{,}024$ & $1{,}024$ & $1{,}024$ \\
 IFEval protocol/version & lm-eval $0.4.9$, \texttt{ifeval}, 0-shot, greedy, chat template & lm-eval $0.4.9$, \texttt{ifeval}, 0-shot, greedy, chat template & lm-eval $0.4.9$, \texttt{ifeval}, 0-shot, greedy, chat template & lm-eval $0.4.9$, \texttt{ifeval}, 0-shot, greedy, chat template \\
 TruthfulQA protocol/version & lm-eval $0.4.9$, \texttt{truthfulqa\_mc}, 0-shot, no chat template & lm-eval $0.4.9$, \texttt{truthfulqa\_mc}, 0-shot, no chat template & lm-eval $0.4.9$, \texttt{truthfulqa\_mc}, 0-shot, no chat template & lm-eval $0.4.9$, \texttt{truthfulqa\_mc}, 0-shot, no chat template \\
-HarmBench protocol/version &  &  &  &  \\
+HarmBench protocol/version & DirectRequest, greedy, official \texttt{Llama-2-13b-cls} & DirectRequest, greedy, official \texttt{Llama-2-13b-cls} & DirectRequest, greedy, official \texttt{Llama-2-13b-cls} & DirectRequest, greedy, official \texttt{Llama-2-13b-cls} \\
 Held-out monitoring batch size & & & & \\
 Reported judged-comparison budget & $448{,}000$ & $28{,}725$ & $38{,}363$ & $38{,}400$ \\
-Unique semantic comparisons &  &  &  &  \\
+Unique semantic comparisons & $448{,}000$ &  &  &  \\
 Order-swapped judge calls (incl.\ retries) &  &  &  &  \\
 Scale-test vectors & $c^{(A)}=(0.2,0.6,1.0,1.7)$; $c^{(B)}=(3.0,0.5,1.0,0.25)$; $c^{(C)}=(1.0,1.0,1.0,5.0)$ & -- & -- & -- \\
 Scale-test solver tolerance & surplus floor $5\times10^{-3}$; KKT residual $<4\times10^{-15}$ & -- & -- & -- \\
@@ -1856,14 +1856,14 @@ mixed into Table~\ref{tab:general-benchmark-completion}.
 \toprule
 method & HarmBench ASR $\downarrow$ \\
 \midrule
-Base $=\mu=\pi_0$ &  \\
-\NBPO{} (ours) &  \\
-PROSPER/MaxEntBW &  \\
-Utilitarian &  \\
-Absolute maxmin &  \\
-Surplus maxmin &  \\
-Uniform-INPO &  \\
-MOPO &  \\
+Base $=\mu=\pi_0$ & $\mathbf{0.223}$ \\
+\NBPO{} (ours) & $0.260$ \\
+PROSPER/MaxEntBW & $0.310$ \\
+Utilitarian & $0.350$ \\
+Absolute maxmin & $0.433$ \\
+Surplus maxmin & $0.320$ \\
+Uniform-INPO & $0.377$ \\
+MOPO & $0.240$ \\
 \bottomrule
 \end{tabular}
 \end{table}
