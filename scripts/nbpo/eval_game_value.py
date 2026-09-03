@@ -38,14 +38,15 @@ from mnpo_scripts.nbpo_core import (
 from scripts.nbpo.nbpo_common import sha256_file, write_json
 
 
-def evaluate_game_value(A_policy: torch.Tensor, A_ref: torch.Tensor, beta: torch.Tensor) -> dict:
+def evaluate_game_value(A_policy: torch.Tensor, A_ref: torch.Tensor, beta: torch.Tensor,
+                        reference_construction: str = "shared_pool") -> dict:
     """Pure evaluation given the two centered tensors; policy uniform over its pool."""
     K, X, I, J = A_policy.shape
     mu = uniform_policy(X, J)
     pi = uniform_policy(X, I)
     r = compute_margins(A_policy, pi)
     V = compute_regularized_game_value(r, mu, beta, form="softmin")
-    d = compute_disagreement_point(A_ref, mu, beta)
+    d = compute_disagreement_point(A_ref, mu, beta, reference_construction)
     s = V - d
     nu = compute_regularized_opponent(r, mu, beta)
     all_positive = bool((s > 0).all())
@@ -84,12 +85,18 @@ def main() -> None:
     if beta.shape != (K,):
         raise ValueError(f"--beta must give 1 or {K} values, got {len(beta_vals)}")
 
-    result = evaluate_game_value(A_policy, A_ref, beta)
+    construction = meta.get("reference_construction")
+    if construction is None:
+        raise ValueError(
+            f"{args.tensor_dir}/meta.json declares no reference_construction "
+            "('shared_pool' or 'independent_samples')")
+    result = evaluate_game_value(A_policy, A_ref, beta, construction)
     out = {
         "label": args.label,
         "objectives": meta["objectives"],
         "n_prompts": len(meta["prompt_ids"]),
         "beta": [float(b) for b in beta],
+        "reference_construction": construction,
         **result,
         "comparator_pool_hash": sha256_file(args.tensor_dir / "tensor_ref.npz"),
         "tensor_policy_hash": sha256_file(args.tensor_dir / "tensor_policy.npz"),

@@ -209,7 +209,10 @@ def judge_and_build_tensors(policy_specs, reference_specs, objectives, objective
     A_policy = fill_policy_tensor(payoff, objectives, prompt_ids, policy_ids, ref_ids)
     A_ref, skew_stats = fill_reference_tensor(payoff, objectives, prompt_ids, ref_ids)
     validate_centered_preference_tensor(torch.from_numpy(A_policy), "A_policy")
-    validate_reference_tensor(torch.from_numpy(A_ref), "A_ref")
+    # judge_and_build_tensors always builds the reference tensor from ONE response
+    # set (unordered pairs of the comparator seeds), so the construction is
+    # shared_pool and exact skew symmetry is a hard requirement.
+    validate_reference_tensor(torch.from_numpy(A_ref), "A_ref", "shared_pool")
     tensor_dir = out_dir / f"tensor_{tag}"
     tensor_dir.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(tensor_dir / "tensor_policy.npz", A=A_policy)
@@ -233,6 +236,7 @@ def judge_and_build_tensors(policy_specs, reference_specs, objectives, objective
         "both_orders_required": True,
         "self_pairs": "identity_zero",
         "reference_skew": skew_stats,
+        "reference_construction": "shared_pool",
         "tensor_kind": "centered_preference",
         "shape_policy": list(A_policy.shape),
         "shape_ref": list(A_ref.shape),
@@ -436,6 +440,8 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
     _step("tensor_train", str(tensor_dir))
 
     scfg = cfg["solver"]
+    tensor_meta_construction = json.loads(
+        (tensor_dir / "meta.json").read_text()).get("reference_construction", "shared_pool")
     A_policy = torch.from_numpy(np.load(tensor_dir / "tensor_policy.npz")["A"])
     A_ref = torch.from_numpy(np.load(tensor_dir / "tensor_ref.npz")["A"])
     mu = uniform_policy(A_policy.shape[1], A_policy.shape[3])
@@ -450,6 +456,7 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
         eta=float(scfg["eta"]), gamma=scfg["gamma"], M=int(scfg["M"]), R=int(scfg["R"]),
         lambda_box=tuple(scfg.get("lambda_box", (1e-3, 1e3))),
         lambda_init=lambda_init, aggregation=scfg.get("aggregation", "nash"),
+        reference_construction=tensor_meta_construction,
         damping=float(scfg.get("damping", 0.0)),
     )
     from scripts.nbpo.solve_nbpo_dual import write_solution_artifact

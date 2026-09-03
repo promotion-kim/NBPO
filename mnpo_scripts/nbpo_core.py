@@ -103,24 +103,54 @@ validate_payoff_tensor = validate_game_utility_tensor
 REFERENCE_SKEW_TOL = 1e-12
 
 
-def validate_reference_tensor(A_ref: torch.Tensor, name: str = "A_ref") -> torch.Tensor:
-    """Check the reference-as-learner tensor: square, exactly skew-symmetric, zero diagonal.
+REFERENCE_CONSTRUCTIONS = ("shared_pool", "independent_samples")
 
-    The paper's assumption for one response set on both sides of the game is
-    ``A_k(i, j) = -A_k(j, i)`` and ``A_k(i, i) = 0`` (Eqs. (1)-(2)). The tensor
-    builder enforces it exactly (one judged unordered pair -> ``a`` and ``-a``);
-    legacy artifacts are projected and the residual recorded. This check is the
-    hard gate the solver and ``d_k`` computation apply.
+
+def reference_skew_residual(A_ref: torch.Tensor) -> float:
+    """``max |A + A^T|``; zero iff the tensor is exactly skew-symmetric."""
+    A_ref = as_float64(A_ref)
+    if A_ref.shape[-1] != A_ref.shape[-2]:
+        return float("nan")
+    return float((A_ref + A_ref.transpose(-1, -2)).abs().max())
+
+
+def validate_reference_tensor(A_ref: torch.Tensor, name: str = "A_ref",
+                              construction: str = "shared_pool") -> torch.Tensor:
+    """Check the reference-as-learner tensor against its DECLARED construction.
+
+    ``shared_pool`` -- one response set sits on both sides of the game, which is
+    the paper's assumption: ``A_k(i, j) = -A_k(j, i)`` and ``A_k(i, i) = 0``
+    (Eqs. (1)-(2)). The builder enforces this exactly (one judged unordered pair
+    -> ``a`` and ``-a``, diagonal zero); legacy artifacts are projected and the
+    residual recorded. Square shape, exact skew symmetry and a zero diagonal are
+    hard requirements here.
+
+    ``independent_samples`` -- learner and comparator are two INDEPENDENT draws
+    from ``mu`` (e.g. four sampled responses judged against four other sampled
+    responses). This also estimates ``d_k = V_{k,beta_k}(mu)`` -- without the
+    self-comparison ties the shared pool forces -- but the two supports are
+    different response sets, so skew symmetry does not hold and must NOT be
+    imposed. The residual is returned for reporting, never used to reject.
+
+    The construction is never inferred: callers read it from the artifact's
+    metadata, so an asymmetric tensor can never be accepted silently.
     """
+    if construction not in REFERENCE_CONSTRUCTIONS:
+        raise ValueError(
+            f"reference construction must be one of {REFERENCE_CONSTRUCTIONS}, got {construction!r}"
+        )
     A_ref = validate_game_utility_tensor(A_ref, name)
+    if construction == "independent_samples":
+        return A_ref
     if A_ref.shape[2] != A_ref.shape[3]:
         raise ValueError(
-            f"{name} must be square over one response set (I == J), got {tuple(A_ref.shape)}"
+            f"{name} declared construction='shared_pool' must be square over one response "
+            f"set (I == J), got {tuple(A_ref.shape)}"
         )
     diag = torch.diagonal(A_ref, dim1=-2, dim2=-1)
     if (diag != 0).any():
         raise ValueError(f"{name} diagonal must be exactly zero (Eq. (1): P(y > y) = 1/2)")
-    skew = (A_ref + A_ref.transpose(-1, -2)).abs().max().item()
+    skew = reference_skew_residual(A_ref)
     if skew >= REFERENCE_SKEW_TOL:
         raise ValueError(
             f"{name} is not skew-symmetric: max |A + A^T| = {skew:.3e} >= {REFERENCE_SKEW_TOL:g}"
@@ -309,7 +339,8 @@ def uniform_policy(n_prompts: int, n_responses: int) -> torch.Tensor:
 
 
 def compute_disagreement_point(
-    A_ref: torch.Tensor, mu: torch.Tensor, beta: TensorLike
+    A_ref: torch.Tensor, mu: torch.Tensor, beta: TensorLike,
+    construction: str = "shared_pool",
 ) -> torch.Tensor:
     """``d_k = V_{k,beta_k}(mu)`` from the reference-as-learner tensor (Eq. (10)).
 
@@ -319,7 +350,7 @@ def compute_disagreement_point(
     negative for skew-symmetric payoffs at beta < infinity and is never
     replaced by ``g_k(mu, mu) = 0``.
     """
-    A_ref = validate_reference_tensor(A_ref, "A_ref")
+    A_ref = validate_reference_tensor(A_ref, "A_ref", construction)
     pi_ref = uniform_policy(A_ref.shape[1], A_ref.shape[2])
     r_ref = compute_margins(A_ref, pi_ref)
     return compute_regularized_game_value(r_ref, mu, beta, form="softmin")

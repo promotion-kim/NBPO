@@ -256,6 +256,7 @@ def solve_nbpo_dual(
     damping: float = 0.0,
     adversary_step: float = 1.0,
     weight_l1: Optional[float] = None,
+    reference_construction: str = "shared_pool",
     log_every: int = 0,
 ) -> DualSolveResult:
     """Projected dual descent (Eq. (27)) or a matched control, on the frozen pool.
@@ -287,7 +288,7 @@ def solve_nbpo_dual(
     if aggregation not in AGGREGATIONS:
         raise ValueError(f"aggregation must be one of {AGGREGATIONS}, got {aggregation!r}")
     A_policy = validate_game_utility_tensor(A_policy, "A_policy")
-    A_ref = validate_reference_tensor(A_ref, "A_ref")
+    A_ref = validate_reference_tensor(A_ref, "A_ref", reference_construction)
     mu = validate_distribution(mu, "mu", require_full_support=True)
     K, X, I, _ = A_policy.shape
     beta = as_float64(beta)
@@ -301,8 +302,9 @@ def solve_nbpo_dual(
         pi_t = uniform_policy(X, I)
     pi_t = validate_distribution(pi_t, "pi_t", require_full_support=True)
 
-    # Disagreement point from the SEPARATE reference-as-learner tensor (Eq. (10)).
-    d = compute_disagreement_point(A_ref, mu, beta)
+    # Disagreement point from the SEPARATE reference-as-learner tensor (Eq. (10)),
+    # validated against the construction the caller declared.
+    d = compute_disagreement_point(A_ref, mu, beta, reference_construction)
 
     if lambda_init is None:
         lam = torch.ones(K, dtype=torch.float64)
@@ -447,6 +449,7 @@ def solve_nbpo_dual(
             "damping": float(damping),
             "adversary_step": float(adversary_step),
             "weight_l1": (None if weight_l1 is None else float(weight_l1)),
+            "reference_construction": reference_construction,
         },
     )
 
@@ -470,6 +473,7 @@ def dual_objective_phi(
     R: int = 400,
     damping: float = 0.5,
     residual_tol: float = 1e-10,
+    reference_construction: str = "shared_pool",
 ) -> float:
     """Evaluate the dual function ``phi_t(lambda)`` of Eq. (17) ``eq:prox-dual``.
 
@@ -495,7 +499,7 @@ def dual_objective_phi(
             f"inner solve did not converge: residual {sol.fixed_point_residual:.3e} "
             f"> tol {residual_tol:.3e}; increase R or damping"
         )
-    d = compute_disagreement_point(A_ref, mu, beta)
+    d = compute_disagreement_point(A_ref, mu, beta, reference_construction)
     s = policy_game_values(A_policy, mu, sol.pi, beta) - d
     inner = float((lam * s).sum()) - proximal_divergence(sol.pi, pi_t) / eta
     return float(-torch.log(lam).sum()) - K + inner

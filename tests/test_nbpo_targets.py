@@ -282,3 +282,28 @@ def test_incomplete_tensor_raises_and_never_imputes():
     with pytest.raises(RuntimeError, match="never imputed"):
         fill_tensor(payoff, ["clarity"], ["p0"], ["policy:s0", "policy:s1"],
                     ["ref:r0"], "policy")
+
+
+def test_reference_construction_must_be_declared_and_is_enforced():
+    # shared_pool: one response set on both sides -> exact skew symmetry is a
+    # hard requirement. independent_samples: two independent mu draws -> the two
+    # supports are different response sets, skew symmetry does not hold and must
+    # not be imposed, but the caller has to SAY so; nothing is inferred.
+    from mnpo_scripts.nbpo_core import (reference_skew_residual, validate_reference_tensor)
+
+    g = torch.Generator().manual_seed(3)
+    S = torch.rand(1, 2, 4, 4, generator=g, dtype=torch.float64) * 0.4 - 0.2
+    shared = (S - S.transpose(-1, -2)) / 2                      # exactly skew, zero diagonal
+    validate_reference_tensor(shared, construction="shared_pool")
+    assert reference_skew_residual(shared) == 0.0
+    indep = torch.rand(1, 2, 4, 4, generator=g, dtype=torch.float64) * 0.4 - 0.2
+    assert reference_skew_residual(indep) > 1e-3
+    with pytest.raises(ValueError, match="diagonal"):
+        validate_reference_tensor(indep, construction="shared_pool")
+    zero_diag = indep.clone()
+    zero_diag.diagonal(dim1=-2, dim2=-1).zero_()          # isolate the skew check
+    with pytest.raises(ValueError, match="skew"):
+        validate_reference_tensor(zero_diag, construction="shared_pool")
+    validate_reference_tensor(indep, construction="independent_samples")   # accepted, declared
+    with pytest.raises(ValueError, match="construction must be one of"):
+        validate_reference_tensor(indep, construction="whatever")

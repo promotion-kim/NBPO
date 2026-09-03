@@ -140,7 +140,16 @@ def main() -> None:
     if args.tensor_kind == "centered_preference":
         validate_centered_preference_tensor(A_policy, "A_policy")
         validate_centered_preference_tensor(A_ref, "A_ref")
-    validate_reference_tensor(A_ref, "A_ref")
+    # The reference construction is DECLARED by the artifact, never inferred; a
+    # tensor that does not say how it was built is rejected rather than guessed.
+    construction = meta.get("reference_construction")
+    if construction is None:
+        raise ValueError(
+            f"{args.tensor_dir}/meta.json declares no reference_construction "
+            "('shared_pool' = one response set on both sides, exact skew symmetry "
+            "required; 'independent_samples' = two independent mu draws)"
+        )
+    validate_reference_tensor(A_ref, "A_ref", construction)
     K = A_policy.shape[0]
     beta_vals = [float(b) for b in args.beta.split(",") if b.strip()]
     beta = torch.tensor(beta_vals * K if len(beta_vals) == 1 else beta_vals, dtype=torch.float64)
@@ -157,6 +166,7 @@ def main() -> None:
         eta=args.eta, gamma=parse_gamma(args.gamma, args.M), M=args.M, R=args.R,
         lambda_box=(args.lambda_min, args.lambda_max),
         lambda_init=lambda_init, aggregation=args.aggregation,
+        reference_construction=construction,
         damping=args.damping, adversary_step=args.adversary_step,
         log_every=args.log_every,
     )

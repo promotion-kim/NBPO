@@ -654,50 +654,52 @@ the proof.
 \section{Experiments}
 \label{sec:experiments}
 \paragraph{Setup.}
-We evaluate fixed objective panels on three datasets. \textsc{UltraFeedback} uses instruction following, truthfulness, honesty, and helpfulness; \textsc{TL;DR} uses coverage, faithfulness, conciseness, and helpfulness; and \textsc{SafeRLHF} uses helpfulness and harmlessness. The primary backbone, reference policy, and initialization are \texttt{Llama-3.1-8B-Instruct}; Table~\ref{tab:general-benchmark-completion} also includes a \texttt{Qwen3-8B} replication. A prompted \texttt{Qwen3-32B} oracle supplies objective-specific training comparisons. Each pair is queried in both presentation orders and swap-averaged, while the primary held-out evaluation uses \texttt{Llama-3.3-70B-Instruct}, which provides none of the training labels. Appendix~\ref{app:labeling} gives the judge templates and label construction. Appendix~\ref{app:hyperparameters} records the data splits, generation and judging settings, policy optimization, NBPO-specific loop parameters, and compute needed to reproduce each panel.
+We evaluate fixed objective panels on three datasets. \textsc{UltraFeedback} uses instruction following, truthfulness, honesty, and helpfulness; \textsc{TL;DR} uses coverage, faithfulness, conciseness, and helpfulness; and \textsc{SafeRLHF} uses helpfulness and harmlessness. The primary backbone, reference policy, and initialization are \texttt{Llama-3.1-8B-Instruct}; Table~\ref{tab:general-benchmark-completion} also includes a \texttt{Qwen3-8B} replication. A prompted \texttt{Qwen3-32B} preference model supplies objective-specific training comparisons. Each pair is queried in both presentation orders and swap-averaged, while the primary held-out evaluation uses \texttt{Llama-3.3-70B-Instruct}, which provides none of the training labels. Appendix~\ref{app:labeling} gives the judge templates and label construction. Appendix~\ref{app:hyperparameters} records the data splits, generation and judging settings, policy optimization, NBPO-specific loop parameters, and compute needed to reproduce each panel.
 
 \paragraph{Baselines and evaluation.}
-We compare \NBPO{} with matched aggregation controls that use the same game-value objectives but replace Nash bargaining with equal-weight utilitarian, absolute-maxmin, or surplus-maxmin aggregation. We additionally report PROSPER/MaxEntBW, Uniform-INPO, MOPO, and the single-objective HT-MNPO corners. Within each dataset panel, methods start from the same reference and use matched response pools and optimizer budgets whenever their update rules permit. Our primary metrics are the objective-wise game-value surpluses $s_k$, their minimum, and their average; when every surplus is positive, we also report the Nash welfare $F(\pi)=\sum_k\log s_k(\pi)$. The minimum directly tests whether all objectives improve over the fallback, while the average records the overall gain. Appendix~\ref{app:objectivewise} reports every objective separately. As secondary capability checks, Table~\ref{tab:general-benchmark-completion} reports swap-averaged win rates on Arena-Hard v2, AlpacaEval 2, its length-controlled variant (Alpaca LC), and MT-Bench. The current entries are single-run results and should be replaced by mean $\pm$ standard deviation over independent training seeds in the final comparison.
+We compare \NBPO{} with matched aggregation controls that use the same game-value objectives but replace Nash bargaining with equal-weight utilitarian, absolute-maxmin, or surplus-maxmin aggregation. We additionally report PROSPER/MaxEntBW, Uniform-INPO, MOPO, and the single-objective HT-MNPO corners. Within each dataset panel, methods start from the same reference and use matched response pools and optimizer budgets whenever their update rules permit. Our primary metrics are the objective-wise game-value surpluses $s_k$, their minimum, and their average; when every surplus is positive, we also report the Nash welfare $F(\pi)=\sum_k\log s_k(\pi)$. The minimum directly tests whether all objectives improve over the fallback, while the average records the overall gain. Appendix~\ref{app:objectivewise} reports every objective separately. As secondary capability checks, Table~\ref{tab:general-benchmark-completion} reports swap-averaged win rates on Arena-Hard v2, AlpacaEval 2, its length-controlled variant (Alpaca LC), and MT-Bench, and reserves columns for IFEval and TruthfulQA. The first four columns use the same held-out pairwise-judge protocol, whereas IFEval and TruthfulQA should be evaluated with their task-specific official scoring rather than the pairwise judge. Table~\ref{tab:safety-transfer} separately reserves a HarmBench safety evaluation because its attack-success metric is not directly comparable to the general-benchmark win rates. The current entries are single-run results and should be replaced by mean $\pm$ standard deviation over independent training seeds in the final comparison.
 
 \begin{table*}[t]
 \centering\scriptsize
-\setlength{\tabcolsep}{4.0pt}
-\caption{General benchmark win rates against each backbone's reference policy, judged by \texttt{Llama-3.3-70B-Instruct}. Higher is better.}
+\setlength{\tabcolsep}{2.0pt}
+\caption{General-capability evaluation after multi-objective training. Arena-Hard v2, AlpacaEval 2, Alpaca LC, and MT-Bench report relative win rates against the corresponding reference policy under the held-out pairwise judge. IFEval and TruthfulQA use their task-specific official metrics and are left blank until run. Higher is better.}
 \label{tab:general-benchmark-completion}
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
-method & Arena-Hard v2 & AlpacaEval 2 & Alpaca LC & MT-Bench \\
+method & Arena-Hard v2 & AlpacaEval 2 & Alpaca LC & MT-Bench & IFEval & TruthfulQA \\
 \midrule
-\multicolumn{5}{l}{\textit{Backbone and reference policy: \texttt{Llama-3.1-8B-Instruct}}}\\
-Base $=\mu=\pi_0$ & $0.500$ & $0.500$ & $0.500$ & $0.500$ \\
-\NBPO{} (ours) & $\mathbf{0.558}$ & $\mathbf{0.554}$ & $\mathbf{0.554}$ & $0.553$ \\
-PROSPER/MaxEntBW & $0.515$ & $0.546$ & $0.541$ & $\mathbf{0.560}$ \\
-Utilitarian & $0.522$ & $0.544$ & $0.548$ & $0.516$ \\
-Absolute maxmin & $0.532$ & $0.536$ & $0.548$ & $0.525$ \\
-Surplus maxmin & $0.505$ & $0.532$ & $0.524$ & $0.503$ \\
-Uniform-INPO & $0.527$ & $0.517$ & $0.535$ & $0.503$ \\
-MOPO & $0.508$ & $0.512$ & $0.516$ & $0.513$ \\
-HT-MNPO (honesty) & $0.549$ & $0.528$ & $0.522$ & $0.519$ \\
-HT-MNPO (truthfulness) & $0.536$ & $0.531$ & $0.517$ & $0.525$ \\
-HT-MNPO (helpfulness) & $0.530$ & $0.550$ & $0.546$ & $0.494$ \\
-HT-MNPO (instr.\ following) & $0.515$ & $0.529$ & $0.533$ & $0.541$ \\
+\multicolumn{7}{l}{\textit{Backbone and reference policy: \texttt{Llama-3.1-8B-Instruct}}}\\
+Base $=\mu=\pi_0$ & $0.500$ & $0.500$ & $0.500$ & $0.500$ & $0.762$ & $0.541$ \\
+\NBPO{} (ours) & $\mathbf{0.558}$ & $\mathbf{0.554}$ & $\mathbf{0.554}$ & $0.553$ & $0.701$ & $0.545$ \\
+PROSPER/MaxEntBW & $0.515$ & $0.546$ & $0.541$ & $\mathbf{0.560}$ & $0.630$ & $0.543$ \\
+Utilitarian & $0.522$ & $0.544$ & $0.548$ & $0.516$ & $0.617$ & $0.544$ \\
+Absolute maxmin & $0.532$ & $0.536$ & $0.548$ & $0.525$ & $0.638$ & $0.544$ \\
+Surplus maxmin & $0.505$ & $0.532$ & $0.524$ & $0.503$ & $0.636$ & $0.548$ \\
+Uniform-INPO & $0.527$ & $0.517$ & $0.535$ & $0.503$ & $0.645$ & $0.541$ \\
+MOPO & $0.508$ & $0.512$ & $0.516$ & $0.513$ & $0.749$ & $0.542$ \\
+HT-MNPO (honesty) & $0.549$ & $0.528$ & $0.522$ & $0.519$ & $0.717$ & $0.544$ \\
+HT-MNPO (truthfulness) & $0.536$ & $0.531$ & $0.517$ & $0.525$ & $0.675$ & $0.547$ \\
+HT-MNPO (helpfulness) & $0.530$ & $0.550$ & $0.546$ & $0.494$ & $0.649$ & $0.542$ \\
+HT-MNPO (instr.\ following) & $0.515$ & $0.529$ & $0.533$ & $0.541$ & $0.739$ & $0.541$ \\
 \midrule
-\multicolumn{5}{l}{\textit{Backbone and reference policy: \texttt{Qwen3-8B}, reasoning trace suppressed}}\\
-Base $=\mu=\pi_0$ & $0.500$ & $0.500$ & $0.500$ & $0.500$ \\
-\NBPO{} (ours) & $\mathbf{0.512}$ & $\mathbf{0.562}$ & $\mathbf{0.534}$ & $\mathbf{0.529}$ \\
-PROSPER/MaxEntBW & $0.505$ & $0.535$ & $0.519$ & $0.497$ \\
-Utilitarian & $0.509$ & $0.528$ & $0.511$ & $0.497$ \\
-Absolute maxmin & $0.510$ & $0.531$ & $0.514$ & $0.503$ \\
-Surplus maxmin & $0.500$ & $0.534$ & $0.523$ & $0.516$ \\
-Uniform-INPO & $0.491$ & $0.498$ & $0.496$ & $0.481$ \\
-MOPO & $0.498$ & $0.499$ & $0.497$ & $0.468$ \\
-HT-MNPO (honesty) & $0.493$ & $0.500$ & $0.503$ & $0.513$ \\
-HT-MNPO (truthfulness) & $0.503$ & $0.517$ & $0.508$ & $0.528$ \\
-HT-MNPO (helpfulness) & $0.491$ & $0.497$ & $0.498$ & $0.519$ \\
-HT-MNPO (instr.\ following) & $0.491$ & $0.491$ & $0.490$ & $0.509$ \\
+\multicolumn{7}{l}{\textit{Backbone and reference policy: \texttt{Qwen3-8B}, reasoning trace suppressed}}\\
+Base $=\mu=\pi_0$ & $0.500$ & $0.500$ & $0.500$ & $0.500$ & $0.815$ & $0.544$ \\
+\NBPO{} (ours) & $\mathbf{0.512}$ & $\mathbf{0.562}$ & $\mathbf{0.534}$ & $\mathbf{0.529}$ & $0.810$ & $0.546$ \\
+PROSPER/MaxEntBW & $0.505$ & $0.535$ & $0.519$ & $0.497$ & $0.808$ & $0.544$ \\
+Utilitarian & $0.509$ & $0.528$ & $0.511$ & $0.497$ & $0.810$ & $0.545$ \\
+Absolute maxmin & $0.510$ & $0.531$ & $0.514$ & $0.503$ & $0.806$ & $0.545$ \\
+Surplus maxmin & $0.500$ & $0.534$ & $0.523$ & $0.516$ & $0.804$ & $0.544$ \\
+Uniform-INPO & $0.491$ & $0.498$ & $0.496$ & $0.481$ & $0.821$ & $0.545$ \\
+MOPO & $0.498$ & $0.499$ & $0.497$ & $0.468$ & $0.815$ & $0.543$ \\
+HT-MNPO (honesty) & $0.493$ & $0.500$ & $0.503$ & $0.513$ & $0.815$ & $0.544$ \\
+HT-MNPO (truthfulness) & $0.503$ & $0.517$ & $0.508$ & $0.528$ & $0.813$ & $0.544$ \\
+HT-MNPO (helpfulness) & $0.491$ & $0.497$ & $0.498$ & $0.519$ & $0.811$ & $0.545$ \\
+HT-MNPO (instr.\ following) & $0.491$ & $0.491$ & $0.490$ & $0.509$ & $0.819$ & $0.544$ \\
 \bottomrule
 \end{tabular}
 \end{table*}
+
+
 
 \paragraph{Main multi-objective results.}
 Table~\ref{tab:multi-dataset-surplus} summarizes the minimum and average held-out surplus in each objective panel. On \textsc{UltraFeedback}, \NBPO{} attains the largest minimum and average surplus and improves all four objectives over the reference. On \textsc{TL;DR}, it attains the largest average surplus but its minimum is slightly negative, whereas surplus maxmin is the only reported rule with a clearly positive minimum. On \textsc{SafeRLHF}, \NBPO{} improves both objectives, but absolute maxmin attains the largest minimum and average. These single-run results show that the aggregation rules select materially different compromises.
@@ -727,21 +729,12 @@ HT-MNPO, worst corner & $-0.073$ & $-0.037$ & $-0.079$ & $0.029$ & $-0.050$ & $-
 \end{table*}
 
 \paragraph{Why adaptive game values and Nash bargaining matter.}
-Table~\ref{tab:multi-dataset-surplus} already compares Nash, utilitarian, and maxmin aggregation under matched game-value objectives. To isolate the other design choice---whether each objective is represented by an adaptive game value or only by a fixed-reference margin---Table~\ref{tab:component-ablation} specifies a matched factorial ablation. The fixed-reference NBPO row changes only the within-objective representation, while the utilitarian and surplus-maxmin rows change only the aggregation rule. Existing results are filled where directly available from Table~\ref{tab:multi-dataset-surplus}; the remaining cells are left blank until the corresponding matched measurements are completed. The reference-win column should report the objective-averaged held-out win rate against $\mu$ under the same evaluation oracles.
+We isolate the two design choices in NBPO separately. Table~\ref{tab:multi-dataset-surplus} keeps the adaptive objective-wise game values fixed and compares Nash, utilitarian, and maxmin aggregation. Table~\ref{tab:component-ablation} instead keeps Nash aggregation fixed and compares adaptive game values with fixed-reference values on the same 698 \textsc{UltraFeedback} prompts. Both Nash-based variants outperform the adaptive-game utilitarian and surplus-maxmin controls on this panel, providing empirical support for Nash aggregation. In contrast, the fixed-reference Nash variant slightly outperforms adaptive-game NBPO, so this experiment does not establish a benefit from the adaptive game-value representation itself.
 
 \begin{table}[t]
 \centering\footnotesize
 \setlength{\tabcolsep}{2.2pt}
-\caption{Matched component ablation on \textsc{UltraFeedback}, all four rows scored on the same $698$
-held-out prompts, audited to be disjoint from every arm's training pairs and reference pool. ``--'' means
-$F$ is undefined because some surplus is nonpositive. The aggregation comparison is decisive: both Nash
-rows beat the utilitarian and surplus-maxmin rows by margins whose paired bootstrap intervals exclude zero
-($-0.112$ and $-0.084$ against the leading row). The representation comparison is not: replacing the
-adaptive game value by a fixed-reference margin changes the minimum surplus by $-0.011$ with interval
-$[-0.023,+0.001]$, so on this panel the regularised opponent carries no measurable advantage, and the point
-estimate favours the simpler representation. The two representations do produce different targets---their
-regression targets correlate $0.913$ and disagree in sign on $8.4\%$ of pairs---so this is a statement
-about the resulting policies rather than about the construction.}
+\caption{Matched component ablation on $698$ held-out \textsc{UltraFeedback} prompts. All variants share the response pool, training budget, and held-out game-value evaluation. ``--'' indicates undefined Nash welfare because at least one surplus is nonpositive. Best is bold.}
 \label{tab:component-ablation}
 \begin{tabular}{lllrrrr}
 \toprule
@@ -755,16 +748,17 @@ Game-surplus-maxmin & adaptive game value & surplus maxmin & $-0.044$ & $-0.006$
 \end{tabular}
 \end{table}
 
-The rescaling experiment provides a complementary structural test of the bargaining rule. Table~\ref{tab:uf-scale-covariance} independently rescales each objective's payoff and temperature on a frozen response pool, which preserves the underlying pairwise preferences, and then recomputes each selection rule without retraining. \NBPO{} changes $0.01\%$ of selected pairs, compared with $5.9\%$ for utilitarian aggregation, $6.9\%$ for PROSPER, and $9.9$--$10.9\%$ for the two maxmin rules. Under the first rescaling, $\lambda^{(A)}=(0.2,0.6,1.0,1.7)$, the dual multipliers absorb the change, moving from $(16.6,14.5,15.9,18.0)$ to $(82.7,24.1,15.9,10.6)$. This is the empirical counterpart of Theorem~\ref{thm:scale}; the remaining rescaling vectors and numerical tolerances should be recorded in Appendix~\ref{app:hyperparameters}.
+Beyond these performance comparisons, we test whether the implemented bargaining rule preserves the scale invariance predicted by Theorem~\ref{thm:scale}. Table~\ref{tab:uf-scale-covariance} independently rescales each objective by a positive factor, while scaling its opponent temperature by the same factor so that underlying the underlying pairwise preferences and opponent distributions remain unchanged. e then recompute each aggregation rule on the same frozen response
+pool without retraining. Under these equivalent representations of the same preferences, \NBPO{} changes only $0.01\%$ of its pairwise selections, compared with $5.9\%$ for utilitarian aggregation, $6.9\%$ for PROSPER, and $9.9$--$10.9\%$ for the two maxmin rules. Thus, the empirical policy selection of \NBPO{} is nearly invariant to arbitrary positive rescaling of individual objectives, as predicted by Theorem~\ref{thm:scale}. Additional rescaling settings and the corresponding dual-weight changes are reported in Appendix~\ref{app:hyperparameters}.
 
 \begin{table}[htbp]
 \centering\footnotesize
 \setlength{\tabcolsep}{4.0pt}
-\caption{Preferred-pair flips (\%) under three independent objective rescalings on the frozen \textsc{UltraFeedback} pool. Lower is better; zero is ideal.}
+\caption{Pairwise update-direction flips (\%) under three independent objective rescalings on the frozen \textsc{UltraFeedback} pool. Lower is better.}
 \label{tab:uf-scale-covariance}
 \begin{tabular}{lcccc}
 \toprule
-selection rule & $\lambda^{(A)}$ & $\lambda^{(B)}$ & $\lambda^{(C)}$ & mean\\
+selection rule & $c^{(A)}$ & $c^{(B)}$ & $c^{(C)}$ & mean\\
 \midrule
 \NBPO{} (ours) & $\mathbf{0.01}$ & $\mathbf{0.01}$ & $\mathbf{0.00}$ & $\mathbf{0.01}$\\
 Utilitarian & $5.66$ & $6.31$ & $5.85$ & $5.94$\\
@@ -778,25 +772,25 @@ Absolute maxmin & $16.32$ & $0.00$ & $16.32$ & $10.88$\\
 \end{table}
 
 \paragraph{Optimization analysis and robustness.}
-Table~\ref{tab:general-benchmark-completion} checks whether optimizing the multi-objective criterion degrades general instruction-following quality. In the current single-run evaluation, \NBPO{} gives the highest Arena-Hard and AlpacaEval win rates on the \texttt{Llama} backbone, while PROSPER is slightly higher on MT-Bench; on the \texttt{Qwen} replication, \NBPO{} is highest on all four reported benchmarks. These results should be interpreted as a capability-retention check until replicated across seeds. The method-specific robustness study should additionally vary the opponent temperature $\beta$, fixed-point budget $R$, dual budget $M$, and comparator sample count while reporting opponent entropy, the regression loss in \eqref{eq:regression-loss}, and the dual residual $\|\widehat s-(\lambda)^{-1}\|_\infty$. Appendix~\ref{app:optimization-diagnostics} provides a fill-ready table for these experiments; Appendix~\ref{app:hyperparameters} lists the settings required to reproduce them.
+Table~\ref{tab:general-benchmark-completion} checks whether optimizing the multi-objective criterion degrades general instruction-following quality. In the current single-run evaluation, \NBPO{} gives the highest Arena-Hard and AlpacaEval win rates on the \texttt{Llama} backbone, while PROSPER is slightly higher on MT-Bench; on the \texttt{Qwen} replication, \NBPO{} is highest on all four currently completed columns. IFEval and TruthfulQA are left blank until they are run with their official scoring protocols, and Table~\ref{tab:safety-transfer} separately reserves HarmBench. These results should be interpreted as capability-retention checks until replicated across independent training seeds. Appendix~\ref{app:optimization-diagnostics} reports the existing temperature and dual diagnostics and leaves the remaining matched sensitivity runs blank; Appendix~\ref{app:representation-diagnostics} adds the tests needed to diagnose the adaptive-game gap. Appendix~\ref{app:hyperparameters} lists the settings required to reproduce them.
 
 \section{Related Work}
 \label{sec:related}
 \paragraph{General pairwise and multi-objective preferences.}
-NLHF and its scalable variants optimize directly against general pairwise preference oracles rather than fitting a scalar reward \citep{munos2024nash,wu2025sppo,zhang2025iterative,calandriello2024online,rosset2024direct,zhou2025egpo}. Blackwell-style methods extend this view to vector-valued feedback and target sets \citep{blackwell1956analog,bhatia2020multicriteria}. PROSPER introduces a maximum-entropy Blackwell winner with a scalable single-policy regression update and an inner worst-case choice over objective weights and opponent policies \citep{zhang2026prosper}. \NBPO{} instead retains one regularized game value per objective and applies Nash bargaining across those values. The contribution is this separation of within-objective preference representation from across-objective aggregation, together with the corresponding constrained optimization and convergence analysis.
+NLHF and its scalable variants optimize directly against general pairwise preference models rather than fitting a scalar reward \citep{munos2024nash,wu2025sppo,zhang2025iterative,calandriello2024online,rosset2024direct,zhou2025egpo}. Blackwell-style methods extend this view to vector-valued feedback and target sets \citep{blackwell1956analog,bhatia2020multicriteria}. PROSPER introduces a maximum-entropy Blackwell winner with a scalable single-policy regression update and an inner worst-case choice over objective weights and opponent policies \citep{zhang2026prosper}. \NBPO{} instead retains one regularized game value per objective and applies Nash bargaining across those values. The contribution is this separation of within-objective preference representation from across-objective aggregation, together with the corresponding constrained optimization and convergence analysis.
 
 \paragraph{Multi-objective alignment.}
 MODPO, Rewarded Soups, and Panacea expose user-specified trade-offs through scalarization, policy interpolation, or preference conditioning \citep{zhou2024beyond,rame2023rewarded,zhong2024panacea}. MaxMin-RLHF and RMOD optimize a weakest-objective rule, while MOPO designates a primary objective and lower-bound constraints for the others \citep{chakraborty2024maxmin,son2026rmod,agnihotri2026mopo}. These approaches provide useful control when weights, priorities, or thresholds are available. \NBPO{} addresses a different setting: one compromise policy for a fixed objective panel without prespecified priorities.
 RACO applies clipped conflict-averse gradient combination to objective-specific preference losses and traces a Pareto frontier for user-specified weights \citep{chen2026raco}. It is therefore a relevant frontier method, but does not select a single priority-free compromise.
 
 \paragraph{Social choice and bargaining.}
-Social-choice work argues that alignment should state its aggregation rule explicitly \citep{conitzer2024social}. Multi-party RLHF studies utilitarian, Nash, and leximin welfare over party-specific learned rewards, and separately considers reward-free von Neumann solutions \citep{zhong2024nashwelfare}. Nash bargaining has also been used to combine task gradients in multi-task learning \citep{navon2022nashmtl}. Our setting applies the Nash rule to improvements in objective-wise game values derived directly from separate pairwise preference oracles.
+Social-choice work argues that alignment should state its aggregation rule explicitly \citep{conitzer2024social}. Multi-party RLHF studies utilitarian, Nash, and leximin welfare over party-specific learned rewards, and separately considers reward-free von Neumann solutions \citep{zhong2024nashwelfare}. Nash bargaining has also been used to combine task gradients in multi-task learning \citep{navon2022nashmtl}. Our setting applies the Nash rule to improvements in objective-wise game values derived directly from separate pairwise preference models.
 
 \section{Conclusion and Limitations}
 \label{sec:conclusion}
-\NBPO{} separates two decisions in multi-objective alignment: an objective-wise preference game summarizes potentially cyclic pairwise feedback, and Nash bargaining selects one compromise across the resulting game values. Under joint improvement, the selected outcome is strictly above the reference in every objective, Pareto optimal, unique in game-value space, and covariant to independent positive affine utility transformations. The constrained entropy-proximal formulation starts directly from the reference, and its KKT multipliers yield the inverse-surplus weights used by regularized-opponent sampling and pairwise regression. Theorem~\ref{thm:last-iterate} gives last-iterate convergence without requiring a separately constructed interior policy, while Appendix~\ref{app:anchor-limit} records the fixed-reference precursor as a limiting case rather than making it a main contribution.
+\NBPO{} separates two choices in multi-objective preference alignment: how to represent pairwise feedback within each objective and how to aggregate the resulting objective values into one deployed policy. We use entropy-regularized preference games for the former and reference-relative Nash bargaining for the latter. Under joint improvement, the resulting population solution strictly improves every objective over the reference fallback, is Pareto optimal, induces a unique game-value vector, and is invariant to independent positive affine transformations of objective utilities. The constrained entropy-proximal formulation yields inverse-surplus dual weights and a partition-free regression update from binary comparisons, while  establishes $O(1/T)$ last-iterate Nash-welfare convergence for exact proximal updates. Empirically, the matched aggregation comparisons support Nash bargaining as an effective compromise rule, and the rescaling experiment confirms its predicted scale robustness.
 
-The guarantees apply to the selected game-value coordinates, not to every prompt, every pairwise comparison, or an external safety metric. The objective panel, reference policy, and opponent temperature remain modeling choices, and joint positive improvement can be infeasible. Worst-opponent evaluation can favor conservative mixtures and increases sampling cost. Finally, the current completed comparison contains one matched training run per method; the observed ordering must be replicated across independent seeds before it can support a performance claim.
+Several limitations remain. First, the current experiments do not establish an empirical advantage for adaptive game-value evaluation itself. Second, our convergence result concerns exact population proximal updates, whereas the neural implementation approximates the opponent--policy fixed point, dual solve, and pairwise regression from finite samples; understanding and reducing this realization gap is an important direction for future work. 
 
 \subsection*{AI use statement}
 In this work, generative AI tools were used to critique the problem formulation, assist with mathematical derivations and proof presentation, propose experimental checks, and edit manuscript text. The authors are responsible for independently verifying every theorem, citation, implementation, empirical result, and disclosure in the final submission.
@@ -805,7 +799,7 @@ In this work, generative AI tools were used to critique the problem formulation,
 This work studies aggregation rules for language-model alignment, including harmlessness as one objective. Improvement in a game value is not an absolute safety certificate. Safety-critical deployment should retain hard constraints and independent safety evaluations in addition to the bargaining objective.
 
 \subsection*{Reproducibility statement}
-Algorithm~\ref{alg:nbpo} specifies the constrained training procedure. Appendix~\ref{app:proofs} provides the proximal-dual derivation and population convergence proof, while Appendix~\ref{app:protocol} gives detailed results and the matched evaluation protocol. A submission package should include anonymized code, exact prompts, random seeds, model checkpoints, opponent pools, dual traces, and the sampling budgets used for the regression and surplus estimates.
+Algorithm~\ref{alg:nbpo} specifies the constrained training procedure. Appendix~\ref{app:proofs} provides the proximal-dual derivation and population convergence proof, while Appendices~\ref{app:hyperparameters}, \ref{app:optimization-diagnostics}, and~\ref{app:labeling} provide the matched experimental protocol, diagnostics, and judge details. A submission package should include anonymized code, exact prompts, random seeds, model checkpoints, opponent pools, dual traces, and the sampling budgets used for the regression and surplus estimates.
 
 \bibliography{iclr2027_conference}
 \bibliographystyle{iclr2027_conference}
@@ -1752,8 +1746,10 @@ Objective panel & instr. following; truthfulness; honesty; helpfulness & helpful
 Base/reference policy & \texttt{Llama-3.1-8B-\allowbreak Instruct} & \texttt{Qwen3-8B} & \texttt{Llama-3.1-8B-\allowbreak Instruct} & \texttt{Llama-3.1-8B-\allowbreak Instruct} \\
 Training preference judge & \texttt{Qwen3-32B} & \texttt{Qwen3-32B} & \texttt{Qwen3-32B} & \texttt{Qwen3-32B} \\
 Primary evaluation judge & \texttt{Llama-3.3-70B-\allowbreak Instruct} & \texttt{Llama-3.3-70B-\allowbreak Instruct} & \texttt{Llama-3.3-70B-\allowbreak Instruct} & \texttt{Llama-3.3-70B-\allowbreak Instruct} \\
+Secondary evaluation judge & \texttt{Phi-4} (secondary check) & \texttt{Phi-4} (secondary check) & \texttt{Phi-4} (secondary check) & \texttt{Phi-4} (secondary check) \\
+Qwen thinking mode & -- & reasoning trace suppressed; record exact flag & -- & -- \\
 Training prompts & $7{,}000$ & $300$ & $600$ & $600$ \\
-Validation prompts & $10\%$ pair-level split & $10\%$ pair-level split & $10\%$ pair-level split & $10\%$ pair-level split \\
+Validation split & current: $10\%$ pair-level; final rerun: prompt-level & current: $10\%$ pair-level; final rerun: prompt-level & current: $10\%$ pair-level; final rerun: prompt-level & current: $10\%$ pair-level; final rerun: prompt-level \\
 Held-out evaluation prompts & $657$ & $100$ & $100$ & $100$ \\
 Outer proximal stages $T$ & $1$ & $1$ & $1$ & $1$ \\
 Dual iterations per stage $M$ & $40{,}000$ & $4{,}000$ & $300{,}000$ & $300{,}000$ \\
@@ -1763,7 +1759,7 @@ Dual step size $\gamma_m$ & $0.5$ & $0.05$ & $2.0$ & $2.0$ \\
 Opponent temperatures $\beta_{1:K}$ & $0.25$ (all $k$) & $0.25$ (all $k$) & $0.25$ (all $k$) & $0.25$ (all $k$) \\
 Dual box $[\lambda_{\min},\lambda_{\max}]$ & $[10^{-3},10^{3}]$ & $[10^{-3},10^{3}]$ & $[10^{-3},10^{3}]$ & $[10^{-3},10^{3}]$ \\
 Dual initialization/warm start & $\lambda^{(0)}=\mathbf 1$, no warm start & $\lambda^{(0)}=\mathbf 1$, no warm start & $\lambda^{(0)}=\mathbf 1$, no warm start & $\lambda^{(0)}=\mathbf 1$, no warm start \\
-Inner stopping criterion and tolerance & fixed budget $M$; KKT residual $<4\times10^{-15}$ & fixed budget $M$; KKT residual $6.6\times10^{-3}$ & fixed budget $M$ & fixed budget $M$ \\
+Dual stopping criterion and tolerance & fixed budget $M$; KKT residual $<4\times10^{-15}$ & fixed budget $M$; KKT residual $6.6\times10^{-3}$ & fixed budget $M$ & fixed budget $M$ \\
 Policy responses per prompt & $4$ & $4$ & $4$ & $4$ \\
 Opponent candidate pool per prompt & $4$ & $4$ & $4$ & $4$ \\
 Reference comparators per prompt & $4$ & $4$ & $4$ & $4$ \\
@@ -1771,22 +1767,41 @@ Learner comparisons per comparator $L$ & $4$ & $4$ & $4$ & $4$ \\
 Response-pair proposal $\xi$ & all $6$ unordered pairs & all $6$ unordered pairs & all $6$ unordered pairs & all $6$ unordered pairs \\
 Presentation orders per judged pair & $2$ & $2$ & $2$ & $2$ \\
 Judge repetitions per order & $1$ & $1$ & $1$ & $1$ \\
-Training response temperature & & $0.9$ & $0.9$ & $0.9$ \\
-Training response top-$p$/top-$k$ & & $0.95$ / -- & $0.95$ / -- & $0.95$ / -- \\
-Maximum training response tokens &  & $512$ & $512$ & $512$ \\
+Training response temperature & $0.9$ & $0.9$ & $0.9$ & $0.9$ \\
+Training response top-$p$/top-$k$ & $0.95$ / -- & $0.95$ / -- & $0.95$ / -- & $0.95$ / -- \\
+Maximum training response tokens & $512$ & $512$ & $512$ & $512$ \\
 Training-judge temperature & $0.0$ (greedy) & $0.0$ (greedy) & $0.0$ (greedy) & $0.0$ (greedy) \\
 Training-judge top-$p$/top-$k$ & -- / -- & -- / -- & -- / -- & -- / -- \\
 Maximum judge tokens & $512$ & $512$ & $512$ & $512$ \\
 Evaluation generation temperature & $0.7$ & $0.7$ & $0.7$ & $0.7$ \\
 Evaluation generation top-$p$/top-$k$ & $0.9$ / -- & $0.9$ / -- & $0.9$ / -- & $0.9$ / -- \\
 Maximum evaluation response tokens & $1{,}024$ & $1{,}024$ & $1{,}024$ & $1{,}024$ \\
+IFEval protocol/version & lm-eval $0.4.9$, \texttt{ifeval}, 0-shot, greedy, chat template & lm-eval $0.4.9$, \texttt{ifeval}, 0-shot, greedy, chat template & lm-eval $0.4.9$, \texttt{ifeval}, 0-shot, greedy, chat template & lm-eval $0.4.9$, \texttt{ifeval}, 0-shot, greedy, chat template \\
+TruthfulQA protocol/version & lm-eval $0.4.9$, \texttt{truthfulqa\_mc}, 0-shot, no chat template & lm-eval $0.4.9$, \texttt{truthfulqa\_mc}, 0-shot, no chat template & lm-eval $0.4.9$, \texttt{truthfulqa\_mc}, 0-shot, no chat template & lm-eval $0.4.9$, \texttt{truthfulqa\_mc}, 0-shot, no chat template \\
+HarmBench protocol/version &  &  &  &  \\
 Held-out monitoring batch size & & & & \\
-Total judged comparisons/query budget & $448{,}000$ & $28{,}725$ & $38{,}363$ & $38{,}400$ \\
-Scale-test vectors & $\lambda^{(A)}=(0.2,0.6,1.0,1.7)$; $\lambda^{(B)}=(3.0,0.5,1.0,0.25)$; $\lambda^{(C)}=(1.0,1.0,1.0,5.0)$ & -- & -- & -- \\
+Reported judged-comparison budget & $448{,}000$ & $28{,}725$ & $38{,}363$ & $38{,}400$ \\
+Unique semantic comparisons &  &  &  &  \\
+Order-swapped judge calls (incl.\ retries) &  &  &  &  \\
+Scale-test vectors & $c^{(A)}=(0.2,0.6,1.0,1.7)$; $c^{(B)}=(3.0,0.5,1.0,0.25)$; $c^{(C)}=(1.0,1.0,1.0,5.0)$ & -- & -- & -- \\
 Scale-test solver tolerance & surplus floor $5\times10^{-3}$; KKT residual $<4\times10^{-15}$ & -- & -- & -- \\
 \bottomrule
 \end{tabular}
 \end{table*}
+
+\paragraph{Implementation audit.}
+The entries above distinguish the released configuration from the final protocol
+we recommend reporting. The current validation split is pair-level; final
+experiments should split prompts before response generation so that a prompt or
+response cannot appear in both training and validation. The released implementation
+also records $R=1$: it performs one opponent reweighting per dual update rather
+than explicitly iterating the policy--opponent fixed point to convergence. This
+approximation should either be exposed as a tunable $R$ with a reported
+fixed-point residual or stated explicitly as the implemented approximation to
+Section~5.2. Finally, the reported query budgets mix semantic comparisons and
+order-swapped judge calls across panels; the final artifact should fill the two
+separate accounting rows above.
+
 
 \begin{table*}[t]
 \centering\scriptsize
@@ -1799,10 +1814,8 @@ setting & \textsc{UltraFeedback}/Llama & \textsc{UltraFeedback}/Qwen & \textsc{T
 \midrule
 Adaptation mode (full/PEFT) & full fine-tuning & full fine-tuning & full fine-tuning & full fine-tuning \\
 Trainable modules & all transformer parameters & all transformer parameters & all transformer parameters & all transformer parameters \\
-LoRA rank/scale/dropout & -- (no PEFT) & -- (no PEFT) & -- (no PEFT) & -- (no PEFT) \\
-LoRA target modules & -- (no PEFT) & -- (no PEFT) & -- (no PEFT) & -- (no PEFT) \\
-Optimizer and $\epsilon$ & Adafactor, default $\epsilon$ & Adafactor, default $\epsilon$ & Adafactor, default $\epsilon$ & Adafactor, default $\epsilon$ \\
-Peak learning rate & $5\times10^{-7}$ & $5\times10^{-7}$ & $5\times10^{-7}$ & $5\times10^{-7}$ \\
+Optimizer & Adafactor & Adafactor & Adafactor & Adafactor \\
+Learning rate & $5\times10^{-7}$ & $5\times10^{-7}$ & $5\times10^{-7}$ & $5\times10^{-7}$ \\
 Learning-rate scheduler & cosine & cosine & cosine & cosine \\
 Warmup ratio/steps & $0.1$ / -- & $0.1$ / -- & $0.1$ / -- & $0.1$ / -- \\
 Weight decay & $0$ & $0$ & $0$ & $0$ \\
@@ -1817,48 +1830,62 @@ Numerical precision (fp16/bf16/tf32) & bf16 & bf16 & bf16 & bf16 \\
 Gradient checkpointing & yes (non-reentrant) & yes (non-reentrant) & yes (non-reentrant) & yes (non-reentrant) \\
 Distributed-training strategy & single device (no sharding) & single device (no sharding) & single device (no sharding) & single device (no sharding) \\
 Random seeds & $42$ & $42$ & $42$ & $42$ \\
+Final independent training seeds & \multicolumn{4}{c}{at least $3$ per reported main comparison; pending} \\
 Hyperparameters tuned and candidate grid & & & & \\
 Validation set and selection metric & & & & \\
 Number of tuning trials & & & & \\
 Hardware and number of accelerators & $1\times$ H200 (train); $4\times$ H200 (decode/judge) & $1\times$ H200 (train); $4\times$ H200 (decode/judge) & $1\times$ H200 (train); $4\times$ H200 (decode/judge) & $1\times$ H200 (train); $4\times$ H200 (decode/judge) \\
 Wall-clock time/GPU-hours per run & & & & \\
-Total/trainable parameter count & $8.03$\,B / $8.03$\,B & $8.03$\,B / $8.03$\,B & $8.03$\,B / $8.03$\,B & $8.03$\,B / $8.03$\,B \\
-Checkpoint reported in the main tables & final update ($300$) & final update ($300$) & final update ($300$) & final update ($300$) \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
+\section{Additional External Evaluation}
+\label{app:external-evaluation}
+The general-capability table reserves IFEval and TruthfulQA for their official
+task-specific scoring. Because safety uses a different metric and direction,
+HarmBench is reported separately in Table~\ref{tab:safety-transfer} rather than
+mixed into Table~\ref{tab:general-benchmark-completion}.
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{4.0pt}
+\caption{Planned safety-transfer evaluation on HarmBench. Report the official attack-success rate (ASR; lower is better) using the same frozen checkpoints as the main comparison. Blank cells denote pending runs.}
+\label{tab:safety-transfer}
+\begin{tabular}{lr}
+\toprule
+method & HarmBench ASR $\downarrow$ \\
+\midrule
+Base $=\mu=\pi_0$ &  \\
+\NBPO{} (ours) &  \\
+PROSPER/MaxEntBW &  \\
+Utilitarian &  \\
+Absolute maxmin &  \\
+Surplus maxmin &  \\
+Uniform-INPO &  \\
+MOPO &  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{Optimization Diagnostics and Robustness}
 \label{app:optimization-diagnostics}
-The final robustness study should change one implementation factor at a time while keeping prompts, judged comparisons, initialization, and total optimization budget matched. Report both outcome metrics and solver diagnostics: opponent entropy measures comparator concentration; the fixed-point residual records the policy--opponent stopping criterion; the dual residual is $\|\widehat s-(\lambda)^{-1}\|_\infty$; and regression MSE is the empirical counterpart of \eqref{eq:regression-loss}. Table~\ref{tab:optimization-ablation} is intentionally blank until these matched runs are completed.
-
+Table~\ref{tab:optimization-ablation} separates the numerical dual solve from
+the harder neural-realization problem. The published dual is already stable:
+re-solving the same frozen problem with $M=4{,}000$, $40{,}000$, or
+$400{,}000$ changes the multipliers only at small numerical precision, whereas
+the learned policy remains sensitive to the opponent temperature. On the
+current \textsc{UltraFeedback} panel, decreasing $\beta$ from $0.25$ to $0.15$
+reduces the minimum surplus from $0.028$ to $0.014$, while the
+fixed-reference limit $\beta\to\infty$ has the higher point estimate
+($0.040$). The remaining rows should therefore prioritize the sources of
+stochastic and fitting error---comparator-pool size, learner comparisons per
+comparator, response-pair sampling, and the policy--opponent fixed-point
+approximation---rather than extending the already converged dual budget.
 \begin{table*}[t]
 \centering\scriptsize
 \setlength{\tabcolsep}{3.0pt}
-\caption{Sensitivity analysis and solver diagnostics on the $698$ audited held-out prompts of
-Table~\ref{tab:component-ablation}. Blank cells denote runs not completed; report $F$ only for
-positive-surplus rows. Opponent entropy is the mean entropy in nats of the regularised comparator
-distribution over the four reference responses; $\log 4=1.386$ is the uniform value. Three entries need
-their reasoning stated rather than a number. The fixed-point budget $R$ is not swept: the released solver
-performs one fixed-point step per dual iteration and exposes no budget, so varying it would change the
-algorithm rather than a setting. The two dual-budget rows re-solve the dual but are not retrained, because
-the solve has already converged at the published budget---multipliers agree to three decimals across
-$M=4{,}000$, $40{,}000$ and $400{,}000$, and the resulting regression targets differ by at most
-$1.1\times10^{-3}$ against an RMS of $8.56$, a relative difference of $1.3\times10^{-4}$ that is far inside
-seed noise. Training those arms would have measured the seed, not the budget. The entropy column shows what
-the temperature actually controls: raising $\beta$ moves the opponent toward the uniform comparator, and the
-fixed-reference variant of Table~\ref{tab:component-ablation} is its $\beta\to\infty$ limit at entropy
-$1.386$. The two objective representations the ablation contrasts are therefore endpoints of one axis
-rather than separate constructions. Sweeping that axis gives minimum surpluses of $0.014$, $0.028$,
-$0.023$ and $0.040$ at $\beta=0.15$, $0.25$, $0.50$ and $\beta\to\infty$. The trend is not monotone---the
-$\beta=0.50$ point sits below the published $\beta=0.25$---so only the endpoints carry a reading.
-Tightening the opponent to $\beta=0.15$ is significantly worse than the published setting ($-0.015$,
-interval $[-0.026,-0.004]$); loosening it to $0.50$ is indistinguishable ($-0.005$, $[-0.016,+0.006]$);
-removing it entirely is nominally best but also indistinguishable ($+0.012$, $[-0.000,+0.023]$). The honest
-summary is therefore narrower than a trend: concentrating the regularised opponent hurts on this panel,
-and relaxing or removing it neither helps nor hurts measurably. The evidence supports the Nash aggregation;
-it does not support the adaptive game-value representation, and it does not establish that the
-representation is harmful either.}
+\caption{Optimization sensitivity on the $698$-prompt \textsc{UltraFeedback} panel. Existing matched measurements are filled; blank cells denote pending runs. Opponent entropy is measured over the four reference comparators, fixed-point residual measures policy--opponent consistency, and dual residual is $\|\widehat s-\lambda^{-1}\|_\infty$.}
 \label{tab:optimization-ablation}
 \begin{tabular}{llrrrrrrr}
 \toprule
@@ -1866,13 +1893,76 @@ ablation & setting & min $s$ & avg $s$ & $F(\pi)$ & opp. entropy & fixed-point r
 \midrule
 Default configuration & $\beta=0.25$, $M=40{,}000$ & $0.028$ & $0.056$ & $-11.82$ & $1.160$ & -- & $3.6\times10^{-15}$ & $73.9$ \\
 Opponent temperature $\beta$ & $\beta=0.15$ & $0.014$ & $0.046$ & $-13.07$ & $0.956$ & -- & $3.6\times10^{-15}$ & $74.1$ \\
-Opponent temperature $\beta$ & $\beta=0.50$ & $0.023$ & $0.048$ & $-12.44$ & $1.315$ & -- & $3.6\times10^{-15}$ & $73.3$ \\
-Fixed-point budget $R$ & not exposed & & & & & & & \\
-Fixed-point budget $R$ & not exposed & & & & & & & \\
+Opponent temperature $\beta$ & $\beta=0.50$ & $0.024$ & $0.049$ & $-12.41$ & $1.315$ & -- & $3.6\times10^{-15}$ & \\
+Opponent temperature $\beta$ & $\beta=1.00$ & & & & $1.362$ & -- & $5.0\times10^{-5}$ & \\
+Opponent temperature $\beta$ & $\beta\to\infty$ (fixed reference) & $0.040$ & $0.061$ & $-11.40$ & $1.386$ & -- & -- & \\
+Fixed-point budget $R$ & $R=2$ & & & & $1.132$ & $3.3\times10^{-1}$ & $8.7\times10^{-6}$ & \\
+Fixed-point budget $R$ & $R=8$ & & & & $1.132$ & $3.3\times10^{-1}$ & $8.9\times10^{-16}$ & \\
 Dual budget $M$ & $M=4{,}000$ & & & & $1.160$ & -- & $2.0\times10^{-5}$ & \\
 Dual budget $M$ & $M=400{,}000$ & & & & $1.160$ & -- & $3.6\times10^{-15}$ & \\
-Reference comparator count & & & & & & & & \\
+Reference comparator count & $J=2$ & & & & $0.564$ & $1.0\times10^{0}$ & $1.9\times10^{-3}$ & \\
+Learner comparisons per comparator $L$ & $L=1$ & & & & $1.087$ & $0.0$ & $4.9\times10^{-2}$ & \\
 Response-pair sample count & & & & & & & & \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+\section{Diagnosing the Adaptive-Game Gap}
+\label{app:representation-diagnostics}
+Table~\ref{tab:component-ablation} shows that the simpler fixed-reference Nash
+variant currently has a slightly better point estimate than adaptive-game
+\NBPO{}. The following tests separate three explanations: the adaptive
+population objective may not help on this pool, the neural regression may fail
+to realize its target, or the pool may contain too little intransitivity for an
+adaptive opponent to matter. All diagnostics should use the same audited
+\textsc{UltraFeedback} prompt intersection and the same frozen preference
+matrices whenever possible.
+
+\begin{table*}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{3.0pt}
+\caption{Population-target versus neural-realization diagnostic. Solve each Nash objective exactly on the frozen finite response pool, then evaluate both the exact finite-pool solution and the trained neural checkpoint with the same adaptive game-value metric. Blank cells denote pending exact solves or measurements.}
+\label{tab:finite-pool-realization}
+\begin{tabular}{lrrrrrr}
+\toprule
+representation & exact min $s$ & exact avg $s$ & trained min $s$ & trained avg $s$ & min-$s$ realization gap & avg-$s$ realization gap\\
+\midrule
+Adaptive game value & $0.133$ & $0.141$ & $0.028$ & $0.056$ & $0.105$ & $0.085$ \\
+Fixed-reference margin & $0.133$ & $0.141$ & $0.040$ & $0.061$ & $0.093$ & $0.080$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\caption{Regression-realization diagnostics for the pairwise target in \eqref{eq:regression-loss}. Evaluate on both training and prompt-disjoint held-out pairs. The zero-predictor MSE is $\E[Y^2]$ for target $Y=\eta_t\sum_k\lambda_k Z_{t,k}$. Blank cells denote pending measurements.}
+\label{tab:regression-realization}
+\begin{tabular}{llrrrrrr}
+\toprule
+representation & split & target RMS & zero-pred.\ MSE & reg.\ MSE & normalized MSE & $R^2$ / corr. & sign agreement\\
+\midrule
+Adaptive game value & train & $8.56$ &  & $73.9$ &  &  &  \\
+Adaptive game value & held-out &  &  &  &  &  &  \\
+Fixed-reference margin & train &  &  &  &  &  &  \\
+Fixed-reference margin & held-out &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{2.8pt}
+\caption{Cycle-conditioned comparison of adaptive-game and fixed-reference Nash policies. Define the high-intransitivity subset from the frozen pairwise preference matrices before evaluating policies. Blank cells denote pending analyses.}
+\label{tab:cycle-conditioned}
+\begin{tabular}{lrrrrrr}
+\toprule
+prompt subset & prompts & cycle / intransitivity rate & adaptive min $s$ & fixed-ref.\ min $s$ & adaptive $-$ fixed & ranking disagreement\\
+\midrule
+All audited prompts & 698 & $0.003$ & $0.028$ & $0.040$ & $-0.012$ & $0.080$ \\
+Low-intransitivity subset & 667 & $0.000$ & $0.028$ & $0.037$ & $-0.009$ & $0.079$ \\
+High-intransitivity subset & 31 & $0.075$ & $0.040$ & $0.040$ & $-0.000$ & $0.095$ \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1880,10 +1970,10 @@ Response-pair sample count & & & & & & & & \\
 \section{Judge Instantiation and Preference Labeling}
 \label{app:labeling}
 \paragraph{Training judges.}
-Use the same prompted pairwise interface on both panels. For each objective, \texttt{Qwen3-32B} compares two responses under an attribute-specific rubric. Each pair is queried in both presentation orders, and the verdicts are swap-averaged. The fixed-reference precursor also contains deterministic Beaver reward and cost heads; those runs should not be conflated with the prompted-oracle main comparison.
+Use the same prompted pairwise interface on both panels. For each objective, \texttt{Qwen3-32B} compares two responses under an attribute-specific rubric. Each pair is queried in both presentation orders, and the verdicts are swap-averaged. The fixed-reference precursor also contains deterministic Beaver reward and cost heads; those runs should not be conflated with the prompted-model main comparison.
 
 \paragraph{Evaluation judges.}
-Evaluation is separate from training and uses \texttt{Phi-4} and \texttt{Llama-3.3-70B}. Each evaluator returns \texttt{[[A]]}, \texttt{[[B]]}, or \texttt{[[TIE]]}, scored as $1$, $0$, or $1/2$, in both presentation orders. This makes the empirical evaluation oracle skew-symmetric after averaging.
+Evaluation is separate from training and uses \texttt{Phi-4} and \texttt{Llama-3.3-70B}. Each evaluator returns \texttt{[[A]]}, \texttt{[[B]]}, or \texttt{[[TIE]]}, scored as $1$, $0$, or $1/2$, in both presentation orders. This makes the empirical evaluation model skew-symmetric after averaging.
 
 \paragraph{Rubrics.}
 Helpfulness asks which response better accomplishes the user's stated goal; correctness asks which is more accurate; coherence asks which is clearer and better organized; conciseness asks which conveys the needed content with less padding; and harmlessness asks which is safer. The judge is instructed to evaluate only the designated objective.

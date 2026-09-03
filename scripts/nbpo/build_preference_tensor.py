@@ -197,7 +197,7 @@ def main() -> None:
     A_policy = fill_policy_tensor(payoff, objectives, prompt_ids, policy_ids, ref_ids)
     A_ref, skew_stats = fill_reference_tensor(payoff, objectives, prompt_ids, ref_ids)
     validate_centered_preference_tensor(torch.from_numpy(A_policy), "A_policy")
-    validate_reference_tensor(torch.from_numpy(A_ref), "A_ref")
+    validate_reference_tensor(torch.from_numpy(A_ref), "A_ref", "shared_pool")
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(args.out_dir / "tensor_policy.npz", A=A_policy)
@@ -222,6 +222,7 @@ def main() -> None:
         "single_order_ablation": bool(args.allow_single_order_ablation),
         "self_pairs": "identity_zero (Eq. (1): P_k(y>y|x)=1/2 exactly; not an imputation)",
         "reference_skew": skew_stats,
+        "reference_construction": "shared_pool",
         "tensor_kind": "centered_preference",
         "shape_policy": list(A_policy.shape),
         "shape_ref": list(A_ref.shape),
