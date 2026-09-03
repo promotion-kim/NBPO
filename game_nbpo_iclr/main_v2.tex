@@ -1849,14 +1849,20 @@ seed noise. Training those arms would have measured the seed, not the budget. Th
 the temperature actually controls: raising $\beta$ moves the opponent toward the uniform comparator, and the
 fixed-reference variant of Table~\ref{tab:component-ablation} is its $\beta\to\infty$ limit at entropy
 $1.386$. The two objective representations the ablation contrasts are therefore endpoints of one axis
-rather than separate constructions.}
+rather than separate constructions, and the sweep along that axis is monotone in the wrong direction for
+the adaptive representation: minimum surplus rises from $0.014$ at $\beta=0.15$ to $0.028$ at the published
+$\beta=0.25$ to $0.040$ in the $\beta\to\infty$ limit, with $F$ rising from $-13.07$ to $-11.82$ to
+$-11.37$. The step down to $\beta=0.15$ is significant ($-0.015$, interval $[-0.026,-0.004]$); the step up
+to the fixed-reference limit is not ($+0.012$, interval $[-0.000,+0.023]$). Concentrating the regularised
+opponent hurts on this panel and removing it entirely does not, so the evidence here supports the Nash
+aggregation but not the adaptive game-value representation.}
 \label{tab:optimization-ablation}
 \begin{tabular}{llrrrrrrr}
 \toprule
 ablation & setting & min $s$ & avg $s$ & $F(\pi)$ & opp. entropy & fixed-point res. & dual res. & reg. MSE \\
 \midrule
 Default configuration & $\beta=0.25$, $M=40{,}000$ & $0.028$ & $0.056$ & $-11.82$ & $1.160$ & -- & $3.6\times10^{-15}$ & $73.9$ \\
-Opponent temperature $\beta$ & $\beta=0.15$ & & & & $0.956$ & -- & $3.6\times10^{-15}$ & $74.1$ \\
+Opponent temperature $\beta$ & $\beta=0.15$ & $0.014$ & $0.046$ & $-13.07$ & $0.956$ & -- & $3.6\times10^{-15}$ & $74.1$ \\
 Opponent temperature $\beta$ & $\beta=0.50$ & & & & $1.315$ & -- & $3.6\times10^{-15}$ & \\
 Fixed-point budget $R$ & not exposed & & & & & & & \\
 Fixed-point budget $R$ & not exposed & & & & & & & \\
