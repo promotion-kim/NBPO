@@ -26,12 +26,104 @@ as per-pair targets, so the additions are a dual solver that produces those weig
 objective-wise game values and a pair builder that applies them. MNPO's own baselines remain
 runnable and are used as controls.
 
+## Two NBPO pipelines: paper-exact vs legacy fixed-reference
+
+The repository contains two distinct implementations. Do not conflate them.
+
+**`scripts/nbpo/` — finite-temperature NBPO (Algorithm 1, paper-exact).** The
+manuscript's construction: adaptive KL-regularized opponents
+ν\*<sub>k,π</sub> ∝ μ·exp(−r/β<sub>k</sub>) (Eq. 7), soft-min game values
+V<sub>k,β</sub> (Eq. 8), a measured disagreement point
+d<sub>k</sub> = V<sub>k,β</sub>(μ) (Eq. 10, never assumed zero), projected dual
+descent on the **raw** multipliers λ ← Π<sub>Λ</sub>[λ − γ(ŝ − 1/λ)] (Eq. 27),
+pairwise regression to (h<sub>t</sub> − η Σ<sub>k</sub> λ<sub>k</sub>Z<sub>k</sub>)²
+with sequence-sum log-probabilities (Eq. 26, `loss_type: nbpo`), and the held-out
+stage-acceptance gate of Algorithm 1. **The dual solver lives in
+`mnpo_scripts/nbpo_solver.py`** (CLI: `scripts/nbpo/solve_nbpo_dual.py`); its
+M = 4e3–3e5 dual iterations run on the frozen finite response pool — cheap
+tensor updates — and the neural policy is fit once afterwards, not per dual step.
+The released configuration uses **R = 1 fixed-point iteration per dual update, a
+disclosed practical approximation** whose residual is logged. λ is raw
+throughout: any normalized weights that appear in logs are display diagnostics
+only, never what the update uses.
+
+**`scripts/bpo/` — fixed-reference Anchored-BPO (β = ∞ baseline, legacy).**
+Fixed-anchor surpluses s<sub>k</sub> = P<sub>k</sub>(π≻μ) − ½ against the frozen
+reference, static normalized/clipped weight rules, token-mean log-probabilities,
+auxiliary anchor/pref-SFT losses in some drivers, and an evaluator
+(`eval_bpo_surplus.py`) that clamps nonpositive surpluses. Kept runnable, header-labeled,
+and used as the β→∞ baseline; not Algorithm 1.
+
+The evaluators differ the same way: `scripts/nbpo/eval_game_value.py` computes
+V, d, and surpluses at finite β and reports Nash welfare as `null` whenever any
+surplus is nonpositive (no clamping); `scripts/bpo/eval_bpo_surplus.py` is the
+fixed-reference diagnostic.
+
+### Paper-exact stage, command by command
+
+```bash
+export PYTHONPATH=$(pwd)
+
+# 1. Judge the full pairwise matrix (policy-vs-ref AND ref-vs-ref for d_k),
+#    both presentation orders, retries, loud completeness failure.
+python -m scripts.nbpo.judge_pairwise_matrix \
+  --policy-files s0=pol0.json s1=pol1.json s2=pol2.json s3=pol3.json \
+  --reference-files r0=ref0.json r1=ref1.json r2=ref2.json r3=ref3.json \
+  --objectives-config training_configs/nbpo/objectives/ultrafeedback.yaml \
+  --objectives instruction_following,truthfulness,honesty,helpfulness \
+  --judge-model-path Qwen/Qwen3-32B --backend vllm --output verdicts.jsonl
+
+# 2. Swap-average into centered float64 tensors A_policy and A_ref.
+python -m scripts.nbpo.build_preference_tensor \
+  --verdicts verdicts.jsonl --policy-files s0=pol0.json ... \
+  --reference-files r0=ref0.json ... \
+  --objectives instruction_following,truthfulness,honesty,helpfulness \
+  --objectives-config training_configs/nbpo/objectives/ultrafeedback.yaml \
+  --out-dir tensor/
+
+# 3. Projected dual descent on the frozen pool (Eq. 27). Matched controls via
+#    --aggregation utilitarian|absolute_maxmin|surplus_maxmin.
+python -m scripts.nbpo.solve_nbpo_dual --tensor-dir tensor/ --out-dir solver/ \
+  --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 1 --aggregation nash
+
+# 4. Pair targets: six unordered pairs, per-objective z_k ~ nu*, sampled
+#    Bernoulli Z_k (Eq. 24), UNSCALED sum_k lambda_k Z_k (eta applied in the trainer).
+python -m scripts.nbpo.build_nbpo_pairs --tensor-dir tensor/ --solver-dir solver/ \
+  --policy-files s0=pol0.json ... --out-dir pairs/ --target-mode sampled
+
+# 5. Precompute logps with SEQUENCE-SUM reduction (writes precompute_meta.json,
+#    validated at training time), then train the loss_type=nbpo branch.
+python -m mnpo_scripts.precompute --logp_reduction sum --ronpo_target_mode none \
+  --model_name_or_path $PI_T --ref_model $BASE --history_paths $PI_T \
+  --train_dir pairs/pairs_train.jsonl --output_dir precomputed/ ...
+python -m accelerate.commands.launch --num_processes 1 -m mnpo_scripts.run_mnpo run_config.yaml
+
+# 6. Held-out game-value evaluation + Algorithm-1 gate (or run the whole stage):
+python -m scripts.nbpo.eval_game_value --tensor-dir tensor_holdout/ --beta 0.25
+python -m scripts.nbpo.run_nbpo_stage --config training_configs/nbpo/ultrafeedback_llama.yaml
+
+# CPU-only dry run (mock judge, no LLM anywhere):
+python -m scripts.nbpo.run_nbpo_stage --config tests/fixtures/nbpo_toy/config.yaml --dry-run
+```
+
+Stage configs with the manuscript hyperparameters are in
+`training_configs/nbpo/` (per-dataset M, γ; `opponent_betas` is the explicit
+temperature field — the trainer's `beta: 10.0` is a metrics-only display
+multiplier). The exact objective rubrics are versioned in
+`training_configs/nbpo/objectives/`; the TL;DR rubrics were never committed to
+this repository, so the TL;DR config fails loudly at the rubric loader instead
+of inventing prompt text. Tests: `tests/test_nbpo_*.py`.
+
 ## Repository layout
 
 | Path | Description |
 |---|---|
 | `game_nbpo_iclr/` | Manuscript source and figures (`main_v2.tex`). |
+| `scripts/nbpo/` | **Paper-exact finite-temperature NBPO** (Algorithm 1): judging, tensors, dual solver CLI, pair targets, game-value evaluator, stage runner. |
+| `mnpo_scripts/nbpo_core.py`, `nbpo_solver.py` | Finite-pool math and the fixed-point + projected dual solver. |
+| `scripts/bpo/` | Legacy **fixed-reference (β = ∞) Anchored-BPO** baselines. |
 | `mnpo_scripts/` | Training pipeline: config dataclasses, precomputation, trainer, `run_mnpo.py`. |
+| `training_configs/nbpo/` | Stage configs (manuscript hyperparameters) and versioned objective rubrics. |
 | `on_policy_data_gen/` | On-policy generation, filtering, and preference annotation. |
 | `alignment/` | Shared data-loading and model utilities. |
 | `accelerate_configs/` | Accelerate, DeepSpeed ZeRO, and FSDP launch configs. |
@@ -73,9 +165,12 @@ FlashInfer does not load on your GPU.
 3. `mnpo_scripts.precompute` — log-probabilities, normalizers, and history buffers.
 4. `mnpo_scripts.run_mnpo` — the update itself, via Accelerate.
 
-For NBPO, step 4 consumes per-pair bargaining targets produced by the dual solve; the aggregation
-baselines (utilitarian, absolute max-min, surplus max-min) differ only in the weight vector, which
-is what makes the comparison in the paper a matched one.
+For paper-exact NBPO, step 4 runs `loss_type: nbpo` on the `nbpo_weighted_z` targets produced by
+the dual solve (see the command-by-command section above); the matched aggregation controls
+(utilitarian, absolute max-min, surplus max-min) share the same tensors, β, d, response pool, and
+optimizer budget and differ only in how the weight vector is chosen — utilitarian fixes λ = 1, the
+max-min rules run an adversarial two-player solve with a logged duality gap (not a static one-hot
+on the pre-training worst objective).
 
 ```bash
 bash run_iter1.sh   # then run_iter2.sh, run_iter3.sh

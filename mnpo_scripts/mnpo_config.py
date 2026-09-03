@@ -12,7 +12,7 @@ class MNPOConfig(SimPOConfig):
     All variants share the same data pipeline (split -> on-policy gen -> annotate
     -> precompute), so only the loss head differs.
 
-        loss_type in {"mnpo", "ht_mnpo", "inpo", "dpo", "ipo", "simpo", "sppo", "ronpo"}
+        loss_type in {"mnpo", "ht_mnpo", "inpo", "dpo", "ipo", "simpo", "sppo", "ronpo", "nbpo"}
 
       - "mnpo" / "inpo":  squared loss to the constant target 1/(2*eta)  (INPO = single history opponent)
       - "ht_mnpo":        heterogeneous MNPO Eq. 18: squared loss between
@@ -25,6 +25,18 @@ class MNPOConfig(SimPOConfig):
       - "ronpo":          partition-free robust objective-adversarial regression
                           (requires history0 logps for pi_t and a `ronpo_target` column
                           containing z_y - z_y_prime in {-1, 0, 1})
+      - "nbpo":           paper-exact finite-temperature NBPO regression (manuscript
+                          Eq. (26)): loss = (h_t - eta * nbpo_weighted_z)^2 with
+                          h_t = [log pi(y)-log pi(y')] - [log pi_t(y)-log pi_t(y')]
+                          (Eq. (22)), history0 = the proximal center pi_t, and
+                          SEQUENCE-SUM log probabilities (logp_reduction="sum").
+                          Targets come from scripts/nbpo/build_nbpo_pairs.py, which
+                          already applied the RAW dual weights lambda_k; eta is
+                          applied exactly once, here. validate_nbpo_args() hard-errors
+                          on any auxiliary loss, mean reduction, or multi-history
+                          configuration. This is distinct from the legacy
+                          fixed-reference (beta = infinity) Anchored-BPO arms, which
+                          reuse loss_type "ronpo"/"ht_mnpo" with bpo_target_* columns.
     """
 
     # --- which preference loss to optimize ---
@@ -80,6 +92,17 @@ class MNPOConfig(SimPOConfig):
     # RONPO target.  This is computed from response-only average log-probability,
     # so it works for pairs whose `chosen`/`rejected` names are not ordered.
     preference_sft_weight: float = 0.0
+
+    # --- NBPO (paper-exact finite-temperature branch) ---
+    # Column holding the UNSCALED weighted binary target sum_k lambda_k Z_k
+    # (raw lambda from the dual solve; the trainer multiplies by eta exactly once).
+    nbpo_target_column: str = "nbpo_weighted_z"
+    # Per-response log-probability reduction used by concatenated_forward:
+    # "mean" (token average -- the historical default for every legacy loss) or
+    # "sum" (sequence sum over non-masked response tokens -- REQUIRED for nbpo).
+    # The precompute artifact records its own reduction in precompute_meta.json
+    # and the two are validated against each other for loss_type=nbpo.
+    logp_reduction: str = "mean"
 
     # --- HT-MNPO reward-gap target ---
     # Eq. 18 uses eta * delta_i*, where delta_i* is the player-specific

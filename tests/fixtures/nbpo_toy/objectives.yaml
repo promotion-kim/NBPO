@@ -1,0 +1,41 @@
+# Toy objective rubrics for the CPU-only dry run and the pipeline tests.
+# These are NOT experiment rubrics; the toy pipeline uses the mock judge, which
+# never reads the text. They exist so the loader path (versioning, provenance,
+# availability checks) is exercised end to end.
+version: 1
+dataset: nbpo_toy
+objectives:
+  clarity:
+    available: true
+    source: tests/fixtures/nbpo_toy (toy fixture; not an experiment rubric)
+    system: >-
+      TOY RUBRIC: You compare two toy responses on CLARITY ONLY.
+      End with exactly [[A]] or [[B]] or [[TIE]].
+    user_template: |-
+      [User prompt]
+      {prompt}
+
+      [Response A]
+      {a}
+
+      [Response B]
+      {b}
+
+      Which response is better on the stated criterion? End with exactly [[A]] or [[B]] or [[TIE]].
+  brevity:
+    available: true
+    source: tests/fixtures/nbpo_toy (toy fixture; not an experiment rubric)
+    system: >-
+      TOY RUBRIC: You compare two toy responses on BREVITY ONLY.
+      End with exactly [[A]] or [[B]] or [[TIE]].
+    user_template: |-
+      [User prompt]
+      {prompt}
+
+      [Response A]
+      {a}
+
+      [Response B]
+      {b}
+
+      Which response is better on the stated criterion? End with exactly [[A]] or [[B]] or [[TIE]].

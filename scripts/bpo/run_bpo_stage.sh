@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-# Anchored BPO stage driver (NBPO Algorithm 1, batch dual rule).
+# Anchored BPO stage driver -- FIXED-REFERENCE (beta = infinity) LEGACY BASELINE.
+# NOT the finite-temperature NBPO Algorithm 1 (that stack is scripts/nbpo/,
+# driven by scripts/nbpo/run_nbpo_stage.py): weights here are static batch
+# rules on fixed-anchor surpluses, training reuses loss_type=ht_mnpo with
+# auxiliary anchor/pref-SFT losses, and there is no dual descent or stage gate.
 # Usage: run_bpo_stage.sh PHASE ROOT STAGE [ARGS...]
 #   decode     ROOT STAGE PARENT GPU
 #   judge      ROOT STAGE POLICY_DIR GPU        (POLICY_DIR=- uses P4 base seeds 42/43)

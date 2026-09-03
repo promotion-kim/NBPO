@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
-"""Build Anchored-BPO training pairs from judge verdicts (NBPO Algorithm 1).
+"""Build FIXED-REFERENCE Anchored-BPO training pairs (beta = infinity BASELINE).
+
+LEGACY LABEL -- this is NOT the finite-temperature NBPO of Algorithm 1. It
+computes fixed-anchor surpluses s_k = P_k(pi > mu) - 1/2 against the frozen
+reference (the beta -> infinity limit, where the adaptive opponent collapses to
+mu), uses normalized/clipped static weights, always pairs against the FIRST
+reference response, and computes no nu*, V_{k,beta}, d_k, or dual descent.
+The paper-exact Algorithm 1 stack lives in scripts/nbpo/ (judge matrix ->
+preference tensors -> solve_nbpo_dual -> build_nbpo_pairs -> loss_type=nbpo).
+The `maxmin` rule below is the static one-hot on the pre-training worst
+objective -- a legacy baseline, distinct from scripts/nbpo's adversarial
+max-min controls. KS here is its own experiment line, not one of the current
+paper's max-min controls.
 
 Aggregates swap-averaged verdicts into per-judge anchored surpluses
 s_k = win_rate - 1/2, computes the three weight rules (NBS inverse-surplus,
@@ -7,6 +19,8 @@ KS softmin over normalized surpluses, uniform), and writes pairs_train/test
 jsonl with one signed target column per rule: bpo_target_{nbs,ks,unif}.
 Pair = two policy responses per prompt; z_k = pref_k(y, y'') - pref_k(y', y'')
 against the shared first reference response; target = sum_k w_k z_k.
+(The pref.get(..., 0.5) fallbacks below are part of this frozen baseline; the
+paper-exact path never imputes a missing comparison.)
 """
 from __future__ import annotations
 

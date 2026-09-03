@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# FIXED-REFERENCE (beta = infinity) Anchored-BPO baseline driver -- LEGACY.
+# NOT the finite-temperature NBPO Algorithm 1 (see scripts/nbpo/run_nbpo_stage.py).
 # Self-contained BPO experiment on polymer 4 GPUs:
 #   build 4-arm pairs -> precompute -> train unif/nbs/ks/maxmin -> decode -> judge vs base -> surplus.
 # Optional one-judge label noise (covariance experiment): NOISE_OBJ NOISE_LAMBDA.

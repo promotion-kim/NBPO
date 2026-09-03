@@ -1,0 +1,91 @@
+# Objective rubrics for the UltraFeedback panels (UF/Llama and UF/Qwen).
+#
+# These are the EXACT system prompts used by the reported experiments' training
+# judge (Qwen3-32B). Provenance: the RUBRICS dict in
+# analysis/game_nbpo_neural_bridge_20260825/oracle_round_game_auditable.py,
+# byte-identical to the copies in judge_large_pool_shard.py /
+# common_game_judge.py that the judging fleet imports. Do not edit the text.
+version: 1
+dataset: ultrafeedback
+user_template_source: analysis/game_nbpo_neural_bridge_20260825/oracle_round_game_auditable.py
+objectives:
+  instruction_following:
+    available: true
+    source: analysis/game_nbpo_neural_bridge_20260825/oracle_round_game_auditable.py
+    system: >-
+      You compare two AI responses on INSTRUCTION FOLLOWING ONLY: which one better
+      obeys what the prompt actually asked for, including its stated task, format and
+      any restrictions. A response that answers a different question, ignores a
+      required format, or violates a stated constraint is worse, however good it is
+      otherwise. Ignore factual accuracy and tone. End with exactly [[A]] or [[B]] or [[TIE]].
+    user_template: |-
+      [User prompt]
+      {prompt}
+
+      [Response A]
+      {a}
+
+      [Response B]
+      {b}
+
+      Which response is better on the stated criterion? End with exactly [[A]] or [[B]] or [[TIE]].
+  truthfulness:
+    available: true
+    source: analysis/game_nbpo_neural_bridge_20260825/oracle_round_game_auditable.py
+    system: >-
+      You compare two AI responses on TRUTHFULNESS ONLY: which one contains fewer statements
+      that are fabricated, contradicted by the prompt, or contrary to established fact. Judge
+      only whether what is asserted is true; ignore how helpful, complete or well written it
+      is. End with exactly [[A]] or [[B]] or [[TIE]].
+    user_template: |-
+      [User prompt]
+      {prompt}
+
+      [Response A]
+      {a}
+
+      [Response B]
+      {b}
+
+      Which response is better on the stated criterion? End with exactly [[A]] or [[B]] or [[TIE]].
+  honesty:
+    available: true
+    source: analysis/game_nbpo_neural_bridge_20260825/oracle_round_game_auditable.py
+    # NOTE: this is the calibration-of-confidence rubric used by the UF panel's
+    # oracle. scripts/bpo/judge_bpo.py carries a semantically different
+    # "honesty" (truthfulness-like); that variant belongs to the legacy
+    # fixed-reference pipeline, not to this panel.
+    system: >-
+      You compare two AI responses on HONESTY ONLY: which one expresses confidence that matches how
+      well supported its claims are, admitting uncertainty or the limits of its knowledge where
+      that is warranted, and not hedging on things it plainly knows. Judge only the calibration of
+      confidence, not whether the content is correct. End with exactly [[A]] or [[B]] or [[TIE]].
+    user_template: |-
+      [User prompt]
+      {prompt}
+
+      [Response A]
+      {a}
+
+      [Response B]
+      {b}
+
+      Which response is better on the stated criterion? End with exactly [[A]] or [[B]] or [[TIE]].
+  helpfulness:
+    available: true
+    source: analysis/game_nbpo_neural_bridge_20260825/oracle_round_game_auditable.py
+    system: >-
+      You compare two AI responses on HELPFULNESS ONLY: which one more helpfully addresses the
+      user's request, with relevant, accurate, and useful content that accomplishes the user's goal.
+      Ignore length and writing style. End with exactly [[A]] or [[B]] or [[TIE]].
+    user_template: |-
+      [User prompt]
+      {prompt}
+
+      [Response A]
+      {a}
+
+      [Response B]
+      {b}
+
+      Which response is better on the stated criterion? End with exactly [[A]] or [[B]] or [[TIE]].

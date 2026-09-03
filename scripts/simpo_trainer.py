@@ -741,7 +741,10 @@ class SimPOTrainer(Trainer):
         all_logps = self.get_batch_logps(
             all_logits,
             concatenated_batch["concatenated_labels"],
-            average_log_prob=True,
+            # "mean" (the historical default for every legacy loss) length-normalizes;
+            # loss_type=nbpo requires "sum" (sequence-sum response log-probabilities),
+            # enforced by mnpo_scripts.mnpo_trainer.validate_nbpo_args.
+            average_log_prob=(str(getattr(self.args, "logp_reduction", "mean")).lower() == "mean"),
             is_encoder_decoder=self.is_encoder_decoder,
             label_pad_token_id=self.label_pad_token_id,
         )

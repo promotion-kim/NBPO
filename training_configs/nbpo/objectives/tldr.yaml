@@ -1,0 +1,44 @@
+# Objective rubrics for the TL;DR summarization panel
+# (coverage, faithfulness, conciseness, helpfulness).
+#
+# NONE of these rubrics are available in this repository. The TL;DR judging
+# script that produced the reported numbers ran on the remote work host and was
+# never committed here; a repo-wide search (working tree and full git history)
+# finds no rubric text for "coverage" or "faithfulness" at all, and although
+# generic "conciseness"/"helpfulness" rubrics exist in this repo (two textually
+# different variants), there is no way to verify which variant -- if either --
+# the TL;DR runs used. Per the reproduction policy, no prompt text is invented:
+# every objective below is marked unavailable, and the rubric loader
+# (scripts/nbpo/nbpo_common.py:load_objective_rubrics) fails with a clear error
+# naming the objective when this panel is requested. Recover the exact text
+# from the work host and paste it here (with available: true and a source) to
+# enable the TL;DR pipeline.
+version: 1
+dataset: tldr
+objectives:
+  coverage:
+    available: false
+    reason: >-
+      exact rubric used in the reported TL;DR runs was never committed to this
+      repository (judging ran on the remote work host); no candidate text exists
+      anywhere in the repo or its git history
+  faithfulness:
+    available: false
+    reason: >-
+      exact rubric used in the reported TL;DR runs was never committed to this
+      repository (judging ran on the remote work host); no candidate text exists
+      anywhere in the repo or its git history
+  conciseness:
+    available: false
+    reason: >-
+      two generic conciseness rubrics exist in this repo (scripts/bpo/judge_bpo.py
+      and analysis/game_nbpo_neural_bridge_20260825/oracle_round_game_auditable.py)
+      but the TL;DR judging script was never committed, so the variant actually
+      used for this panel cannot be verified
+  helpfulness:
+    available: false
+    reason: >-
+      two generic helpfulness rubrics exist in this repo (scripts/bpo/judge_bpo.py
+      and analysis/game_nbpo_neural_bridge_20260825/oracle_round_game_auditable.py)
+      but the TL;DR judging script was never committed, so the variant actually
+      used for this panel cannot be verified

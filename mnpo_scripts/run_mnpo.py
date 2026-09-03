@@ -236,6 +236,26 @@ def main():
 
     column_names = list(raw_datasets["train"].features)
 
+    # Fail fast for the paper-exact NBPO branch: validate the target column, the
+    # single proximal center, and the precompute provenance sidecar (reduction +
+    # tokenizer/chat-template hashes) BEFORE the policy model is loaded.
+    if str(getattr(training_args, "loss_type", "")).lower() == "nbpo":
+        from mnpo_scripts.mnpo_trainer import validate_nbpo_args
+        from mnpo_scripts.precompute_provenance import (
+            read_precompute_meta,
+            tokenizer_content_hashes,
+        )
+
+        hashes = tokenizer_content_hashes(tokenizer)
+        validate_nbpo_args(
+            training_args,
+            dataset_columns=column_names,
+            precompute_meta=read_precompute_meta(dataset_path),
+            tokenizer_hash=hashes["tokenizer_hash"],
+            chat_template_hash=hashes["chat_template_hash"],
+        )
+        logger.info("NBPO configuration validated against the precompute artifact.")
+
     # for index in random.sample(range(len(raw_datasets["train"])), 3):
     #     logger.info(f"Prompt sample {index} of the raw training set:\n\n{raw_datasets['train'][index]['prompt']}")
     #     logger.info(f"Logps sample {index}: {raw_datasets['train'][index]['reference_chosen_logps']}")
@@ -270,6 +290,14 @@ def main():
         peft_config=get_peft_config(model_args),
     )
     # =====================================================================================
+
+    if os.environ.get("MNPO_EVAL_ONLY", "").lower() in {"1", "true", "yes"}:
+        if eval_dataset is None:
+            raise ValueError("MNPO_EVAL_ONLY requires a test or eval split")
+        metrics = trainer.evaluate()
+        trainer.log_metrics("eval", metrics)
+        trainer.save_metrics("eval", metrics)
+        return
 
     ###############
     # Training loop

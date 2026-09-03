@@ -7,6 +7,90 @@ from mnpo_scripts.mnpo_config import MNPOConfig
 from transformers import AutoModelForCausalLM, DataCollator, PreTrainedModel, PreTrainedTokenizerBase, Trainer
 
 
+def validate_nbpo_args(
+    args,
+    dataset_columns=None,
+    precompute_meta=None,
+    tokenizer_hash: Optional[str] = None,
+    chat_template_hash: Optional[str] = None,
+) -> None:
+    """Hard-error validation for the paper-exact ``loss_type: nbpo`` branch.
+
+    Called with only ``args`` from ``MNPOTrainer.__init__`` (config-level
+    invariants) and again from ``run_mnpo`` with the dataset columns, the
+    precompute sidecar (``precompute_meta.json``), and the training tokenizer's
+    canonical hashes. A trainer constructed directly, outside ``run_mnpo``,
+    gets only the config-level checks -- the sidecar lives next to the dataset,
+    which the trainer object cannot locate on its own.
+
+    No-op for every other loss type. For ``nbpo`` it enforces the Eq. (26)
+    contract: no auxiliary anchor loss, no preference-SFT loss, sequence-sum
+    log probabilities, exactly one center/history policy (``pi_t``), the
+    ``nbpo_weighted_z`` target column, and a precompute artifact whose logps
+    were also computed with ``reduction="sum"`` under the same tokenizer and
+    chat template.
+    """
+    if str(getattr(args, "loss_type", "")).lower() != "nbpo":
+        return
+    problems = []
+    if float(getattr(args, "reference_anchor_weight", 0.0)) != 0.0:
+        problems.append("reference_anchor_weight must be 0 (Eq. (26) has no auxiliary anchor loss)")
+    if float(getattr(args, "preference_sft_weight", 0.0)) != 0.0:
+        problems.append("preference_sft_weight must be 0 (Eq. (26) has no preference-SFT loss)")
+    if str(getattr(args, "logp_reduction", "mean")).lower() != "sum":
+        problems.append(
+            "logp_reduction must be 'sum' (h_t of Eq. (22) uses sequence-sum "
+            "response log-probabilities, not token means)"
+        )
+    if int(getattr(args, "max_history_t", 0)) != 1:
+        problems.append("max_history_t must be 1 (exactly one proximal center pi_t)")
+    hw = [float(w) for w in (getattr(args, "history_weights", None) or [])]
+    legacy_w = [float(w) for w in (getattr(args, "weights", None) or [])]
+    if (hw and hw != [1.0]) or (legacy_w and legacy_w != [1.0]):
+        problems.append(
+            "history_weights must be [1.0]; NBPO never mixes multiple history models"
+        )
+    target_column = str(getattr(args, "nbpo_target_column", "nbpo_weighted_z"))
+    if dataset_columns is not None:
+        cols = set(dataset_columns)
+        if target_column not in cols:
+            problems.append(f"dataset lacks the `{target_column}` target column")
+        if not {"history0_chosen_logps", "history0_rejected_logps"} <= cols:
+            problems.append("dataset lacks history0 logp columns (the proximal center pi_t)")
+        if {"history1_chosen_logps", "history1_rejected_logps"} & cols:
+            problems.append(
+                "dataset carries more than one history model; NBPO uses exactly one center"
+            )
+        if precompute_meta is None:
+            problems.append(
+                "precompute_meta.json is missing from the dataset artifact -- re-run "
+                "mnpo_scripts.precompute with --logp_reduction sum (legacy artifacts "
+                "recorded no reduction and cannot be trusted for nbpo)"
+            )
+        else:
+            meta_reduction = str(precompute_meta.get("logp_reduction", "")).lower()
+            if meta_reduction != "sum":
+                problems.append(
+                    f"precomputed logps were stored with reduction={meta_reduction!r}; "
+                    "nbpo requires reduction='sum'"
+                )
+            if tokenizer_hash is not None and precompute_meta.get("tokenizer_hash") != tokenizer_hash:
+                problems.append(
+                    "tokenizer hash mismatch between the precompute artifact and the "
+                    "training tokenizer"
+                )
+            if (
+                chat_template_hash is not None
+                and precompute_meta.get("chat_template_hash") != chat_template_hash
+            ):
+                problems.append(
+                    "chat-template hash mismatch between the precompute artifact and "
+                    "the training tokenizer"
+                )
+    if problems:
+        raise ValueError("invalid configuration for loss_type=nbpo: " + "; ".join(problems))
+
+
 class MNPOTrainer(SimPOTrainer):
     def __init__(
             self,
@@ -53,6 +137,13 @@ class MNPOTrainer(SimPOTrainer):
 
         self.ht_target_column = str(getattr(args, "ht_target_column", "ht_target"))
         self.ht_target_scale = float(getattr(args, "ht_target_scale", 1.0))
+
+        # NBPO (paper-exact finite-temperature branch)
+        self.nbpo_target_column = str(getattr(args, "nbpo_target_column", "nbpo_weighted_z"))
+        self.logp_reduction = str(getattr(args, "logp_reduction", "mean")).lower()
+        if self.logp_reduction not in ("mean", "sum"):
+            raise ValueError(f"logp_reduction must be 'mean' or 'sum', got {self.logp_reduction!r}")
+        validate_nbpo_args(args)  # config-level invariants; run_mnpo re-validates with the dataset
 
         # Accept both the Qwen runner name (`history_weights`) and the released
         # Gemma config name (`weights`) so opponent mixtures are actually used.
@@ -102,6 +193,7 @@ class MNPOTrainer(SimPOTrainer):
             rejected_probs: Optional[torch.FloatTensor] = None,
             ronpo_target: Optional[torch.FloatTensor] = None,
             ht_target: Optional[torch.FloatTensor] = None,
+            nbpo_target: Optional[torch.FloatTensor] = None,
     ) -> Tuple[torch.FloatTensor, torch.FloatTensor, torch.FloatTensor]:
 
         device = self.accelerator.device
@@ -176,6 +268,32 @@ class MNPOTrainer(SimPOTrainer):
             logits = pi_logratios - alpha * tau * ref_logratios - (1.0 - alpha * tau) * prev_logratios
             losses = (logits - alpha * target) ** 2
 
+        elif lt == "nbpo":
+            # Paper-exact finite-temperature NBPO regression, manuscript Eq. (26)
+            # `eq:regression-loss`:
+            #   h_t = [log pi(y) - log pi(y')] - [log pi_t(y) - log pi_t(y')]  (Eq. (22))
+            #   loss = (h_t - eta * nbpo_weighted_z)^2
+            # history0 is the proximal center pi_t of Eq. (15). The target column
+            # already carries the RAW dual weights (sum_k lambda_k Z_k, Eq. (24));
+            # eta is applied exactly once, here. Log-probabilities are sequence
+            # sums over non-masked response tokens (prompt tokens stay masked by
+            # the tokenization path); validate_nbpo_args enforces
+            # logp_reduction="sum" and forbids reference interpolation, alpha/tau,
+            # multi-history mixing, and every auxiliary loss.
+            if not history_logps_list:
+                raise ValueError("NBPO requires history0 (the proximal center pi_t) via --history_paths.")
+            if nbpo_target is None:
+                raise ValueError(
+                    f"NBPO requires a `{self.nbpo_target_column}` column containing the "
+                    "unscaled weighted binary target sum_k lambda_k Z_k."
+                )
+            prev_chosen, prev_rejected = history_logps_list[0]
+            prev_chosen = torch.as_tensor(prev_chosen, device=device, dtype=torch.float32)
+            prev_rejected = torch.as_tensor(prev_rejected, device=device, dtype=torch.float32)
+            target = self.eta * nbpo_target.to(device=device, dtype=torch.float32)
+            h = pi_logratios - (prev_chosen - prev_rejected)
+            losses = (h - target) ** 2
+
         elif lt in ("mnpo", "inpo"):
             # squared loss to the constant target 1/(2 eta).
             # INPO = this path with a single history opponent (pi_{t-1}); MNPO = >=1 weighted opponents.
@@ -183,6 +301,19 @@ class MNPOTrainer(SimPOTrainer):
             logits = pi_logratios - self.ratio * ref_logratios - (1.0 - self.ratio) * weighted_logratios
             logits_shift = 1.0 / (2.0 * self.eta)
             losses = (logits - logits_shift) ** 2
+
+        elif lt == "mopo":
+            # Agnihotri et al., Eq. (7): the MOPO policy step is importance-weighted behaviour cloning
+            # against the lagged reference, not a pairwise regression. The row carries
+            # rho(y) = exp(tau^{-1}[p(y > y') + lambda^T q(y > y')] - 1) from Eq. (3), computed offline
+            # from the judged pool, and the loss is -rho(y) log pi(y) on the sampled response.
+            if ronpo_target is None:
+                raise ValueError(
+                    f"MOPO requires a `{self.ronpo_target_column}` column holding the importance weight "
+                    "rho(y) of Eq. (3)."
+                )
+            rho = ronpo_target.to(device=device, dtype=torch.float32)
+            losses = -rho * pcl
 
         elif lt == "ht_mnpo":
             # Eq. 18: policy log-ratio against the opponent mixture regresses to eta * delta_i*.
@@ -274,6 +405,11 @@ class MNPOTrainer(SimPOTrainer):
         if ht_target is not None:
             ht_target = torch.as_tensor(ht_target, dtype=torch.float32, device=self.accelerator.device)
 
+        # 2d. NBPO target column: unscaled sum_k lambda_k Z_k (raw dual weights).
+        nbpo_target = batch.get(self.nbpo_target_column, None)
+        if nbpo_target is not None:
+            nbpo_target = torch.as_tensor(nbpo_target, dtype=torch.float32, device=self.accelerator.device)
+
         ronpo_weight = batch.get("ronpo_weight", None)
         if ronpo_weight is not None:
             ronpo_weight = torch.as_tensor(ronpo_weight, dtype=torch.float32, device=self.accelerator.device)
@@ -289,6 +425,7 @@ class MNPOTrainer(SimPOTrainer):
             rejected_probs,
             ronpo_target,
             ht_target,
+            nbpo_target,
         )
 
         if self.loss_type == "ronpo" and ronpo_weight is not None:
@@ -334,6 +471,15 @@ class MNPOTrainer(SimPOTrainer):
         metrics[f"{prefix}rewards/margins"] = (chosen_rewards - rejected_rewards).cpu().mean()
         metrics[f"{prefix}logps/rejected"] = policy_rejected_logps.detach().cpu().mean()
         metrics[f"{prefix}logps/chosen"] = policy_chosen_logps.detach().cpu().mean()
+        reference_pair_logratio = reference_chosen_logps - reference_rejected_logps
+        policy_pair_logratio = policy_chosen_logps - policy_rejected_logps
+        metrics[f"{prefix}drift/pair_logratio_to_reference_abs"] = (
+            policy_pair_logratio.detach().float() - reference_pair_logratio.detach().float()
+        ).abs().mean().cpu()
+        metrics[f"{prefix}drift/offpolicy_reverse_kl_reference_proxy"] = 0.5 * (
+            reference_chosen_logps.detach().float() - policy_chosen_logps.detach().float()
+            + reference_rejected_logps.detach().float() - policy_rejected_logps.detach().float()
+        ).mean().cpu()
         metrics[f"{prefix}logits/rejected"] = policy_rejected_logits.detach().cpu().mean()
         metrics[f"{prefix}logits/chosen"] = policy_chosen_logits.detach().cpu().mean()
         metrics[f"{prefix}loss/core"] = core_loss.detach().cpu()
@@ -369,6 +515,23 @@ class MNPOTrainer(SimPOTrainer):
             if ronpo_weight is not None:
                 metrics[f"{prefix}ronpo/weight"] = ronpo_weight.detach().mean().cpu()
                 metrics[f"{prefix}ronpo/weight_max"] = ronpo_weight.detach().max().cpu()
+
+        if self.loss_type == "nbpo" and nbpo_target is not None and history_logps_list:
+            prev_chosen, prev_rejected = history_logps_list[0]
+            prev_chosen = prev_chosen.to(self.accelerator.device, dtype=torch.float32)
+            prev_rejected = prev_rejected.to(self.accelerator.device, dtype=torch.float32)
+            policy_logratios = (policy_chosen_logps - policy_rejected_logps).to(
+                self.accelerator.device, dtype=torch.float32
+            )
+            nbpo_h = policy_logratios - (prev_chosen - prev_rejected)
+            nbpo_scaled_target = self.eta * nbpo_target
+            metrics[f"{prefix}nbpo/h"] = nbpo_h.detach().mean().cpu()
+            metrics[f"{prefix}nbpo/target"] = nbpo_scaled_target.detach().mean().cpu()
+            metrics[f"{prefix}nbpo/target_abs"] = nbpo_scaled_target.detach().abs().mean().cpu()
+            metrics[f"{prefix}nbpo/residual"] = (nbpo_h - nbpo_scaled_target).detach().mean().cpu()
+            metrics[f"{prefix}nbpo/residual_abs"] = (
+                (nbpo_h - nbpo_scaled_target).detach().abs().mean().cpu()
+            )
 
         if self.loss_type == "ht_mnpo" and ht_target is not None and history_logps_list:
             policy_logratios = (policy_chosen_logps - policy_rejected_logps).to(

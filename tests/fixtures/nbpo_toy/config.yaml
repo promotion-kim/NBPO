@@ -1,0 +1,54 @@
+# Stage config for the CPU-only NBPO dry run (tests/fixtures/nbpo_toy).
+# python -m scripts.nbpo.run_nbpo_stage --config tests/fixtures/nbpo_toy/config.yaml --dry-run
+stage: 0
+dataset: nbpo_toy
+objectives:
+  config: objectives.yaml
+  names: [clarity, brevity]
+judge:
+  backend: mock
+  model_path: mock-judge-v1
+  max_retries: 2
+  mock_invalid_rate: 0.05   # exercises the retry loop deterministically
+responses:
+  policy_files:
+    s0: assets/train_policy_s0.json
+    s1: assets/train_policy_s1.json
+    s2: assets/train_policy_s2.json
+    s3: assets/train_policy_s3.json
+  reference_files:
+    r0: assets/train_ref_r0.json
+    r1: assets/train_ref_r1.json
+    r2: assets/train_ref_r2.json
+    r3: assets/train_ref_r3.json
+monitoring:
+  prompts_file: assets/monitoring_prompts.json
+  candidate_policy_files:
+    s0: assets/mon_candidate_s0.json
+    s1: assets/mon_candidate_s1.json
+    s2: assets/mon_candidate_s2.json
+    s3: assets/mon_candidate_s3.json
+  reference_files:
+    r0: assets/mon_ref_r0.json
+    r1: assets/mon_ref_r1.json
+    r2: assets/mon_ref_r2.json
+    r3: assets/mon_ref_r3.json
+final_eval:
+  # Required and DISJOINT from monitoring: the monitoring batch is never reused
+  # for final reporting (enforced by run_nbpo_stage).
+  prompts_file: assets/final_eval_prompts.json
+solver:
+  eta: 1.0
+  opponent_betas: [0.25, 0.25]
+  lambda_box: [1.0e-3, 1.0e+3]
+  M: 200
+  gamma: 0.5
+  R: 1              # manuscript-disclosed practical approximation
+  aggregation: nash
+  damping: 0.0
+targets:
+  mode: sampled     # manuscript Eq. (24)
+  seed: 42
+gate:
+  parent_model: checkpoints/pi_t
+  promote_to: checkpoints/pi_next

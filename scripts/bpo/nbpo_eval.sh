@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# LEGACY reward-model diagnostic for the fixed-reference SafeRLHF arms -- despite
+# the filename this is NOT part of the finite-temperature NBPO stack (which never
+# uses scalar RM scores; its evaluator is scripts/nbpo/eval_game_value.py).
 # Decode one SafeRLHF arm on the shared eval prompts, convert to the Beaver input
 # format, and score helpfulness (reward) + harmlessness (neg cost).
 # Usage: nbpo_eval.sh ARM MODELDIR GPU

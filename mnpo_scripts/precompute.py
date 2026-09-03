@@ -202,6 +202,17 @@ class ScriptArguments:
             )
         },
     )
+    logp_reduction: Optional[str] = field(
+        default="mean",
+        metadata={
+            "help": (
+                "Per-response log-probability reduction: 'mean' (token average; the "
+                "historical default consumed by every legacy loss) or 'sum' (sequence "
+                "sum over non-masked response tokens; REQUIRED by loss_type=nbpo). "
+                "Recorded in precompute_meta.json and validated at training time."
+            )
+        },
+    )
 
 
 def get_batch_logps(
@@ -274,11 +285,14 @@ def concatenated_inputs(
     return concatenated_batch
 
 
-def concatenated_forward(model: nn.Module, batch: Dict) -> Tuple[torch.FloatTensor, torch.FloatTensor]:
+def concatenated_forward(
+    model: nn.Module, batch: Dict, average_log_prob: bool = True
+) -> Tuple[torch.FloatTensor, torch.FloatTensor]:
     """
     Core forward pass consistent with DPO Trainer behavior.
     Takes a batch processed by DPODataCollatorWithPadding and returns
-    chosen/rejected log-probabilities.
+    chosen/rejected log-probabilities (token-averaged by default; pass
+    average_log_prob=False for sequence sums, as required by loss_type=nbpo).
     """
     # 1) concatenate chosen/rejected
     concatenated_batch = concatenated_inputs(batch)
@@ -292,7 +306,7 @@ def concatenated_forward(model: nn.Module, batch: Dict) -> Tuple[torch.FloatTens
     logits = model(input_ids=input_ids, attention_mask=attention_mask).logits
 
     # 4) compute logps
-    all_logps = get_batch_logps(logits, labels)
+    all_logps = get_batch_logps(logits, labels, average_log_prob=average_log_prob)
 
     # 5) split back
     bsz = batch["chosen_labels"].shape[0]
@@ -511,9 +525,12 @@ def compute_and_add_logps(
         dataloader = accelerator.prepare(dataloader)
 
         all_chosen_logps, all_rejected_logps = [], []
+        average_log_prob = str(getattr(args, "logp_reduction", "mean")).lower() == "mean"
         for batch in tqdm(dataloader, desc=f"Computing '{column_prefix}' logps for split={split}"):
             with torch.no_grad():
-                chosen_logps, rejected_logps = concatenated_forward(model, batch)
+                chosen_logps, rejected_logps = concatenated_forward(
+                    model, batch, average_log_prob=average_log_prob
+                )
 
             chosen_logps, rejected_logps = accelerator.gather_for_metrics((chosen_logps, rejected_logps))
             all_chosen_logps.append(chosen_logps.cpu())
@@ -620,6 +637,9 @@ def main():
     parser = HfArgumentParser(ScriptArguments)
     script_args = parser.parse_args_into_dataclasses()[0]
 
+    if str(script_args.logp_reduction).lower() not in ("mean", "sum"):
+        raise ValueError(f"--logp_reduction must be 'mean' or 'sum', got {script_args.logp_reduction!r}")
+
     logging.basicConfig(level=logging.INFO)
     accelerator = Accelerator()
 
@@ -723,6 +743,26 @@ def main():
     if accelerator.is_main_process:
         logger.info(f"Saving final dataset (with logps) to: {script_args.output_dir}")
         dataset_with_logps.save_to_disk(script_args.output_dir)
+        # Provenance sidecar: records the logp reduction plus canonical
+        # tokenizer/chat-template hashes so training can detect a mean/sum or
+        # tokenization mismatch (mandatory check for loss_type=nbpo).
+        from mnpo_scripts.precompute_provenance import (
+            tokenizer_content_hashes,
+            write_precompute_meta,
+        )
+
+        meta = {
+            "logp_reduction": str(script_args.logp_reduction).lower(),
+            **tokenizer_content_hashes(tokenizer),
+            "tokenizer_source": script_args.model_name_or_path,
+            "ref_model": script_args.ref_model,
+            "history_paths": list(script_args.history_paths or []),
+            "max_length": int(script_args.max_length),
+            "max_prompt_length": int(script_args.max_prompt_length),
+            "apply_chat_template": bool(script_args.apply_chat_template),
+        }
+        meta_path = write_precompute_meta(script_args.output_dir, meta)
+        logger.info(f"Wrote provenance sidecar: {meta_path}")
         logger.info("Script finished successfully.")
 
 

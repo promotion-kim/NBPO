@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Per-objective pairwise LLM judge for Anchored BPO (swap-averaged).
+"""Per-objective pairwise LLM judge for FIXED-REFERENCE Anchored BPO (legacy baseline).
+
+Part of the beta = infinity baseline pipeline (scripts/bpo). The paper-exact
+finite-temperature judging path -- canonical row schema, invalid-row retries,
+loud completeness failures, reference-vs-reference rows for the disagreement
+point -- is scripts/nbpo/judge_pairwise_matrix.py.
 
 Judges every (policy response, reference response) pair under each objective
 rubric, in both presentation orders, and writes one row per (prompt, objective,

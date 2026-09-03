@@ -1,0 +1,14 @@
+[
+ {
+  "prompt_id": "m00",
+  "prompt": "Toy prompt m00: describe the object in two sentences.",
+  "generated_text": "[candidate:s1] deterministic toy response for m00.",
+  "seed": "s1"
+ },
+ {
+  "prompt_id": "m01",
+  "prompt": "Toy prompt m01: describe the object in two sentences.",
+  "generated_text": "[candidate:s1] deterministic toy response for m01.",
+  "seed": "s1"
+ }
+]

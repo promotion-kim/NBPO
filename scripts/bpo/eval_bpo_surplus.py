@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Aggregate judge verdicts into per-judge anchored surplus s_k = P_k(pi>mu) - 1/2.
+"""FIXED-REFERENCE (beta = infinity) surplus diagnostic -- LEGACY BASELINE.
+
+This evaluator measures the fixed-anchor surplus s_k = P_k(pi > mu) - 1/2 and
+CLAMPS nonpositive surpluses before taking logs (max(s, 1e-6) below). It is NOT
+the game-value evaluator of the manuscript: the finite-temperature evaluator
+(V_{k,beta}, d_k = V_{k,beta}(mu), Nash welfare null when any s_k <= 0, no
+clamping) is scripts/nbpo/eval_game_value.py.
+
+Aggregate judge verdicts into per-judge anchored surplus s_k = P_k(pi>mu) - 1/2.
 
 Verdicts come from judge_bpo.py run with policy=<trained arm seeds> and
 reference=<base seeds>; swap-averaged over both orders. Reports the primary

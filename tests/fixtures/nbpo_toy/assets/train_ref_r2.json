@@ -1,0 +1,38 @@
+[
+ {
+  "prompt_id": "p00",
+  "prompt": "Toy prompt p00: describe the object in two sentences.",
+  "generated_text": "[ref:r2] deterministic toy response for p00.",
+  "seed": "r2"
+ },
+ {
+  "prompt_id": "p01",
+  "prompt": "Toy prompt p01: describe the object in two sentences.",
+  "generated_text": "[ref:r2] deterministic toy response for p01.",
+  "seed": "r2"
+ },
+ {
+  "prompt_id": "p02",
+  "prompt": "Toy prompt p02: describe the object in two sentences.",
+  "generated_text": "[ref:r2] deterministic toy response for p02.",
+  "seed": "r2"
+ },
+ {
+  "prompt_id": "p03",
+  "prompt": "Toy prompt p03: describe the object in two sentences.",
+  "generated_text": "[ref:r2] deterministic toy response for p03.",
+  "seed": "r2"
+ },
+ {
+  "prompt_id": "p04",
+  "prompt": "Toy prompt p04: describe the object in two sentences.",
+  "generated_text": "[ref:r2] deterministic toy response for p04.",
+  "seed": "r2"
+ },
+ {
+  "prompt_id": "p05",
+  "prompt": "Toy prompt p05: describe the object in two sentences.",
+  "generated_text": "[ref:r2] deterministic toy response for p05.",
+  "seed": "r2"
+ }
+]
