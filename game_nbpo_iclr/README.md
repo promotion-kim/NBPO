@@ -1,47 +1,49 @@
-# Game-NBPO ICLR 2027 Source Package
+# Nash Bargaining Preference Optimization (NBPO)
+
+Source package for the ICLR 2027 submission.
+
+NBPO separates two decisions in multi-objective alignment. An objective-wise preference game
+summarises potentially cyclic pairwise feedback into one game value per objective, and Nash
+bargaining selects a single compromise across those values, balancing improvements over a
+reference fallback rather than over prespecified weights.
+
+## Contents
+
+| Path | Description |
+|---|---|
+| `main_v2.tex`, `main_v2.pdf` | Current manuscript (25 pages). |
+| `main.tex`, `main.pdf` | Previous revision (35 pages), kept for reference. |
+| `iclr2027_conference.{sty,bst,bib}` | Style files and bibliography database. |
+| `math_commands.tex` | Math macros used by the manuscript. |
+| `figures/` | Vector figures. |
+| `finite_pool_certificate_table.tex`, `generated_simplification.tex` | Generated table fragments included by the manuscript. |
+| `REVISION_NOTES.md`, `THEOREM_AUDIT.md`, `EXPERIMENTS_REQUIRED.md` | Working notes on methodological changes, theorem scope, and outstanding experiments. |
 
 ## Build
 
-From the source directory:
-
 ```bash
-pdflatex main
-bibtex main
-pdflatex main
-pdflatex main
+pdflatex main_v2
+bibtex   main_v2
+pdflatex main_v2
+pdflatex main_v2
 ```
 
-## Package contents
+The `.bst` is an ICLR-compatible fallback; the uploaded style bundle did not include a 2027
+bibliography style. Replace it with the official file before submission if one is distributed.
 
-- `main.tex`: revised manuscript.
-- `iclr2027_conference.bib`: bibliography database.
-- `iclr2027_conference.sty`: user-supplied ICLR 2027 style file.
-- `iclr2027_conference.bst`: ICLR-compatible fallback bibliography style used for local compilation.
-- `math_commands.tex`: original math command file retained in the package.
-- `figures/cyclic_bargaining_geometry.pdf`: vector figure used by the paper.
-- `REVISION_NOTES.md`: detailed methodological changes.
-- `EXPERIMENTS_REQUIRED.md`: experiments required before submission.
-- `THEOREM_AUDIT.md`: mathematical audit and theorem scope.
+## Codebase
 
-## Submission status
+The training and evaluation code is taken from the
+[MNPO](https://github.com/smiles724/MNPO) pipeline in the parent repository (`mnpo_scripts/`,
+`alignment/`, `on_policy_data_gen/`, `accelerate_configs/`). NBPO is implemented within that
+pipeline rather than as a separate stack: the constrained proximal update reduces to the existing
+regression trainer with the bargaining weights supplied as per-pair targets, so the only additions
+are the dual solve that produces those weights and the pair builder that applies them.
 
-The compiled manuscript has 9 pages of main text, followed by references and appendices. It is anonymous and includes the required AI-use statement.
+## Status
 
-The source contains no unresolved `TBD` marker. Current neural results are
-reported conservatively and do not establish a performance advantage. Do not
-submit the paper until the frozen neural-realization, matched-selector,
-independent-judge, and final multi-seed gates have been resolved.
-
-## Style-file caveat
-
-The uploaded materials contained the official-looking 2027 `.sty` file but did not include a 2027 `.bst` bibliography file. The package therefore contains an ICLR-compatible fallback `.bst` solely to make the local source compile. Before submission, replace it with the bibliography style distributed in the official ICLR 2027 style bundle if the official bundle contains a different file.
-
-## Final verification checklist
-
-- Recompile with the complete official ICLR 2027 style bundle.
-- Confirm the main text remains at or below the submission page limit after inserting results.
-- Update the abstract, conclusion, and result tables only from gate-passing matched runs.
-- Independently verify all AI-assisted mathematical claims, proofs, citations, and code.
-- Update the AI-use statement to match the actual final research workflow.
-- Check anonymity in the PDF, source, metadata, code repository, and supplementary files.
-- Run PDF preflight and visually inspect every page after the final compilation.
+Results are reported on prompts audited to be disjoint from each arm's training pairs and
+reference pool; see the prompt-overlap appendix for the audit and for which panels were rescored.
+Evidence supports the Nash aggregation over utilitarian and max-min alternatives. It does not
+currently support the adaptive game-value representation over a fixed-reference margin, and the
+manuscript says so.
