@@ -79,7 +79,7 @@ def staged(tmp_path_factory):
                     f"--- stderr ---\n{proc.stderr[-6000:]}")
     record_path = next(p for p in (work / "stage_record.json", work / "rejection_record.json")
                        if p.exists())
-    return {"tmp": tmp, "config": cfg, "work": work, "proc": proc,
+    return {"tmp": tmp, "config": cfg, "fixture": cfg.parent, "work": work, "proc": proc,
             "record": json.loads(record_path.read_text())}
 
 
@@ -90,19 +90,26 @@ def test_production_pipeline_completes_every_step(staged):
     out = staged["proc"].stdout
     for step in ("rubrics", "reproduction_mode", "response_manifests", "disjointness",
                  "judge_train", "tensor_train", "solve_dual", "build_pairs",
-                 "target_invariants", "precompute", "run_config", "train", "decode",
-                 "monitoring_prompt_sets", "eval_monitoring", "gate", "complete"):
+                 "target_invariants", "validation", "precompute", "run_config", "train",
+                 "decode", "monitoring_reference_manifest", "monitoring_prompt_sets",
+                 "eval_monitoring", "gate", "complete"):
         assert f"step={step} status=ok" in out, f"missing step={step}\n{out[-3000:]}"
 
 
-def test_real_precompute_train_only(staged):
-    """The real precompute module ran, and produced a train-only artifact.
+def test_real_precompute_train_only(tmp_path):
+    """With no validation section and no holdout, the artifact is train-only.
 
-    targets.test_prompts is unset, so build_nbpo_pairs writes an EMPTY
-    pairs_test.jsonl. The stage must therefore omit --test_dir entirely: passing
-    that empty file is what used to reach torch.cat([]).
+    build_nbpo_pairs still writes an EMPTY pairs_test.jsonl, so the stage must
+    omit --test_dir entirely: passing that empty file is what used to reach
+    torch.cat([]).
     """
-    work = staged["work"]
+    cfg_path = _stage_config(tmp_path)
+    cfg = yaml.safe_load(cfg_path.read_text())
+    cfg.pop("validation", None)                 # no external validation
+    cfg_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
+    work = tmp_path / "work_trainonly"
+    proc = _run_stage(cfg_path, work)
+    assert proc.returncode == 0, proc.stdout[-4000:] + proc.stderr[-4000:]
     assert (work / "pairs" / "pairs_test.jsonl").exists()
     assert (work / "pairs" / "pairs_test.jsonl").stat().st_size == 0
     meta = json.loads((work / "precomputed" / "precompute_meta.json").read_text())
@@ -140,16 +147,14 @@ def test_requested_empty_split_fails_before_torch_cat(tmp_path):
     assert "torch.cat" not in combined.split("contains no records")[-1]
 
 
-def test_real_precompute_nonempty_validation(tmp_path):
-    """A prompt-disjoint validation split reaches the artifact as a real split."""
-    cfg_path = _stage_config(tmp_path, targets={"mode": "sampled", "seed": 42,
-                                                "test_prompts": 2})
-    cfg = yaml.safe_load(cfg_path.read_text())
-    cfg["data"]["require_nonempty_validation"] = True
-    cfg_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
-    work = tmp_path / "work_val"
-    proc = _run_stage(cfg_path, work)
-    assert proc.returncode == 0, proc.stdout[-4000:] + proc.stderr[-4000:]
+def test_real_precompute_nonempty_validation(staged):
+    """The EXTERNAL validation prompts define the test split, exactly.
+
+    Not a slice of the training pool: the validation prompts have their own
+    manifest-bound learner and comparator pools, their own judged tensor, and
+    their own Eq. (26) targets.
+    """
+    work = staged["work"]
     assert (work / "pairs" / "pairs_test.jsonl").stat().st_size > 0
     meta = json.loads((work / "precomputed" / "precompute_meta.json").read_text())
     assert sorted(meta["dataset_splits"]) == ["test", "train"]
@@ -157,12 +162,48 @@ def test_real_precompute_nonempty_validation(tmp_path):
     from datasets import load_from_disk
     ds = load_from_disk(str(work / "precomputed"))
     assert sorted(ds.keys()) == ["test", "train"]
-    # prompt-level, not pair-level: no prompt appears in both splits
-    train_p = {r["prompt_id"] for r in map(json.loads,
-               (work / "pairs" / "pairs_train.jsonl").read_text().splitlines())}
+
+    val_ids = {json.loads(l)["prompt_id"] for l in
+               (staged["fixture"] / "assets" / "validation_prompts.jsonl").read_text().splitlines()
+               if l.strip()}
     test_p = {r["prompt_id"] for r in map(json.loads,
               (work / "pairs" / "pairs_test.jsonl").read_text().splitlines())}
-    assert train_p and test_p and not (train_p & test_p)
+    assert test_p == val_ids, "the validation prompts file must define the test pairs exactly"
+    train_p = {r["prompt_id"] for r in map(json.loads,
+               (work / "pairs" / "pairs_train.jsonl").read_text().splitlines())}
+    assert not (train_p & test_p), "a training prompt may not appear in the validation pairs"
+    rec = staged["record"]["validation"]
+    assert rec["n_prompts"] == len(val_ids)
+    assert "training" in rec["lambda_source"], rec["lambda_source"]
+    assert set(rec["manifests"]) == {"learner_pool", "reference_comparator_pool"}
+
+
+def test_same_prompt_text_under_a_different_id_is_rejected(tmp_path):
+    """Leakage that every id-level check passes: same question, new id."""
+    cfg_path = _stage_config(tmp_path)
+    assets = cfg_path.parent / "assets"
+    train_first = json.loads(
+        (assets / "train_prompts.jsonl").read_text().splitlines()[0])
+    val_path = assets / "validation_prompts.jsonl"
+    rows = [json.loads(l) for l in val_path.read_text().splitlines() if l.strip()]
+    rows[0]["prompt"] = train_first["prompt"]          # same text, different id
+    val_path.write_text("\n".join(json.dumps(r) for r in rows) + "\n")
+    proc = _run_stage(cfg_path, tmp_path / "work_leak")
+    assert proc.returncode != 0
+    assert "share prompt TEXT under different ids" in proc.stdout + proc.stderr
+
+
+def test_legacy_validation_prompt_file_key_is_refused(tmp_path):
+    """The old key never defined the validation pairs; it is refused, not honoured."""
+    cfg_path = _stage_config(tmp_path)
+    cfg = yaml.safe_load(cfg_path.read_text())
+    cfg.pop("validation", None)
+    cfg["data"] = {"split_unit": "prompt",
+                   "validation_prompt_file": "assets/validation_prompts.jsonl"}
+    cfg_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
+    proc = _run_stage(cfg_path, tmp_path / "work_legacykey")
+    assert proc.returncode != 0
+    assert "never defined the validation pairs" in proc.stdout + proc.stderr
 
 
 # --------------------------------------------------------------------------- #
@@ -229,11 +270,15 @@ def test_precompute_pair_solver_hash_chain_rejects_a_stale_pair_artifact(staged,
 def test_training_pool_bound_to_parent_and_reference_pool_to_mu(staged):
     record = staged["record"]
     pools = record["response_pool_manifests"]
-    assert set(pools) == {"learner_pool", "reference_comparator_pool"}
+    assert set(pools) == {"learner_pool", "reference_comparator_pool",
+                          "monitoring_reference_comparator_pool"}
     parent_fp = record["parent_fingerprint"]
     assert pools["learner_pool"]["checkpoint_fingerprint"] == parent_fp
-    # stage 0: mu IS pi_0, so both pools bind to the same weights
+    # stage 0: mu IS pi_0, so every pool binds to the same weights
     assert pools["reference_comparator_pool"]["checkpoint_fingerprint"] == parent_fp
+    assert pools["monitoring_reference_comparator_pool"]["checkpoint_fingerprint"] == parent_fp
+    assert record["monitoring_reference_mu_fingerprint"] == record["mu_fingerprint"]
+    assert record["monitoring_reference_manifest_sha256"]
 
 
 def test_wrong_learner_checkpoint_manifest_fails(staged, tmp_path):

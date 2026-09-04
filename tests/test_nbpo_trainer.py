@@ -8,6 +8,11 @@ tests/test_revision_losses.py -- no model, no GPU, no dataset.
 from types import SimpleNamespace
 
 import pytest
+
+from mnpo_scripts.pair_tokenization import (
+    tokenization_config,
+    tokenization_config_hash,
+)
 import torch
 
 from mnpo_scripts.mnpo_config import MNPOConfig
@@ -128,7 +133,16 @@ def _ok_args(**overrides):
 GOOD_COLUMNS = ["prompt", "chosen", "rejected", "nbpo_weighted_z",
                 "reference_chosen_logps", "reference_rejected_logps",
                 "history0_chosen_logps", "history0_rejected_logps"]
-GOOD_META = {"logp_reduction": "sum", "tokenizer_hash": "tok", "chat_template_hash": "chat"}
+# A sidecar from the canonical tokenization path: it must declare the schema and
+# the config hash, or the trainer cannot show that pi_t's logps came from the
+# same token ids it will score (Eq. (22)).
+GOOD_META = {
+    "logp_reduction": "sum", "tokenizer_hash": "tok", "chat_template_hash": "chat",
+    **tokenization_config(max_length=2048, max_prompt_length=1024, truncation_mode="keep_end"),
+    "tokenization_config_sha256": tokenization_config_hash(
+        tokenization_config(max_length=2048, max_prompt_length=1024,
+                            truncation_mode="keep_end")),
+}
 
 
 def test_validate_accepts_the_paper_configuration():

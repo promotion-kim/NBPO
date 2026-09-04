@@ -84,22 +84,27 @@ monitoring:
   # Qwen3 needs enable_thinking: false or the monitored 'responses' are
   # reasoning traces and the gate scores the wrong text.
   chat_template_kwargs: {enable_thinking: false}
-  reference_files:
-    r0: PLACEHOLDER_MON_REF_R0.json
-    r1: PLACEHOLDER_MON_REF_R1.json
-    r2: PLACEHOLDER_MON_REF_R2.json
-    r3: PLACEHOLDER_MON_REF_R3.json
+  # Bound to mu exactly like the training comparators: without this the
+  # Algorithm-1 gate can score the candidate against stale comparators, or
+  # ones decoded from a different checkpoint.
+  reference_manifest: PLACEHOLDER_MONITORING_REFERENCE_MANIFEST.json
+  reference_manifest_seeds: [r0, r1, r2, r3]
+  reference_decode_params: {temperature: 0.9, top_p: 0.95, max_new_tokens: 512}
 final_eval:
   prompts_file: PLACEHOLDER_FINAL_EVAL_PROMPTS.jsonl   # judged by judge.final_eval
-data:
-  # Prompt-level (never pair-level) validation. Leave validation_prompt_file
-  # unset for a train-only artifact: build_nbpo_pairs always writes
-  # pairs_test.jsonl, so --test_dir is emitted ONLY when that file has rows
-  # ({test_dir_flag} below) -- an empty requested split is a hard error in
-  # precompute, never a silent torch.cat([]).
-  split_unit: prompt
-  require_nonempty_validation: false
-  # validation_prompt_file: PLACEHOLDER_VALIDATION_PROMPTS.jsonl
+# EXTERNAL validation (optional). These prompts define pairs_test.jsonl
+# entirely: they get their own manifest-bound learner and comparator pools,
+# their own judged tensor and their own Eq. (26) targets. lambda is NOT
+# re-solved -- the dual weights are a property of the training problem -- only
+# the opponent nu is recomputed on these prompts.
+#
+# The alternative, targets.test_prompts, is a prompt-wise holdout WITHIN the
+# pre-generated training response pool: a split after generation, not an
+# independently generated held-out set. The two are mutually exclusive.
+# validation:
+#   prompts_file: PLACEHOLDER_VALIDATION_PROMPTS.jsonl
+#   learner_manifest: PLACEHOLDER_VALIDATION_LEARNER_MANIFEST.json
+#   reference_manifest: PLACEHOLDER_VALIDATION_REFERENCE_MANIFEST.json
 solver:
   eta: 1.0                            # proximal coefficient eta_t (T = 1 outer stage)
   opponent_betas: [0.25, 0.25, 0.25, 0.25]   # explicit; NOT the metrics-only trainer `beta: 10.0`
@@ -152,7 +157,8 @@ commands:
     --ref_model Qwen/Qwen3-8B --history_paths {parent}
     --train_dir {pairs_dir}/pairs_train.jsonl {test_dir_flag}
     --output_dir {precomputed} --solver_artifact_path {solver_dir}/solution.json
-    --logp_reduction sum --ronpo_target_mode none --apply_chat_template true
+    --logp_reduction sum --truncation_mode keep_end
+    --ronpo_target_mode none --apply_chat_template true
     --max_length 2048 --max_prompt_length 1024 --per_device_train_batch_size 2
   train: >-
     python -m accelerate.commands.launch --num_processes 1 -m mnpo_scripts.run_mnpo {run_config}

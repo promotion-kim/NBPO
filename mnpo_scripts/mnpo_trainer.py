@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from typing import Dict, List, Optional, Tuple, Union
 from scripts.simpo_trainer import SimPOTrainer
 from mnpo_scripts.mnpo_config import MNPOConfig
+from mnpo_scripts.pair_tokenization import TOKENIZATION_SCHEMA_VERSION
 from transformers import AutoModelForCausalLM, DataCollator, PreTrainedModel, PreTrainedTokenizerBase, Trainer
 
 
@@ -131,6 +132,34 @@ def validate_nbpo_args(
                 "history0 does not match the parent checkpoint this run config was written "
                 f"for: sidecar={precompute_meta.get('history_fingerprints')} "
                 f"expected=[{exp_parent}]")
+    # ---- tokenization schema (audit P0) -----------------------------------
+    if precompute_meta is not None:
+        exp_tok = getattr(args, "nbpo_expected_tokenization_config_sha256", None)
+        recorded_tok = precompute_meta.get("tokenization_config_sha256")
+        if recorded_tok is None:
+            problems.append(
+                "precompute artifact records no tokenization_config_sha256; it predates the "
+                "canonical tokenization path and its pi_t logps may have been computed over "
+                "different token ids than the trainer scores (re-run mnpo_scripts.precompute)")
+        elif exp_tok is not None and recorded_tok != exp_tok:
+            problems.append(
+                f"tokenization schema mismatch: artifact {recorded_tok[:12]} != expected "
+                f"{exp_tok[:12]}; pi_t and pi would score different token sequences")
+        schema = precompute_meta.get("tokenization_schema_version")
+        if schema is not None and int(schema) != TOKENIZATION_SCHEMA_VERSION:
+            problems.append(
+                f"precompute artifact uses tokenization schema v{schema}, this trainer is "
+                f"v{TOKENIZATION_SCHEMA_VERSION}")
+        # The settings themselves must match what this run will apply.
+        for key, attr in (("max_length", "max_length"),
+                          ("max_prompt_length", "max_prompt_length"),
+                          ("truncation_mode", "truncation_mode")):
+            want = getattr(args, attr, None)
+            got = precompute_meta.get(key)
+            if want is not None and got is not None and str(got) != str(want):
+                problems.append(
+                    f"{key}: precompute used {got!r} but this run uses {want!r}; the two "
+                    "paths would truncate differently")
     if dataset_dir is not None and (exp_manifest is not None or precompute_meta is not None):
         from mnpo_scripts.precompute_provenance import verify_precompute_manifest
 

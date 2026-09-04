@@ -88,6 +88,36 @@ Two approximations remain, both measured rather than assumed:
    `extra_map_residual` (the movement of one further map) are written into every
    solver artifact, so the size of this approximation is on the record.
 
+## One tokenization, two paths
+
+Eq. (22) subtracts the proximal centre's sequence log-probability from the
+current policy's:
+
+```
+h_t = (log pi(y|x) - log pi(y'|x)) - (log pi_t(y|x) - log pi_t(y'|x))
+```
+
+The two terms come from different code — `mnpo_scripts.precompute` scores `pi_t`
+offline, `scripts.simpo_trainer` scores `pi` online — so the subtraction is only
+meaningful if both score **exactly the same token ids under exactly the same
+attention and label masks**. Both now call one implementation,
+`mnpo_scripts/pair_tokenization.py`, which:
+
+* joint-tokenizes `prompt + response` and backs the boundary up one token when
+  the tokenizer merged across it;
+* adds BOS at most once and EOS at most once;
+* truncates the prompt first, then the response, with identical bounds;
+* keeps every valid prompt token in the attention mask and masks the prompt in
+  `labels` only;
+* treats chosen and rejected symmetrically.
+
+The settings that determine the token sequence are hashed into
+`tokenization_config_sha256` and recorded in `precompute_meta.json` and
+`run_config.yaml`; training refuses to start if they differ. The invariant test
+`test_h_t_of_pi_t_is_zero_before_any_optimizer_step` scores one frozen model
+through both production paths with a tokenizer that merges across the boundary
+and asserts `h_t = 0` exactly.
+
 ## Terminology
 
 Call this pipeline the **finite-pool NBPO realization**. Do not describe it as
@@ -110,7 +140,7 @@ inner problem at every dual iteration.
 | (17) dual objective `phi_t(lambda)` | `mnpo_scripts/nbpo_solver.py:dual_objective_phi` |
 | (19)-(20) `grad phi = s - 1/lambda`, `lambda_k = 1/s_k` | `nbpo_solver.py:solve_nbpo_dual` (residuals) |
 | (21) raw-lambda proximal update | `nbpo_core.py:weighted_policy_update`, `nbpo_solver.py:solve_weighted_policy` |
-| (22) log-ratio change `h_t` | `mnpo_scripts/mnpo_trainer.py` (`loss_type: nbpo` branch) |
+| (22) log-ratio change `h_t` | `mnpo_scripts/mnpo_trainer.py` (`loss_type: nbpo` branch); tokenization: `mnpo_scripts/pair_tokenization.py` |
 | (24) binary target `Z_k = B_k - B'_k` | `scripts/nbpo/build_nbpo_pairs.py:build_rows` |
 | (26) regression loss | `mnpo_trainer.py` nbpo branch; `logp_reduction: sum` |
 | (27) projected dual step | `nbpo_solver.py:solve_nbpo_dual` |

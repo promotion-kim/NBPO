@@ -67,7 +67,7 @@ from mnpo_scripts.nbpo_core import (
     validate_centered_preference_tensor,
     validate_reference_tensor,
 )
-from mnpo_scripts.nbpo_solver import solve_nbpo_dual
+from mnpo_scripts.nbpo_solver import solve_nbpo_dual, solve_weighted_policy
 from mnpo_scripts.precompute_provenance import (
     checkpoint_fingerprint,
     read_precompute_meta,
@@ -99,6 +99,7 @@ from scripts.nbpo.nbpo_common import (
     read_jsonl,
     response_pool_hash,
     sha256_file,
+    sha256_text,
     verdict_cache_path,
     write_json,
 )
@@ -226,6 +227,150 @@ def make_backend(judge_cfg: dict, objectives_config: Path, objectives, identity:
                      chat_template_kwargs=identity.get("chat_template_kwargs"))
 
 
+def check_disjoint_by_text(named_prompt_files: dict) -> dict:
+    """Pairwise disjointness by prompt_id AND by normalized prompt TEXT.
+
+    Checking ids alone lets the same question appear in training and validation
+    under two different ids, which is leakage that every id-level check passes.
+    Text is normalized (collapsed whitespace, casefolded) before hashing so
+    cosmetic differences do not hide a duplicate.
+    """
+    import re
+
+    def norm(s: str) -> str:
+        return re.sub(r"\s+", " ", str(s)).strip().casefold()
+
+    ids, texts = {}, {}
+    for name, rows in named_prompt_files.items():
+        ids[name] = {str(pid) for pid, _ in rows}
+        texts[name] = {sha256_text(norm(txt)): str(pid) for pid, txt in rows}
+    problems = []
+    names = sorted(named_prompt_files)
+    for i, a in enumerate(names):
+        for b in names[i + 1:]:
+            shared_ids = ids[a] & ids[b]
+            if shared_ids:
+                problems.append(f"{a} and {b} share prompt ids {sorted(shared_ids)[:5]}")
+            shared_text = set(texts[a]) & set(texts[b])
+            if shared_text:
+                examples = [(texts[a][h], texts[b][h]) for h in sorted(shared_text)[:5]]
+                problems.append(
+                    f"{a} and {b} share prompt TEXT under different ids {examples}")
+    if problems:
+        raise ValueError("prompt sets must be disjoint by id AND by text: "
+                         + "; ".join(problems))
+    return {name: {"n_prompts": len(ids[name]),
+                   "n_distinct_texts": len(texts[name])} for name in names}
+
+
+def build_validation_pairs(cfg, base, workdir, objectives, objectives_config, judge_cfg,
+                           solver_solution, beta, stage, reproduction_mode, allow_partial,
+                           mu_fingerprint, parent_fingerprint, pairs_dir):
+    """Build pairs_test.jsonl from EXTERNAL validation prompts and their own responses.
+
+    ``targets.test_prompts`` holds prompts out of the pre-generated training
+    response pool -- a split AFTER generation, not a validation set. When
+    ``validation:`` is configured, the validation prompts get their own learner
+    and comparator pools (manifest-bound to pi_t and mu), their own judged
+    tensor, and their own Eq. (26) targets. lambda is NOT re-solved: the dual
+    weights are a property of the training problem, so the training solution's
+    raw lambda is applied to the validation tensor and only the opponent nu is
+    recomputed there, exactly as the training targets do at the proximal centre.
+    """
+    vcfg = cfg["validation"]
+    v_prompts_path = _resolve(base, vcfg["prompts_file"])
+    v_ids, _ = load_prompt_set(v_prompts_path)
+    v_rows = load_prompt_rows(v_prompts_path)
+    v_text_hashes = prompt_text_hashes(v_rows)
+    gen_ctk = (cfg.get("generation") or {}).get("chat_template_kwargs") or {}
+    bindings = {}
+    for key, role, want_fp in (("learner_manifest", "learner_pool", parent_fingerprint),
+                               ("reference_manifest", "reference_comparator_pool",
+                                mu_fingerprint)):
+        if key not in vcfg:
+            raise ValueError(f"validation requires validation.{key}")
+        bindings[role] = verify_manifest(
+            _resolve(base, vcfg[key]), expected_role=role, expected_fingerprint=want_fp,
+            expected_prompt_ids=v_ids, expected_prompt_text_sha256=v_text_hashes,
+            expected_prompts_file=v_prompts_path,
+            expected_chat_template_kwargs=gen_ctk,
+            allow_partial_prompt_intersection=allow_partial)
+    v_policy_specs = [f"{s}={p}" for s, p in
+                      sorted(bindings["learner_pool"]["seed_files"].items())]
+    v_ref_specs = [f"{s}={p}" for s, p in
+                   sorted(bindings["reference_comparator_pool"]["seed_files"].items())]
+    v_tensor_dir, n_cells = judge_and_build_tensors(
+        v_policy_specs, v_ref_specs, objectives, objectives_config, judge_cfg,
+        workdir, tag="validation", role="training", reproduction_mode=reproduction_mode,
+        pool_bindings=bindings)
+
+    # nu at the proximal centre on the VALIDATION tensor, with the TRAINING lambda.
+    A_val = torch.from_numpy(np.load(v_tensor_dir / "tensor_policy.npz")["A"])
+    A_val_ref = torch.from_numpy(np.load(v_tensor_dir / "tensor_ref.npz")["A"])
+    mu_val = uniform_policy(A_val.shape[1], A_val.shape[3])
+    pi_t_val = uniform_policy(A_val.shape[1], A_val.shape[2])
+    lam = torch.tensor(solver_solution["lambda_raw"], dtype=torch.float64)
+    sol = solve_weighted_policy(A_val, mu_val, pi_t_val, lam, beta,
+                                float((solver_solution["config"] or {}).get("eta", 1.0)),
+                                R=int((solver_solution["config"] or {}).get("R", 1)))
+    v_solver_dir = workdir / "solver_validation"
+    v_solver_dir.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(v_solver_dir / "nu_update.npz", nu=sol.nu_update.numpy())
+    np.savez_compressed(v_solver_dir / "nu_final_policy.npz", nu=sol.nu_final_policy.numpy())
+    np.savez_compressed(v_solver_dir / "pi_star.npz", pi=sol.pi.numpy())
+    v_solution = {
+        **implementation_contract(
+            dual_iterations=(solver_solution["config"] or {}).get("M"),
+            fixed_point_steps=(solver_solution["config"] or {}).get("R")),
+        "aggregation": solver_solution["aggregation"],
+        "stage": int(stage),
+        "objectives": objectives,
+        "lambda_raw": list(solver_solution["lambda_raw"]),
+        "lambda_source": "training dual solve (validation does NOT re-solve the dual)",
+        "config": dict(solver_solution["config"] or {}),
+        "input_hashes": {n: sha256_file(v_tensor_dir / n)
+                         for n in ("tensor_policy.npz", "tensor_ref.npz", "meta.json")},
+        "artifact_hashes": {n: sha256_file(v_solver_dir / n)
+                            for n in ("nu_update.npz", "nu_final_policy.npz", "pi_star.npz")},
+        "opponent_artifacts": {
+            "nu_update.npz": {"artifact_kind": "regularized_opponent",
+                              "source_policy": "proximal_centre",
+                              "source_fixed_point_iteration": 0,
+                              "used_for": "eq26_target"},
+            "nu_final_policy.npz": {"artifact_kind": "regularized_opponent",
+                                    "source_policy": "final_policy",
+                                    "source_fixed_point_iteration": int(
+                                        (solver_solution["config"] or {}).get("R", 1)),
+                                    "used_for": "diagnostics"},
+        },
+    }
+    write_json(v_solver_dir / "solution.json", v_solution)
+    v_pairs_dir = workdir / "pairs_validation"
+    v_summary = build_pairs_from_artifacts(
+        v_tensor_dir, v_solver_dir, v_policy_specs, v_pairs_dir,
+        target_mode=(cfg.get("targets") or {}).get("mode", "sampled"),
+        seed=int((cfg.get("targets") or {}).get("seed", 42)), stage=stage,
+        reproduction_mode=reproduction_mode,
+        learner_manifest_sha256=bindings["learner_pool"]["manifest_sha256"])
+    # pairs_test.jsonl comes EXCLUSIVELY from the validation artifacts.
+    src = v_pairs_dir / "pairs_train.jsonl"
+    dst = pairs_dir / "pairs_test.jsonl"
+    dst.write_text(src.read_text())
+    got = {json.loads(l)["prompt_id"] for l in dst.read_text().splitlines() if l.strip()}
+    if got != set(map(str, v_ids)):
+        raise ValueError(
+            "validation pair prompt ids do not equal the validation prompts file: "
+            f"missing={sorted(set(map(str, v_ids)) - got)[:5]} "
+            f"unexpected={sorted(got - set(map(str, v_ids)))[:5]}")
+    return {"prompts_file": str(v_prompts_path),
+            "prompts_file_sha256": sha256_file_hex(str(v_prompts_path)),
+            "n_prompts": len(v_ids), "n_pairs": len(dst.read_text().splitlines()),
+            "tensor_dir": str(v_tensor_dir), "judged_cells": n_cells,
+            "manifests": {r: pool_manifest_summary(b) for r, b in bindings.items()},
+            "lambda_source": v_solution["lambda_source"],
+            "summary": v_summary}
+
+
 def build_judge_provenance(judges: dict, artifacts: dict, objectives_config, objectives) -> dict:
     """Per-role judge provenance, each from that role's own artifact.
 
@@ -275,7 +420,7 @@ def build_judge_provenance(judges: dict, artifacts: dict, objectives_config, obj
 
 def judge_and_build_tensors(policy_specs, reference_specs, objectives, objectives_config,
                             judge_cfg, out_dir: Path, tag: str, role: str = None,
-                            reproduction_mode: bool = True):
+                            reproduction_mode: bool = True, pool_bindings: dict = None):
     """Judge a matrix and build the tensor artifact, with content-addressed caching.
 
     The verdict cache lives at ``verdicts/<pool_hash>/<judge_config_hash>/`` and
@@ -292,9 +437,14 @@ def judge_and_build_tensors(policy_specs, reference_specs, objectives, objective
     identity = normalize_judge_config(judge_cfg, role,
                                       rubric_sha256=rubric_identity_hash(loaded["rubrics"]),
                                       max_retries=judge_cfg.get("max_retries", 2))
+    if reproduction_mode:
+        # A configured kwarg the tokenizer rejects must fail, not be dropped.
+        identity["strict_chat_template_kwargs"] = True
     backend = make_backend(judge_cfg, objectives_config, objectives, identity)
-    # What the backend says it applied -- never the requested values on faith.
-    identity = {**identity, **backend.effective_config()}
+    # Render ONE task first, then freeze: effective_config() read before any render
+    # reports the REQUESTED kwargs, so a silently-dropped one would be baked into
+    # the cache identity as if it had been applied.
+    identity = {**identity, **backend.preflight(tasks[0])}
     pool_hash = response_pool_hash(policy, reference)
     cfg_hash = judge_config_hash(identity)
     verdicts = verdict_cache_path(out_dir, pool_hash, cfg_hash)
@@ -302,6 +452,11 @@ def judge_and_build_tensors(policy_specs, reference_specs, objectives, objective
                     rubric_version=loaded["version"],
                     max_retries=int(judge_cfg.get("max_retries", 2)),
                     judge_identity=identity)
+    after = {**identity, **backend.effective_config()}
+    if judge_config_hash(after) != cfg_hash:
+        raise RuntimeError(
+            "the judge's effective configuration changed during judging: the verdict cache "
+            "key no longer describes what was applied")
     rows = read_jsonl(verdicts)
     payoff = aggregate_cells(rows)
     prompt_ids = sorted(set.intersection(*[set(m) for m in policy.values()],
@@ -333,6 +488,8 @@ def judge_and_build_tensors(policy_specs, reference_specs, objectives, objective
         "judge_backend": judge_cfg["backend"],
         "judge_effective_config": identity,
         "judge_config_hash": cfg_hash,
+        "judge_effective_chat_template_kwargs": identity.get("chat_template_kwargs"),
+        "renderer_schema_version": identity.get("renderer_schema_version"),
         "judge_decoding": {k: identity.get(k) for k in
                            ("temperature", "top_p", "top_k", "max_tokens",
                             "retry_temperature", "max_retries")},
@@ -340,6 +497,25 @@ def judge_and_build_tensors(policy_specs, reference_specs, objectives, objective
         "rubric_config_hash": sha256_file(objectives_config),
         "rubric_content_hash": identity["rubric_sha256"],
         "response_pool_hash": pool_hash,
+        # Which response texts this tensor -- and therefore lambda and nu --
+        # describe. build_nbpo_pairs re-hashes the files it loads against these,
+        # so pair texts cannot come from a pool the tensor never saw.
+        "learner_response_pool_hash": response_pool_hash(policy),
+        "reference_response_pool_hash": response_pool_hash(reference),
+        "learner_manifest_sha256": ((pool_bindings or {}).get("learner_pool") or {}).get(
+            "manifest_sha256"),
+        "reference_manifest_sha256": (
+            (pool_bindings or {}).get("reference_comparator_pool") or {}).get("manifest_sha256"),
+        "response_text_sha256": {
+            "policy": {f"policy:{s}": {pid: sha256_text(str(r.get("generated_text", "")))
+                                       for pid, r in sorted(rows.items())}
+                       for s, rows in sorted(policy.items())},
+            "reference": {f"ref:{s}": {pid: sha256_text(str(r.get("generated_text", "")))
+                                       for pid, r in sorted(rows.items())}
+                          for s, rows in sorted(reference.items())},
+        },
+        "prompt_text_sha256": {pid: sha256_text(str(next(iter(policy.values()))[pid]["prompt"]))
+                               for pid in prompt_ids},
         "verdicts_path": str(verdicts),
         "verdicts_hash": sha256_file(verdicts),
         "both_orders_required": True,
@@ -595,10 +771,20 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
     mon_prompts_path = _resolve(base, cfg["monitoring"]["prompts_file"])
     monitoring_ids, _ = load_prompt_set(mon_prompts_path)
     monitoring_text_hashes = prompt_text_hashes(load_prompt_rows(mon_prompts_path))
-    final_ids, _ = load_prompt_set(_resolve(base, cfg["final_eval"]["prompts_file"]))
+    final_prompts_path = _resolve(base, cfg["final_eval"]["prompts_file"])
+    final_ids, _ = load_prompt_set(final_prompts_path)
     check_disjoint(train_ids, monitoring_ids, final_ids)
-    _step("disjointness", f"train={len(train_ids)} monitoring={len(monitoring_ids)} "
-                          f"final={len(final_ids)}")
+    # ... and by prompt TEXT, so the same question under two ids is caught too.
+    train_prompt_rows = [(pid, next(iter(train_pools.values()))[pid]["prompt"])
+                         for pid in sorted(train_ids)]
+    named = {"train": train_prompt_rows,
+             "monitoring": load_prompt_rows(mon_prompts_path),
+             "final_eval": load_prompt_rows(final_prompts_path)}
+    if cfg.get("validation"):
+        named["validation"] = load_prompt_rows(_resolve(base, cfg["validation"]["prompts_file"]))
+    disjointness = check_disjoint_by_text(named)
+    _step("disjointness", f"{ {k: v['n_prompts'] for k, v in disjointness.items()} } "
+                          "(disjoint by prompt id AND normalized prompt text)")
 
     # 3-4. Training judge -> tensors -> dual solve.
     judges = {}
@@ -609,7 +795,8 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
         judges[role] = jc
     tensor_dir, n_cells = judge_and_build_tensors(
         policy_specs, reference_specs, objectives, objectives_config, judges["training"],
-        workdir, tag="train", role="training", reproduction_mode=reproduction_mode)
+        workdir, tag="train", role="training", reproduction_mode=reproduction_mode,
+        pool_bindings=pool_bindings)
     _step("judge_train", f"{n_cells} cells (both orders, retries enforced, "
                          f"judge={judges['training']['model_path']})")
     _step("tensor_train", str(tensor_dir))
@@ -652,12 +839,15 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
     summary = build_pairs_from_artifacts(
         tensor_dir, solver_dir, policy_specs, pairs_dir,
         target_mode=tcfg.get("mode", "sampled"), seed=int(tcfg.get("seed", 42)), stage=stage,
+        reproduction_mode=reproduction_mode,
+        learner_manifest_sha256=(pool_bindings.get("learner_pool") or {}).get("manifest_sha256"),
         # Prompt-level hold-out: whole prompts move to the test split, so no
         # prompt's pairs straddle it.
         test_prompts=int(tcfg.get("test_prompts", 0) or 0),
         split_salt=str(tcfg.get("split_salt", "nbpo-v1")))
     _step("build_pairs", f"{summary['pairs']} target_mode={summary['target_mode']} "
-                         f"opponent_scope={summary['opponent_sampling_scope']}")
+                         f"opponent_scope={summary['opponent_sampling_scope']} "
+                         f"pool={str(summary.get('tensor_response_pool_hash'))[:12]}")
 
     if reproduction_mode:
         check_reproduction_invariants(cfg.get("solver") or {},
@@ -683,6 +873,7 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
     decode_out = workdir / "candidate_monitoring"
     decode_manifest = workdir / "candidate_monitoring_manifest.json"
     binding = None
+    validation_record = None
     if dry_run:
         candidate_dir.mkdir(parents=True, exist_ok=True)
         parent_dir.mkdir(parents=True, exist_ok=True)
@@ -710,18 +901,32 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
         # prompt-disjoint file -- never from a pair-level slice of the training
         # rows, which would leak a prompt across the split.
         data_cfg = cfg.get("data") or {}
-        test_pairs = pairs_dir / "pairs_test.jsonl"
         if data_cfg.get("validation_prompt_file"):
-            if str(data_cfg.get("split_unit", "prompt")) != "prompt":
+            # This used to only ID-check a file that never defined the validation
+            # pairs -- those still came from targets.test_prompts. The external
+            # validation path is `validation:`; the old key is refused rather
+            # than kept as a claim the code does not honour.
+            raise ValueError(
+                "data.validation_prompt_file is not implemented and never defined the "
+                "validation pairs. Use the `validation:` section (prompts_file + "
+                "learner_manifest + reference_manifest), which generates the test split "
+                "from those prompts, or targets.test_prompts, which is a prompt-wise "
+                "holdout WITHIN the pre-generated training response pool.")
+        test_pairs = pairs_dir / "pairs_test.jsonl"
+        if cfg.get("validation"):
+            if int((cfg.get("targets") or {}).get("test_prompts", 0) or 0):
                 raise ValueError(
-                    "data.validation_prompt_file implies prompt-level validation; "
-                    f"split_unit={data_cfg.get('split_unit')!r} would silently make it "
-                    "pair-level")
-            val_ids, _ = load_prompt_set(_resolve(base, data_cfg["validation_prompt_file"]))
-            if val_ids & set(train_ids):
-                raise ValueError(
-                    f"data.validation_prompt_file overlaps the training prompts on "
-                    f"{len(val_ids & set(train_ids))} ids; prompt-level validation must be disjoint")
+                    "targets.test_prompts and validation: are mutually exclusive -- the "
+                    "first holds prompts out of the training pool, the second builds the "
+                    "test split from external validation prompts")
+            validation_record = build_validation_pairs(
+                cfg, base, workdir, objectives, objectives_config, judges["training"],
+                solution, beta, stage, reproduction_mode, allow_partial,
+                mu_fingerprint=checkpoint_fingerprint(str(mu_model_path)),
+                parent_fingerprint=parent_fp, pairs_dir=pairs_dir)
+            _step("validation", f"{validation_record['n_pairs']} pairs from "
+                                f"{validation_record['n_prompts']} external validation prompts "
+                                "(lambda from the training solve; nu recomputed there)")
         has_test = jsonl_has_records(test_pairs)
         if data_cfg.get("require_nonempty_validation") and not has_test:
             raise ValueError(
@@ -756,13 +961,21 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
             raise RuntimeError(
                 f"precompute saved splits {sorted(saved_splits)} but the stage expected "
                 f"{sorted(dataset_splits)}; the run config would name a split that does not exist")
+        if meta.get("tokenization_config_sha256") is None:
+            raise RuntimeError(
+                "precompute artifact records no tokenization_config_sha256; pi_t's logps "
+                "cannot be shown to come from the same token ids the trainer will score")
         _step("precompute", f"reduction=sum history0 bound to parent {parent_fp[:12]} "
-                            f"splits={sorted(dataset_splits)}")
+                            f"splits={sorted(dataset_splits)} "
+                            f"tokenization={meta['tokenization_config_sha256'][:12]}")
         expected_hashes = {
             "nbpo_expected_pair_artifact_sha256": sha256_file_hex(str(pairs_dir / "pairs_train.jsonl")),
             "nbpo_expected_solver_artifact_sha256": sha256_file_hex(str(solver_dir / "solution.json")),
             "nbpo_expected_parent_checkpoint_fingerprint": parent_fp,
             "nbpo_expected_precompute_manifest_sha256": meta.get("precompute_manifest_sha256"),
+            # Eq. (22) is only meaningful if pi_t (offline) and pi (online) score
+            # identical token ids; this pins the tokenization that produced them.
+            "nbpo_expected_tokenization_config_sha256": meta.get("tokenization_config_sha256"),
         }
         materialize_run_config(cfg, parent_dir, precomputed, candidate_dir, run_config,
                                dataset_splits=dataset_splits, expected_hashes=expected_hashes)
@@ -786,8 +999,36 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
         _step("decode", f"manifest bound to candidate {binding['candidate_fingerprint'][:12]}; "
                         f"{len(candidate_specs)} seeds")
 
-    # 7. Every candidate AND reference seed file carries exactly the monitoring prompt set.
-    mon_ref_specs = _specs(base, mon["reference_files"])
+    # 7. Monitoring comparators bound to mu, and every seed file carrying exactly
+    #    the monitoring prompt set.
+    mon_ref_binding = None
+    if mon.get("reference_manifest"):
+        mu_fp = checkpoint_fingerprint(str(mu_model_path))
+        mon_ref_binding = verify_manifest(
+            _resolve(base, mon["reference_manifest"]),
+            expected_role="monitoring_reference_comparator_pool",
+            expected_fingerprint=mu_fp,
+            expected_prompt_ids=monitoring_ids,
+            expected_prompt_text_sha256=monitoring_text_hashes,
+            expected_prompts_file=mon_prompts_path,
+            required_seeds=[str(s) for s in sorted(mon["reference_manifest_seeds"])]
+            if mon.get("reference_manifest_seeds") else None,
+            expected_decode_params=mon.get("reference_decode_params"),
+            expected_chat_template_kwargs=(cfg.get("generation") or {}).get(
+                "chat_template_kwargs") or {},
+            allow_partial_prompt_intersection=allow_partial)
+        mon_ref_specs = [f"{s}={p}" for s, p in sorted(mon_ref_binding["seed_files"].items())]
+        pool_bindings["monitoring_reference_comparator_pool"] = mon_ref_binding
+        _step("monitoring_reference_manifest",
+              f"comparators bound to mu {mu_fp[:12]}; {len(mon_ref_specs)} seeds")
+    elif reproduction_mode:
+        raise ValueError(
+            "reproduction_mode requires monitoring.reference_manifest: bare "
+            "monitoring.reference_files cannot bind the comparators to mu, so the "
+            "Algorithm-1 gate could score the candidate against stale or "
+            "differently-generated comparators")
+    else:
+        mon_ref_specs = _specs(base, mon["reference_files"])
     check_seed_files_cover_prompts(candidate_specs, monitoring_ids, "monitoring candidate")
     check_seed_files_cover_prompts(mon_ref_specs, monitoring_ids, "monitoring reference")
     _step("monitoring_prompt_sets", f"{len(candidate_specs)} candidate + {len(mon_ref_specs)} "
@@ -824,6 +1065,11 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
                                     else "skipped (dry_run.candidate_policy_files fixture)"),
         "monitoring": mon_eval,
         "monitoring_prompts_file_sha256": sha256_file_hex(str(mon_prompts_path)),
+        "monitoring_reference_manifest_sha256": (mon_ref_binding["manifest_sha256"]
+                                                 if mon_ref_binding else None),
+        "monitoring_reference_mu_fingerprint": (
+            mon_ref_binding["manifest"]["checkpoint_fingerprint"] if mon_ref_binding else None),
+        "mu_fingerprint": checkpoint_fingerprint(str(mu_model_path)),
         "comparator_pool_hash": sha256_file(mon_tensor_dir / "tensor_ref.npz"),
         "monitoring_verdicts_hash": mon_meta["verdicts_hash"],
         # One block per role, each from ITS OWN artifact. Copying the monitoring
@@ -842,6 +1088,16 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
         **implementation_contract(dual_iterations=int(scfg["M"]), fixed_point_steps=int(scfg["R"])),
         "reproduction_mode": reproduction_mode,
         "reproduction_invariants": invariants,
+        "prompt_set_disjointness": disjointness,
+        "validation": validation_record if validation_record is not None else {
+            "mode": ("prompt-wise holdout within the pre-generated training response pool"
+                     if int((cfg.get("targets") or {}).get("test_prompts", 0) or 0)
+                     else "none"),
+            "test_prompts": int((cfg.get("targets") or {}).get("test_prompts", 0) or 0),
+            "note": ("targets.test_prompts splits AFTER response generation; it is not a "
+                     "held-out set generated independently. Use the validation: section "
+                     "for that."),
+        },
         "response_pool_manifests": {role: pool_manifest_summary(b)
                                     for role, b in pool_bindings.items()},
         "dry_run": dry_run,

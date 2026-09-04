@@ -19,6 +19,8 @@ from transformers.trainer_utils import EvalLoopOutput
 from trl import DPOTrainer, DPOConfig
 from accelerate.utils import is_deepspeed_available, tqdm
 
+from mnpo_scripts.pair_tokenization import tokenize_preference_pair
+
 @dataclass
 class PreferenceDataCollatorWithPadding:
     tokenizer: PreTrainedTokenizerBase
@@ -39,107 +41,35 @@ class PreferenceDataCollatorWithPadding:
         chosen: str,
         rejected: str,
     ) -> Dict:
-        """Tokenize a single batch element.
+        """Tokenize one preference pair through the CANONICAL implementation.
 
-        At this stage, we don't convert to PyTorch tensors yet; we just handle the truncation
-            in case the prompt + chosen or prompt + rejected responses is/are too long. First
-            we truncate the prompt; if we're still too long, we truncate the chosen/rejected.
-
-        We also create the labels for the chosen/rejected responses, which are of length equal to
-            the sum of the length of the prompt and the chosen/rejected response, with
-            label_pad_token_id  for the prompt tokens.
+        This used to be a second, divergent copy of the trainer's tokenization:
+        it tokenized prompt/chosen/rejected separately (so a tokenizer that
+        merges across the prompt/response boundary produced different ids than
+        training), zeroed the attention mask at EOS positions inside the prompt,
+        computed a chosen attention mask and discarded it, and appended EOS
+        unconditionally. Every one of those made the offline pi_t log-probability
+        incomparable with the online one, which is exactly what Eq. (22)
+        subtracts. There is now one implementation, in
+        ``mnpo_scripts.pair_tokenization``, and both paths call it.
         """
-        batch = {}
-
-        if not self.is_encoder_decoder:
-            # "inputs_ids", "attention_mask" both list
-            chosen_tokens = self.tokenizer(chosen, add_special_tokens=False)
-            rejected_tokens = self.tokenizer(rejected, add_special_tokens=False)
-            prompt_tokens = self.tokenizer(prompt, add_special_tokens=False)
-
-            eos_token_id = self.tokenizer.eos_token_id
-            # Get indices in list prompt_tokens["input_ids"] that equals the EOS token (often 0)
-            eos_indices_prompt = [i for i, x in enumerate(prompt_tokens["input_ids"]) if x == eos_token_id]
-            # attention mask these indices to eos_token_id
-            # False
-            if self.mask_prompt:
-                new_attention_mask = [0 for i, p in enumerate(prompt_tokens["attention_mask"])]
-            else:
-                new_attention_mask = [
-                    0 if i in eos_indices_prompt else p for i, p in enumerate(prompt_tokens["attention_mask"])
-                ]
-            # all 1 if i not in eos_indices_prompt
-            prompt_tokens["attention_mask"] = new_attention_mask
-
-            # do the same for chosen and rejected
-            eos_indices_chosen = [i for i, x in enumerate(chosen_tokens["input_ids"]) if x == eos_token_id]
-            new_attention_mask_c = [
-                0 if i in eos_indices_chosen else p for i, p in enumerate(chosen_tokens["attention_mask"])
-            ]
-            eos_indices_rejected = [i for i, x in enumerate(rejected_tokens["input_ids"]) if x == eos_token_id]
-            new_attention_mask_r = [
-                0 if i in eos_indices_rejected else p for i, p in enumerate(rejected_tokens["attention_mask"])
-            ]
-            rejected_tokens["attention_mask"] = new_attention_mask_r
-
-            # add EOS token to end of prompt
-
-            chosen_tokens["input_ids"].append(self.tokenizer.eos_token_id)
-            chosen_tokens["attention_mask"].append(1)
-
-            rejected_tokens["input_ids"].append(self.tokenizer.eos_token_id)
-            rejected_tokens["attention_mask"].append(1)
-
-            longer_response_length = max(len(chosen_tokens["input_ids"]), len(rejected_tokens["input_ids"]))
-
-            # if combined sequence is too long, truncate the prompt
-            if len(prompt_tokens["input_ids"]) + longer_response_length > self.max_length:
-                if self.truncation_mode == "keep_start":
-                    prompt_tokens = {k: v[: self.max_prompt_length] for k, v in prompt_tokens.items()}
-                elif self.truncation_mode == "keep_end":
-                    prompt_tokens = {k: v[-self.max_prompt_length :] for k, v in prompt_tokens.items()}
-                else:
-                    raise ValueError(f"Unknown truncation mode: {self.truncation_mode}")
-
-            # if that's still too long, truncate the response
-            if len(prompt_tokens["input_ids"]) + longer_response_length > self.max_length:
-                chosen_tokens = {k: v[: self.max_length - self.max_prompt_length] for k, v in chosen_tokens.items()}
-                rejected_tokens = {
-                    k: v[: self.max_length - self.max_prompt_length] for k, v in rejected_tokens.items()
-                }
-
-            # Create labels
-            chosen_sequence_tokens = {k: prompt_tokens[k] + chosen_tokens[k] for k in chosen_tokens}
-            rejected_sequence_tokens = {k: prompt_tokens[k] + rejected_tokens[k] for k in rejected_tokens}
-            chosen_sequence_tokens["labels"] = chosen_sequence_tokens["input_ids"][:]
-            chosen_sequence_tokens["labels"][: len(prompt_tokens["input_ids"])] = [self.label_pad_token_id] * len(
-                prompt_tokens["input_ids"]
-            )
-            rejected_sequence_tokens["labels"] = rejected_sequence_tokens["input_ids"][:]
-            rejected_sequence_tokens["labels"][: len(prompt_tokens["input_ids"])] = [self.label_pad_token_id] * len(
-                prompt_tokens["input_ids"]
-            )
-
-            for k, toks in {
-                "chosen": chosen_sequence_tokens,
-                "rejected": rejected_sequence_tokens,
-                "prompt": prompt_tokens,
-            }.items():
-                for type_key, tokens in toks.items():
-                    if type_key == "token_type_ids":
-                        continue
-                    batch[f"{k}_{type_key}"] = tokens
-
-        else:
+        if self.is_encoder_decoder:
             raise NotImplementedError
-
-        batch["prompt"] = prompt
-        batch["chosen"] = prompt + chosen
-        batch["rejected"] = prompt + rejected
-        batch["chosen_response_only"] = chosen
-        batch["rejected_response_only"] = rejected
-
-        return batch
+        if self.mask_prompt:
+            # The canonical path masks the prompt in LABELS, never by removing it
+            # from the attention mask. Honouring mask_prompt would hide real
+            # context from the model on this path only, so it is refused rather
+            # than silently ignored.
+            raise ValueError(
+                "mask_prompt is not supported by the canonical tokenization: prompt "
+                "exclusion belongs in labels (label_pad_token_id), not in attention_mask")
+        return tokenize_preference_pair(
+            self.tokenizer, prompt, chosen, rejected,
+            max_length=self.max_length,
+            max_prompt_length=self.max_prompt_length,
+            truncation_mode=self.truncation_mode,
+            label_pad_token_id=self.label_pad_token_id,
+        )
 
     def collate(self, batch):
         # first, pad everything to the same length

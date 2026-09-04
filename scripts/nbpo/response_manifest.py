@@ -29,7 +29,11 @@ from mnpo_scripts.precompute_provenance import checkpoint_fingerprint, sha256_fi
 from scripts.nbpo.nbpo_common import sha256_text, write_json
 
 MANIFEST_SCHEMA_VERSION = 1
-ROLES = ("learner_pool", "reference_comparator_pool", "monitoring_candidate_pool")
+ROLES = ("learner_pool", "reference_comparator_pool", "monitoring_candidate_pool",
+         # The monitoring comparators are mu's responses on the held-out prompts.
+         # They were bare paths, so the Algorithm-1 gate could score the candidate
+         # against stale comparators, or ones decoded from a different checkpoint.
+         "monitoring_reference_comparator_pool")
 
 
 def prompt_text_hashes(prompt_rows) -> dict:
@@ -52,6 +56,36 @@ def load_prompt_rows(path: Path):
     return rows
 
 
+
+def check_row_prompts(rows, canonical_prompt_hashes: dict, what: str,
+                      reproduction_mode: bool = True) -> None:
+    """``sha256(row["prompt"]) == prompt_text_sha256[row["prompt_id"]]`` for every row.
+
+    Ids are not prompts. Two files can carry identical ids and different prompt
+    text, and every hash the manifest previously recorded would still match. A
+    missing ``prompt`` field is a hard error in reproduction mode rather than a
+    skipped check.
+    """
+    problems = []
+    for r in rows:
+        pid = str(r.get("prompt_id"))
+        if "prompt" not in r:
+            if reproduction_mode:
+                problems.append(f"row {pid} has no 'prompt' field")
+            continue
+        want = canonical_prompt_hashes.get(pid)
+        if want is None:
+            problems.append(f"row {pid} is not in the canonical prompt set")
+            continue
+        got = sha256_text(str(r["prompt"]))
+        if got != want:
+            problems.append(f"row {pid} prompt text {got[:12]} != canonical {want[:12]}")
+    if problems:
+        raise ValueError(f"{what}: response rows do not match the canonical prompts: "
+                         + "; ".join(problems[:8])
+                         + (f" (+{len(problems) - 8} more)" if len(problems) > 8 else ""))
+
+
 def build_manifest(role: str, checkpoint: str, prompts_file, prompt_rows, seeds,
                    response_files: dict, decode_params: dict,
                    chat_template_kwargs: dict = None, model_revision=None,
@@ -60,15 +94,24 @@ def build_manifest(role: str, checkpoint: str, prompts_file, prompt_rows, seeds,
     if role not in ROLES:
         raise ValueError(f"role must be one of {ROLES}, got {role!r}")
     prompt_rows = list(prompt_rows)
+    canonical = prompt_text_hashes(prompt_rows)
     outputs = {}
     for seed, path in sorted(response_files.items(), key=lambda kv: str(kv[0])):
         p = Path(path)
         rows = json.loads(p.read_text())
+        # A response row carries the prompt it was decoded from. Hashing only the
+        # prompt FILE and the response file leaves the pairing unverified: a row
+        # can carry a different prompt under the right id, and the pool then
+        # answers a question the tensor does not describe.
+        check_row_prompts(rows, canonical, f"{role} seed {seed} ({p})",
+                          reproduction_mode=True)
         outputs[str(seed)] = {
             "path": str(p),
             "sha256": sha256_file_hex(str(p)),
             "n_rows": len(rows),
             "response_ids": sorted({str(r["prompt_id"]) for r in rows}),
+            "row_prompt_sha256": {str(r["prompt_id"]): sha256_text(str(r["prompt"]))
+                                  for r in rows},
         }
     return {
         "schema_version": MANIFEST_SCHEMA_VERSION,
@@ -179,6 +222,14 @@ def verify_manifest(manifest_path, expected_role: str, expected_fingerprint: str
         empties = [str(r["prompt_id"]) for r in rows if not str(r.get("generated_text", "")).strip()]
         if empties:
             problems.append(f"seed {seed} has {len(empties)} empty responses (first {empties[:5]})")
+        # Every row's prompt text must be the canonical one for its id.
+        canonical = expected_prompt_text_sha256 or man.get("prompt_text_sha256") or {}
+        if canonical:
+            try:
+                check_row_prompts(rows, canonical, f"seed {seed} ({p})",
+                                  reproduction_mode=not allow_partial_prompt_intersection)
+            except ValueError as e:
+                problems.append(str(e))
         paths[str(seed)] = str(p)
     if problems:
         raise ValueError(f"response-pool manifest {manifest_path} failed verification: "

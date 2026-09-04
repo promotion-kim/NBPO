@@ -340,8 +340,8 @@ def _solver_pair(tmp_path):
     """A minimal consistent (tensor_dir, solver_dir, solution) triple."""
     from scripts.nbpo.nbpo_common import sha256_file, write_json
 
-    tdir, sdir = tmp_path / "tensor", tmp_path / "solver"
-    tdir.mkdir(); sdir.mkdir()
+    tdir, sdir = Path(tmp_path) / "tensor", Path(tmp_path) / "solver"
+    tdir.mkdir(parents=True, exist_ok=True); sdir.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(tdir / "tensor_policy.npz", A=np.zeros((1, 1, 2, 2)))
     np.savez_compressed(tdir / "tensor_ref.npz", A=np.zeros((1, 1, 2, 2)))
     write_json(tdir / "meta.json", {"objectives": OBJ, "prompt_ids": ["1"]})
@@ -353,6 +353,16 @@ def _solver_pair(tmp_path):
                          for n in ("tensor_policy.npz", "tensor_ref.npz", "meta.json")},
         "artifact_hashes": {n: sha256_file(sdir / n)
                             for n in ("nu_update.npz", "nu_final_policy.npz")},
+        "opponent_artifacts": {
+            "nu_update.npz": {"artifact_kind": "regularized_opponent",
+                              "source_policy": "proximal_centre",
+                              "source_fixed_point_iteration": 0,
+                              "used_for": "eq26_target"},
+            "nu_final_policy.npz": {"artifact_kind": "regularized_opponent",
+                                    "source_policy": "final_policy",
+                                    "source_fixed_point_iteration": 1,
+                                    "used_for": "diagnostics"},
+        },
     }
     write_json(sdir / "solution.json", solution)
     return tdir, sdir, solution
@@ -396,16 +406,51 @@ def test_swapped_nu_update_fails(tmp_path):
         verify_solver_input_chain(tdir, sdir, solution)
 
 
-def test_nu_final_policy_cannot_stand_in_for_the_target_opponent(tmp_path):
+def test_identical_nu_arrays_are_accepted_when_roles_are_declared(tmp_path):
+    """A zero-payoff or already-converged game gives nu_update == nu_final_policy.
+
+    Byte inequality was never a valid integrity signal; the roles are.
+    """
     import shutil
+
     from scripts.nbpo.nbpo_common import sha256_file, write_json
 
+    for label in ("zero payoff", "at the fixed point"):
+        tdir, sdir, solution = _solver_pair(tmp_path / label.replace(" ", "_"))
+        shutil.copy(sdir / "nu_update.npz", sdir / "nu_final_policy.npz")
+        solution["artifact_hashes"]["nu_final_policy.npz"] = sha256_file(
+            sdir / "nu_final_policy.npz")
+        write_json(sdir / "solution.json", solution)
+        verified = verify_solver_input_chain(tdir, sdir, solution)
+        assert verified["nu_update.npz"] == verified["nu_final_policy.npz"], label
+
+
+def test_swapped_opponent_roles_fail(tmp_path):
+    """The Eq. (26) opponent and the diagnostic one may not trade places."""
+    from scripts.nbpo.nbpo_common import write_json
+
     tdir, sdir, solution = _solver_pair(tmp_path)
-    shutil.copy(sdir / "nu_final_policy.npz", sdir / "nu_update.npz")
-    solution["artifact_hashes"]["nu_update.npz"] = sha256_file(sdir / "nu_update.npz")
+    solution["opponent_artifacts"]["nu_update.npz"]["used_for"] = "diagnostics"
+    solution["opponent_artifacts"]["nu_final_policy.npz"]["used_for"] = "eq26_target"
     write_json(sdir / "solution.json", solution)
-    with pytest.raises(ValueError, match="byte-identical at R=1"):
+    with pytest.raises(ValueError, match="used_for"):
         verify_solver_input_chain(tdir, sdir, solution)
+    tdir2, sdir2, solution2 = _solver_pair(tmp_path / "b")
+    solution2["opponent_artifacts"]["nu_update.npz"]["source_policy"] = "final_policy"
+    write_json(sdir2 / "solution.json", solution2)
+    with pytest.raises(ValueError, match="source_policy"):
+        verify_solver_input_chain(tdir2, sdir2, solution2)
+
+
+def test_missing_opponent_role_metadata_fails_in_reproduction_mode(tmp_path):
+    from scripts.nbpo.nbpo_common import write_json
+
+    tdir, sdir, solution = _solver_pair(tmp_path)
+    solution.pop("opponent_artifacts")
+    write_json(sdir / "solution.json", solution)
+    with pytest.raises(ValueError, match="no opponent_artifacts metadata"):
+        verify_solver_input_chain(tdir, sdir, solution)
+    verify_solver_input_chain(tdir, sdir, solution, reproduction_mode_required=False)
 
 
 # --------------------------------------------------------------------------- #
@@ -601,6 +646,8 @@ def test_configured_judge_decoding_reaches_the_vllm_backend():
     j.temperature, j.top_p, j.top_k = cfg["temperature"], cfg["top_p"], cfg["top_k"]
     j.max_tokens, j.retry_temperature = cfg["max_tokens"], cfg["retry_temperature"]
     j.chat_template_kwargs, j._applied_chat_template_kwargs = {}, None
+    j._frozen_config = None
+    j.strict_chat_template_kwargs = False
     eff = j.effective_config()
     assert (eff["temperature"], eff["top_p"], eff["top_k"], eff["max_tokens"]) == \
            (0.25, 0.8, 40, 123)
@@ -732,3 +779,234 @@ def test_no_paper_exact_algorithm_1_claim_survives():
     doc = Path("docs/NBPO_ALGORITHM_MAPPING.md").read_text()
     assert "finite-pool NBPO realization" in doc
     assert 'Do not describe it as\n"paper-exact Algorithm 1"' in doc
+
+
+# --------------------------------------------------------------------------- #
+# P1: monitoring comparators bound to mu
+# --------------------------------------------------------------------------- #
+def _mon_pool(tmp_path, mu, ids=("m0", "m1"), seeds=("r0", "r1"), text="mon"):
+    prompts = _prompts(tmp_path, "mon.jsonl", ids)
+    rows = [(i, f"p{i}") for i in ids]
+    files = {}
+    for s in seeds:
+        p = tmp_path / f"monref_{s}.json"
+        p.write_text(json.dumps([{"prompt_id": i, "prompt": f"p{i}",
+                                  "generated_text": f"{text}-{s}-{i}"} for i in ids]))
+        files[s] = str(p)
+    man = tmp_path / "mon_ref.json"
+    write_manifest(man, build_manifest("monitoring_reference_comparator_pool", str(mu),
+                                       prompts, rows, seeds, files,
+                                       {"temperature": 0.9, "top_p": 0.95}))
+    return man, prompts, rows, files
+
+
+def test_monitoring_reference_pool_binds_to_mu(tmp_path):
+    from scripts.nbpo.response_manifest import prompt_text_hashes
+
+    mu = _ckpt(tmp_path, "mu", "reference-weights")
+    other = _ckpt(tmp_path, "other", "some-other-weights")
+    man, prompts, rows, _files = _mon_pool(tmp_path, mu)
+    texts = prompt_text_hashes(rows)
+    verify_manifest(man, "monitoring_reference_comparator_pool",
+                    expected_fingerprint=checkpoint_fingerprint(str(mu)),
+                    expected_prompt_ids=["m0", "m1"], expected_prompt_text_sha256=texts,
+                    expected_prompts_file=prompts, required_seeds=["r0", "r1"],
+                    expected_decode_params={"temperature": 0.9})
+    with pytest.raises(ValueError, match="checkpoint_fingerprint"):
+        verify_manifest(man, "monitoring_reference_comparator_pool",
+                        expected_fingerprint=checkpoint_fingerprint(str(other)))
+    with pytest.raises(ValueError, match="decode params differ"):
+        verify_manifest(man, "monitoring_reference_comparator_pool",
+                        expected_decode_params={"temperature": 0.0})
+    with pytest.raises(ValueError, match="missing="):
+        verify_manifest(man, "monitoring_reference_comparator_pool",
+                        required_seeds=["r0", "r1", "r2"])
+    with pytest.raises(ValueError, match="extra="):
+        verify_manifest(man, "monitoring_reference_comparator_pool", required_seeds=["r0"])
+
+
+def test_stale_monitoring_reference_response_file_fails(tmp_path):
+    mu = _ckpt(tmp_path, "mu", "reference-weights")
+    man, _prompts, _rows, files = _mon_pool(tmp_path, mu)
+    Path(files["r0"]).write_text(json.dumps(
+        [{"prompt_id": i, "prompt": f"p{i}", "generated_text": "REGENERATED"}
+         for i in ("m0", "m1")]))
+    with pytest.raises(ValueError, match="edited or replaced"):
+        verify_manifest(man, "monitoring_reference_comparator_pool")
+
+
+def test_monitoring_prompt_text_change_under_the_same_id_fails(tmp_path):
+    from scripts.nbpo.nbpo_common import sha256_text
+
+    mu = _ckpt(tmp_path, "mu", "reference-weights")
+    man, _prompts, _rows, _files = _mon_pool(tmp_path, mu)
+    with pytest.raises(ValueError, match="prompt TEXT differs"):
+        verify_manifest(man, "monitoring_reference_comparator_pool",
+                        expected_prompt_text_sha256={"m0": sha256_text("a different question"),
+                                                     "m1": sha256_text("p m1")})
+
+
+# --------------------------------------------------------------------------- #
+# P1: row prompts must be the canonical prompts
+# --------------------------------------------------------------------------- #
+def test_row_prompt_must_match_the_canonical_prompt_text(tmp_path):
+    ck = _ckpt(tmp_path, "ck", "w")
+    prompts = _prompts(tmp_path, "prompts.jsonl", ["1", "2"])
+    rows = [("1", "p1"), ("2", "p2")]
+    good = tmp_path / "good_s0.json"
+    good.write_text(json.dumps([{"prompt_id": "1", "prompt": "p1", "generated_text": "a"},
+                                {"prompt_id": "2", "prompt": "p2", "generated_text": "b"}]))
+    man = tmp_path / "m.json"
+    write_manifest(man, build_manifest("learner_pool", str(ck), prompts, rows,
+                                       ["s0"], {"s0": str(good)}, {}))
+    verify_manifest(man, "learner_pool", expected_prompt_ids=["1", "2"])
+
+    # same id, different prompt text inside the row
+    good.write_text(json.dumps([{"prompt_id": "1", "prompt": "A DIFFERENT QUESTION",
+                                 "generated_text": "a"},
+                                {"prompt_id": "2", "prompt": "p2", "generated_text": "b"}]))
+    with pytest.raises(ValueError, match="edited or replaced"):
+        verify_manifest(man, "learner_pool")     # the file hash catches it first
+    # rebuilding the manifest around the mismatched file must still fail
+    with pytest.raises(ValueError, match="prompt text"):
+        build_manifest("learner_pool", str(ck), prompts, rows, ["s0"], {"s0": str(good)}, {})
+
+
+def test_missing_row_prompt_fails_and_one_seed_may_not_differ(tmp_path):
+    ck = _ckpt(tmp_path, "ck", "w")
+    prompts = _prompts(tmp_path, "prompts.jsonl", ["1"])
+    rows = [("1", "p1")]
+    no_prompt = tmp_path / "np_s0.json"
+    no_prompt.write_text(json.dumps([{"prompt_id": "1", "generated_text": "a"}]))
+    with pytest.raises(ValueError, match="no 'prompt' field"):
+        build_manifest("learner_pool", str(ck), prompts, rows, ["s0"],
+                       {"s0": str(no_prompt)}, {})
+    ok = tmp_path / "ok_s0.json"
+    ok.write_text(json.dumps([{"prompt_id": "1", "prompt": "p1", "generated_text": "a"}]))
+    odd = tmp_path / "odd_s1.json"
+    odd.write_text(json.dumps([{"prompt_id": "1", "prompt": "OTHER", "generated_text": "b"}]))
+    with pytest.raises(ValueError, match="prompt text"):
+        build_manifest("learner_pool", str(ck), prompts, rows, ["s0", "s1"],
+                       {"s0": str(ok), "s1": str(odd)}, {})
+
+
+# --------------------------------------------------------------------------- #
+# P1: pair texts belong to the tensor's response pool
+# --------------------------------------------------------------------------- #
+def _tensor_meta_with_pool(policy):
+    from scripts.nbpo.nbpo_common import response_pool_hash, sha256_text
+
+    return {
+        "learner_response_pool_hash": response_pool_hash(policy),
+        "response_text_sha256": {
+            "policy": {f"policy:{s}": {pid: sha256_text(str(r["generated_text"]))
+                                       for pid, r in sorted(rows.items())}
+                       for s, rows in sorted(policy.items())}},
+        "learner_manifest_sha256": "manifest-a",
+    }
+
+
+def test_pair_texts_must_be_the_tensors_response_pool(tmp_path):
+    from scripts.nbpo.build_nbpo_pairs import verify_response_pool_against_tensor
+
+    policy = {"s0": {"1": {"prompt_id": "1", "prompt": "p", "generated_text": "original"}}}
+    meta = _tensor_meta_with_pool(policy)
+    out = verify_response_pool_against_tensor(meta, policy, True, "manifest-a")
+    assert out["verified"] is True
+
+    # same response ID, new text -- the exact failure IDs cannot catch
+    mutated = {"s0": {"1": {"prompt_id": "1", "prompt": "p", "generated_text": "REGENERATED"}}}
+    with pytest.raises(ValueError, match="response text"):
+        verify_response_pool_against_tensor(meta, mutated, True, "manifest-a")
+    with pytest.raises(ValueError, match="learner manifest"):
+        verify_response_pool_against_tensor(meta, policy, True, "manifest-b")
+    with pytest.raises(ValueError, match="records no learner_response_pool_hash"):
+        verify_response_pool_against_tensor({}, policy, True, None)
+    assert verify_response_pool_against_tensor({}, policy, False, None)["verified"] is False
+
+
+def test_pair_rows_carry_the_response_text_hashes(tmp_path):
+    """chosen/rejected hashes must equal sha256 of the strings actually stored."""
+    from scripts.nbpo.nbpo_common import sha256_text
+    from tests.test_nbpo_targets import _build_artifacts
+
+    rows, _summary = _build_artifacts(tmp_path)
+    for r in rows[:20]:
+        assert r["chosen_text_sha256"] == sha256_text(r["chosen"])
+        assert r["rejected_text_sha256"] == sha256_text(r["rejected"])
+
+
+# --------------------------------------------------------------------------- #
+# P2: judge preflight
+# --------------------------------------------------------------------------- #
+class _StrictTokenizer:
+    def __init__(self, accepts=True):
+        self.accepts, self.calls = accepts, []
+
+    def apply_chat_template(self, msgs, tokenize=False, add_generation_prompt=True, **kw):
+        if kw and not self.accepts:
+            raise TypeError("unexpected keyword argument 'enable_thinking'")
+        self.calls.append(kw)
+        return "RENDERED"
+
+
+def _bare_vllm_judge(accepts=True, strict=True, kwargs=None):
+    from scripts.nbpo.judge_pairwise_matrix import VllmJudge
+
+    j = VllmJudge.__new__(VllmJudge)
+    j.tok = _StrictTokenizer(accepts)
+    j.rubrics = {"clarity": {"system": "s", "user_template": "{prompt}{a}{b}"}}
+    j._cfg = {"judge_model": "m", "tokenizer_revision": "rev1"}
+    j.temperature, j.top_p, j.top_k = 0.0, 1.0, -1
+    j.max_tokens, j.retry_temperature = 512, 0.3
+    j.chat_template_kwargs = dict(kwargs if kwargs is not None else {"enable_thinking": False})
+    j._applied_chat_template_kwargs = None
+    j._frozen_config = None
+    j.strict_chat_template_kwargs = strict
+    return j
+
+
+_TASK = {"objective": "clarity", "prompt": "p", "learner_text": "a", "comparator_text": "b",
+         "presentation_order": "learner_first"}
+
+
+def test_unsupported_chat_template_kwarg_fails_in_reproduction_mode():
+    j = _bare_vllm_judge(accepts=False, strict=True)
+    with pytest.raises(ValueError, match="does not accept chat_template_kwargs"):
+        j.preflight(_TASK)
+    # outside reproduction mode it may be dropped, and is REPORTED as dropped
+    lenient = _bare_vllm_judge(accepts=False, strict=False)
+    cfg = lenient.preflight(_TASK)
+    assert cfg["chat_template_kwargs"] == {}
+    assert cfg["requested_chat_template_kwargs"] == {"enable_thinking": False}
+
+
+def test_cache_identity_uses_the_post_render_effective_config():
+    applied = _bare_vllm_judge(accepts=True, strict=True)
+    before = judge_config_hash(applied.effective_config())
+    after = judge_config_hash(applied.preflight(_TASK))
+    assert applied.tok.calls == [{"enable_thinking": False}]
+    dropped = _bare_vllm_judge(accepts=False, strict=False)
+    dropped_hash = judge_config_hash(dropped.preflight(_TASK))
+    assert dropped_hash != after, \
+        "a dropped kwarg must give a different cache identity than an applied one"
+    assert before == after, "an applied kwarg is already what effective_config reported"
+
+
+def test_effective_config_cannot_change_after_the_first_task():
+    j = _bare_vllm_judge(accepts=True, strict=True)
+    j.preflight(_TASK)
+    frozen = j.effective_config()
+    j.chat_template_kwargs = {"enable_thinking": True}      # someone mutates mid-run
+    with pytest.raises(RuntimeError, match="changed mid-run"):
+        j._render(_TASK)
+    assert j.effective_config() == frozen, "the frozen config must not follow the mutation"
+
+
+def test_qwen_enable_thinking_false_reaches_apply_chat_template():
+    j = _bare_vllm_judge(accepts=True, strict=True, kwargs={"enable_thinking": False})
+    cfg = j.preflight(_TASK)
+    assert j.tok.calls == [{"enable_thinking": False}]
+    assert cfg["chat_template_kwargs"] == {"enable_thinking": False}
+    assert cfg["renderer_schema_version"] == 1
+    assert cfg["tokenizer_revision"] == "rev1"

@@ -109,6 +109,12 @@ class MNPOConfig(SimPOConfig):
     nbpo_expected_solver_artifact_sha256: Optional[str] = None
     nbpo_expected_parent_checkpoint_fingerprint: Optional[str] = None
     nbpo_expected_precompute_manifest_sha256: Optional[str] = None
+    # sha256 of the canonical tokenization config the precompute artifact used.
+    # Eq. (22) subtracts pi_t's offline logps from pi's online logps, so both must
+    # score identical token ids under identical attention and label masks; a
+    # different max_length, truncation_mode or BOS/EOS policy silently changes
+    # which tokens were scored.
+    nbpo_expected_tokenization_config_sha256: Optional[str] = None
     # Per-response log-probability reduction used by concatenated_forward:
     # "mean" (token average -- the historical default for every legacy loss) or
     # "sum" (sequence sum over non-masked response tokens -- REQUIRED for nbpo).

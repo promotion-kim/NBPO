@@ -91,6 +91,11 @@ contract explicitly:
 "dual_iterations": 40000
 ```
 
+Both the offline `pi_t` scoring and the online `pi` scoring go through one
+tokenization implementation (`mnpo_scripts/pair_tokenization.py`), whose settings
+are hashed into every artifact — Eq. (22) subtracts the two, so they must score
+identical token ids under identical attention and label masks.
+
 `docs/NBPO_ALGORITHM_MAPPING.md` gives the revised practical pseudocode that
 matches the code line for line, the two remaining approximations (finite pool,
 `R = 1` — both measured, not assumed), and the equation → function map. The

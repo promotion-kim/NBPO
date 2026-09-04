@@ -14,6 +14,11 @@ import sys
 from pathlib import Path
 
 import pytest
+
+from mnpo_scripts.pair_tokenization import (
+    tokenization_config,
+    tokenization_config_hash,
+)
 import torch
 import yaml
 from safetensors.torch import save_file
@@ -190,7 +195,10 @@ def test_wrong_history0_checkpoint_fails():
                            logp_reduction="sum", max_history_t=1, history_weights=[1.0], weights=None,
                            nbpo_target_column="nbpo_weighted_z")
     cols = ["nbpo_weighted_z", "history0_chosen_logps", "history0_rejected_logps"]
+    tok_cfg = tokenization_config(max_length=2048, max_prompt_length=1024,
+                                  truncation_mode="keep_end")
     meta = {"logp_reduction": "sum", "tokenizer_hash": "t", "chat_template_hash": "c",
+            **tok_cfg, "tokenization_config_sha256": tokenization_config_hash(tok_cfg),
             "history_fingerprints": ["ckpt-A"]}
     validate_nbpo_args(args, dataset_columns=cols, precompute_meta=meta, tokenizer_hash="t",
                        chat_template_hash="c", expected_parent_fingerprint="ckpt-A")

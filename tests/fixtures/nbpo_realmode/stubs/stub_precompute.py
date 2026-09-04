@@ -9,7 +9,10 @@ import argparse, json, sys
 from pathlib import Path
 from datasets import Dataset, DatasetDict
 from mnpo_scripts.precompute_provenance import (checkpoint_fingerprint, sha256_file_hex,
+                                                write_precompute_manifest,
                                                 write_precompute_meta)
+from mnpo_scripts.pair_tokenization import (tokenization_config,
+                                            tokenization_config_hash)
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--parent", required=True)
@@ -33,12 +36,23 @@ if Path(a.pairs_dir, "pairs_test.jsonl").exists() and Path(a.pairs_dir, "pairs_t
     ds["test"] = load("test")
 out = Path(a.output_dir); ds.save_to_disk(str(out))
 fp = checkpoint_fingerprint(a.parent)
+# Real precompute records how it tokenized, because Eq. (22) subtracts logps that
+# must come from the same token ids the trainer scores. The stub declares the
+# same fields (with the production defaults) so the orchestration checks run.
+tok_cfg = tokenization_config(max_length=2048, max_prompt_length=1024,
+                              truncation_mode="keep_end")
+manifest_path, manifest_sha = write_precompute_manifest(str(out), splits=sorted(ds.keys()))
 write_precompute_meta(str(out), {
     "logp_reduction": "sum", "tokenizer_hash": "stub-tok", "chat_template_hash": "stub-chat",
     "model_fingerprint": fp, "reference_fingerprint": fp, "history_fingerprints": [fp],
     "history_paths": [a.parent],
     "pair_artifact_sha256": sha256_file_hex(str(Path(a.pairs_dir, "pairs_train.jsonl"))),
     "solver_artifact_sha256": sha256_file_hex(str(Path(a.solver_dir, "solution.json"))),
+    "dataset_splits": sorted(ds.keys()),
+    "split_sizes": {k: len(v) for k, v in ds.items()},
+    "precompute_manifest_sha256": manifest_sha,
+    **tok_cfg,
+    "tokenization_config_sha256": tokenization_config_hash(tok_cfg),
     "stub": True,
 })
 print(json.dumps({"stub_precompute": str(out), "history_fingerprints": [fp]}))

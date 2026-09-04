@@ -56,6 +56,14 @@ def parse_gamma(text: str, M: int):
     return parts[0] if len(parts) == 1 else parts
 
 
+def _array_hash(t) -> str:
+    """sha256 of an array's exact bytes -- identifies which policy an opponent came from."""
+    import hashlib
+
+    arr = t.detach().cpu().numpy() if hasattr(t, "detach") else np.asarray(t)
+    return hashlib.sha256(np.ascontiguousarray(arr, dtype=np.float64).tobytes()).hexdigest()
+
+
 def write_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashes: dict,
                             tensor_dir: Path, stage: int, lambda_warm_started: bool) -> dict:
     """Persist a DualSolveResult as the versioned solver artifact (shared with run_nbpo_stage)."""
@@ -98,6 +106,27 @@ def write_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashes: dict,
             "nu_update.npz": sha256_file(out_dir / "nu_update.npz"),
             "nu_final_policy.npz": sha256_file(out_dir / "nu_final_policy.npz"),
             "pi_star.npz": sha256_file(out_dir / "pi_star.npz"),
+        },
+        # Semantic roles, declared rather than inferred. The two opponents can be
+        # numerically identical in a zero-payoff, symmetric or already-converged
+        # game, so their difference is not an integrity signal -- their declared
+        # role is.
+        "opponent_artifacts": {
+            "nu_update.npz": {
+                "artifact_kind": "regularized_opponent",
+                "source_policy": "proximal_centre",
+                "source_policy_hash": _array_hash(res.pi_center)
+                if getattr(res, "pi_center", None) is not None else None,
+                "source_fixed_point_iteration": 0,
+                "used_for": "eq26_target",
+            },
+            "nu_final_policy.npz": {
+                "artifact_kind": "regularized_opponent",
+                "source_policy": "final_policy",
+                "source_policy_hash": _array_hash(res.pi),
+                "source_fixed_point_iteration": int(res.config.get("R", 1)),
+                "used_for": "diagnostics",
+            },
         },
         "config": res.config,
         "lambda_warm_started": bool(lambda_warm_started),

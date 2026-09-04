@@ -59,11 +59,25 @@ def _build_artifacts(tmp: Path, target_mode="sampled", invalid_rate=0.0):
     tensor_dir.mkdir()
     np.savez_compressed(tensor_dir / "tensor_policy.npz", A=A_policy)
     np.savez_compressed(tensor_dir / "tensor_ref.npz", A=A_ref)
+    from scripts.nbpo.nbpo_common import response_pool_hash, sha256_text
+
     write_json(tensor_dir / "meta.json", {
         "schema_version": 1, "objectives": objectives, "prompt_ids": PROMPTS,
         "policy_learner_ids": policy_ids, "comparator_ids": ref_ids,
         "judge_models": ["mock"], "rubric_versions": [1],
         "verdicts_hash": sha256_file(verdicts),
+        # Which response TEXTS this tensor describes: the pair builder re-hashes
+        # the files it loads against these, so the fixture exercises that check.
+        "learner_response_pool_hash": response_pool_hash(policy),
+        "reference_response_pool_hash": response_pool_hash(reference),
+        "response_text_sha256": {
+            "policy": {f"policy:{s}": {pid: sha256_text(str(r["generated_text"]))
+                                       for pid, r in sorted(rows.items())}
+                       for s, rows in sorted(policy.items())},
+            "reference": {f"ref:{s}": {pid: sha256_text(str(r["generated_text"]))
+                                       for pid, r in sorted(rows.items())}
+                          for s, rows in sorted(reference.items())},
+        },
     })
     res = solve_nbpo_dual(torch.from_numpy(A_policy), torch.from_numpy(A_ref),
                           uniform_policy(len(PROMPTS), 4),

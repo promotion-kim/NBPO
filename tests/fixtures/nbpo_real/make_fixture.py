@@ -20,6 +20,7 @@ from scripts.nbpo.response_manifest import build_manifest, write_manifest  # noq
 TRAIN = [f"t{i:02d}" for i in range(6)]
 MON = [f"m{i:02d}" for i in range(4)]
 FINAL = [f"f{i:02d}" for i in range(3)]
+VALIDATION = [f"v{i:02d}" for i in range(3)]
 SEEDS = ["s0", "s1", "s2", "s3"]
 REF_SEEDS = ["r0", "r1", "r2", "r3"]
 DECODE = {"temperature": 0.9, "top_p": 0.95, "max_new_tokens": 64}
@@ -76,6 +77,29 @@ def main(root: Path):
     write_manifest(assets / "reference_pool.json", build_manifest(
         "reference_comparator_pool", str(mu), assets / "train_prompts.jsonl", train_rows,
         REF_SEEDS, ref_files, DECODE, chat_template_kwargs={}))
+
+    # Monitoring comparators are mu's responses on the held-out prompts, bound to
+    # mu the same way the training comparators are -- otherwise the gate can score
+    # the candidate against stale or differently-generated text.
+    mon_rows = [(i, f"prompt {i}") for i in MON]
+    mon_ref_files = {r: str(assets / f"mon_ref_{r}.json") for r in REF_SEEDS}
+    write_manifest(assets / "monitoring_reference_pool.json", build_manifest(
+        "monitoring_reference_comparator_pool", str(mu), assets / "monitoring_prompts.jsonl",
+        mon_rows, REF_SEEDS, mon_ref_files, DECODE, chat_template_kwargs={}))
+
+    # External validation: its own prompts and its own pools, so the test split is
+    # generated independently rather than sliced out of the training pool.
+    val_rows = write_prompts(assets / "validation_prompts.jsonl", VALIDATION)
+    val_learner = {s: str(write_pool(assets / f"val_policy_{s}.json", VALIDATION, s, "pol"))
+                   for s in SEEDS}
+    val_ref = {r: str(write_pool(assets / f"val_ref_{r}.json", VALIDATION, r, "ref"))
+               for r in REF_SEEDS}
+    write_manifest(assets / "validation_learner_pool.json", build_manifest(
+        "learner_pool", str(mu), assets / "validation_prompts.jsonl", val_rows,
+        SEEDS, val_learner, DECODE, chat_template_kwargs={}))
+    write_manifest(assets / "validation_reference_pool.json", build_manifest(
+        "reference_comparator_pool", str(mu), assets / "validation_prompts.jsonl", val_rows,
+        REF_SEEDS, val_ref, DECODE, chat_template_kwargs={}))
     print(f"[nbpo_real] fixture written under {assets}")
 
 

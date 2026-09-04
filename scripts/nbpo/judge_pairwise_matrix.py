@@ -66,6 +66,9 @@ from scripts.nbpo.nbpo_common import (
 )
 
 
+RENDERED_PROMPT_SCHEMA_VERSION = 1
+
+
 def build_task_grid(policy, reference, objectives, include_reference_learner, max_prompts=0):
     """Enumerate every judging cell: one per (prompt, objective, learner, comparator, order)."""
     prompt_ids = sorted(set.intersection(*[set(m) for m in policy.values()],
@@ -158,10 +161,19 @@ class MockJudge:
     def __init__(self, invalid_rate: float = 0.0, judge_config: dict = None):
         self.invalid_rate = float(invalid_rate)
         self._cfg = dict(judge_config or {})
+        self._frozen_config = None
+
+    def preflight(self, task) -> dict:
+        """No rendering to do; the frozen config is the reported one."""
+        self._frozen_config = self.effective_config()
+        return self._frozen_config
 
     def effective_config(self) -> dict:
         """The mock applies no sampling; it reports that honestly."""
+        if getattr(self, "_frozen_config", None) is not None:
+            return dict(self._frozen_config)
         return {**self._cfg, "backend": "mock", "applied": True,
+                "renderer_schema_version": RENDERED_PROMPT_SCHEMA_VERSION,
                 "temperature": 0.0, "top_p": 1.0, "top_k": -1,
                 "max_tokens": int(self._cfg.get("max_tokens", 512)),
                 "note": "deterministic mock: verdicts are a hash of the cell, no sampling"}
@@ -224,9 +236,18 @@ class VllmJudge:
             else cfg.get("chat_template_kwargs") or {})
         self._cfg = cfg
         self._applied_chat_template_kwargs = None
+        self._frozen_config = None
+        self.strict_chat_template_kwargs = bool(cfg.get("strict_chat_template_kwargs", False))
+        self.renderer_schema_version = RENDERED_PROMPT_SCHEMA_VERSION
 
     def effective_config(self) -> dict:
-        """Exactly what this backend applies, including the chat-template kwargs it accepted."""
+        """Exactly what this backend applies, including the chat-template kwargs it accepted.
+
+        After ``preflight`` this is frozen: it cannot change while judging, so the
+        cache identity keeps describing what was actually applied.
+        """
+        if self._frozen_config is not None:
+            return dict(self._frozen_config)
         return {
             **self._cfg,
             "backend": "vllm",
@@ -242,6 +263,9 @@ class VllmJudge:
             "retry_temperature": self.retry_temperature,
             "chat_template_kwargs": self._applied_chat_template_kwargs
             if self._applied_chat_template_kwargs is not None else self.chat_template_kwargs,
+            "requested_chat_template_kwargs": dict(self.chat_template_kwargs),
+            "renderer_schema_version": RENDERED_PROMPT_SCHEMA_VERSION,
+            "tokenizer_revision": self._cfg.get("tokenizer_revision"),
         }
 
     def _render(self, t):
@@ -260,11 +284,39 @@ class VllmJudge:
         try:
             out = self.tok.apply_chat_template(msgs, tokenize=False,
                                                add_generation_prompt=True, **kwargs)
-            self._applied_chat_template_kwargs = kwargs
-            return out
-        except TypeError:
-            self._applied_chat_template_kwargs = {}
-            return self.tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+            applied = kwargs
+        except TypeError as e:
+            if self.strict_chat_template_kwargs and kwargs:
+                # Silently dropping the kwargs is how a Qwen judge ends up
+                # emitting reasoning traces while the artifact claims
+                # enable_thinking=false. In reproduction mode that is fatal.
+                raise ValueError(
+                    f"judge tokenizer does not accept chat_template_kwargs={kwargs}: {e}. "
+                    "Configure kwargs this tokenizer supports, or set "
+                    "reproduction_mode: false to allow them to be dropped."
+                ) from e
+            applied = {}
+            out = self.tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+        if (self._applied_chat_template_kwargs is not None
+                and self._applied_chat_template_kwargs != applied):
+            raise RuntimeError(
+                "the effective chat-template kwargs changed mid-run: "
+                f"{self._applied_chat_template_kwargs} -> {applied}; the verdict cache "
+                "identity would no longer describe what was applied")
+        self._applied_chat_template_kwargs = applied
+        return out
+
+    def preflight(self, task) -> dict:
+        """Render one task so effective_config() reports what WAS applied, not what was asked.
+
+        effective_config() used to be read before any render, so a kwarg the
+        tokenizer silently rejected still appeared in the cache identity. One
+        render first, then freeze.
+        """
+        self._render(task)
+        cfg = self.effective_config()
+        self._frozen_config = dict(cfg)
+        return cfg
 
     def judge(self, tasks, attempt: int):
         temp = self.temperature if attempt == 0 else self.retry_temperature

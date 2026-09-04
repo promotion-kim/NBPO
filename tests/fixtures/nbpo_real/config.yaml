@@ -40,16 +40,17 @@ response_manifests:
 monitoring:
   prompts_file: assets/monitoring_prompts.jsonl
   decode: {seeds: [0, 1, 2, 3], temperature: 0.9, top_p: 0.95, max_new_tokens: 64}
-  reference_files:
-    r0: assets/mon_ref_r0.json
-    r1: assets/mon_ref_r1.json
-    r2: assets/mon_ref_r2.json
-    r3: assets/mon_ref_r3.json
+  # Bound to mu, exactly like the training comparators.
+  reference_manifest: assets/monitoring_reference_pool.json
+  reference_manifest_seeds: [r0, r1, r2, r3]
 final_eval:
   prompts_file: assets/final_eval_prompts.jsonl
-data:
-  split_unit: prompt
-  require_nonempty_validation: false
+# External validation: its own prompts, its own pools, its own judged tensor.
+# lambda comes from the training solve; only nu is recomputed on these prompts.
+validation:
+  prompts_file: assets/validation_prompts.jsonl
+  learner_manifest: assets/validation_learner_pool.json
+  reference_manifest: assets/validation_reference_pool.json
 solver: {eta: 1.0, opponent_betas: [0.25, 0.25], lambda_box: [1.0e-3, 1.0e+3],
          M: 60, gamma: 0.5, R: 1, aggregation: nash}
 targets: {mode: sampled, seed: 42}

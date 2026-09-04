@@ -37,7 +37,9 @@ import numpy as np
 from scripts.nbpo.nbpo_common import (
     implementation_contract,
     load_response_files,
+    response_pool_hash,
     sha256_file,
+    sha256_text,
     write_json,
 )
 
@@ -90,6 +92,12 @@ def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_see
                 "rejected": str(policy[id2.split(":", 1)[1]][pid]["generated_text"]),
                 "chosen_response_id": id1,
                 "rejected_response_id": id2,
+                # Response IDS are not response TEXT: these pin the exact strings
+                # this row was built from, so a later pool swap is detectable.
+                "chosen_text_sha256": sha256_text(
+                    str(policy[id1.split(":", 1)[1]][pid]["generated_text"])),
+                "rejected_text_sha256": sha256_text(
+                    str(policy[id2.split(":", 1)[1]][pid]["generated_text"])),
                 "nbpo_z": z,
                 "nbpo_weighted_z": float(sum(lam[k] * z[obj] for k, obj in enumerate(objectives))),
                 "lambda_raw": {obj: float(lam[k]) for k, obj in enumerate(objectives)},
@@ -102,7 +110,8 @@ def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_see
     return rows
 
 
-def verify_solver_input_chain(tensor_dir: Path, solver_dir: Path, solution: dict) -> dict:
+def verify_solver_input_chain(tensor_dir: Path, solver_dir: Path, solution: dict,
+                              reproduction_mode_required: bool = True) -> dict:
     """Prove the tensors on disk ARE the solver's inputs, and the opponents its outputs.
 
     Verifying only the ``nu`` hashes left the biggest hole open: nothing showed
@@ -148,29 +157,105 @@ def verify_solver_input_chain(tensor_dir: Path, solver_dir: Path, solution: dict
                 "solver artifact was modified or its opponent files were swapped")
             continue
         verified[fname] = got
-    if verified.get("nu_update.npz") and verified.get("nu_final_policy.npz") and \
-            verified["nu_update.npz"] == verified["nu_final_policy.npz"] and \
-            int((solution.get("config") or {}).get("R", 1)) == 1:
-        # At R = 1 the update opponent is built at the PREVIOUS policy, so it
-        # cannot equal the opponent recomputed at the final policy; identical
-        # files mean nu_final_policy was copied over nu_update.
+    # The two opponents may legitimately be IDENTICAL -- a zero-payoff game, a
+    # symmetric one, or a policy already at the fixed point all give nu at pi_t
+    # equal to nu at the final policy. Byte inequality is therefore not a valid
+    # integrity signal; the artifacts are distinguished by declared metadata
+    # instead, and both hashes are still verified above.
+    kinds = solution.get("opponent_artifacts") or {}
+    if kinds:
+        expected = {"nu_update.npz": ("eq26_target", "proximal_centre"),
+                    "nu_final_policy.npz": ("diagnostics", "final_policy")}
+        for fname, (want_use, want_source) in expected.items():
+            declared = kinds.get(fname) or {}
+            if declared.get("used_for") != want_use:
+                problems.append(
+                    f"{fname} declares used_for={declared.get('used_for')!r}, expected "
+                    f"{want_use!r}: the Eq. (26) opponent and the diagnostic one have "
+                    "been swapped")
+            if declared.get("artifact_kind") != "regularized_opponent":
+                problems.append(f"{fname} declares artifact_kind="
+                                f"{declared.get('artifact_kind')!r}")
+            if declared.get("source_policy") != want_source:
+                problems.append(
+                    f"{fname} declares source_policy={declared.get('source_policy')!r}, "
+                    f"expected {want_source!r}")
+    elif reproduction_mode_required:
         problems.append(
-            "nu_update.npz and nu_final_policy.npz are byte-identical at R=1: the Eq. (26) "
-            "opponent has been replaced by the diagnostic one")
+            "solution.json declares no opponent_artifacts metadata; nu_update and "
+            "nu_final_policy cannot be told apart by role (re-run solve_nbpo_dual)")
     if problems:
         raise ValueError("solver -> pair artifact hash chain broken: " + "; ".join(problems))
     return verified
 
 
+def verify_response_pool_against_tensor(meta: dict, policy, reproduction_mode: bool,
+                                        learner_manifest_sha256=None) -> dict:
+    """Prove the loaded response texts ARE the pool the tensor was built from.
+
+    The tensor's payoffs -- and therefore lambda and nu -- describe one specific
+    set of response STRINGS. This function loaded them again from
+    ``policy_file_specs``, which only guaranteed the same response IDS: the same
+    seed files can be regenerated with new text and every previous hash still
+    matched, so the pair rows would carry text that no judged comparison ever
+    saw. The current files are re-hashed here and compared with what the tensor
+    recorded, string by string.
+    """
+    recorded_pool = meta.get("learner_response_pool_hash")
+    recorded_texts = (meta.get("response_text_sha256") or {}).get("policy")
+    if recorded_pool is None or recorded_texts is None:
+        if reproduction_mode:
+            raise ValueError(
+                "tensor meta.json records no learner_response_pool_hash/response_text_sha256; "
+                "the pair texts cannot be shown to be the pool the tensor was built from "
+                "(rebuild the tensor with the current build_preference_tensor)")
+        return {"verified": False, "reason": "legacy tensor artifact"}
+    current_pool = response_pool_hash(policy)
+    problems = []
+    if current_pool != recorded_pool:
+        problems.append(
+            f"learner response pool hash {current_pool[:12]} != tensor "
+            f"{recorded_pool[:12]}: these are not the responses that were judged")
+    for rid, per_prompt in sorted(recorded_texts.items()):
+        seed = rid.split(":", 1)[1]
+        if seed not in policy:
+            problems.append(f"seed {seed} missing from the loaded response files")
+            continue
+        for pid, want in sorted(per_prompt.items()):
+            row = policy[seed].get(pid)
+            if row is None:
+                problems.append(f"{rid}/{pid} missing from the loaded response files")
+                continue
+            got = sha256_text(str(row.get("generated_text", "")))
+            if got != want:
+                problems.append(
+                    f"{rid}/{pid} response text {got[:12]} != tensor {want[:12]}")
+    if (learner_manifest_sha256 is not None
+            and meta.get("learner_manifest_sha256") is not None
+            and learner_manifest_sha256 != meta["learner_manifest_sha256"]):
+        problems.append(
+            f"learner manifest {learner_manifest_sha256[:12]} != the one the tensor was "
+            f"built from {meta['learner_manifest_sha256'][:12]}")
+    if problems:
+        raise ValueError("pair texts are not the tensor's response pool: "
+                         + "; ".join(problems[:8])
+                         + (f" (+{len(problems) - 8} more)" if len(problems) > 8 else ""))
+    return {"verified": True, "learner_response_pool_hash": current_pool,
+            "learner_manifest_sha256": meta.get("learner_manifest_sha256")}
+
+
 def build_pairs_from_artifacts(tensor_dir: Path, solver_dir: Path, policy_file_specs,
                                out_dir: Path, target_mode: str = "sampled", seed: int = 42,
                                stage: int = 0, test_prompts: int = 0,
-                               split_salt: str = "nbpo-v1") -> dict:
+                               split_salt: str = "nbpo-v1",
+                               reproduction_mode: bool = True,
+                               learner_manifest_sha256=None) -> dict:
     """Importable core of the CLI (also used by run_nbpo_stage)."""
     if target_mode not in TARGET_MODES:
         raise ValueError(f"target_mode must be one of {TARGET_MODES}, got {target_mode!r}")
     solution = json.loads((solver_dir / "solution.json").read_text())
-    verified = verify_solver_input_chain(tensor_dir, solver_dir, solution)
+    verified = verify_solver_input_chain(tensor_dir, solver_dir, solution,
+                                        reproduction_mode_required=reproduction_mode)
     meta = json.loads((tensor_dir / "meta.json").read_text())
     A_policy = np.load(tensor_dir / "tensor_policy.npz")["A"]
     # The regression opponent is nu_update (the opponent that generated the
@@ -182,7 +267,9 @@ def build_pairs_from_artifacts(tensor_dir: Path, solver_dir: Path, policy_file_s
     if nu.shape[:2] != (len(objectives), len(meta["prompt_ids"])):
         raise ValueError("solver nu does not match the tensor artifact's objectives/prompts")
 
-    policy = load_response_files(policy_file_specs)
+    policy = load_response_files(policy_file_specs, reproduction_mode=reproduction_mode)
+    pool_check = verify_response_pool_against_tensor(
+        meta, policy, reproduction_mode, learner_manifest_sha256)
     provenance = {
         "outer_stage": int(stage),
         "dual_checkpoint": solution["config"]["M"],
@@ -190,6 +277,8 @@ def build_pairs_from_artifacts(tensor_dir: Path, solver_dir: Path, policy_file_s
         # Every hash below was recomputed from the current bytes by
         # verify_solver_input_chain, not read out of solution.json.
         "solver_hash": sha256_file(solver_dir / "solution.json"),
+        "tensor_response_pool_hash": meta.get("learner_response_pool_hash"),
+        "learner_manifest_sha256": pool_check.get("learner_manifest_sha256"),
         "tensor_policy_hash": verified["tensor_policy.npz"],
         "tensor_ref_hash": verified["tensor_ref.npz"],
         "tensor_meta_hash": verified["meta.json"],
@@ -252,11 +341,20 @@ def main() -> None:
     ap.add_argument("--stage", type=int, default=0)
     ap.add_argument("--test-prompts", type=int, default=0)
     ap.add_argument("--split-salt", default="nbpo-v1")
+    ap.add_argument("--no-reproduction-mode", action="store_true",
+                    help="accept a legacy tensor artifact that does not record its "
+                         "response-pool text hashes (the pair texts then cannot be "
+                         "proven to be the judged pool)")
+    ap.add_argument("--learner-manifest-sha256", default=None,
+                    help="expected learner-pool manifest hash; compared with the one the "
+                         "tensor was built from")
     args = ap.parse_args()
     summary = build_pairs_from_artifacts(
         args.tensor_dir, args.solver_dir, args.policy_files, args.out_dir,
         target_mode=args.target_mode, seed=args.seed, stage=args.stage,
         test_prompts=args.test_prompts, split_salt=args.split_salt,
+        reproduction_mode=not args.no_reproduction_mode,
+        learner_manifest_sha256=args.learner_manifest_sha256,
     )
     print(json.dumps(summary, indent=1))
 

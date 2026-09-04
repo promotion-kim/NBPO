@@ -303,6 +303,7 @@ COMPARISON_PAYLOAD_FIELDS = (
     "judge_model", "judge_revision", "tokenizer_revision", "rubric_sha256",
     "judge_temperature", "judge_top_p", "judge_top_k", "judge_max_tokens",
     "judge_max_retries", "judge_retry_temperature",
+    "judge_chat_template_kwargs", "renderer_schema_version",
 )
 
 
@@ -329,6 +330,10 @@ def comparison_payload(task: dict, judge_identity: dict) -> dict:
         "judge_max_tokens": judge_identity.get("max_tokens"),
         "judge_max_retries": judge_identity.get("max_retries"),
         "judge_retry_temperature": judge_identity.get("retry_temperature"),
+        # The kwargs that were APPLIED when rendering, plus the renderer version:
+        # both change the prompt text the judge saw, so both change the task id.
+        "judge_chat_template_kwargs": judge_identity.get("chat_template_kwargs"),
+        "renderer_schema_version": judge_identity.get("renderer_schema_version"),
     }
 
 
@@ -343,9 +348,13 @@ def judge_config_hash(judge_identity: dict) -> str:
     Verdict caches are keyed by BOTH the response-pool hash and this, so two
     judge configurations can never share a cache directory.
     """
+    # chat_template_kwargs and the renderer version belong here: they change the
+    # prompt string the judge actually sees, so two configs that differ only in
+    # them must not share a verdict cache.
     keys = ("judge_model", "judge_revision", "tokenizer_revision", "rubric_sha256",
             "temperature", "top_p", "top_k", "max_tokens", "max_retries",
-            "retry_temperature", "seed_policy", "backend")
+            "retry_temperature", "seed_policy", "backend",
+            "chat_template_kwargs", "renderer_schema_version")
     return sha256_json({k: judge_identity.get(k) for k in keys})
 
 

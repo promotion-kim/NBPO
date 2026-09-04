@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "role": "monitoring_reference_comparator_pool",
+  "checkpoint": "/home/sjkim/MNPO/tests/fixtures/nbpo_real/assets/checkpoints/mu",
+  "checkpoint_fingerprint": "07d99a32b71229ca0a568ba55d8f0f421597007572c4b70e82fae114bd222142",
+  "model_revision": null,
+  "tokenizer_revision": null,
+  "prompts_file": "/home/sjkim/MNPO/tests/fixtures/nbpo_real/assets/monitoring_prompts.jsonl",
+  "prompt_file_sha256": "5e15a8b14326435257dfb0642594f05dddb8265eb2b7084f5416f9af7d5e064c",
+  "prompt_ids": [
+    "m00",
+    "m01",
+    "m02",
+    "m03"
+  ],
+  "prompt_text_sha256": {
+    "m00": "010402ae7a7956ebb19a55fb82beaec1652a53ca506c549b640d9a41e37e931a",
+    "m01": "62323d53f419dc9f9b9ae2588485d85994ff935cbccdf50f3585705ac8e5c8a1",
+    "m02": "0fa6f71ca442fdbe7ea0727049800e3564cdf7814edbbc638f279953256b0911",
+    "m03": "d6c32fd9453e9af554a53f4c42c7576feebef0975e6016c61fdf411c644ef7b2"
+  },
+  "seeds": [
+    "r0",
+    "r1",
+    "r2",
+    "r3"
+  ],
+  "decode_params": {
+    "temperature": 0.9,
+    "top_p": 0.95,
+    "max_new_tokens": 64
+  },
+  "chat_template_kwargs": {},
+  "outputs": {
+    "r0": {
+      "path": "/home/sjkim/MNPO/tests/fixtures/nbpo_real/assets/mon_ref_r0.json",
+      "sha256": "9ac0b5c11848a2526fffa13af09e42bed3d2d91a10df5f540a3e150207714b38",
+      "n_rows": 4,
+      "response_ids": [
+        "m00",
+        "m01",
+        "m02",
+        "m03"
+      ],
+      "row_prompt_sha256": {
+        "m00": "010402ae7a7956ebb19a55fb82beaec1652a53ca506c549b640d9a41e37e931a",
+        "m01": "62323d53f419dc9f9b9ae2588485d85994ff935cbccdf50f3585705ac8e5c8a1",
+        "m02": "0fa6f71ca442fdbe7ea0727049800e3564cdf7814edbbc638f279953256b0911",
+        "m03": "d6c32fd9453e9af554a53f4c42c7576feebef0975e6016c61fdf411c644ef7b2"
+      }
+    },
+    "r1": {
+      "path": "/home/sjkim/MNPO/tests/fixtures/nbpo_real/assets/mon_ref_r1.json",
+      "sha256": "05b39dcf80992a3213b558abea7aace55b506bc3ac6805e14042a7ec00a64475",
+      "n_rows": 4,
+      "response_ids": [
+        "m00",
+        "m01",
+        "m02",
+        "m03"
+      ],
+      "row_prompt_sha256": {
+        "m00": "010402ae7a7956ebb19a55fb82beaec1652a53ca506c549b640d9a41e37e931a",
+        "m01": "62323d53f419dc9f9b9ae2588485d85994ff935cbccdf50f3585705ac8e5c8a1",
+        "m02": "0fa6f71ca442fdbe7ea0727049800e3564cdf7814edbbc638f279953256b0911",
+        "m03": "d6c32fd9453e9af554a53f4c42c7576feebef0975e6016c61fdf411c644ef7b2"
+      }
+    },
+    "r2": {
+      "path": "/home/sjkim/MNPO/tests/fixtures/nbpo_real/assets/mon_ref_r2.json",
+      "sha256": "39518d833c66dcf2ca9f389f206f14c5689f0f77f3da8fb5c8e02495f1fad35f",
+      "n_rows": 4,
+      "response_ids": [
+        "m00",
+        "m01",
+        "m02",
+        "m03"
+      ],
+      "row_prompt_sha256": {
+        "m00": "010402ae7a7956ebb19a55fb82beaec1652a53ca506c549b640d9a41e37e931a",
+        "m01": "62323d53f419dc9f9b9ae2588485d85994ff935cbccdf50f3585705ac8e5c8a1",
+        "m02": "0fa6f71ca442fdbe7ea0727049800e3564cdf7814edbbc638f279953256b0911",
+        "m03": "d6c32fd9453e9af554a53f4c42c7576feebef0975e6016c61fdf411c644ef7b2"
+      }
+    },
+    "r3": {
+      "path": "/home/sjkim/MNPO/tests/fixtures/nbpo_real/assets/mon_ref_r3.json",
+      "sha256": "1187fc5153b500bb0b94b67edaed8a5dc15e6b28ccbbd21b01ecfb4795110930",
+      "n_rows": 4,
+      "response_ids": [
+        "m00",
+        "m01",
+        "m02",
+        "m03"
+      ],
+      "row_prompt_sha256": {
+        "m00": "010402ae7a7956ebb19a55fb82beaec1652a53ca506c549b640d9a41e37e931a",
+        "m01": "62323d53f419dc9f9b9ae2588485d85994ff935cbccdf50f3585705ac8e5c8a1",
+        "m02": "0fa6f71ca442fdbe7ea0727049800e3564cdf7814edbbc638f279953256b0911",
+        "m03": "d6c32fd9453e9af554a53f4c42c7576feebef0975e6016c61fdf411c644ef7b2"
+      }
+    }
+  }
+}

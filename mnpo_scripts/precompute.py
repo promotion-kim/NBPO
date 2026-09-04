@@ -162,6 +162,12 @@ class ScriptArguments:
         },
     )
     eot_token: Optional[str] = field(default="", metadata={"help": "end-of-text token override"})
+    truncation_mode: str = field(
+        default="keep_end",
+        metadata={"help": "keep_start|keep_end; MUST equal the trainer's "
+                          "SimPOConfig.truncation_mode, or pi_t and pi truncate "
+                          "differently and Eq. (22) subtracts logps of different tokens"},
+    )
     mask_prompt: Optional[bool] = field(default=False, metadata={"help": "whether to mask prompt tokens"})
     len_penalty: Optional[float] = field(default=0, metadata={"help": "length penalty"})
     history_paths: Optional[List[str]] = field(default_factory=list, metadata={"help": "list of historical model paths"})
@@ -514,7 +520,7 @@ def compute_and_add_logps(
         max_prompt_length=args.max_prompt_length,
         label_pad_token_id=-100,
         padding_value=0,
-        truncation_mode="keep_end",
+        truncation_mode=args.truncation_mode,
         is_encoder_decoder=False,
         max_target_length=None,
         mask_prompt=args.mask_prompt,
@@ -803,11 +809,21 @@ def main():
         # Provenance sidecar: records the logp reduction plus canonical
         # tokenizer/chat-template hashes so training can detect a mean/sum or
         # tokenization mismatch (mandatory check for loss_type=nbpo).
+        from mnpo_scripts.pair_tokenization import (
+            tokenization_config,
+            tokenization_config_hash,
+        )
         from mnpo_scripts.precompute_provenance import (
             checkpoint_fingerprint,
             sha256_file_hex,
             tokenizer_content_hashes,
             write_precompute_meta,
+        )
+
+        tok_cfg = tokenization_config(
+            max_length=int(script_args.max_length),
+            max_prompt_length=int(script_args.max_prompt_length),
+            truncation_mode=str(script_args.truncation_mode),
         )
 
         def _fp(path):
@@ -843,6 +859,12 @@ def main():
             "max_length": int(script_args.max_length),
             "max_prompt_length": int(script_args.max_prompt_length),
             "apply_chat_template": bool(script_args.apply_chat_template),
+            # Tokenization provenance: pi_t's logps here and pi's logps in the
+            # trainer must come from identical token ids, attention and label
+            # masks, so the settings that determine them are hashed and checked
+            # (mnpo_scripts/pair_tokenization.py).
+            **tok_cfg,
+            "tokenization_config_sha256": tokenization_config_hash(tok_cfg),
         }
         # Hash every file the dataset actually consists of -- Arrow shards
         # included -- so an edited artifact cannot reach the trainer. The
