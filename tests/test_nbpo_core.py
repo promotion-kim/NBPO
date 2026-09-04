@@ -1,4 +1,4 @@
-"""Core-math tests for the paper-exact NBPO module (mnpo_scripts/nbpo_core.py).
+"""Core-math tests for the NBPO math module (mnpo_scripts/nbpo_core.py).
 
 Covers spec tests 1 (opponent normalization), 2 (sign), 3 (game-value
 identity), 4 (nonzero disagreement), 5 (fixed-reference limit), the core half

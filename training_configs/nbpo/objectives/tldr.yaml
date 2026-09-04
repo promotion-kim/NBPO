@@ -15,6 +15,23 @@
 # enable the TL;DR pipeline.
 version: 1
 dataset: tldr
+# Machine-readable verdict of the recovery attempt (audit section 12). The exact
+# prompts were searched for in the working tree and across every reachable git
+# commit: no "coverage" or "faithfulness" rubric text exists anywhere in this
+# repository. Two textually different "conciseness"/"helpfulness" rubrics do
+# exist (scripts/bpo/judge_bpo.py and the UltraFeedback oracle), but nothing
+# records which -- if either -- the TL;DR runs used, so selecting one would be a
+# guess presented as provenance.
+reproducible_from_released_artifact: false
+unreproducible_reason: >-
+  the TL;DR judging script ran on the remote work host and was never committed;
+  the reported TL;DR panel therefore CANNOT be reproduced from this artifact.
+  The loader fail-fasts rather than substituting invented or similar-looking
+  prompt text.
+recovery_instructions: >-
+  paste the exact system prompt and user template from the work host under each
+  objective, set available: true, and record source + sha256; the pipeline then
+  runs unchanged.
 objectives:
   coverage:
     available: false

@@ -88,7 +88,7 @@ def test_raw_vs_normalized_lambda_changes_the_update():
     # the Nash path itself keeps lambda raw: the solver result is not simplex-normalized
     _, A_ref, _, _ = feasible_game()
     res = solve_nbpo_dual(A, A_ref, mu, beta, eta=1.0, gamma=0.5, M=2000, R=1, damping=0.5)
-    assert abs(float(res.lam.sum()) - 1.0) > 1e-3, "paper-exact mode must keep raw lambda"
+    assert abs(float(res.lam.sum()) - 1.0) > 1e-3, "reproduction mode must keep raw lambda"
 
 
 def test_scaling_covariance_at_the_kkt_point():

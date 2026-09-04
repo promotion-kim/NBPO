@@ -3,6 +3,12 @@
 # Manuscript sources: tab:data-sampling-hparams, tab:policy-training-hparams, alg:nbpo.
 # Fill every PLACEHOLDER_* path before a real run; the toy fixture
 # (tests/fixtures/nbpo_toy/config.yaml) is the runnable CPU example.
+# Reproduction mode: the manuscript's exact pool geometry (4 learner + 4
+# comparator responses, 6 unordered pairs, both presentation orders) and the
+# invariants of docs/NBPO_ALGORITHM_MAPPING.md are ASSERTED, not defaulted.
+reproduction_mode: true
+allow_legacy_flat_judge_config: false
+allow_partial_prompt_intersection: false   # diagnostic only; never in reproduction
 stage: 0
 dataset: saferlhf_llama
 objectives:
@@ -18,21 +24,26 @@ judge:
     max_retries: 2
     tensor_parallel_size: 4
     max_model_len: 8192
-    decoding: {temperature: 0.0, max_tokens: 512, retry_temperature: 0.3, enable_thinking: false}
+    decoding: {temperature: 0.0, top_p: 1.0, top_k: -1, max_tokens: 512, retry_temperature: 0.3}
+    chat_template_kwargs: {enable_thinking: false}   # applied AND recorded
   monitoring:
     backend: vllm
     model_path: meta-llama/Llama-3.3-70B-Instruct
     max_retries: 2
     tensor_parallel_size: 4
     max_model_len: 8192
-    decoding: {temperature: 0.0, max_tokens: 512, retry_temperature: 0.3}
+    decoding: {temperature: 0.0, top_p: 1.0, top_k: -1, max_tokens: 512, retry_temperature: 0.3}
   final_eval:
     backend: vllm
     model_path: meta-llama/Llama-3.3-70B-Instruct
     max_retries: 2
     tensor_parallel_size: 4
     max_model_len: 8192
-    decoding: {temperature: 0.0, max_tokens: 512, retry_temperature: 0.3}
+    decoding: {temperature: 0.0, top_p: 1.0, top_k: -1, max_tokens: 512, retry_temperature: 0.3}
+generation:
+  # Llama has no thinking mode: empty, but declared so the manifests record it and
+  # a pool decoded under different kwargs is rejected rather than silently mixed.
+  chat_template_kwargs: {}
 sampling:
   policy_responses_per_prompt: 4     # response files below must carry 4 seeds each
   reference_comparators_per_prompt: 4
@@ -40,7 +51,17 @@ sampling:
   generation_temperature: 0.9
   generation_top_p: 0.95
   max_response_tokens: 512
+response_manifests:
+  # Bare response paths cannot express WHICH checkpoint produced a pool. Each
+  # manifest (scripts/nbpo/response_manifest.py) carries the generating
+  # checkpoint's content fingerprint, the prompt file sha256 and per-prompt text
+  # hashes, the decode parameters, and every response file's sha256. The stage
+  # runner requires learner == pi_t and comparator == mu, and at t=0 that those
+  # two are the same weights.
+  learner_pool: PLACEHOLDER_LEARNER_POOL_MANIFEST.json
+  reference_comparator_pool: PLACEHOLDER_REFERENCE_POOL_MANIFEST.json
 responses:
+  # Fallback for reproduction_mode: false only; ignored when manifests are given.
   policy_files:
     s0: PLACEHOLDER_POLICY_S0.json
     s1: PLACEHOLDER_POLICY_S1.json
@@ -59,6 +80,10 @@ monitoring:
   # manifest -- there is no static candidate_policy_files entry in real mode.
   prompts_file: PLACEHOLDER_MONITORING_PROMPTS.jsonl
   decode: {seeds: [42, 43, 44, 45], temperature: 0.9, top_p: 0.95, max_new_tokens: 512}
+  # Passed to tokenizer.apply_chat_template and recorded in the manifest;
+  # Qwen3 needs enable_thinking: false or the monitored 'responses' are
+  # reasoning traces and the gate scores the wrong text.
+  chat_template_kwargs: {}
   reference_files:
     r0: PLACEHOLDER_MON_REF_R0.json
     r1: PLACEHOLDER_MON_REF_R1.json
@@ -66,6 +91,15 @@ monitoring:
     r3: PLACEHOLDER_MON_REF_R3.json
 final_eval:
   prompts_file: PLACEHOLDER_FINAL_EVAL_PROMPTS.jsonl   # judged by judge.final_eval
+data:
+  # Prompt-level (never pair-level) validation. Leave validation_prompt_file
+  # unset for a train-only artifact: build_nbpo_pairs always writes
+  # pairs_test.jsonl, so --test_dir is emitted ONLY when that file has rows
+  # ({test_dir_flag} below) -- an empty requested split is a hard error in
+  # precompute, never a silent torch.cat([]).
+  split_unit: prompt
+  require_nonempty_validation: false
+  # validation_prompt_file: PLACEHOLDER_VALIDATION_PROMPTS.jsonl
 solver:
   eta: 1.0                            # proximal coefficient eta_t (T = 1 outer stage)
   opponent_betas: [0.25, 0.25]        # explicit; NOT the metrics-only trainer `beta: 10.0`
@@ -116,7 +150,7 @@ commands:
   precompute: >-
     python -m mnpo_scripts.precompute --model_name_or_path {parent}
     --ref_model meta-llama/Llama-3.1-8B-Instruct --history_paths {parent}
-    --train_dir {pairs_dir}/pairs_train.jsonl --test_dir {pairs_dir}/pairs_test.jsonl
+    --train_dir {pairs_dir}/pairs_train.jsonl {test_dir_flag}
     --output_dir {precomputed} --solver_artifact_path {solver_dir}/solution.json
     --logp_reduction sum --ronpo_target_mode none --apply_chat_template true
     --max_length 2048 --max_prompt_length 1024 --per_device_train_batch_size 2
@@ -127,3 +161,4 @@ commands:
     --prompts-file {monitoring_prompts} --seeds {seeds} --temperature {temperature}
     --top-p {top_p} --max-new-tokens {max_new_tokens} --output-dir {decode_out}
     --manifest {decode_manifest} --backend vllm
+    --chat-template-kwargs '{chat_template_kwargs}'

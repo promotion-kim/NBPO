@@ -5,6 +5,9 @@
 # synchronous decoder with the mock backend), mock judges, real gate.
 # gate.parent_model / gate.promote_to are filled in by the test (absolute tmp paths).
 stage: 0
+# Legacy 2-objective fixture: not the manuscript pool geometry, and it binds its
+# response files by path. tests/fixtures/nbpo_real/ is the reproduction-mode one.
+reproduction_mode: false
 dataset: nbpo_realmode_stub
 objectives:
   config: ../nbpo_toy/objectives.yaml

@@ -14,8 +14,9 @@ def validate_nbpo_args(
     tokenizer_hash: Optional[str] = None,
     chat_template_hash: Optional[str] = None,
     expected_parent_fingerprint: Optional[str] = None,
+    dataset_dir: Optional[str] = None,
 ) -> None:
-    """Hard-error validation for the paper-exact ``loss_type: nbpo`` branch.
+    """Hard-error validation for the ``loss_type: nbpo`` branch (Eq. (26)).
 
     Called with only ``args`` from ``MNPOTrainer.__init__`` (config-level
     invariants) and again from ``run_mnpo`` with the dataset columns, the
@@ -34,6 +35,14 @@ def validate_nbpo_args(
     ``history_fingerprints`` must equal ``[expected_parent_fingerprint]``:
     tokenizer equality is not weight equality, and history0 must be the true
     proximal centre of Eq. (15).
+
+    The ``nbpo_expected_*`` config fields close the last gap. The sidecar
+    travels WITH the dataset, so a self-consistent but wrong dataset used to
+    pass; these values come from the run config the stage runner wrote, and pin
+    the pair artifact, the solver solution, the parent checkpoint and the
+    precomputed dataset (Arrow shards included, via
+    ``verify_precompute_manifest``) to this exact stage. All of it runs before
+    any model weights load.
     """
     if str(getattr(args, "loss_type", "")).lower() != "nbpo":
         return
@@ -101,6 +110,34 @@ def validate_nbpo_args(
                         f"fingerprint [{expected_parent_fingerprint}] (weights differ even if "
                         "the tokenizer matches)"
                     )
+    # ---- expected-artifact binding (audit section 5) -----------------------
+    exp_pair = getattr(args, "nbpo_expected_pair_artifact_sha256", None)
+    exp_solver = getattr(args, "nbpo_expected_solver_artifact_sha256", None)
+    exp_parent = getattr(args, "nbpo_expected_parent_checkpoint_fingerprint", None)
+    exp_manifest = getattr(args, "nbpo_expected_precompute_manifest_sha256", None)
+    if precompute_meta is not None:
+        if exp_pair is not None and precompute_meta.get("pair_artifact_sha256") != exp_pair:
+            problems.append(
+                "stale pair artifact: the precomputed dataset was built from "
+                f"pair sha256 {str(precompute_meta.get('pair_artifact_sha256'))[:12]} but "
+                f"this run config expects {exp_pair[:12]}")
+        if exp_solver is not None and precompute_meta.get("solver_artifact_sha256") != exp_solver:
+            problems.append(
+                "stale solver artifact: the precomputed dataset carries solver sha256 "
+                f"{str(precompute_meta.get('solver_artifact_sha256'))[:12]} but this run "
+                f"config expects {exp_solver[:12]}")
+        if exp_parent is not None and precompute_meta.get("history_fingerprints") != [exp_parent]:
+            problems.append(
+                "history0 does not match the parent checkpoint this run config was written "
+                f"for: sidecar={precompute_meta.get('history_fingerprints')} "
+                f"expected=[{exp_parent}]")
+    if dataset_dir is not None and (exp_manifest is not None or precompute_meta is not None):
+        from mnpo_scripts.precompute_provenance import verify_precompute_manifest
+
+        try:
+            verify_precompute_manifest(dataset_dir, expected_manifest_sha256=exp_manifest)
+        except ValueError as e:
+            problems.append(str(e))
     if problems:
         raise ValueError("invalid configuration for loss_type=nbpo: " + "; ".join(problems))
 
@@ -152,7 +189,7 @@ class MNPOTrainer(SimPOTrainer):
         self.ht_target_column = str(getattr(args, "ht_target_column", "ht_target"))
         self.ht_target_scale = float(getattr(args, "ht_target_scale", 1.0))
 
-        # NBPO (paper-exact finite-temperature branch)
+        # NBPO (finite-temperature regression; docs/NBPO_ALGORITHM_MAPPING.md)
         self.nbpo_target_column = str(getattr(args, "nbpo_target_column", "nbpo_weighted_z"))
         self.logp_reduction = str(getattr(args, "logp_reduction", "mean")).lower()
         if self.logp_reduction not in ("mean", "sum"):

@@ -2,7 +2,7 @@
 
 Covers spec tests 15 (stage gate rejects nonpositive-surplus candidates and
 retains the parent), 16 (Nash welfare reported as null when any surplus is
-nonpositive), 17 (legacy isolation: the paper-exact path imports no scalar
+nonpositive), 17 (legacy isolation: the finite-pool NBPO path imports no scalar
 RM / Bradley-Terry builders and never touches all_rm_scores), plus the
 CPU-only dry run and CLI executability.
 """
@@ -113,7 +113,7 @@ FORBIDDEN_IMPORTS = [
 def test_legacy_isolation_no_scalar_rm_or_bt_imports():
     paths = sorted((REPO / "scripts" / "nbpo").glob("*.py")) + \
         sorted((REPO / "mnpo_scripts").glob("nbpo_*.py"))
-    assert len(paths) >= 8, "expected the full paper-exact module set"
+    assert len(paths) >= 8, "expected the full finite-pool NBPO module set"
     for path in paths:
         text = path.read_text()
         for bad in FORBIDDEN_SUBSTRINGS:

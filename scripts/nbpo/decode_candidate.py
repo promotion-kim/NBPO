@@ -30,6 +30,7 @@ from pathlib import Path
 
 from mnpo_scripts.precompute_provenance import checkpoint_fingerprint, sha256_file_hex
 from scripts.nbpo.nbpo_common import SCHEMA_VERSION, stable_hash_int
+from scripts.nbpo.response_manifest import prompt_text_hashes
 
 MANIFEST_SCHEMA = 1
 
@@ -48,8 +49,10 @@ def load_prompts(path: Path):
 
 
 class MockDecoder:
-    def __init__(self, checkpoint: str):
+    def __init__(self, checkpoint: str, chat_template_kwargs: dict = None):
         self.tag = checkpoint_fingerprint(checkpoint)[:8]
+        self.chat_template_kwargs = dict(chat_template_kwargs or {})
+        self.applied_chat_template_kwargs = self.chat_template_kwargs
 
     def generate(self, prompts, seed, temperature, top_p, max_new_tokens):
         return [f"[mock {self.tag} seed={seed}] "
@@ -58,7 +61,8 @@ class MockDecoder:
 
 
 class VllmDecoder:
-    def __init__(self, checkpoint: str, tp: int, max_model_len: int):
+    def __init__(self, checkpoint: str, tp: int, max_model_len: int,
+                 chat_template_kwargs: dict = None):
         from vllm import LLM, SamplingParams  # lazy
 
         self._SP = SamplingParams
@@ -66,11 +70,25 @@ class VllmDecoder:
                        gpu_memory_utilization=0.85, tensor_parallel_size=tp,
                        trust_remote_code=False)
         self.tok = self.llm.get_tokenizer()
+        # Model-specific chat-template kwargs (Qwen3 needs enable_thinking=False so
+        # the monitored responses are answers, not reasoning traces). What the
+        # tokenizer ACCEPTED is recorded in the manifest, never what was asked for.
+        self.chat_template_kwargs = dict(chat_template_kwargs or {})
+        self.applied_chat_template_kwargs = None
+
+    def _render(self, prompt: str) -> str:
+        msgs = [{"role": "user", "content": prompt}]
+        try:
+            out = self.tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True,
+                                               **self.chat_template_kwargs)
+            self.applied_chat_template_kwargs = dict(self.chat_template_kwargs)
+            return out
+        except TypeError:
+            self.applied_chat_template_kwargs = {}
+            return self.tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
 
     def generate(self, prompts, seed, temperature, top_p, max_new_tokens):
-        rendered = [self.tok.apply_chat_template([{"role": "user", "content": p}],
-                                                 tokenize=False, add_generation_prompt=True)
-                    for p in prompts]
+        rendered = [self._render(p) for p in prompts]
         outs = self.llm.generate(rendered, self._SP(n=1, temperature=temperature, top_p=top_p,
                                                     max_tokens=max_new_tokens, seed=seed),
                                  use_tqdm=False)
@@ -80,13 +98,14 @@ class VllmDecoder:
 def decode_candidate(model_checkpoint: Path, prompts_file: Path, seeds, temperature: float,
                      top_p: float, max_new_tokens: int, output_dir: Path, manifest: Path,
                      backend: str = "vllm", tp: int = 1, max_model_len: int = 2048,
-                     tag: str = "policy") -> dict:
+                     tag: str = "policy", chat_template_kwargs: dict = None,
+                     role: str = "monitoring_candidate_pool") -> dict:
     fingerprint = checkpoint_fingerprint(str(model_checkpoint))
     prompts = load_prompts(prompts_file)
     prompt_ids = sorted(pid for pid, _ in prompts)
     texts = [t for _, t in prompts]
-    dec = (MockDecoder(str(model_checkpoint)) if backend == "mock"
-           else VllmDecoder(str(model_checkpoint), tp, max_model_len))
+    dec = (MockDecoder(str(model_checkpoint), chat_template_kwargs) if backend == "mock"
+           else VllmDecoder(str(model_checkpoint), tp, max_model_len, chat_template_kwargs))
     output_dir.mkdir(parents=True, exist_ok=True)
     outputs = {}
     for seed in seeds:                       # synchronous: every seed finishes here
@@ -98,6 +117,10 @@ def decode_candidate(model_checkpoint: Path, prompts_file: Path, seeds, temperat
         for r in rows:
             if not isinstance(r["generated_text"], str):
                 raise RuntimeError(f"seed {seed}: non-string generation for prompt {r['prompt_id']}")
+            if not r["generated_text"].strip():
+                raise RuntimeError(
+                    f"seed {seed}: empty generation for prompt {r['prompt_id']} -- an empty "
+                    "response is a decode failure, not a monitoring sample")
         path = output_dir / f"{tag}_s{seed}.json"
         path.write_text(json.dumps(rows, ensure_ascii=False))
         # validate the file we just wrote: exact prompt-id set, one row per prompt
@@ -105,21 +128,36 @@ def decode_candidate(model_checkpoint: Path, prompts_file: Path, seeds, temperat
         if sorted(r["prompt_id"] for r in back) != prompt_ids:
             raise RuntimeError(f"seed {seed}: written file does not cover the prompt set exactly")
         outputs[f"s{seed}"] = {"path": str(path), "sha256": sha256_file_hex(str(path)),
-                               "n_rows": len(back)}
+                               "n_rows": len(back),
+                               "response_ids": sorted(r["prompt_id"] for r in back)}
     man = {
         "schema_version": MANIFEST_SCHEMA,
         "nbpo_schema": SCHEMA_VERSION,
-        "candidate_checkpoint": str(model_checkpoint),
+        # Shared response-pool manifest schema (scripts/nbpo/response_manifest.py):
+        # the candidate pool is verified by exactly the machinery that verifies
+        # the learner and reference pools.
+        "role": role,
+        "checkpoint": str(model_checkpoint),
+        "checkpoint_fingerprint": fingerprint,
+        "candidate_checkpoint": str(model_checkpoint),   # legacy aliases
         "candidate_fingerprint": fingerprint,
         "prompts_file": str(prompts_file),
+        "prompt_file_sha256": sha256_file_hex(str(prompts_file)),
         "prompts_file_sha256": sha256_file_hex(str(prompts_file)),
         "prompt_ids": prompt_ids,
+        # Ids do not identify a prompt SET: two files can share ids and differ in
+        # every prompt. The text hashes are what make the binding meaningful.
+        "prompt_text_sha256": prompt_text_hashes(prompts),
         "n_prompts": len(prompt_ids),
-        "seeds": [int(s) for s in seeds],
+        "seeds": [str(s) for s in seeds],
         "decode_params": {"temperature": temperature, "top_p": top_p,
                           "max_new_tokens": max_new_tokens, "backend": backend,
                           "tensor_parallel_size": tp, "max_model_len": max_model_len},
-        "outputs": outputs,
+        "chat_template_kwargs": dict(getattr(dec, "applied_chat_template_kwargs", None)
+                                     if getattr(dec, "applied_chat_template_kwargs", None)
+                                     is not None else (chat_template_kwargs or {})),
+        "requested_chat_template_kwargs": dict(chat_template_kwargs or {}),
+        "outputs": {str(k): v for k, v in outputs.items()},
         "synchronous": True,
     }
     man["manifest_sha256_of_outputs"] = hashlib.sha256(
@@ -144,11 +182,19 @@ def main() -> None:
     ap.add_argument("--tensor-parallel-size", type=int, default=1)
     ap.add_argument("--max-model-len", type=int, default=2048)
     ap.add_argument("--tag", default="policy")
+    ap.add_argument("--chat-template-kwargs", default=None,
+                    help="JSON dict for apply_chat_template, e.g. "
+                         "'{\"enable_thinking\": false}' (required for Qwen3)")
+    ap.add_argument("--role", default="monitoring_candidate_pool",
+                    choices=["learner_pool", "reference_comparator_pool",
+                             "monitoring_candidate_pool"])
     a = ap.parse_args()
     seeds = [int(s) for s in a.seeds.split(",") if s.strip()]
+    ctk = json.loads(a.chat_template_kwargs) if a.chat_template_kwargs else {}
     man = decode_candidate(a.model_checkpoint, a.prompts_file, seeds, a.temperature, a.top_p,
                            a.max_new_tokens, a.output_dir, a.manifest, backend=a.backend,
-                           tp=a.tensor_parallel_size, max_model_len=a.max_model_len, tag=a.tag)
+                           tp=a.tensor_parallel_size, max_model_len=a.max_model_len, tag=a.tag,
+                           chat_template_kwargs=ctk, role=a.role)
     print(json.dumps({"candidate_fingerprint": man["candidate_fingerprint"],
                       "n_prompts": man["n_prompts"], "seeds": man["seeds"],
                       "manifest": str(a.manifest)}, indent=1))

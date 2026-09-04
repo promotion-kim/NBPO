@@ -1,6 +1,9 @@
 # Stage config for the CPU-only NBPO dry run (tests/fixtures/nbpo_toy).
 # python -m scripts.nbpo.run_nbpo_stage --config tests/fixtures/nbpo_toy/config.yaml --dry-run
 stage: 0
+# Legacy 2-objective fixture: not the manuscript pool geometry, and it binds its
+# response files by path. tests/fixtures/nbpo_real/ is the reproduction-mode one.
+reproduction_mode: false
 dataset: nbpo_toy
 objectives:
   config: objectives.yaml

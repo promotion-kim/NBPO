@@ -34,7 +34,12 @@ from pathlib import Path
 
 import numpy as np
 
-from scripts.nbpo.nbpo_common import load_response_files, sha256_file, write_json
+from scripts.nbpo.nbpo_common import (
+    implementation_contract,
+    load_response_files,
+    sha256_file,
+    write_json,
+)
 
 TARGET_MODES = ("sampled", "rao_blackwell")
 
@@ -97,6 +102,66 @@ def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_see
     return rows
 
 
+def verify_solver_input_chain(tensor_dir: Path, solver_dir: Path, solution: dict) -> dict:
+    """Prove the tensors on disk ARE the solver's inputs, and the opponents its outputs.
+
+    Verifying only the ``nu`` hashes left the biggest hole open: nothing showed
+    that ``tensor_policy.npz`` / ``tensor_ref.npz`` / ``meta.json`` currently in
+    ``tensor_dir`` are the files the dual was solved against. A tensor swapped
+    for one of the same shape produced targets from lambda that never saw it.
+
+    Every file is hashed HERE, from its current bytes, and compared with what
+    the solver recorded. Nothing is copied from the solution into the pair
+    artifact without being independently recomputed first.
+    """
+    tensor_dir, solver_dir = Path(tensor_dir), Path(solver_dir)
+    recorded_inputs = solution.get("input_hashes") or {}
+    recorded_artifacts = solution.get("artifact_hashes") or {}
+    problems, verified = [], {}
+    for fname in ("tensor_policy.npz", "tensor_ref.npz", "meta.json"):
+        f = tensor_dir / fname
+        if not f.exists():
+            problems.append(f"tensor artifact lacks {fname}")
+            continue
+        if fname not in recorded_inputs:
+            problems.append(f"solution.json records no input hash for {fname}")
+            continue
+        got = sha256_file(f)                       # recomputed, never copied
+        if got != recorded_inputs[fname]:
+            problems.append(
+                f"{fname} hash {got[:12]} != solver input {recorded_inputs[fname][:12]}: "
+                "these tensors are NOT the ones the dual was solved against")
+            continue
+        verified[fname] = got
+    for fname in ("nu_update.npz", "nu_final_policy.npz"):
+        f = solver_dir / fname
+        if not f.exists():
+            problems.append(f"solver artifact lacks {fname}; re-run solve_nbpo_dual")
+            continue
+        if fname not in recorded_artifacts:
+            problems.append(f"solution.json records no hash for {fname}; refusing to use it")
+            continue
+        got = sha256_file(f)
+        if got != recorded_artifacts[fname]:
+            problems.append(
+                f"{fname} hash {got[:12]} != recorded {recorded_artifacts[fname][:12]}: the "
+                "solver artifact was modified or its opponent files were swapped")
+            continue
+        verified[fname] = got
+    if verified.get("nu_update.npz") and verified.get("nu_final_policy.npz") and \
+            verified["nu_update.npz"] == verified["nu_final_policy.npz"] and \
+            int((solution.get("config") or {}).get("R", 1)) == 1:
+        # At R = 1 the update opponent is built at the PREVIOUS policy, so it
+        # cannot equal the opponent recomputed at the final policy; identical
+        # files mean nu_final_policy was copied over nu_update.
+        problems.append(
+            "nu_update.npz and nu_final_policy.npz are byte-identical at R=1: the Eq. (26) "
+            "opponent has been replaced by the diagnostic one")
+    if problems:
+        raise ValueError("solver -> pair artifact hash chain broken: " + "; ".join(problems))
+    return verified
+
+
 def build_pairs_from_artifacts(tensor_dir: Path, solver_dir: Path, policy_file_specs,
                                out_dir: Path, target_mode: str = "sampled", seed: int = 42,
                                stage: int = 0, test_prompts: int = 0,
@@ -104,25 +169,12 @@ def build_pairs_from_artifacts(tensor_dir: Path, solver_dir: Path, policy_file_s
     """Importable core of the CLI (also used by run_nbpo_stage)."""
     if target_mode not in TARGET_MODES:
         raise ValueError(f"target_mode must be one of {TARGET_MODES}, got {target_mode!r}")
+    solution = json.loads((solver_dir / "solution.json").read_text())
+    verified = verify_solver_input_chain(tensor_dir, solver_dir, solution)
     meta = json.loads((tensor_dir / "meta.json").read_text())
     A_policy = np.load(tensor_dir / "tensor_policy.npz")["A"]
-    solution = json.loads((solver_dir / "solution.json").read_text())
     # The regression opponent is nu_update (the opponent that generated the
-    # policy through Eq. (21)), never nu_final_policy. Verify both files against
-    # the hashes the solver recorded so a swapped or stale file cannot pass.
-    recorded = solution.get("artifact_hashes") or {}
-    for fname in ("nu_update.npz", "nu_final_policy.npz"):
-        f = solver_dir / fname
-        if not f.exists():
-            raise FileNotFoundError(f"solver artifact lacks {fname}; re-run solve_nbpo_dual")
-        if fname not in recorded:
-            raise ValueError(f"solution.json records no hash for {fname}; refusing to use it")
-        got = sha256_file(f)
-        if got != recorded[fname]:
-            raise ValueError(
-                f"{fname} hash {got[:12]} != recorded {recorded[fname][:12]}: the solver "
-                "artifact was modified or its opponent files were swapped"
-            )
+    # policy through Eq. (21)), never nu_final_policy.
     nu = np.load(solver_dir / "nu_update.npz")["nu"]
     objectives = meta["objectives"]
     lam = np.asarray(solution["lambda_raw"], dtype=np.float64)
@@ -135,8 +187,13 @@ def build_pairs_from_artifacts(tensor_dir: Path, solver_dir: Path, policy_file_s
         "outer_stage": int(stage),
         "dual_checkpoint": solution["config"]["M"],
         "aggregation": solution["aggregation"],
+        # Every hash below was recomputed from the current bytes by
+        # verify_solver_input_chain, not read out of solution.json.
         "solver_hash": sha256_file(solver_dir / "solution.json"),
-        "tensor_policy_hash": solution["input_hashes"]["tensor_policy.npz"],
+        "tensor_policy_hash": verified["tensor_policy.npz"],
+        "tensor_ref_hash": verified["tensor_ref.npz"],
+        "tensor_meta_hash": verified["meta.json"],
+        "nu_update_hash": verified["nu_update.npz"],
     }
     rng = np.random.default_rng(seed)
     rows = build_rows(meta["prompt_ids"], objectives, A_policy, nu, lam, betas, policy,
@@ -169,7 +226,12 @@ def build_pairs_from_artifacts(tensor_dir: Path, solver_dir: Path, policy_file_s
         "note": "nbpo_weighted_z is unscaled: eta is applied exactly once, in the trainer",
         "opponent_sampling_scope": "pair_objective",
         "opponent_source": "nu_update.npz",
-        "opponent_source_hash": recorded["nu_update.npz"],
+        "opponent_source_hash": verified["nu_update.npz"],
+        "rng_seed": int(seed),
+        "verified_input_hashes": verified,
+        **implementation_contract(
+            dual_iterations=solution["config"].get("M"),
+            fixed_point_steps=solution["config"].get("R")),
         **provenance,
     }
     write_json(out_dir / "pairs_summary.json", summary)

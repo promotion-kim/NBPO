@@ -74,12 +74,34 @@ monitoring prompt set; promotion is versioned and atomic
 final-evaluation judges are configured and recorded separately
 (`judge.training` / `judge.monitoring` / `judge.final_eval`).
 
-**Status of "paper-exact end-to-end".** The real-mode command, materialization
+### What this implementation is
+
+The manuscript's Algorithm 1 is written at the **population** level; this code is
+the **finite-pool NBPO realization** of it. The dual of Eq. (27) runs on a frozen
+finite response pool where the Eq. (17) inner maximiser has a closed form, and
+the 8B policy is fit **once** per outer stage from the Eq. (26) targets — no
+neural training happens inside a dual iteration. Every artifact records this
+contract explicitly:
+
+```json
+"implementation_type": "finite_pool_one_shot_neural_realization",
+"dual_policy_representation": "finite_response_distribution",
+"neural_fits_per_outer_stage": 1,
+"fixed_point_steps": 1,
+"dual_iterations": 40000
+```
+
+`docs/NBPO_ALGORITHM_MAPPING.md` gives the revised practical pseudocode that
+matches the code line for line, the two remaining approximations (finite pool,
+`R = 1` — both measured, not assumed), and the equation → function map. The
+phrase "paper-exact Algorithm 1" is not used for this pipeline.
+
+**Status of end-to-end reproduction.** The real-mode command, materialization
 and manifest-binding path is exercised end to end by
 `tests/test_nbpo_realmode.py` with stub executables and no LLM (this is the
 test that had to pass before that phrase is used here). A full real-mode run
 with 8B models through this exact path has not yet been executed; the
-finite-pool math and the trainer branch are paper-exact, the orchestration is
+finite-pool math and the trainer branch match the manuscript equations, the orchestration is
 verified at stub level.
 
 **`scripts/bpo/` — fixed-reference Anchored-BPO (β = ∞ baseline, legacy).**
@@ -207,7 +229,7 @@ FlashInfer does not load on your GPU.
 3. `mnpo_scripts.precompute` — log-probabilities, normalizers, and history buffers.
 4. `mnpo_scripts.run_mnpo` — the update itself, via Accelerate.
 
-For paper-exact NBPO, step 4 runs `loss_type: nbpo` on the `nbpo_weighted_z` targets produced by
+For the finite-pool NBPO realization, step 4 runs `loss_type: nbpo` on the `nbpo_weighted_z` targets produced by
 the dual solve (see the command-by-command section above); the matched aggregation controls
 (utilitarian, absolute max-min, surplus max-min) share the same tensors, β, d, response pool, and
 optimizer budget and differ only in how the weight vector is chosen — utilitarian fixes λ = 1, the

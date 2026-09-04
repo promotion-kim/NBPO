@@ -236,7 +236,7 @@ def main():
 
     column_names = list(raw_datasets["train"].features)
 
-    # Fail fast for the paper-exact NBPO branch: validate the target column, the
+    # Fail fast for the NBPO branch: validate the target column, the
     # single proximal center, and the precompute provenance sidecar (reduction +
     # tokenizer/chat-template hashes) BEFORE the policy model is loaded.
     if str(getattr(training_args, "loss_type", "")).lower() == "nbpo":
@@ -259,6 +259,7 @@ def main():
             tokenizer_hash=hashes["tokenizer_hash"],
             chat_template_hash=hashes["chat_template_hash"],
             expected_parent_fingerprint=parent_fp,
+            dataset_dir=dataset_path,
         )
         logger.info("NBPO configuration validated against the precompute artifact.")
 

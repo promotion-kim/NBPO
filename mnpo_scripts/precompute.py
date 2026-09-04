@@ -639,6 +639,32 @@ def load_flexible_dataset(dataset_name_or_path: str, cache_dir: Optional[str] = 
     return load_dataset(dataset_name_or_path, split=split, cache_dir=cache_dir)
 
 
+
+def require_nonempty_split_file(path: Optional[str], flag: str) -> None:
+    """Reject an empty REQUESTED split by name, before `datasets` sees it.
+
+    `datasets` cannot infer a schema from zero rows and raises SchemaInferenceError
+    deep inside its builder, naming neither the split nor the flag; further
+    downstream an empty split reaches torch.cat([]). Both are replaced by the
+    message below. Only local files are inspected; a hub id or a directory is
+    left to the loader.
+    """
+    if not path or not os.path.isfile(path):
+        return
+    empty = os.path.getsize(path) == 0
+    if not empty and path.endswith((".jsonl", ".json")):
+        with open(path) as f:
+            head = f.read(2048).strip()
+        empty = (not head) or head in ("[]", "{}")
+    if empty:
+        raise ValueError(
+            f"{flag} {path} contains no records. An empty requested split is never "
+            f"silently dropped: omit {flag} for a train-only artifact, or point it at "
+            "a file with rows. (build_nbpo_pairs writes pairs_test.jsonl "
+            "unconditionally, so the file exists even when no prompts were held out.)"
+        )
+
+
 def main():
     parser = HfArgumentParser(ScriptArguments)
     script_args = parser.parse_args_into_dataclasses()[0]
@@ -654,21 +680,46 @@ def main():
         tokenizer.pad_token = tokenizer.eos_token
 
     # ----- Load raw train (and optional test) datasets -----
+    # Emptiness is checked BEFORE loading. `datasets` cannot infer a schema from
+    # zero rows and raises SchemaInferenceError deep inside its builder, which
+    # says nothing about which split was empty or why it was requested; further
+    # downstream an empty split reaches torch.cat([]). Both are replaced by a
+    # named error here. build_nbpo_pairs always writes pairs_test.jsonl, so this
+    # is the common case for a train-only run: omit --test_dir (the stage runner
+    # gates the flag on scripts/nbpo/nbpo_common.py:jsonl_has_records).
+    require_nonempty_split_file(script_args.train_dir, "--train_dir")
     logger.info(f"Loading initial raw train dataset from: {script_args.train_dir}")
     raw_train = load_flexible_dataset(script_args.train_dir, cache_dir=script_args.cache_dir, split="train")
+    if len(raw_train) == 0:
+        raise ValueError(f"--train_dir {script_args.train_dir} loaded zero records")
+
 
     # accept --test_dir or legacy --eval_dir
     test_path = script_args.test_dir or script_args.eval_dir
     raw_test = None
     if test_path:
+        # build_nbpo_pairs writes pairs_test.jsonl unconditionally, so the file
+        # exists even when no prompts were held out. A REQUESTED split that turns
+        # out empty is an error here, named and explained, rather than an opaque
+        # torch.cat([]) failure hundreds of lines later; callers that do not want
+        # a test split must omit --test_dir (see scripts/nbpo/nbpo_common.py's
+        # jsonl_has_records, which is what run_nbpo_stage gates the flag on).
+        require_nonempty_split_file(test_path, "--test_dir")
         logger.info(f"Loading raw test dataset from: {test_path}")
         raw_test = load_flexible_dataset(test_path, cache_dir=script_args.cache_dir, split="train")
+        if len(raw_test) == 0:
+            raise ValueError(
+                f"--test_dir {test_path} was requested but contains no records. "
+                "Omit --test_dir for a train-only artifact, or point it at a "
+                "non-empty split; an empty requested split is never silently dropped."
+            )
 
     # Build a DatasetDict so everything downstream works on both splits
     if raw_test is not None:
         raw_dataset = DatasetDict({"train": raw_train, "test": raw_test})
     else:
         raw_dataset = DatasetDict({"train": raw_train})
+    logger.info(f"Precomputing splits: {sorted(raw_dataset.keys())}")
 
     if (script_args.ronpo_target_mode or "none").lower() != "none":
         logger.info(
@@ -793,8 +844,22 @@ def main():
             "max_prompt_length": int(script_args.max_prompt_length),
             "apply_chat_template": bool(script_args.apply_chat_template),
         }
+        # Hash every file the dataset actually consists of -- Arrow shards
+        # included -- so an edited artifact cannot reach the trainer. The
+        # manifest is written first, then hashed into the sidecar, so one value
+        # (precompute_manifest_sha256) pins the whole precomputed dataset.
+        from mnpo_scripts.precompute_provenance import (
+            write_precompute_manifest,
+        )
+
+        meta["dataset_splits"] = sorted(dataset_with_logps.keys())
+        meta["split_sizes"] = {k: len(v) for k, v in dataset_with_logps.items()}
+        manifest_path, manifest_sha = write_precompute_manifest(
+            script_args.output_dir, splits=meta["dataset_splits"])
+        meta["precompute_manifest_sha256"] = manifest_sha
         meta_path = write_precompute_meta(script_args.output_dir, meta)
-        logger.info(f"Wrote provenance sidecar: {meta_path}")
+        logger.info(f"Wrote provenance sidecar: {meta_path} "
+                    f"(dataset manifest {manifest_path}, sha {manifest_sha[:12]})")
         logger.info("Script finished successfully.")
 
 

@@ -39,7 +39,7 @@ from mnpo_scripts.nbpo_core import (
     validate_reference_tensor,
 )
 from mnpo_scripts.nbpo_solver import AGGREGATIONS, solve_nbpo_dual
-from scripts.nbpo.nbpo_common import sha256_file, write_json
+from scripts.nbpo.nbpo_common import implementation_contract, sha256_file, write_json
 
 
 def load_tensor_artifact(tensor_dir: Path):
@@ -67,6 +67,10 @@ def write_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashes: dict,
     np.savez_compressed(out_dir / "nu_final_policy.npz", nu=res.nu_final_policy.numpy())
     np.savez_compressed(out_dir / "pi_star.npz", pi=res.pi.numpy())
     solution = {
+        # What actually ran (audit section 0): the dual below is a frozen finite-pool
+        # optimization; the neural policy is realized once, afterwards.
+        **implementation_contract(dual_iterations=res.config.get("M"),
+                                  fixed_point_steps=res.config.get("R")),
         "aggregation": res.aggregation,
         "stage": int(stage),
         "objectives": tensor_meta.get("objectives"),

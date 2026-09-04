@@ -6,7 +6,7 @@ computes fixed-anchor surpluses s_k = P_k(pi > mu) - 1/2 against the frozen
 reference (the beta -> infinity limit, where the adaptive opponent collapses to
 mu), uses normalized/clipped static weights, always pairs against the FIRST
 reference response, and computes no nu*, V_{k,beta}, d_k, or dual descent.
-The paper-exact Algorithm 1 stack lives in scripts/nbpo/ (judge matrix ->
+The finite-pool NBPO realization lives in scripts/nbpo/ (judge matrix ->
 preference tensors -> solve_nbpo_dual -> build_nbpo_pairs -> loss_type=nbpo).
 The `maxmin` rule below is the static one-hot on the pre-training worst
 objective -- a legacy baseline, distinct from scripts/nbpo's adversarial
@@ -20,7 +20,7 @@ jsonl with one signed target column per rule: bpo_target_{nbs,ks,unif}.
 Pair = two policy responses per prompt; z_k = pref_k(y, y'') - pref_k(y', y'')
 against the shared first reference response; target = sum_k w_k z_k.
 (The pref.get(..., 0.5) fallbacks below are part of this frozen baseline; the
-paper-exact path never imputes a missing comparison.)
+finite-pool NBPO path never imputes a missing comparison.)
 """
 from __future__ import annotations
 

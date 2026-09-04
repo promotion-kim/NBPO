@@ -147,7 +147,7 @@ def test_gate_rejects_stale_response_manifest(tmp_path):
     p = Path(man["outputs"]["s1"]["path"])
     rows = json.loads(p.read_text()); rows[0]["generated_text"] += " edited"
     p.write_text(json.dumps(rows))
-    with pytest.raises(ValueError, match="stale or edited"):
+    with pytest.raises(ValueError, match="edited or replaced"):
         verify_decode_manifest(tmp_path / "man.json", ck, man["prompt_ids"], [0, 1])
 
 
@@ -168,7 +168,7 @@ def test_gate_rejects_missing_monitoring_prompts(tmp_path):
         verify_decode_manifest(tmp_path / "man.json", ck, man["prompt_ids"] + ["m99"], [0])
     with pytest.raises(ValueError, match="unexpected=\\['m01'\\]"):
         verify_decode_manifest(tmp_path / "man.json", ck, ["m00"], [0])
-    with pytest.raises(ValueError, match="configured seeds"):
+    with pytest.raises(ValueError, match="seeds must match exactly"):
         verify_decode_manifest(tmp_path / "man.json", ck, man["prompt_ids"], [0, 7])
 
 

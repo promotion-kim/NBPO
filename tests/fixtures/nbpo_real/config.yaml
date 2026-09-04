@@ -1,0 +1,85 @@
+# Reproduction-mode integration fixture (audit section 13).
+#
+# Exercises the PRODUCTION pair builder, the production mnpo_scripts.precompute,
+# the production manifest/provenance/evaluation/gate code, and the real
+# run_config materialization. Only the neural weight update is stubbed -- there
+# is no CPU-feasible way to fine-tune a transformer inside a unit test, and the
+# stub is deliberately the ONLY thing that is not production code. The precompute
+# stub of tests/fixtures/nbpo_realmode/ is NOT used here.
+#
+# gate.parent_model / gate.promote_to are filled in by the test with tmp paths.
+reproduction_mode: true
+allow_legacy_flat_judge_config: false
+allow_partial_prompt_intersection: false
+stage: 0
+dataset: nbpo_real_integration
+objectives:
+  config: objectives.yaml
+  names: [clarity, brevity]
+judge:
+  # Three distinct identities, so a role that borrowed another's provenance
+  # would be visible in the stage record.
+  training:   {backend: mock, model_path: mock-judge-train-v1, max_retries: 2,
+               decoding: {temperature: 0.0, top_p: 1.0, top_k: -1, max_tokens: 512,
+                          retry_temperature: 0.3}}
+  monitoring: {backend: mock, model_path: mock-judge-monitor-v1, max_retries: 2,
+               decoding: {temperature: 0.0, top_p: 1.0, top_k: -1, max_tokens: 512,
+                          retry_temperature: 0.3}}
+  final_eval: {backend: mock, model_path: mock-judge-final-v1, max_retries: 2,
+               decoding: {temperature: 0.0, top_p: 1.0, top_k: -1, max_tokens: 512,
+                          retry_temperature: 0.3}}
+generation:
+  chat_template_kwargs: {}
+sampling:
+  policy_responses_per_prompt: 4
+  reference_comparators_per_prompt: 4
+  pair_proposal: all_six_unordered_pairs
+response_manifests:
+  learner_pool: assets/learner_pool.json
+  reference_comparator_pool: assets/reference_pool.json
+monitoring:
+  prompts_file: assets/monitoring_prompts.jsonl
+  decode: {seeds: [0, 1, 2, 3], temperature: 0.9, top_p: 0.95, max_new_tokens: 64}
+  reference_files:
+    r0: assets/mon_ref_r0.json
+    r1: assets/mon_ref_r1.json
+    r2: assets/mon_ref_r2.json
+    r3: assets/mon_ref_r3.json
+final_eval:
+  prompts_file: assets/final_eval_prompts.jsonl
+data:
+  split_unit: prompt
+  require_nonempty_validation: false
+solver: {eta: 1.0, opponent_betas: [0.25, 0.25], lambda_box: [1.0e-3, 1.0e+3],
+         M: 60, gamma: 0.5, R: 1, aggregation: nash}
+targets: {mode: sampled, seed: 42}
+trainer:
+  optim: adafactor
+  learning_rate: 5.0e-7
+  max_steps: 2
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  bf16: false
+  eta: 1.0
+  beta: 10.0
+gate:
+  parent_model: PLACEHOLDER_PARENT
+  promote_to: PLACEHOLDER_PROMOTE
+commands:
+  # The REAL precompute module, with the conditional test-split flag.
+  precompute: >-
+    python -m tests.fixtures.nbpo_real.stubs.real_precompute
+    --model_name_or_path {parent} --ref_model {parent} --history_paths {parent}
+    --train_dir {pairs_dir}/pairs_train.jsonl {test_dir_flag}
+    --output_dir {precomputed} --solver_artifact_path {solver_dir}/solution.json
+    --logp_reduction sum --ronpo_target_mode none --apply_chat_template false
+    --max_length 128 --max_prompt_length 64 --per_device_train_batch_size 2
+    --per_device_eval_batch_size 2 --report_to none
+  train: >-
+    python -m tests.fixtures.nbpo_real.stubs.stub_train {run_config}
+  decode_candidate: >-
+    python -m scripts.nbpo.decode_candidate --model-checkpoint {candidate}
+    --prompts-file {monitoring_prompts} --seeds {seeds} --temperature {temperature}
+    --top-p {top_p} --max-new-tokens {max_new_tokens} --output-dir {decode_out}
+    --manifest {decode_manifest} --backend mock
+    --chat-template-kwargs '{chat_template_kwargs}'

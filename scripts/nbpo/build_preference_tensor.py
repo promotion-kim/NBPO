@@ -224,6 +224,7 @@ def main() -> None:
         "reference_skew": skew_stats,
         "reference_construction": "shared_pool",
         "tensor_kind": "centered_preference",
+        **implementation_contract(),
         "shape_policy": list(A_policy.shape),
         "shape_ref": list(A_ref.shape),
     }

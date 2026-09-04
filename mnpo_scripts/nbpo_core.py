@@ -2,7 +2,7 @@
 
 This module implements the population quantities of the manuscript
 (``game_nbpo_iclr/main_v2.tex``) restricted to a frozen finite response pool, in
-float64 torch. It is the paper-exact path: nothing here uses scalar reward
+float64 torch. It is the finite-pool NBPO realization path: nothing here uses scalar reward
 models, Bradley--Terry reconstruction, or fixed-anchor surpluses. The legacy
 fixed-reference (beta = infinity) Anchored-BPO pipeline lives in ``scripts/bpo``
 and is intentionally untouched.
@@ -26,7 +26,7 @@ one, and full support where the math requires it).
 """
 from __future__ import annotations
 
-from typing import Union
+from typing import Optional, Union
 
 import torch
 
@@ -338,19 +338,46 @@ def uniform_policy(n_prompts: int, n_responses: int) -> torch.Tensor:
     return torch.full((n_prompts, n_responses), 1.0 / n_responses, dtype=torch.float64)
 
 
+UNIFORM_TOL = 1e-9
+
+
 def compute_disagreement_point(
     A_ref: torch.Tensor, mu: torch.Tensor, beta: TensorLike,
     construction: str = "shared_pool",
+    mu_learner: Optional[torch.Tensor] = None,
 ) -> torch.Tensor:
     """``d_k = V_{k,beta_k}(mu)`` from the reference-as-learner tensor (Eq. (10)).
 
     ``A_ref[k, x, i, j]`` holds centered payoffs of reference responses (as
-    learner, index ``i``) against reference comparators (index ``j``). The
-    reference learner is uniform over its own pool. ``d`` is generally
-    negative for skew-symmetric payoffs at beta < infinity and is never
-    replaced by ``g_k(mu, mu) = 0``.
+    learner, index ``i``) against reference comparators (index ``j``). ``d`` is
+    generally negative for skew-symmetric payoffs at beta < infinity and is
+    never replaced by ``g_k(mu, mu) = 0``.
+
+    Both sides of this game are the SAME reference policy ``mu``. The learner
+    side used to be hard-coded uniform while the comparator side took whatever
+    ``mu`` was passed, so a nonuniform empirical ``mu`` silently produced
+    ``V`` of a mismatched pair of distributions -- a ``d`` that is not
+    ``V_{k,beta}(mu)`` for any single policy. Now either the caller supplies
+    ``mu_learner`` explicitly, or the comparator ``mu`` is asserted uniform and
+    that uniform distribution is used on both sides.
     """
     A_ref = validate_reference_tensor(A_ref, "A_ref", construction)
-    pi_ref = uniform_policy(A_ref.shape[1], A_ref.shape[2])
+    if mu_learner is None:
+        mu_c = as_float64(mu)
+        expected = 1.0 / mu_c.shape[-1]
+        if not bool((mu_c - expected).abs().max() < UNIFORM_TOL):
+            raise ValueError(
+                "compute_disagreement_point was given a NONUNIFORM comparator mu but no "
+                "mu_learner: d_k = V_{k,beta}(mu) requires the same mu on both sides of "
+                f"the reference game (max deviation from uniform "
+                f"{float((mu_c - expected).abs().max()):.3e}). Pass mu_learner explicitly."
+            )
+        pi_ref = uniform_policy(A_ref.shape[1], A_ref.shape[2])
+    else:
+        pi_ref = validate_distribution(mu_learner, "mu_learner")
+        if pi_ref.shape != (A_ref.shape[1], A_ref.shape[2]):
+            raise ValueError(
+                f"mu_learner must have shape {(A_ref.shape[1], A_ref.shape[2])}, "
+                f"got {tuple(pi_ref.shape)}")
     r_ref = compute_margins(A_ref, pi_ref)
     return compute_regularized_game_value(r_ref, mu, beta, form="softmin")

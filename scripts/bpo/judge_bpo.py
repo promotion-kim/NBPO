@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Per-objective pairwise LLM judge for FIXED-REFERENCE Anchored BPO (legacy baseline).
 
-Part of the beta = infinity baseline pipeline (scripts/bpo). The paper-exact
+Part of the beta = infinity baseline pipeline (scripts/bpo). The finite-pool
 finite-temperature judging path -- canonical row schema, invalid-row retries,
 loud completeness failures, reference-vs-reference rows for the disagreement
 point -- is scripts/nbpo/judge_pairwise_matrix.py.

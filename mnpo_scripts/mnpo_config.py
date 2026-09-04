@@ -25,7 +25,7 @@ class MNPOConfig(SimPOConfig):
       - "ronpo":          partition-free robust objective-adversarial regression
                           (requires history0 logps for pi_t and a `ronpo_target` column
                           containing z_y - z_y_prime in {-1, 0, 1})
-      - "nbpo":           paper-exact finite-temperature NBPO regression (manuscript
+      - "nbpo":           finite-temperature NBPO regression (manuscript
                           Eq. (26)): loss = (h_t - eta * nbpo_weighted_z)^2 with
                           h_t = [log pi(y)-log pi(y')] - [log pi_t(y)-log pi_t(y')]
                           (Eq. (22)), history0 = the proximal center pi_t, and
@@ -93,10 +93,22 @@ class MNPOConfig(SimPOConfig):
     # so it works for pairs whose `chosen`/`rejected` names are not ordered.
     preference_sft_weight: float = 0.0
 
-    # --- NBPO (paper-exact finite-temperature branch) ---
+    # --- NBPO (finite-temperature branch; see docs/NBPO_ALGORITHM_MAPPING.md) ---
     # Column holding the UNSCALED weighted binary target sum_k lambda_k Z_k
     # (raw lambda from the dual solve; the trainer multiplies by eta exactly once).
     nbpo_target_column: str = "nbpo_weighted_z"
+
+    # Expected-artifact hashes, written into run_config.yaml by
+    # scripts/nbpo/run_nbpo_stage.py. They bind THIS training run to the exact
+    # pair file, solver solution, proximal centre and precomputed dataset the
+    # stage produced. Recording hashes in the precompute sidecar alone was not
+    # enough: the sidecar travels with the dataset, so pointing a run at a
+    # different (internally consistent) dataset still passed. Left as None the
+    # checks are skipped, which is what a hand-run training job gets.
+    nbpo_expected_pair_artifact_sha256: Optional[str] = None
+    nbpo_expected_solver_artifact_sha256: Optional[str] = None
+    nbpo_expected_parent_checkpoint_fingerprint: Optional[str] = None
+    nbpo_expected_precompute_manifest_sha256: Optional[str] = None
     # Per-response log-probability reduction used by concatenated_forward:
     # "mean" (token average -- the historical default for every legacy loss) or
     # "sum" (sequence sum over non-masked response tokens -- REQUIRED for nbpo).

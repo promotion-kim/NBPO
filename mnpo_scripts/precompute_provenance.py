@@ -152,3 +152,83 @@ def read_precompute_meta(dataset_dir: str) -> Optional[dict]:
         return None
     with open(path) as f:
         return json.load(f)
+
+
+PRECOMPUTE_MANIFEST_FILENAME = "precompute_manifest.json"
+# Everything a saved DatasetDict consists of. Arrow shards carry the logps
+# themselves, so an edited shard changes the training targets while every
+# JSON-level check still passes -- they must be hashed.
+_DATASET_SUFFIXES = (".arrow", ".json", ".txt", ".parquet")
+
+
+def dataset_file_manifest(dataset_dir: str) -> dict:
+    """Per-file sha256 of every file of a saved precomputed dataset (Arrow included)."""
+    dataset_dir = os.path.abspath(dataset_dir)
+    files = {}
+    for root, _dirs, names in os.walk(dataset_dir):
+        for fn in sorted(names):
+            if fn in (PRECOMPUTE_META_FILENAME, PRECOMPUTE_MANIFEST_FILENAME):
+                continue          # written after, and hashed by, this manifest
+            if not fn.endswith(_DATASET_SUFFIXES):
+                continue
+            full = os.path.join(root, fn)
+            rel = os.path.relpath(full, dataset_dir)
+            files[rel] = {"sha256": _sha256_path(full), "size": os.path.getsize(full)}
+    if not files:
+        raise ValueError(f"no dataset files found under {dataset_dir}")
+    return files
+
+
+def write_precompute_manifest(dataset_dir: str, splits=None):
+    """Write ``precompute_manifest.json``; return ``(path, sha256_of_that_file)``."""
+    manifest = {
+        "schema": FINGERPRINT_SCHEMA,
+        "dataset_dir": os.path.abspath(dataset_dir),
+        "splits": sorted(splits or []),
+        "files": dataset_file_manifest(dataset_dir),
+    }
+    path = os.path.join(dataset_dir, PRECOMPUTE_MANIFEST_FILENAME)
+    with open(path, "w") as f:
+        json.dump(manifest, f, indent=2, sort_keys=True)
+        f.write("\n")
+    return path, _sha256_path(path)
+
+
+def read_precompute_manifest(dataset_dir: str) -> Optional[dict]:
+    path = os.path.join(dataset_dir, PRECOMPUTE_MANIFEST_FILENAME)
+    if not os.path.exists(path):
+        return None
+    with open(path) as f:
+        return json.load(f)
+
+
+def verify_precompute_manifest(dataset_dir: str, expected_manifest_sha256: str = None) -> dict:
+    """Re-hash the dataset and compare with its manifest; raises on any drift.
+
+    An expected manifest sha (from the run config or the stage record) is
+    checked too, so replacing BOTH a shard and the manifest still fails.
+    """
+    path = os.path.join(dataset_dir, PRECOMPUTE_MANIFEST_FILENAME)
+    manifest = read_precompute_manifest(dataset_dir)
+    if manifest is None:
+        raise ValueError(
+            f"{dataset_dir} has no {PRECOMPUTE_MANIFEST_FILENAME}; re-run "
+            "mnpo_scripts.precompute (legacy artifacts cannot be integrity-checked)")
+    if expected_manifest_sha256 is not None:
+        got = _sha256_path(path)
+        if got != expected_manifest_sha256:
+            raise ValueError(
+                f"precompute manifest sha256 {got[:12]} != expected "
+                f"{expected_manifest_sha256[:12]} (the dataset artifact is not the one "
+                "this run config was written for)")
+    recorded = manifest.get("files") or {}
+    current = dataset_file_manifest(dataset_dir)
+    changed = sorted(k for k in recorded if k in current
+                     and current[k]["sha256"] != recorded[k]["sha256"])
+    missing = sorted(set(recorded) - set(current))
+    added = sorted(set(current) - set(recorded))
+    if changed or missing or added:
+        raise ValueError(
+            f"precomputed dataset {dataset_dir} does not match its manifest: "
+            f"modified={changed[:5]} missing={missing[:5]} added={added[:5]}")
+    return manifest
