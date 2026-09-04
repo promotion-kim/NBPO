@@ -304,6 +304,7 @@ COMPARISON_PAYLOAD_FIELDS = (
     "judge_temperature", "judge_top_p", "judge_top_k", "judge_max_tokens",
     "judge_max_retries", "judge_retry_temperature",
     "judge_chat_template_kwargs", "renderer_schema_version",
+    "judge_truncation_policy",
 )
 
 
@@ -334,6 +335,7 @@ def comparison_payload(task: dict, judge_identity: dict) -> dict:
         # both change the prompt text the judge saw, so both change the task id.
         "judge_chat_template_kwargs": judge_identity.get("chat_template_kwargs"),
         "renderer_schema_version": judge_identity.get("renderer_schema_version"),
+        "judge_truncation_policy": judge_identity.get("truncation_policy"),
     }
 
 
@@ -354,7 +356,10 @@ def judge_config_hash(judge_identity: dict) -> str:
     keys = ("judge_model", "judge_revision", "tokenizer_revision", "rubric_sha256",
             "temperature", "top_p", "top_k", "max_tokens", "max_retries",
             "retry_temperature", "seed_policy", "backend",
-            "chat_template_kwargs", "renderer_schema_version")
+            "chat_template_kwargs", "renderer_schema_version",
+            # How an over-budget rendering is cut: a different policy sends the
+            # judge different text, so it is part of the cache identity.
+            "truncation_policy")
     return sha256_json({k: judge_identity.get(k) for k in keys})
 
 
@@ -411,6 +416,7 @@ def normalize_judge_config(cfg: dict, role: str, rubric_sha256=None,
         "max_retries": int(retries),
         "seed_policy": str(cfg.get("seed_policy", "fixed_42_plus_attempt")),
         "chat_template_kwargs": dict(cfg.get("chat_template_kwargs") or {}),
+        "truncation_policy": str(cfg.get("truncation_policy", "proportional_tail")),
     }
 
 

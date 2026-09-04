@@ -1,0 +1,38 @@
+model_name_or_path: /work/models/bases/Llama-3.1-8B-Instruct
+attn_implementation: sdpa
+dataset_mixer:
+  /work/campaign_20260824/phase0_schedule/corrected_pre: 1.0
+dataset_splits:
+- train
+- test
+bf16: true
+loss_type: ronpo
+ronpo_alpha: 1.0
+ronpo_tau: 0.0
+ronpo_target_column: game_target_surpmaxmin
+max_history_t: 1
+history_weights: [1.0]
+beta: 10.0
+learning_rate: 5.0e-7
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+optim: adafactor
+seed: 42
+gradient_accumulation_steps: 8
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+num_train_epochs: 1
+max_steps: __STEPS__
+per_device_train_batch_size: 2
+per_device_eval_batch_size: 2
+max_length: 1024
+max_prompt_length: 512
+do_eval: false
+save_strategy: 'no'
+save_only_model: true
+save_safetensors: true
+report_to:
+- wandb
+output_dir: /work/campaign_20260824/phase0_schedule/step__STEPS__
+run_name: game-nbpo-phase0-uf-step__STEPS__-s42

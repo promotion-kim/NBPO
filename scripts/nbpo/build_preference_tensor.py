@@ -36,6 +36,7 @@ from mnpo_scripts.nbpo_core import (
     validate_reference_tensor,
 )
 from scripts.nbpo.nbpo_common import (
+    sha256_text,
     SCHEMA_VERSION,
     load_response_files,
     read_jsonl,
@@ -168,6 +169,48 @@ def fill_tensor(payoff, objectives, prompt_ids, learner_ids, comparator_ids, poo
     return fill_policy_tensor(payoff, objectives, prompt_ids, learner_ids, comparator_ids)
 
 
+def resolve_prompt_set(policy, reference, allow_partial: bool = False):
+    """Exact prompt-set and prompt-TEXT equality across every seed file.
+
+    Intersecting the seed files silently drops any prompt one seed failed to
+    decode: the tensor is then built over a different prompt set than the run
+    intended, with nothing recorded. Exact equality is the default; the
+    intersection is available only behind an explicit diagnostic flag, and what
+    it dropped is written into meta.json.
+    """
+    pools = {f"policy:{s}": m for s, m in policy.items()}
+    pools.update({f"ref:{s}": m for s, m in reference.items()})
+    all_ids = set().union(*[set(m) for m in pools.values()])
+    common = set.intersection(*[set(m) for m in pools.values()])
+    problems = []
+    for name, m in sorted(pools.items()):
+        missing = sorted(all_ids - set(m))
+        if missing:
+            problems.append(f"{name} is missing {len(missing)} prompts (first {missing[:5]})")
+    # Ids are not prompts: the same id must carry the same TEXT everywhere.
+    text_by_id = {}
+    for name, m in sorted(pools.items()):
+        for pid, row in m.items():
+            h = sha256_text(str(row.get("prompt", "")))
+            prev = text_by_id.setdefault(pid, (name, h))
+            if prev[1] != h:
+                problems.append(
+                    f"prompt {pid} has different text in {prev[0]} and {name}")
+    if problems and not allow_partial:
+        raise ValueError(
+            "response files do not describe one prompt set: " + "; ".join(problems[:8])
+            + (f" (+{len(problems) - 8} more)" if len(problems) > 8 else "")
+            + ". Pass --allow-partial-prompt-intersection to intersect them instead "
+              "(diagnostic only; the dropped ids are recorded).")
+    if problems:
+        dropped = sorted(all_ids - common)
+        return sorted(common), {"allow_partial_prompt_intersection": True,
+                                "dropped_prompt_ids": dropped,
+                                "n_dropped": len(dropped), "problems": problems[:20]}
+    return sorted(common), {"allow_partial_prompt_intersection": bool(allow_partial),
+                            "dropped_prompt_ids": [], "n_dropped": 0}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -180,13 +223,17 @@ def main() -> None:
     ap.add_argument("--out-dir", type=Path, required=True)
     ap.add_argument("--allow-single-order-ablation", action="store_true")
     ap.add_argument("--max-prompts", type=int, default=0)
+    ap.add_argument("--allow-partial-prompt-intersection", action="store_true",
+                    help="DIAGNOSTIC ONLY: intersect the seed files instead of requiring "
+                         "exact prompt-set and prompt-text equality; the dropped ids are "
+                         "recorded in meta.json")
     args = ap.parse_args()
 
     objectives = [o.strip() for o in args.objectives.split(",") if o.strip()]
     policy = load_response_files(args.policy_files)
     reference = load_response_files(args.reference_files)
-    prompt_ids = sorted(set.intersection(*[set(m) for m in policy.values()],
-                                         *[set(m) for m in reference.values()]))
+    prompt_ids, intersection_report = resolve_prompt_set(
+        policy, reference, allow_partial=args.allow_partial_prompt_intersection)
     if args.max_prompts:
         prompt_ids = prompt_ids[:args.max_prompts]
     policy_ids = [f"policy:{s}" for s in sorted(policy)]
@@ -224,6 +271,7 @@ def main() -> None:
         "reference_skew": skew_stats,
         "reference_construction": "shared_pool",
         "tensor_kind": "centered_preference",
+        "prompt_set_resolution": intersection_report,
         **implementation_contract(),
         "shape_policy": list(A_policy.shape),
         "shape_ref": list(A_ref.shape),

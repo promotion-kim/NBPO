@@ -34,11 +34,21 @@ sampling:
   policy_responses_per_prompt: 4
   reference_comparators_per_prompt: 4
   pair_proposal: all_six_unordered_pairs
+training_data:
+  # The intended training protocol. Without it the learner and reference pools
+  # can agree with each other while both come from the wrong prompt subset.
+  prompts_file: assets/train_prompts.jsonl
+  expected_num_prompts: 6
+  learner_seeds: [s0, s1, s2, s3]
+  reference_seeds: [r0, r1, r2, r3]
+  learner_decode: {temperature: 0.9, top_p: 0.95, max_new_tokens: 64}
+  reference_decode: {temperature: 0.9, top_p: 0.95, max_new_tokens: 64}
 response_manifests:
   learner_pool: assets/learner_pool.json
   reference_comparator_pool: assets/reference_pool.json
 monitoring:
   prompts_file: assets/monitoring_prompts.jsonl
+  generation_protocol: stage_acceptance_monitoring
   decode: {seeds: [0, 1, 2, 3], temperature: 0.9, top_p: 0.95, max_new_tokens: 64}
   # Bound to mu, exactly like the training comparators.
   reference_manifest: assets/monitoring_reference_pool.json

@@ -78,6 +78,13 @@ monitoring:
   # by commands.decode_candidate and taken ONLY from its fingerprint-bound
   # manifest -- there is no static candidate_policy_files entry in real mode.
   prompts_file: PLACEHOLDER_MONITORING_PROMPTS.jsonl
+  # STAGE-ACCEPTANCE MONITORING GENERATION -- a protocol of its own, deliberately
+  # NOT the manuscript's final-evaluation row (temperature 0.7, top_p 0.9,
+  # max_new_tokens 1024). The gate is an inner-loop accept/reject on held-out
+  # prompts, not the reported evaluation, and the existing results were produced
+  # under these settings; changing them here would silently alter them.
+  # generation_protocol is recorded verbatim in every gate record.
+  generation_protocol: stage_acceptance_monitoring
   decode: {seeds: [42, 43, 44, 45], temperature: 0.9, top_p: 0.95, max_new_tokens: 512}
   # Passed to tokenizer.apply_chat_template and recorded in the manifest;
   # Qwen3 needs enable_thinking: false or the monitored 'responses' are

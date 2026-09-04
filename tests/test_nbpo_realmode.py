@@ -138,7 +138,7 @@ def test_decode_is_synchronous(tmp_path):
                            0.9, 0.95, 32, tmp_path / "out", tmp_path / "man.json", backend="mock")
     assert man["synchronous"] is True
     for s in (0, 1, 2, 3):
-        p = Path(man["outputs"][f"s{s}"]["path"])
+        p = Path(man["outputs"][str(s)]["path"])   # keyed by the seed itself
         assert p.exists() and len(json.loads(p.read_text())) == man["n_prompts"]
     assert man["candidate_fingerprint"] == checkpoint_fingerprint(str(ck))
     assert man["prompt_ids"] == sorted(man["prompt_ids"])
@@ -149,7 +149,7 @@ def test_gate_rejects_stale_response_manifest(tmp_path):
     ck = make_checkpoint(tmp_path / "ck")
     man = decode_candidate(ck, TOY / "assets" / "monitoring_prompts.jsonl", [0, 1],
                            0.9, 0.95, 32, tmp_path / "out", tmp_path / "man.json", backend="mock")
-    p = Path(man["outputs"]["s1"]["path"])
+    p = Path(man["outputs"]["1"]["path"])
     rows = json.loads(p.read_text()); rows[0]["generated_text"] += " edited"
     p.write_text(json.dumps(rows))
     with pytest.raises(ValueError, match="edited or replaced"):

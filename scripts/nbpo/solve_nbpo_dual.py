@@ -74,6 +74,14 @@ def write_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashes: dict,
     np.savez_compressed(out_dir / "nu_update.npz", nu=res.nu_update.numpy())
     np.savez_compressed(out_dir / "nu_final_policy.npz", nu=res.nu_final_policy.numpy())
     np.savez_compressed(out_dir / "pi_star.npz", pi=res.pi.numpy())
+    # The policy nu_update was actually built from, saved so the claim can be
+    # checked rather than trusted. solve_nbpo_dual warm-starts the policy iterate
+    # across dual iterations, so at R = 1 this is the warm-start iterate, not the
+    # proximal centre -- which is what the artifact used to assert.
+    if res.update_source_pi is None:
+        raise ValueError("solver result carries no update_source_pi; the policy that "
+                         "generated nu_update cannot be identified")
+    np.savez_compressed(out_dir / "update_source_pi.npz", pi=res.update_source_pi.numpy())
     solution = {
         # What actually ran (audit section 0): the dual below is a frozen finite-pool
         # optimization; the neural policy is realized once, afterwards.
@@ -106,6 +114,7 @@ def write_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashes: dict,
             "nu_update.npz": sha256_file(out_dir / "nu_update.npz"),
             "nu_final_policy.npz": sha256_file(out_dir / "nu_final_policy.npz"),
             "pi_star.npz": sha256_file(out_dir / "pi_star.npz"),
+            "update_source_pi.npz": sha256_file(out_dir / "update_source_pi.npz"),
         },
         # Semantic roles, declared rather than inferred. The two opponents can be
         # numerically identical in a zero-payoff, symmetric or already-converged
@@ -114,16 +123,19 @@ def write_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashes: dict,
         "opponent_artifacts": {
             "nu_update.npz": {
                 "artifact_kind": "regularized_opponent",
-                "source_policy": "proximal_centre",
-                "source_policy_hash": _array_hash(res.pi_center)
-                if getattr(res, "pi_center", None) is not None else None,
-                "source_fixed_point_iteration": 0,
+                # Reported, not assumed: proximal_centre / warm_start_iterate /
+                # fixed_point_iterate, whichever the solve actually used.
+                "source_policy": res.update_source_kind,
+                "source_policy_hash": _array_hash(res.update_source_pi),
+                "source_policy_artifact": "update_source_pi.npz",
+                "source_fixed_point_iteration": int(res.update_source_iteration),
                 "used_for": "eq26_target",
             },
             "nu_final_policy.npz": {
                 "artifact_kind": "regularized_opponent",
                 "source_policy": "final_policy",
                 "source_policy_hash": _array_hash(res.pi),
+                "source_policy_artifact": "pi_star.npz",
                 "source_fixed_point_iteration": int(res.config.get("R", 1)),
                 "used_for": "diagnostics",
             },

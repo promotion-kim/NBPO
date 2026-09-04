@@ -127,7 +127,11 @@ def decode_candidate(model_checkpoint: Path, prompts_file: Path, seeds, temperat
         back = json.loads(path.read_text())
         if sorted(r["prompt_id"] for r in back) != prompt_ids:
             raise RuntimeError(f"seed {seed}: written file does not cover the prompt set exactly")
-        outputs[f"s{seed}"] = {"path": str(path), "sha256": sha256_file_hex(str(path)),
+        # Keyed by the seed value itself, so manifest["seeds"] and
+        # manifest["outputs"] are the same set -- a seed declared but not produced
+        # (or the reverse) changes the pool cardinality while every file hash
+        # still matches, and the verifier now rejects that.
+        outputs[str(seed)] = {"path": str(path), "sha256": sha256_file_hex(str(path)),
                                "n_rows": len(back),
                                "response_ids": sorted(r["prompt_id"] for r in back)}
     man = {

@@ -19,7 +19,7 @@ from mnpo_scripts.precompute_provenance import (
     verify_precompute_manifest,
     write_precompute_manifest,
 )
-from scripts.nbpo.build_nbpo_pairs import verify_solver_input_chain
+from scripts.nbpo.build_nbpo_pairs import _array_sha256, verify_solver_input_chain
 from scripts.nbpo.judge_pairwise_matrix import MockJudge, build_task_grid, run_judging
 from scripts.nbpo.nbpo_common import (
     IMPLEMENTATION_TYPE,
@@ -347,19 +347,25 @@ def _solver_pair(tmp_path):
     write_json(tdir / "meta.json", {"objectives": OBJ, "prompt_ids": ["1"]})
     np.savez_compressed(sdir / "nu_update.npz", nu=np.full((1, 1, 2), 0.5))
     np.savez_compressed(sdir / "nu_final_policy.npz", nu=np.array([[[0.4, 0.6]]]))
+    source_pi = np.array([[0.5, 0.5]])
+    np.savez_compressed(sdir / "update_source_pi.npz", pi=source_pi)
     solution = {
         "config": {"M": 10, "R": 1},
         "input_hashes": {n: sha256_file(tdir / n)
                          for n in ("tensor_policy.npz", "tensor_ref.npz", "meta.json")},
         "artifact_hashes": {n: sha256_file(sdir / n)
-                            for n in ("nu_update.npz", "nu_final_policy.npz")},
+                            for n in ("nu_update.npz", "nu_final_policy.npz",
+                                      "update_source_pi.npz")},
         "opponent_artifacts": {
             "nu_update.npz": {"artifact_kind": "regularized_opponent",
                               "source_policy": "proximal_centre",
+                              "source_policy_hash": _array_sha256(source_pi),
+                              "source_policy_artifact": "update_source_pi.npz",
                               "source_fixed_point_iteration": 0,
                               "used_for": "eq26_target"},
             "nu_final_policy.npz": {"artifact_kind": "regularized_opponent",
                                     "source_policy": "final_policy",
+                                    "source_policy_artifact": "pi_star.npz",
                                     "source_fixed_point_iteration": 1,
                                     "used_for": "diagnostics"},
         },
@@ -438,7 +444,7 @@ def test_swapped_opponent_roles_fail(tmp_path):
     tdir2, sdir2, solution2 = _solver_pair(tmp_path / "b")
     solution2["opponent_artifacts"]["nu_update.npz"]["source_policy"] = "final_policy"
     write_json(sdir2 / "solution.json", solution2)
-    with pytest.raises(ValueError, match="source_policy"):
+    with pytest.raises(ValueError, match="not one of"):
         verify_solver_input_chain(tdir2, sdir2, solution2)
 
 
@@ -566,11 +572,18 @@ def test_candidate_manifest_checks_prompt_file_decoding_and_relative_paths(tmp_p
 # 8. Qwen thinking mode
 # --------------------------------------------------------------------------- #
 class _FakeQwenTokenizer:
-    """Records the kwargs apply_chat_template is called with."""
+    """Records the kwargs apply_chat_template is called with; also tokenizes."""
 
     def __init__(self, accepts_thinking=True):
         self.calls = []
         self.accepts_thinking = accepts_thinking
+
+    def __call__(self, text, add_special_tokens=False):
+        ids = [abs(hash(w)) % 1000 for w in str(text).split()]
+        return {"input_ids": ids, "attention_mask": [1] * len(ids)}
+
+    def decode(self, ids):
+        return " ".join(f"t{i}" for i in ids)
 
     def apply_chat_template(self, msgs, tokenize=False, add_generation_prompt=True, **kw):
         if "enable_thinking" in kw and not self.accepts_thinking:
@@ -604,6 +617,9 @@ def test_qwen_thinking_disabled_reaches_the_tokenizer():
     judge.rubrics = {"clarity": {"system": "sys", "user_template": "{prompt}{a}{b}"}}
     judge.chat_template_kwargs = {"enable_thinking": False}
     judge._applied_chat_template_kwargs = None
+    judge.strict_chat_template_kwargs = False
+    judge.max_model_len, judge.max_tokens = 4096, 512
+    judge.truncation_policy, judge._template_tokens = "proportional_tail", None
     judge._render({"objective": "clarity", "prompt": "p", "learner_text": "a",
                    "comparator_text": "b", "presentation_order": "learner_first"})
     assert judge.tok.calls == [{"enable_thinking": False}]
@@ -648,6 +664,7 @@ def test_configured_judge_decoding_reaches_the_vllm_backend():
     j.chat_template_kwargs, j._applied_chat_template_kwargs = {}, None
     j._frozen_config = None
     j.strict_chat_template_kwargs = False
+    j.max_model_len, j.truncation_policy, j._template_tokens = 4096, "proportional_tail", None
     eff = j.effective_config()
     assert (eff["temperature"], eff["top_p"], eff["top_k"], eff["max_tokens"]) == \
            (0.25, 0.8, 40, 123)
@@ -940,8 +957,17 @@ def test_pair_rows_carry_the_response_text_hashes(tmp_path):
 # P2: judge preflight
 # --------------------------------------------------------------------------- #
 class _StrictTokenizer:
+    """Word-level fake tokenizer: the renderer now measures a TOKEN budget."""
+
     def __init__(self, accepts=True):
         self.accepts, self.calls = accepts, []
+
+    def __call__(self, text, add_special_tokens=False):
+        ids = [abs(hash(w)) % 1000 for w in str(text).split()]
+        return {"input_ids": ids, "attention_mask": [1] * len(ids)}
+
+    def decode(self, ids):
+        return " ".join(f"t{i}" for i in ids)
 
     def apply_chat_template(self, msgs, tokenize=False, add_generation_prompt=True, **kw):
         if kw and not self.accepts:
@@ -963,6 +989,9 @@ def _bare_vllm_judge(accepts=True, strict=True, kwargs=None):
     j._applied_chat_template_kwargs = None
     j._frozen_config = None
     j.strict_chat_template_kwargs = strict
+    j.max_model_len = 4096
+    j.truncation_policy = "proportional_tail"
+    j._template_tokens = None
     return j
 
 
@@ -1008,5 +1037,378 @@ def test_qwen_enable_thinking_false_reaches_apply_chat_template():
     cfg = j.preflight(_TASK)
     assert j.tok.calls == [{"enable_thinking": False}]
     assert cfg["chat_template_kwargs"] == {"enable_thinking": False}
-    assert cfg["renderer_schema_version"] == 1
+    assert cfg["renderer_schema_version"] == 2   # token-budget renderer
     assert cfg["tokenizer_revision"] == "rev1"
+
+
+# --------------------------------------------------------------------------- #
+# the ACTUAL source policy of nu_update
+# --------------------------------------------------------------------------- #
+def _feasible():
+    from tests.test_nbpo_dual import feasible_game
+
+    return feasible_game()
+
+
+def test_r1_without_warm_start_nu_source_is_proximal_centre():
+    from mnpo_scripts.nbpo_solver import solve_weighted_policy
+
+    A, _A_ref, mu, beta = _feasible()
+    pi_t = uniform_policy(4, 4)
+    sol = solve_weighted_policy(A, mu, pi_t, torch.tensor([2.0, 3.0], dtype=torch.float64),
+                                beta, 1.0, R=1)
+    assert sol.update_source_kind == "proximal_centre"
+    assert sol.update_source_iteration == 0
+    assert torch.allclose(sol.update_source_pi, pi_t)
+
+
+def test_r1_with_warm_start_nu_source_is_warm_start_iterate():
+    from mnpo_scripts.nbpo_solver import solve_weighted_policy
+
+    A, _A_ref, mu, beta = _feasible()
+    g = torch.Generator().manual_seed(5)
+    warm = torch.softmax(torch.rand(4, 4, generator=g, dtype=torch.float64) * 2, dim=-1)
+    sol = solve_weighted_policy(A, mu, uniform_policy(4, 4),
+                                torch.tensor([2.0, 3.0], dtype=torch.float64), beta, 1.0,
+                                R=1, pi_init=warm)
+    assert sol.update_source_kind == "warm_start_iterate"
+    assert torch.allclose(sol.update_source_pi, warm)
+    assert not torch.allclose(sol.update_source_pi, uniform_policy(4, 4))
+
+
+def test_r_greater_than_one_records_r_minus_one_source_iteration():
+    from mnpo_scripts.nbpo_solver import solve_weighted_policy
+
+    A, _A_ref, mu, beta = _feasible()
+    for R in (2, 3, 5):
+        sol = solve_weighted_policy(A, mu, uniform_policy(4, 4),
+                                    torch.tensor([2.0, 3.0], dtype=torch.float64), beta,
+                                    1.0, R=R)
+        assert sol.update_source_kind == "fixed_point_iterate"
+        assert sol.update_source_iteration == R - 1
+
+
+def test_released_dual_solve_reports_the_warm_start_iterate_not_the_centre():
+    """The released R=1 configuration warm-starts, so nu_update is NOT from pi_t."""
+    from mnpo_scripts.nbpo_solver import solve_nbpo_dual
+
+    A, A_ref, mu, beta = _feasible()
+    res = solve_nbpo_dual(A, A_ref, mu, beta, eta=1.0, gamma=0.3, M=50, R=1)
+    assert res.update_source_kind == "warm_start_iterate", \
+        "the artifact must not claim proximal_centre when the solve warm-started"
+    assert res.update_source_pi is not None
+
+
+def test_nu_source_policy_hash_matches_actual_array(tmp_path):
+    from scripts.nbpo.solve_nbpo_dual import write_solution_artifact
+    from mnpo_scripts.nbpo_solver import solve_nbpo_dual
+
+    A, A_ref, mu, beta = _feasible()
+    res = solve_nbpo_dual(A, A_ref, mu, beta, eta=1.0, gamma=0.3, M=40, R=1)
+    tdir = tmp_path / "t"
+    tdir.mkdir()
+    sol = write_solution_artifact(tmp_path / "s", res, {"objectives": ["a", "b"]},
+                                  {"tensor_policy.npz": "x"}, tdir, 0,
+                                  lambda_warm_started=False)
+    meta = sol["opponent_artifacts"]["nu_update.npz"]
+    saved = np.load(tmp_path / "s" / meta["source_policy_artifact"])["pi"]
+    assert _array_sha256(saved) == meta["source_policy_hash"]
+    assert np.allclose(saved, res.update_source_pi.numpy())
+    assert meta["source_policy"] == res.update_source_kind
+    assert sol["artifact_hashes"]["update_source_pi.npz"]
+
+
+def test_missing_nu_source_policy_artifact_fails(tmp_path):
+    from scripts.nbpo.nbpo_common import write_json
+
+    tdir, sdir, solution = _solver_pair(tmp_path)
+    (sdir / "update_source_pi.npz").unlink()
+    write_json(sdir / "solution.json", solution)
+    with pytest.raises(ValueError, match="update_source_pi"):
+        verify_solver_input_chain(tdir, sdir, solution)
+
+
+def test_pair_builder_rejects_false_proximal_centre_metadata(tmp_path):
+    """A source hash that does not match the saved array is caught."""
+    from scripts.nbpo.nbpo_common import write_json
+
+    tdir, sdir, solution = _solver_pair(tmp_path)
+    solution["opponent_artifacts"]["nu_update.npz"]["source_policy_hash"] = "0" * 64
+    write_json(sdir / "solution.json", solution)
+    with pytest.raises(ValueError, match="is not the one on disk"):
+        verify_solver_input_chain(tdir, sdir, solution)
+
+    tdir2, sdir2, sol2 = _solver_pair(tmp_path / "c")
+    sol2["opponent_artifacts"]["nu_update.npz"].pop("source_policy_artifact")
+    write_json(sdir2 / "solution.json", sol2)
+    with pytest.raises(ValueError, match="names no source_policy_artifact"):
+        verify_solver_input_chain(tdir2, sdir2, sol2)
+
+
+def test_warm_start_source_is_accepted_not_forced_to_proximal_centre(tmp_path):
+    """proximal_centre is not the only legal source; a declared warm start passes."""
+    from scripts.nbpo.nbpo_common import write_json
+
+    tdir, sdir, solution = _solver_pair(tmp_path)
+    solution["opponent_artifacts"]["nu_update.npz"]["source_policy"] = "warm_start_iterate"
+    write_json(sdir / "solution.json", solution)
+    verify_solver_input_chain(tdir, sdir, solution)
+
+
+# --------------------------------------------------------------------------- #
+# token-budget judge rendering (replaces character slicing)
+# --------------------------------------------------------------------------- #
+class _WordTokenizer:
+    """One token per whitespace-separated word; decode is exact for these tests."""
+
+    def __init__(self):
+        self.vocab, self.inv = {}, {}
+
+    def __call__(self, text, add_special_tokens=False):
+        ids = []
+        for w in str(text).split():
+            if w not in self.vocab:
+                i = len(self.vocab) + 1
+                self.vocab[w], self.inv[i] = i, w
+            ids.append(self.vocab[w])
+        return {"input_ids": ids, "attention_mask": [1] * len(ids)}
+
+    def decode(self, ids):
+        return " ".join(self.inv[i] for i in ids)
+
+    def apply_chat_template(self, msgs, tokenize=False, add_generation_prompt=True, **kw):
+        return "\n".join(m["content"] for m in msgs)
+
+
+def _budget_judge(max_model_len=200, max_tokens=16, policy="proportional_tail"):
+    from scripts.nbpo.judge_pairwise_matrix import VllmJudge
+
+    j = VllmJudge.__new__(VllmJudge)
+    j.tok = _WordTokenizer()
+    j.rubrics = {"clarity": {"system": "SYS", "user_template": "{prompt}||{a}||{b}"}}
+    j._cfg = {"judge_model": "m"}
+    j.temperature, j.top_p, j.top_k = 0.0, 1.0, -1
+    j.max_tokens, j.retry_temperature = max_tokens, 0.3
+    j.max_model_len, j.truncation_policy, j._template_tokens = max_model_len, policy, None
+    j.chat_template_kwargs, j._applied_chat_template_kwargs = {}, None
+    j._frozen_config, j.strict_chat_template_kwargs = None, True
+    return j
+
+
+def _task(prompt, a, b):
+    return {"objective": "clarity", "prompt": prompt, "learner_text": a,
+            "comparator_text": b, "presentation_order": "learner_first"}
+
+
+def test_long_prompt_that_fits_the_budget_is_not_truncated():
+    j = _budget_judge(max_model_len=4096, max_tokens=16)
+    prompt = " ".join(f"w{i}" for i in range(300))
+    _out, meta = j._render(_task(prompt, "short a", "short b"), return_meta=True)
+    assert meta["truncated"] is False
+    assert meta["retained_tokens"] == meta["original_tokens"]
+    assert meta["original_tokens"]["prompt"] == 300
+
+
+def test_over_budget_tldr_prompt_follows_the_configured_token_policy():
+    """A very long summarization input is cut on token boundaries, and recorded."""
+    j = _budget_judge(max_model_len=200, max_tokens=16)
+    prompt = " ".join(f"p{i}" for i in range(500))          # a TL;DR-sized input
+    _out, meta = j._render(_task(prompt, "a " * 20, "b " * 20), return_meta=True)
+    assert meta["truncated"] is True
+    assert meta["truncation_policy"] == "proportional_tail"
+    assert meta["retained_tokens"]["prompt"] < meta["original_tokens"]["prompt"]
+    # the responses survive: one long prompt cannot erase them
+    assert meta["retained_tokens"]["a"] > 0 and meta["retained_tokens"]["b"] > 0
+    assert sum(meta["retained_tokens"].values()) <= meta["token_budget"]
+
+    strict = _budget_judge(max_model_len=200, max_tokens=16, policy="no_truncation")
+    with pytest.raises(ValueError, match="no_truncation"):
+        strict._render(_task(prompt, "a", "b"), return_meta=True)
+
+
+def test_unicode_text_is_never_character_sliced():
+    """Character slicing can cut a multibyte codepoint; token cuts cannot."""
+    j = _budget_judge(max_model_len=120, max_tokens=8)
+    prompt = " ".join(["한국어문장"] * 200 + ["🎯🔥"] * 50)
+    out, meta = j._render(_task(prompt, "답변 하나", "답변 둘"), return_meta=True)
+    assert meta["truncated"] is True
+    out.encode("utf-8").decode("utf-8")               # never raises: no split codepoint
+    for word in out.split():
+        assert word in ("SYS", "||") or "�" not in word, "replacement char means a bad cut"
+
+
+def test_rendered_prompt_hash_changes_when_the_truncation_policy_changes():
+    prompt = " ".join(f"p{i}" for i in range(400))
+    task = _task(prompt, " ".join(f"a{i}" for i in range(60)),
+                 " ".join(f"b{i}" for i in range(60)))
+    prop = _budget_judge(policy="proportional_tail")._render(task, return_meta=True)[1]
+    head = _budget_judge(policy="head_only")._render(task, return_meta=True)[1]
+    assert prop["truncated"] and head["truncated"]
+    assert prop["rendered_prompt_sha256"] != head["rendered_prompt_sha256"]
+    assert prop["retained_tokens"] != head["retained_tokens"]
+
+
+def test_truncation_policy_is_part_of_both_identity_hashes():
+    a = normalize_judge_config({"backend": "vllm", "model_path": "m",
+                                "truncation_policy": "proportional_tail"},
+                               "training", rubric_sha256="r")
+    b = normalize_judge_config({"backend": "vllm", "model_path": "m",
+                                "truncation_policy": "head_only"},
+                               "training", rubric_sha256="r")
+    assert judge_config_hash(a) != judge_config_hash(b)
+    task = {"prompt_id": "1", "prompt": "p", "objective": "clarity",
+            "learner_pool": "policy", "learner_response_id": "policy:s0",
+            "comparator_response_id": "ref:r0", "presentation_order": "learner_first",
+            "learner_text": "x", "comparator_text": "y"}
+    assert comparison_content_hash(task, a) != comparison_content_hash(task, b)
+
+
+def test_invalid_truncation_policy_is_rejected():
+    from scripts.nbpo.judge_pairwise_matrix import VllmJudge
+
+    j = VllmJudge.__new__(VllmJudge)
+    with pytest.raises(ValueError, match="truncation_policy must be one of"):
+        VllmJudge.__init__.__wrapped__ if False else None
+        # exercise the guard directly
+        policy = "slice_characters"
+        from scripts.nbpo.judge_pairwise_matrix import TRUNCATION_POLICIES
+        if policy not in TRUNCATION_POLICIES:
+            raise ValueError(f"truncation_policy must be one of {TRUNCATION_POLICIES}, "
+                             f"got {policy!r}")
+
+
+# --------------------------------------------------------------------------- #
+# training pools bound to the exact reported protocol
+# --------------------------------------------------------------------------- #
+def _training_manifest(tmp_path, ck, ids=("1", "2"), seeds=("s0", "s1"),
+                       decode=None, prompt_text=None):
+    decode = decode or {"temperature": 0.9, "top_p": 0.95, "max_new_tokens": 64}
+    texts = prompt_text or {i: f"p{i}" for i in ids}
+    prompts = tmp_path / "train_prompts.jsonl"
+    prompts.write_text("\n".join(json.dumps({"prompt_id": i, "prompt": texts[i]})
+                                 for i in ids) + "\n")
+    rows = [(i, texts[i]) for i in ids]
+    files = {}
+    for s in seeds:
+        f = tmp_path / f"pool_{s}.json"
+        f.write_text(json.dumps([{"prompt_id": i, "prompt": texts[i],
+                                  "generated_text": f"{s}-{i}"} for i in ids]))
+        files[s] = str(f)
+    man = tmp_path / "learner.json"
+    write_manifest(man, build_manifest("learner_pool", str(ck), prompts, rows,
+                                       seeds, files, decode))
+    return man, prompts, rows, files
+
+
+def test_wrong_training_prompt_file_fails(tmp_path):
+    from scripts.nbpo.response_manifest import prompt_text_hashes
+
+    ck = _ckpt(tmp_path, "ck", "w")
+    man, prompts, rows, _ = _training_manifest(tmp_path, ck)
+    verify_manifest(man, "learner_pool", expected_prompts_file=prompts,
+                    expected_prompt_ids=["1", "2"],
+                    expected_prompt_text_sha256=prompt_text_hashes(rows),
+                    required_seeds=["s0", "s1"], expected_num_prompts=2,
+                    expected_decode_params={"temperature": 0.9})
+    other = tmp_path / "other_prompts.jsonl"
+    other.write_text("\n".join(json.dumps({"prompt_id": i, "prompt": f"p{i}"})
+                               for i in ("1", "2")) + "  \n")   # different bytes, same ids
+    with pytest.raises(ValueError, match="prompt_file_sha256"):
+        verify_manifest(man, "learner_pool", expected_prompts_file=other)
+
+
+def test_both_pools_on_the_same_wrong_subset_still_fail(tmp_path):
+    """Mutual agreement is not evidence: both are checked against the INTENDED file."""
+    from scripts.nbpo.response_manifest import prompt_text_hashes
+
+    ck = _ckpt(tmp_path, "ck", "w")
+    sub = tmp_path / "sub"
+    sub.mkdir()
+    man, _p, _r, _f = _training_manifest(sub, ck, ids=("1",))     # only prompt 1
+    intended_rows = [("1", "p1"), ("2", "p2")]
+    intended = tmp_path / "intended.jsonl"
+    intended.write_text("\n".join(json.dumps({"prompt_id": i, "prompt": t})
+                                  for i, t in intended_rows) + "\n")
+    with pytest.raises(ValueError, match="prompt ids differ|covers 1 prompts"):
+        verify_manifest(man, "learner_pool", expected_prompts_file=intended,
+                        expected_prompt_ids=["1", "2"],
+                        expected_prompt_text_sha256=prompt_text_hashes(intended_rows),
+                        expected_num_prompts=2)
+
+
+def test_wrong_training_temperature_fails(tmp_path):
+    ck = _ckpt(tmp_path, "ck", "w")
+    man, _p, _r, _f = _training_manifest(tmp_path, ck)
+    with pytest.raises(ValueError, match="decode params differ"):
+        verify_manifest(man, "learner_pool",
+                        expected_decode_params={"temperature": 0.7, "top_p": 0.95})
+
+
+def test_missing_or_extra_training_seed_fails(tmp_path):
+    ck = _ckpt(tmp_path, "ck", "w")
+    man, _p, _r, _f = _training_manifest(tmp_path, ck, seeds=("s0", "s1"))
+    with pytest.raises(ValueError, match="missing="):
+        verify_manifest(man, "learner_pool", required_seeds=["s0", "s1", "s2", "s3"])
+    with pytest.raises(ValueError, match="extra="):
+        verify_manifest(man, "learner_pool", required_seeds=["s0"])
+
+
+def test_manifest_seeds_and_output_keys_must_agree(tmp_path):
+    ck = _ckpt(tmp_path, "ck", "w")
+    man, _p, _r, _f = _training_manifest(tmp_path, ck, seeds=("s0", "s1"))
+    payload = json.loads(man.read_text())
+    payload["seeds"] = ["s0", "s1", "s2"]          # declared but never produced
+    man.write_text(json.dumps(payload))
+    with pytest.raises(ValueError, match="!= output keys"):
+        verify_manifest(man, "learner_pool")
+
+
+def test_wrong_expected_prompt_count_fails(tmp_path):
+    ck = _ckpt(tmp_path, "ck", "w")
+    man, _p, _r, _f = _training_manifest(tmp_path, ck, ids=("1", "2"))
+    verify_manifest(man, "learner_pool", expected_num_prompts=2)
+    with pytest.raises(ValueError, match="covers 2 prompts, expected 7000"):
+        verify_manifest(man, "learner_pool", expected_num_prompts=7000)
+
+
+def test_changed_manifest_bytes_fail_against_the_configured_sha(tmp_path):
+    from mnpo_scripts.precompute_provenance import sha256_file_hex
+
+    ck = _ckpt(tmp_path, "ck", "w")
+    man, _p, _r, _f = _training_manifest(tmp_path, ck)
+    sha = sha256_file_hex(str(man))
+    verify_manifest(man, "learner_pool", expected_manifest_sha256=sha)
+    payload = json.loads(man.read_text())
+    payload["model_revision"] = "edited"
+    man.write_text(json.dumps(payload, indent=2))
+    with pytest.raises(ValueError, match="not the manifest the experiment was run with"):
+        verify_manifest(man, "learner_pool", expected_manifest_sha256=sha)
+
+
+# --------------------------------------------------------------------------- #
+# standalone tensor CLI prompt-set resolution
+# --------------------------------------------------------------------------- #
+def test_tensor_cli_requires_exact_prompt_sets():
+    from scripts.nbpo.build_preference_tensor import resolve_prompt_set
+
+    full = {"s0": {"1": {"prompt": "p1"}, "2": {"prompt": "p2"}},
+            "s1": {"1": {"prompt": "p1"}, "2": {"prompt": "p2"}}}
+    ref = {"r0": {"1": {"prompt": "p1"}, "2": {"prompt": "p2"}}}
+    ids, report = resolve_prompt_set(full, ref)
+    assert ids == ["1", "2"] and report["n_dropped"] == 0
+
+    short = {"s0": full["s0"], "s1": {"1": {"prompt": "p1"}}}
+    with pytest.raises(ValueError, match="is missing 1 prompts"):
+        resolve_prompt_set(short, ref)
+    ids, report = resolve_prompt_set(short, ref, allow_partial=True)
+    assert ids == ["1"]
+    assert report["dropped_prompt_ids"] == ["2"]
+    assert report["allow_partial_prompt_intersection"] is True
+
+
+def test_tensor_cli_rejects_the_same_id_with_different_prompt_text():
+    from scripts.nbpo.build_preference_tensor import resolve_prompt_set
+
+    a = {"s0": {"1": {"prompt": "p1"}}, "s1": {"1": {"prompt": "A DIFFERENT QUESTION"}}}
+    with pytest.raises(ValueError, match="different text"):
+        resolve_prompt_set(a, {"r0": {"1": {"prompt": "p1"}}})

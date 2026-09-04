@@ -427,3 +427,165 @@ def test_separate_tokenization_would_break_the_invariant(tmp_path):
     h_t_legacy = (cur_c - cur_r) - (legacy_c - legacy_r)
     assert not torch.allclose(h_t_legacy, torch.zeros_like(h_t_legacy), atol=1e-6), \
         "separate tokenization must NOT accidentally satisfy the invariant"
+
+
+# --------------------------------------------------------------------------- #
+# asymmetric prompt/response boundary merges
+# --------------------------------------------------------------------------- #
+class AsymmetricMergeTokenizer:
+    """``enc("A")=[10]``, ``enc("AB")=[50]`` (merges), ``enc("AC")=[10,12]`` (does not).
+
+    The merge fires for one response and not the other, which is what made the
+    two rows carry different prompt prefixes.
+    """
+
+    bos_token_id, eos_token_id, pad_token_id = None, 99, 0
+    CHARS = {"A": 10, "B": 11, "C": 12, "D": 13, "E": 14}
+
+    def __init__(self, merges=("AB",)):
+        self.merges = tuple(merges)
+
+    def __call__(self, text, add_special_tokens=False):
+        ids, i = [], 0
+        while i < len(text):
+            hit = next((m for m in self.merges if text.startswith(m, i)), None)
+            if hit:
+                ids.append(50 + self.merges.index(hit))
+                i += len(hit)
+            else:
+                ids.append(self.CHARS[text[i]])
+                i += 1
+        return {"input_ids": ids, "attention_mask": [1] * len(ids)}
+
+
+def _prefix_lengths(row):
+    """(chosen, rejected) prompt-prefix lengths, read from the label masks."""
+    return (sum(1 for x in row["chosen_labels"] if x == -100),
+            sum(1 for x in row["rejected_labels"] if x == -100))
+
+
+def _pair(tok, prompt, chosen, rejected):
+    return tokenize_preference_pair(tok, prompt, chosen, rejected,
+                                    max_length=64, max_prompt_length=32,
+                                    truncation_mode="keep_end", label_pad_token_id=-100)
+
+
+MERGE_CASES = [
+    ("only chosen merges", ("AB",), "A", "B", "C"),
+    ("only rejected merges", ("AC",), "A", "B", "C"),
+    ("both merge", ("AB", "AC"), "A", "B", "C"),
+    ("neither merges", (), "A", "B", "C"),
+]
+
+
+@pytest.mark.parametrize("label,merges,prompt,chosen,rejected", MERGE_CASES)
+def test_chosen_and_rejected_share_exact_prompt_prefix(label, merges, prompt, chosen, rejected):
+    tok = AsymmetricMergeTokenizer(merges)
+    row = _pair(tok, prompt, chosen, rejected)
+    n_c, n_r = _prefix_lengths(row)
+    assert n_c == n_r, f"{label}: prompt prefixes have different lengths ({n_c} vs {n_r})"
+    assert row["chosen_input_ids"][:n_c] == row["rejected_input_ids"][:n_r], \
+        (f"{label}: the two responses are conditioned on different prompt prefixes "
+         f"{row['chosen_input_ids'][:n_c]} vs {row['rejected_input_ids'][:n_r]}")
+
+
+def test_only_chosen_boundary_merges():
+    tok = AsymmetricMergeTokenizer(("AB",))
+    assert tok("AB")["input_ids"] == [50] and tok("AC")["input_ids"] == [10, 12]
+    row = _pair(tok, "A", "B", "C")
+    n_c, n_r = _prefix_lengths(row)
+    # the merged row cannot keep "A" on the prompt side, so NEITHER row does
+    assert (n_c, n_r) == (0, 0)
+    assert row["chosen_input_ids"] == [50, 99]
+    assert row["rejected_input_ids"] == [10, 12, 99]
+
+
+def test_only_rejected_boundary_merges():
+    tok = AsymmetricMergeTokenizer(("AC",))
+    assert tok("AB")["input_ids"] == [10, 11] and tok("AC")["input_ids"] == [50]
+    row = _pair(tok, "A", "B", "C")
+    n_c, n_r = _prefix_lengths(row)
+    assert (n_c, n_r) == (0, 0)
+    assert row["chosen_input_ids"] == [10, 11, 99]
+    assert row["rejected_input_ids"] == [50, 99]
+
+
+def test_both_responses_boundary_merge():
+    tok = AsymmetricMergeTokenizer(("AB", "AC"))
+    row = _pair(tok, "A", "B", "C")
+    assert _prefix_lengths(row) == (0, 0)
+    assert row["chosen_input_ids"] == [50, 99] and row["rejected_input_ids"] == [51, 99]
+
+
+def test_neither_response_boundary_merges():
+    tok = AsymmetricMergeTokenizer(())
+    row = _pair(tok, "A", "B", "C")
+    n_c, n_r = _prefix_lengths(row)
+    assert (n_c, n_r) == (1, 1), "with no merge the whole prompt stays on the prompt side"
+    assert row["chosen_input_ids"][:1] == row["rejected_input_ids"][:1] == [10]
+
+
+@pytest.mark.parametrize("label,merges,prompt,chosen,rejected", MERGE_CASES)
+def test_common_split_preserves_full_joint_sequence(label, merges, prompt, chosen, rejected):
+    """Re-splitting must not create or destroy a single token."""
+    tok = AsymmetricMergeTokenizer(merges)
+    row = _pair(tok, prompt, chosen, rejected)
+    for key, answer in (("chosen", chosen), ("rejected", rejected)):
+        ids = row[f"{key}_input_ids"]
+        assert ids[-1] == tok.eos_token_id
+        assert ids[:-1] == tok(prompt + answer)["input_ids"], \
+            f"{label}: {key} no longer reconstructs enc(prompt + {key})"
+
+
+@pytest.mark.parametrize("label,merges,prompt,chosen,rejected", MERGE_CASES)
+def test_common_split_preserves_attention_mask(label, merges, prompt, chosen, rejected):
+    tok = AsymmetricMergeTokenizer(merges)
+    row = _pair(tok, prompt, chosen, rejected)
+    for key in ("chosen", "rejected"):
+        ids, mask = row[f"{key}_input_ids"], row[f"{key}_attention_mask"]
+        assert len(ids) == len(mask), f"{label}: {key} mask length differs from ids"
+        assert all(m == 1 for m in mask), f"{label}: {key} has a hidden position"
+
+
+def test_no_token_is_lost_when_boundary_moves():
+    """The old prompt_len_override sliced the prompt and DROPPED the tokens.
+
+    Moving the boundary must relocate a token, never delete it.
+    """
+    from mnpo_scripts.pair_tokenization import build_tokenized_answer, split_at
+
+    tok = AsymmetricMergeTokenizer(())
+    toks = build_tokenized_answer(tok, "AA", "B")
+    joint = tok("AAB")["input_ids"]
+    for idx in range(len(joint) + 1):
+        moved = split_at(toks, idx)
+        assert moved["prompt_input_ids"] + moved["input_ids"] == joint, \
+            f"split at {idx} lost or duplicated a token"
+        assert (moved["prompt_attention_mask"] + moved["attention_mask"]
+                == tok("AAB")["attention_mask"])
+    with pytest.raises(ValueError, match="outside the joint sequence"):
+        split_at(toks, len(joint) + 1)
+
+
+def test_pair_prompt_prefix_invariant_holds_for_the_realistic_tokenizer():
+    """The invariant also holds for the merging tokenizer used by the h_t test."""
+    tok = MergingTokenizer()
+    for chosen, rejected in (("B is the answer.", "B is wrong."),
+                             ("B merged start", " unmerged start"),
+                             (" unmerged", "B merged")):
+        row = tokenize_preference_pair(tok, "answer with A", chosen, rejected, **TOK_KW)
+        n_c, n_r = _prefix_lengths(row)
+        assert n_c == n_r
+        assert row["chosen_input_ids"][:n_c] == row["rejected_input_ids"][:n_r]
+
+
+def test_both_production_paths_agree_under_asymmetric_merges():
+    """precompute and training must still agree token for token."""
+    tok = AsymmetricMergeTokenizer(("AB",))
+    kw = dict(TOK_KW, truncation_mode="keep_end")
+    pre = _precompute_row(tok, "A", "B", "C", **kw)
+    tra = _training_row(tok, "A", "B", "C", **kw)
+    for key in ("chosen_input_ids", "rejected_input_ids", "chosen_attention_mask",
+                "rejected_attention_mask", "chosen_labels", "rejected_labels",
+                "prompt_input_ids"):
+        assert pre[key] == tra[key], key

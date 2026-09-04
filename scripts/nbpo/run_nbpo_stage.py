@@ -73,7 +73,7 @@ from mnpo_scripts.precompute_provenance import (
     read_precompute_meta,
     sha256_file_hex,
 )
-from scripts.nbpo.build_nbpo_pairs import build_pairs_from_artifacts
+from scripts.nbpo.build_nbpo_pairs import _array_sha256, build_pairs_from_artifacts
 from scripts.nbpo.build_preference_tensor import (
     aggregate_cells,
     fill_policy_tensor,
@@ -318,6 +318,8 @@ def build_validation_pairs(cfg, base, workdir, objectives, objectives_config, ju
     np.savez_compressed(v_solver_dir / "nu_update.npz", nu=sol.nu_update.numpy())
     np.savez_compressed(v_solver_dir / "nu_final_policy.npz", nu=sol.nu_final_policy.numpy())
     np.savez_compressed(v_solver_dir / "pi_star.npz", pi=sol.pi.numpy())
+    np.savez_compressed(v_solver_dir / "update_source_pi.npz",
+                        pi=sol.update_source_pi.numpy())
     v_solution = {
         **implementation_contract(
             dual_iterations=(solver_solution["config"] or {}).get("M"),
@@ -331,14 +333,21 @@ def build_validation_pairs(cfg, base, workdir, objectives, objectives_config, ju
         "input_hashes": {n: sha256_file(v_tensor_dir / n)
                          for n in ("tensor_policy.npz", "tensor_ref.npz", "meta.json")},
         "artifact_hashes": {n: sha256_file(v_solver_dir / n)
-                            for n in ("nu_update.npz", "nu_final_policy.npz", "pi_star.npz")},
+                            for n in ("nu_update.npz", "nu_final_policy.npz", "pi_star.npz",
+                                      "update_source_pi.npz")},
         "opponent_artifacts": {
+            # No warm start here: the validation solve starts at the proximal
+            # centre, and the solver reports which it actually used either way.
             "nu_update.npz": {"artifact_kind": "regularized_opponent",
-                              "source_policy": "proximal_centre",
-                              "source_fixed_point_iteration": 0,
+                              "source_policy": sol.update_source_kind,
+                              "source_policy_hash": _array_sha256(
+                                  sol.update_source_pi.numpy()),
+                              "source_policy_artifact": "update_source_pi.npz",
+                              "source_fixed_point_iteration": int(sol.update_source_iteration),
                               "used_for": "eq26_target"},
             "nu_final_policy.npz": {"artifact_kind": "regularized_opponent",
                                     "source_policy": "final_policy",
+                                    "source_policy_artifact": "pi_star.npz",
                                     "source_fixed_point_iteration": int(
                                         (solver_solution["config"] or {}).get("R", 1)),
                                     "used_for": "diagnostics"},
@@ -622,6 +631,8 @@ def verify_decode_manifest(manifest_path: Path, candidate_dir: Path, monitoring_
     )
     man = binding["manifest"]
     return {
+        # Spec labels for load_response_files; the manifest keys are the seed
+        # values themselves.
         "seed_files": {f"s{k}" if not str(k).startswith("s") else str(k): v
                        for k, v in binding["seed_files"].items()},
         "candidate_fingerprint": actual_fp,
@@ -732,21 +743,51 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
         # config: a Qwen pool decoded WITHOUT enable_thinking:false contains
         # reasoning traces, which is a different pool of text entirely.
         gen_ctk = (cfg.get("generation") or {}).get("chat_template_kwargs") or {}
-        for role, want_fp in (("learner_pool", parent_fp_cfg),
-                              ("reference_comparator_pool", mu_fp_cfg)):
+        # The two pools agreeing with EACH OTHER proves nothing about which
+        # prompts or sampling settings they came from: both can be generated from
+        # the wrong subset and still be mutually consistent. training_data pins
+        # the intended protocol, and each available check is passed through.
+        tdata = cfg.get("training_data") or {}
+        train_prompts_path = (_resolve(base, tdata["prompts_file"])
+                              if tdata.get("prompts_file") else None)
+        train_prompt_rows = load_prompt_rows(train_prompts_path) if train_prompts_path else None
+        train_ids_expected = ([pid for pid, _ in train_prompt_rows]
+                              if train_prompt_rows is not None else None)
+        train_text_hashes = (prompt_text_hashes(train_prompt_rows)
+                             if train_prompt_rows is not None else None)
+        if reproduction_mode and train_prompts_path is None:
+            raise ValueError(
+                "reproduction_mode requires training_data.prompts_file: without the "
+                "intended prompt file, the learner and reference pools can agree with "
+                "each other while both come from the wrong prompt subset")
+        for role, want_fp, seeds_key, decode_key, sha_key in (
+                ("learner_pool", parent_fp_cfg, "learner_seeds", "learner_decode",
+                 "learner_manifest_sha256"),
+                ("reference_comparator_pool", mu_fp_cfg, "reference_seeds",
+                 "reference_decode", "reference_manifest_sha256")):
             if role not in pool_manifests:
                 raise ValueError(f"response_manifests must declare {role!r}")
             pool_bindings[role] = verify_manifest(
                 _resolve(base, pool_manifests[role]), expected_role=role,
                 expected_fingerprint=want_fp,
+                expected_prompts_file=train_prompts_path,
+                expected_prompt_ids=train_ids_expected,
+                expected_prompt_text_sha256=train_text_hashes,
+                required_seeds=([str(s) for s in tdata[seeds_key]]
+                                if tdata.get(seeds_key) else None),
+                expected_decode_params=tdata.get(decode_key),
                 expected_chat_template_kwargs=gen_ctk,
+                expected_num_prompts=tdata.get("expected_num_prompts"),
+                expected_manifest_sha256=tdata.get(sha_key),
                 allow_partial_prompt_intersection=allow_partial)
         policy_specs = [f"{s}={p}" for s, p in
                         sorted(pool_bindings["learner_pool"]["seed_files"].items())]
         reference_specs = [f"{s}={p}" for s, p in
                            sorted(pool_bindings["reference_comparator_pool"]["seed_files"].items())]
         _step("response_manifests",
-              f"learner bound to pi_t {parent_fp_cfg[:12]}, comparator to mu {mu_fp_cfg[:12]}")
+              f"learner bound to pi_t {parent_fp_cfg[:12]}, comparator to mu {mu_fp_cfg[:12]}"
+              + (f"; protocol from {train_prompts_path.name}" if train_prompts_path else "")
+              + ("; manifest sha pinned" if tdata.get("learner_manifest_sha256") else ""))
     elif reproduction_mode:
         raise ValueError(
             "reproduction_mode requires response_manifests.learner_pool and "
@@ -1065,6 +1106,17 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
                                     else "skipped (dry_run.candidate_policy_files fixture)"),
         "monitoring": mon_eval,
         "monitoring_prompts_file_sha256": sha256_file_hex(str(mon_prompts_path)),
+        # Which generation protocol the GATE used. It is deliberately distinct
+        # from the manuscript's final-evaluation row; recording it stops the two
+        # being read as the same measurement.
+        "monitoring_generation_protocol": {
+            "name": mon.get("generation_protocol", "stage_acceptance_monitoring"),
+            "params": {k: decode_cfg.get(k) for k in
+                       ("seeds", "temperature", "top_p", "max_new_tokens")},
+            "note": ("stage-acceptance monitoring, not the reported final evaluation "
+                     "(manuscript final-eval generation: temperature 0.7, top_p 0.9, "
+                     "max_new_tokens 1024)"),
+        },
         "monitoring_reference_manifest_sha256": (mon_ref_binding["manifest_sha256"]
                                                  if mon_ref_binding else None),
         "monitoring_reference_mu_fingerprint": (

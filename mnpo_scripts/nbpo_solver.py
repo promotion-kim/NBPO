@@ -91,6 +91,13 @@ class WeightedPolicySolution:
     fixed_point_residual: float
     extra_map_residual: float
     iterations: int
+    # WHICH policy nu_update was actually built from. It is the iterate at the
+    # START of the last round, which is the proximal centre only when no warm
+    # start was supplied and R = 1. solve_nbpo_dual DOES warm-start across dual
+    # iterations, so recording "proximal_centre" unconditionally was wrong.
+    update_source_pi: Optional[torch.Tensor] = None       # (X, I)
+    update_source_kind: str = "proximal_centre"
+    update_source_iteration: int = 0
 
     @property
     def nu(self) -> torch.Tensor:  # backward-compatible alias (update opponent)
@@ -134,15 +141,27 @@ def solve_weighted_policy(
     pi_r = pi_t if pi_init is None else validate_distribution(pi_init, "pi_init")
     residual = float("inf")
     nu = q = None
-    for _ in range(R):
+    source_pi = None
+    for r in range(R):
         margins = compute_margins(A, pi_r)
         nu = compute_regularized_opponent(margins, mu, beta)
         q = compute_objective_gradient(A, nu)
+        # The iterate this round's opponent was built from -- kept so the
+        # artifact can name the policy nu_update actually came from instead of
+        # asserting the proximal centre.
+        source_pi = pi_r.clone()
+        source_iteration = r
         pi_next = weighted_policy_update(pi_t, q, lam, eta)
         if damping > 0.0:
             pi_next = (1.0 - damping) * pi_next + damping * pi_r
         residual = (pi_next - pi_r).abs().max().item()
         pi_r = pi_next
+    if source_iteration > 0:
+        source_kind = "fixed_point_iterate"
+    elif pi_init is None:
+        source_kind = "proximal_centre"
+    else:
+        source_kind = "warm_start_iterate"
     # Opponent AT the returned policy, and one undamped extra application of the
     # Eq. (21) map: a true fixed point leaves pi unchanged.
     nu_final = compute_regularized_opponent(compute_margins(A, pi_r), mu, beta)
@@ -151,6 +170,9 @@ def solve_weighted_policy(
     return WeightedPolicySolution(
         pi=pi_r, nu_update=nu, q_update=q, nu_final_policy=nu_final,
         fixed_point_residual=residual, extra_map_residual=extra, iterations=R,
+        update_source_pi=source_pi,
+        update_source_kind=source_kind,
+        update_source_iteration=source_iteration,
     )
 
 
@@ -186,6 +208,12 @@ class DualSolveResult:
     gamma_ref: Optional[float] = None
     lambda_at_lower_bound: List[int] = field(default_factory=list)
     lambda_at_upper_bound: List[int] = field(default_factory=list)
+    # The policy nu_update was actually built from. solve_nbpo_dual warm-starts
+    # the policy iterate across dual iterations, so at R = 1 this is generally
+    # the warm-start iterate, NOT the proximal centre; the artifact says which.
+    update_source_pi: Optional[torch.Tensor] = None       # (X, I)
+    update_source_kind: str = "proximal_centre"
+    update_source_iteration: int = 0
 
     @property
     def inverse_surplus_residual(self) -> Optional[float]:
@@ -401,7 +429,10 @@ def solve_nbpo_dual(
         final = WeightedPolicySolution(
             pi=pi_warm, nu_update=final.nu_update, q_update=final.q_update,
             nu_final_policy=nu_bar, fixed_point_residual=final.fixed_point_residual,
-            extra_map_residual=final.extra_map_residual, iterations=final.iterations)
+            extra_map_residual=final.extra_map_residual, iterations=final.iterations,
+            update_source_pi=final.update_source_pi,
+            update_source_kind=final.update_source_kind,
+            update_source_iteration=final.update_source_iteration)
     V = policy_game_values(A_policy, mu, final.pi, beta)
     s = V - d
     lower_active, upper_active = box_active_coordinates(lam, lo, hi)
@@ -433,6 +464,9 @@ def solve_nbpo_dual(
         gamma_ref=gamma_ref,
         lambda_at_lower_bound=lower_active,
         lambda_at_upper_bound=upper_active,
+        update_source_pi=final.update_source_pi,
+        update_source_kind=final.update_source_kind,
+        update_source_iteration=final.update_source_iteration,
         opponent_entropy=opponent_entropy(final.nu_final_policy),
         opponent_ess=opponent_ess(final.nu_final_policy),
         history=history,

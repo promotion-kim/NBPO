@@ -77,36 +77,65 @@ def tokenization_config_hash(cfg: dict) -> str:
         json.dumps(cfg, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()
 
 
-def build_tokenized_answer(tokenizer, prompt: str, answer: str) -> Dict[str, List[int]]:
-    """Joint-tokenize ``prompt + answer`` and split at the true boundary.
+def build_tokenized_answer(tokenizer, prompt: str, answer: str) -> Dict[str, object]:
+    """Joint-tokenize ``prompt + answer`` and locate the prompt/answer boundary.
 
     ``enc(a + b) != enc(a) + enc(b)`` for Llama-family tokenizers, but
     ``enc(a + b) == enc(a) + enc(a + b)[len(enc(a)):]`` holds. When the last
     prompt token merges with the first answer token the prefix differs, and the
     boundary backs up by exactly one token so the pair still concatenates to the
     joint sequence.
-    """
-    full_tokenized = tokenizer(prompt + answer, add_special_tokens=False)
-    prompt_input_ids = tokenizer(prompt, add_special_tokens=False)["input_ids"]
 
-    if len(full_tokenized["input_ids"]) < len(prompt_input_ids):
+    The FULL sequence and the boundary index are returned, not just the split
+    halves: the pair builder has to re-split both responses at a COMMON boundary,
+    and it can only do that without losing tokens if it still has the full
+    sequence to cut.
+    """
+    full = tokenizer(prompt + answer, add_special_tokens=False)
+    full_ids = list(full["input_ids"])
+    full_mask = list(full["attention_mask"])
+    prompt_input_ids = list(tokenizer(prompt, add_special_tokens=False)["input_ids"])
+
+    if len(full_ids) < len(prompt_input_ids):
         raise ValueError("joint tokenization is shorter than the prompt alone")
 
-    response_token_ids_start_idx = len(prompt_input_ids)
+    split_idx = len(prompt_input_ids)
     # A merged boundary token makes the joint prefix differ from enc(prompt).
-    if list(prompt_input_ids) != list(full_tokenized["input_ids"][:response_token_ids_start_idx]):
-        response_token_ids_start_idx -= 1
-
-    prompt_ids = full_tokenized["input_ids"][:response_token_ids_start_idx]
-    prompt_mask = full_tokenized["attention_mask"][:response_token_ids_start_idx]
-    if len(prompt_ids) != len(prompt_mask):
-        raise ValueError("prompt input ids and attention mask lengths differ")
+    if prompt_input_ids != full_ids[:split_idx]:
+        split_idx -= 1
+    if len(full_ids) != len(full_mask):
+        raise ValueError("joint input ids and attention mask lengths differ")
     return {
-        "prompt_input_ids": list(prompt_ids),
-        "prompt_attention_mask": list(prompt_mask),
-        "input_ids": list(full_tokenized["input_ids"][response_token_ids_start_idx:]),
-        "attention_mask": list(full_tokenized["attention_mask"][response_token_ids_start_idx:]),
+        "full_input_ids": full_ids,
+        "full_attention_mask": full_mask,
+        "split_idx": split_idx,
+        "prompt_input_ids": full_ids[:split_idx],
+        "prompt_attention_mask": full_mask[:split_idx],
+        "input_ids": full_ids[split_idx:],
+        "attention_mask": full_mask[split_idx:],
     }
+
+
+def split_at(toks: Dict[str, object], split_idx: int) -> Dict[str, object]:
+    """Re-cut a joint sequence at ``split_idx``; no token is created or lost.
+
+    Slicing ``prompt_input_ids`` alone would DELETE the tokens it drops. Here a
+    token moved off the prompt side lands on the response side, so
+    ``prompt_input_ids + input_ids`` still reconstructs the joint tokenization
+    exactly.
+    """
+    full_ids = list(toks["full_input_ids"])
+    full_mask = list(toks["full_attention_mask"])
+    if not 0 <= split_idx <= len(full_ids):
+        raise ValueError(f"split_idx {split_idx} outside the joint sequence "
+                         f"of length {len(full_ids)}")
+    out = dict(toks)
+    out["split_idx"] = split_idx
+    out["prompt_input_ids"] = full_ids[:split_idx]
+    out["prompt_attention_mask"] = full_mask[:split_idx]
+    out["input_ids"] = full_ids[split_idx:]
+    out["attention_mask"] = full_mask[split_idx:]
+    return out
 
 
 def _add_bos_if_absent(tokenizer, toks: Dict[str, List[int]], prompt_key="prompt_input_ids",
@@ -131,18 +160,19 @@ def _add_eos_if_absent(tokenizer, toks: Dict[str, List[int]]) -> None:
 def tokenize_prompt_answer(tokenizer, prompt: str, answer: str, max_length: int,
                            max_prompt_length: int, truncation_mode: str = "keep_start",
                            label_pad_token_id: int = -100,
-                           prompt_len_override: Optional[int] = None) -> Dict[str, List[int]]:
+                           split_idx: Optional[int] = None) -> Dict[str, List[int]]:
     """Canonical single ``(prompt, answer)`` tokenization with labels.
 
-    ``prompt_len_override`` truncates the prompt prefix to a shared length; the
-    pair builder uses it so chosen and rejected agree on the prompt.
+    ``split_idx`` re-cuts the JOINT sequence at a caller-chosen boundary (the
+    pair builder passes the common boundary of the two responses). It replaces
+    the old ``prompt_len_override``, which sliced ``prompt_input_ids`` and threw
+    the dropped tokens away instead of moving them to the response side.
     """
     if truncation_mode not in TRUNCATION_MODES:
         raise ValueError(f"Unknown truncation mode: {truncation_mode}")
     toks = build_tokenized_answer(tokenizer, prompt, answer)
-    if prompt_len_override is not None:
-        toks["prompt_input_ids"] = toks["prompt_input_ids"][:prompt_len_override]
-        toks["prompt_attention_mask"] = toks["prompt_attention_mask"][:prompt_len_override]
+    if split_idx is not None:
+        toks = split_at(toks, split_idx)
     _add_bos_if_absent(tokenizer, toks)
     _add_eos_if_absent(tokenizer, toks)
     _truncate(toks, len(toks["input_ids"]), max_length, max_prompt_length, truncation_mode)
@@ -207,23 +237,25 @@ def tokenize_preference_pair(tokenizer, prompt: str, chosen: str, rejected: str,
 
     chosen_tokens = build_tokenized_answer(tokenizer, prompt, chosen)
     rejected_tokens = build_tokenized_answer(tokenizer, prompt, rejected)
-    prompt_only = tokenizer(prompt, add_special_tokens=False)
-    prompt_tokens = {"prompt_input_ids": list(prompt_only["input_ids"]),
-                     "prompt_attention_mask": list(prompt_only["attention_mask"])}
 
-    # A merged boundary token can shorten one side's prompt by one; both rows
-    # must share the same prompt prefix, so take the minimum.
-    chosen_prompt_len = len(chosen_tokens["prompt_input_ids"])
-    rejected_prompt_len = len(rejected_tokens["prompt_input_ids"])
-    prompt_len = min(chosen_prompt_len, rejected_prompt_len)
-    for k in ("prompt_input_ids", "prompt_attention_mask"):
-        prompt_tokens[k] = prompt_tokens[k][:prompt_len]
-
-    num_diff_tokens = sum(a != b for a, b in zip(chosen_tokens["prompt_input_ids"],
-                                                 rejected_tokens["prompt_input_ids"]))
-    if num_diff_tokens > 1 or abs(chosen_prompt_len - rejected_prompt_len) > 1:
-        raise ValueError("Chosen and rejected prompt_input_ids might only differ on the "
-                         "last token due to tokenizer merge ops.")
+    # A merge can fire for only ONE of the two responses -- enc("AB") merges
+    # while enc("AC") does not -- and then the two rows were conditioned on
+    # different prompt prefixes, so they were not log pi(y|x) and log pi(y'|x)
+    # for one common x. Both JOINT sequences are re-cut at the common boundary;
+    # a token that leaves the prompt side moves to the response side rather than
+    # being deleted, so each row still reconstructs its own joint tokenization.
+    common_split = min(chosen_tokens["split_idx"], rejected_tokens["split_idx"])
+    chosen_tokens = split_at(chosen_tokens, common_split)
+    rejected_tokens = split_at(rejected_tokens, common_split)
+    if chosen_tokens["prompt_input_ids"] != rejected_tokens["prompt_input_ids"]:
+        raise ValueError(
+            "chosen and rejected do not share a prompt prefix after re-splitting at the "
+            f"common boundary {common_split}: "
+            f"{chosen_tokens['prompt_input_ids']} vs {rejected_tokens['prompt_input_ids']}. "
+            "The two responses would be scored under different conditioning contexts."
+        )
+    prompt_tokens = {"prompt_input_ids": list(chosen_tokens["prompt_input_ids"]),
+                     "prompt_attention_mask": list(chosen_tokens["prompt_attention_mask"])}
 
     for toks in (prompt_tokens, chosen_tokens, rejected_tokens):
         _add_bos_if_absent(tokenizer, toks)
@@ -237,6 +269,14 @@ def tokenize_preference_pair(tokenizer, prompt: str, chosen: str, rejected: str,
 
     chosen_seq = _assemble(chosen_tokens, label_pad_token_id)
     rejected_seq = _assemble(rejected_tokens, label_pad_token_id)
+    # Independent of the merge logic above: after BOS/EOS and truncation the two
+    # rows must still be conditioned on one identical prompt prefix, or the pair
+    # does not represent log pi(y|x) and log pi(y'|x) for a single x.
+    n_c, n_r = len(chosen_tokens["prompt_input_ids"]), len(rejected_tokens["prompt_input_ids"])
+    if chosen_seq["input_ids"][:n_c] != rejected_seq["input_ids"][:n_r]:
+        raise ValueError(
+            "chosen and rejected prompt prefixes differ after assembly: "
+            f"{chosen_seq['input_ids'][:n_c]} vs {rejected_seq['input_ids'][:n_r]}")
 
     batch: Dict[str, object] = {}
     for key, seq in (("chosen", chosen_seq), ("rejected", rejected_seq)):

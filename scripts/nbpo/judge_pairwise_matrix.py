@@ -53,20 +53,33 @@ from pathlib import Path
 
 from scripts.nbpo.nbpo_common import (
     PRESENTATION_ORDERS,
+    sha256_text,
     append_jsonl,
     check_pool_cardinality,
     comparison_content_hash,
     comparison_payload,
+    judge_config_hash,
     load_objective_rubrics,
     load_response_files,
     normalize_judge_config,
     read_jsonl,
+    response_pool_hash,
     sha256_json,
     stable_hash_int,
+    verdict_cache_path,
 )
 
 
-RENDERED_PROMPT_SCHEMA_VERSION = 1
+RENDERED_PROMPT_SCHEMA_VERSION = 2
+# How an over-budget rendering is cut down. Character slicing (the previous
+# prompt[:4000] / response[:6000]) is not a policy: it depends on encoding, can
+# cut a multibyte character mid-codepoint, and silently changes the texts being
+# compared with no record that it happened. These operate on TOKENS and are
+# recorded per task and folded into the cache identity.
+TRUNCATION_POLICIES = ("proportional_tail", "head_only", "no_truncation")
+DEFAULT_TRUNCATION_POLICY = "proportional_tail"
+JUDGE_SPECIAL_TOKEN_ALLOWANCE = 8
+JUDGE_SAFETY_MARGIN = 32
 
 
 def build_task_grid(policy, reference, objectives, include_reference_learner, max_prompts=0):
@@ -234,6 +247,12 @@ class VllmJudge:
             chat_template_kwargs
             if chat_template_kwargs is not None
             else cfg.get("chat_template_kwargs") or {})
+        self.max_model_len = int(max_model_len)
+        self.truncation_policy = str(cfg.get("truncation_policy", DEFAULT_TRUNCATION_POLICY))
+        if self.truncation_policy not in TRUNCATION_POLICIES:
+            raise ValueError(f"truncation_policy must be one of {TRUNCATION_POLICIES}, "
+                             f"got {self.truncation_policy!r}")
+        self._template_tokens = None
         self._cfg = cfg
         self._applied_chat_template_kwargs = None
         self._frozen_config = None
@@ -265,15 +284,79 @@ class VllmJudge:
             if self._applied_chat_template_kwargs is not None else self.chat_template_kwargs,
             "requested_chat_template_kwargs": dict(self.chat_template_kwargs),
             "renderer_schema_version": RENDERED_PROMPT_SCHEMA_VERSION,
+            "truncation_policy": self.truncation_policy,
+            "token_budget": self._token_budget(),
             "tokenizer_revision": self._cfg.get("tokenizer_revision"),
         }
 
-    def _render(self, t):
-        rub = self.rubrics[t["objective"]]
-        a, b = ((t["learner_text"], t["comparator_text"])
-                if t["presentation_order"] == "learner_first"
-                else (t["comparator_text"], t["learner_text"]))
-        user = rub["user_template"].format(prompt=t["prompt"][:4000], a=a[:6000], b=b[:6000])
+    def _token_budget(self) -> int:
+        """Input tokens available: context minus generation, specials and margin."""
+        return max(1, self.max_model_len - self.max_tokens
+                   - JUDGE_SPECIAL_TOKEN_ALLOWANCE - JUDGE_SAFETY_MARGIN)
+
+    def _n_tokens(self, text: str) -> int:
+        return len(self.tok(text, add_special_tokens=False)["input_ids"])
+
+    def _truncate_tokens(self, text: str, keep: int) -> str:
+        """Cut on TOKEN boundaries -- never by characters, never mid-codepoint."""
+        if keep <= 0:
+            return ""
+        ids = self.tok(text, add_special_tokens=False)["input_ids"]
+        if len(ids) <= keep:
+            return text
+        return self.tok.decode(ids[:keep])
+
+    def _template_overhead(self) -> int:
+        """Tokens the rubric wrapper itself costs, measured once."""
+        if self._template_tokens is None:
+            rub = next(iter(self.rubrics.values()))
+            empty = rub["user_template"].format(prompt="", a="", b="")
+            self._template_tokens = self._n_tokens(rub["system"]) + self._n_tokens(empty)
+        return self._template_tokens
+
+    def _fit(self, prompt: str, a: str, b: str) -> dict:
+        """Fit (prompt, a, b) into the token budget, recording exactly what was cut.
+
+        Full texts are preserved whenever they fit. Over budget the deficit is
+        shared in proportion to length, so one long response cannot silently
+        erase the prompt -- which is what a fixed prompt[:4000] did on long
+        TL;DR inputs.
+        """
+        counts = {"prompt": self._n_tokens(prompt), "a": self._n_tokens(a),
+                  "b": self._n_tokens(b)}
+        budget = self._token_budget() - self._template_overhead()
+        total = sum(counts.values())
+        if total <= budget:
+            return {"prompt": prompt, "a": a, "b": b, "original_tokens": counts,
+                    "retained_tokens": dict(counts), "truncated": False}
+        if self.truncation_policy == "no_truncation":
+            raise ValueError(
+                f"rendering needs {total} content tokens but the judge budget is "
+                f"{budget}, and truncation_policy is 'no_truncation'")
+        if self.truncation_policy == "head_only":
+            keep = {"prompt": min(counts["prompt"], budget),
+                    "a": 0, "b": 0}
+            left = max(0, budget - keep["prompt"])
+            keep["a"] = min(counts["a"], left // 2)
+            keep["b"] = min(counts["b"], left - keep["a"])
+        else:  # proportional_tail
+            keep = {k: max(1, int(budget * v / total)) for k, v in counts.items()}
+        out = {"prompt": self._truncate_tokens(prompt, keep["prompt"]),
+               "a": self._truncate_tokens(a, keep["a"]),
+               "b": self._truncate_tokens(b, keep["b"])}
+        return {**out, "original_tokens": counts, "truncated": True,
+                "retained_tokens": {"prompt": self._n_tokens(out["prompt"]),
+                                    "a": self._n_tokens(out["a"]),
+                                    "b": self._n_tokens(out["b"])}}
+
+    def _render(self, task, return_meta: bool = False):
+        rub = self.rubrics[task["objective"]]
+        a, b = ((task["learner_text"], task["comparator_text"])
+                if task["presentation_order"] == "learner_first"
+                else (task["comparator_text"], task["learner_text"]))
+        fitted = self._fit(task["prompt"], a, b)
+        user = rub["user_template"].format(prompt=fitted["prompt"], a=fitted["a"],
+                                           b=fitted["b"])
         msgs = [{"role": "system", "content": rub["system"]},
                 {"role": "user", "content": user}]
         # Model-specific chat-template kwargs come from the config (Qwen3 needs
@@ -304,17 +387,28 @@ class VllmJudge:
                 f"{self._applied_chat_template_kwargs} -> {applied}; the verdict cache "
                 "identity would no longer describe what was applied")
         self._applied_chat_template_kwargs = applied
+        if return_meta:
+            return out, {
+                "original_tokens": fitted["original_tokens"],
+                "retained_tokens": fitted["retained_tokens"],
+                "truncated": fitted["truncated"],
+                "truncation_policy": self.truncation_policy,
+                "rendered_prompt_sha256": sha256_text(out),
+                "renderer_schema_version": RENDERED_PROMPT_SCHEMA_VERSION,
+                "token_budget": self._token_budget(),
+            }
         return out
 
     def preflight(self, task) -> dict:
-        """Render one task so effective_config() reports what WAS applied, not what was asked.
+        """Render one task so effective_config() reports what WAS applied.
 
-        effective_config() used to be read before any render, so a kwarg the
-        tokenizer silently rejected still appeared in the cache identity. One
-        render first, then freeze.
+        effective_config() read before any render reports the REQUESTED settings,
+        so a kwarg the tokenizer silently rejected would be baked into the cache
+        identity as if it had been applied. One render first, then freeze.
         """
-        self._render(task)
+        _out, meta = self._render(task, return_meta=True)
         cfg = self.effective_config()
+        cfg["preflight_render"] = meta
         self._frozen_config = dict(cfg)
         return cfg
 
@@ -447,6 +541,12 @@ def main() -> None:
     ap.add_argument("--chat-template-kwargs", default=None,
                     help="JSON dict passed to apply_chat_template "
                          "(e.g. '{\"enable_thinking\": false}' for Qwen3)")
+    ap.add_argument("--truncation-policy", choices=list(TRUNCATION_POLICIES),
+                    default=DEFAULT_TRUNCATION_POLICY,
+                    help="how an over-budget rendering is cut, on TOKEN boundaries")
+    ap.add_argument("--versioned-cache", action="store_true",
+                    help="write to verdicts/<pool_hash>/<judge_config_hash>/verdicts.jsonl "
+                         "beside --output instead of --output itself")
     ap.add_argument("--no-reproduction-mode", action="store_true",
                     help="allow pool geometries other than the manuscript's 4+4/6 pairs "
                          "(cardinalities are recorded either way)")
@@ -471,10 +571,17 @@ def main() -> None:
          "decoding": {"temperature": args.judge_temperature, "top_p": args.judge_top_p,
                       "top_k": args.judge_top_k, "max_tokens": args.judge_max_tokens,
                       "retry_temperature": args.judge_retry_temperature},
+         "truncation_policy": args.truncation_policy,
          "chat_template_kwargs": (json.loads(args.chat_template_kwargs)
                                   if args.chat_template_kwargs else {})},
         role=args.judge_role, rubric_sha256=rubric_identity_hash(loaded["rubrics"]),
         max_retries=args.max_judge_retries)
+    reproduction_mode = not args.no_reproduction_mode
+    if reproduction_mode:
+        # A configured chat-template kwarg the tokenizer rejects must fail, not be
+        # dropped: a Qwen judge left in thinking mode emits reasoning traces while
+        # the artifact claims enable_thinking=false.
+        judge_cfg["strict_chat_template_kwargs"] = True
     if args.backend == "mock":
         backend = MockJudge(invalid_rate=args.mock_invalid_rate, judge_config=judge_cfg)
     else:
@@ -482,13 +589,30 @@ def main() -> None:
                             max_model_len=args.max_model_len,
                             tensor_parallel_size=args.tensor_parallel_size,
                             batch_size=args.batch_size, judge_config=judge_cfg)
-    # The identity written into every row is what the BACKEND says it applied.
-    identity = {**judge_cfg, **backend.effective_config()}
-    total = run_judging(tasks, backend, args.output, judge_model=args.judge_model_path,
+    if not tasks:
+        raise ValueError("no judging tasks were built; refusing to open a verdict cache")
+    # Render ONE task BEFORE the verdict artifact is opened. The stage runner
+    # already did this; this CLI read effective_config() first, so a silently
+    # dropped kwarg was baked into the cache identity as if it had applied.
+    identity = {**judge_cfg, **backend.preflight(tasks[0])}
+    cfg_hash = judge_config_hash(identity)
+    output = args.output
+    if args.versioned_cache:
+        output = verdict_cache_path(output.parent, response_pool_hash(policy, reference),
+                                    cfg_hash)
+        print(f"[judge_pairwise_matrix] verdict cache: {output}")
+    total = run_judging(tasks, backend, output, judge_model=args.judge_model_path,
                         rubric_version=loaded["version"], max_retries=args.max_judge_retries,
                         judge_identity=identity)
-    print(f"[judge_pairwise_matrix] complete: {total} cells valid -> {args.output} "
-          f"(cardinality={cardinality})")
+    after = judge_config_hash({**identity, **backend.effective_config()})
+    if after != cfg_hash:
+        raise RuntimeError(
+            "the judge's effective configuration changed during judging: the verdict "
+            f"cache key {cfg_hash[:12]} no longer describes what was applied ({after[:12]})")
+    print(f"[judge_pairwise_matrix] complete: {total} cells valid -> {output} "
+          f"(cardinality={cardinality}, judge_config={cfg_hash[:12]}, "
+          f"chat_template_kwargs={identity.get('chat_template_kwargs')}, "
+          f"truncation_policy={identity.get('truncation_policy')})")
 
 
 if __name__ == "__main__":

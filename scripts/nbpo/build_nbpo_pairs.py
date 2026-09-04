@@ -46,6 +46,14 @@ from scripts.nbpo.nbpo_common import (
 TARGET_MODES = ("sampled", "rao_blackwell")
 
 
+def _array_sha256(arr) -> str:
+    """sha256 of an array's exact float64 bytes -- matches the solver's hash."""
+    import hashlib
+
+    return hashlib.sha256(
+        np.ascontiguousarray(np.asarray(arr), dtype=np.float64).tobytes()).hexdigest()
+
+
 def flip_pair_row(row: dict) -> dict:
     """Swap the pair orientation, flipping every Z_k and the aggregate target."""
     flipped = dict(row)
@@ -142,7 +150,7 @@ def verify_solver_input_chain(tensor_dir: Path, solver_dir: Path, solution: dict
                 "these tensors are NOT the ones the dual was solved against")
             continue
         verified[fname] = got
-    for fname in ("nu_update.npz", "nu_final_policy.npz"):
+    for fname in ("nu_update.npz", "nu_final_policy.npz", "update_source_pi.npz"):
         f = solver_dir / fname
         if not f.exists():
             problems.append(f"solver artifact lacks {fname}; re-run solve_nbpo_dual")
@@ -164,9 +172,16 @@ def verify_solver_input_chain(tensor_dir: Path, solver_dir: Path, solution: dict
     # instead, and both hashes are still verified above.
     kinds = solution.get("opponent_artifacts") or {}
     if kinds:
-        expected = {"nu_update.npz": ("eq26_target", "proximal_centre"),
-                    "nu_final_policy.npz": ("diagnostics", "final_policy")}
-        for fname, (want_use, want_source) in expected.items():
+        # The Eq. (26) opponent may come from the proximal centre, a warm-start
+        # iterate or a later fixed-point iterate -- the released R=1 dual solve
+        # warm-starts, so proximal_centre is NOT the only valid answer. What is
+        # checked is that the declared source is a real one, that the named
+        # policy artifact hashes to the declared value, and that the two
+        # opponents have not traded roles.
+        valid_sources = {"proximal_centre", "warm_start_iterate", "fixed_point_iterate"}
+        expected_use = {"nu_update.npz": "eq26_target",
+                        "nu_final_policy.npz": "diagnostics"}
+        for fname, want_use in expected_use.items():
             declared = kinds.get(fname) or {}
             if declared.get("used_for") != want_use:
                 problems.append(
@@ -176,10 +191,36 @@ def verify_solver_input_chain(tensor_dir: Path, solver_dir: Path, solution: dict
             if declared.get("artifact_kind") != "regularized_opponent":
                 problems.append(f"{fname} declares artifact_kind="
                                 f"{declared.get('artifact_kind')!r}")
-            if declared.get("source_policy") != want_source:
-                problems.append(
-                    f"{fname} declares source_policy={declared.get('source_policy')!r}, "
-                    f"expected {want_source!r}")
+        update_meta = kinds.get("nu_update.npz") or {}
+        source_kind = update_meta.get("source_policy")
+        if source_kind not in valid_sources:
+            problems.append(
+                f"nu_update.npz declares source_policy={source_kind!r}, not one of "
+                f"{sorted(valid_sources)}")
+        artifact_name = update_meta.get("source_policy_artifact")
+        declared_hash = update_meta.get("source_policy_hash")
+        if artifact_name is None or declared_hash is None:
+            problems.append(
+                "nu_update.npz names no source_policy_artifact/source_policy_hash; the "
+                "policy it was built from cannot be identified")
+        else:
+            src = solver_dir / artifact_name
+            if not src.exists():
+                problems.append(f"nu_update source policy artifact missing: {src}")
+            else:
+                arr = np.load(src)
+                key = "pi" if "pi" in arr else arr.files[0]
+                got = _array_sha256(arr[key])
+                if got != declared_hash:
+                    problems.append(
+                        f"{artifact_name} content hash {got[:12]} != declared "
+                        f"source_policy_hash {declared_hash[:12]}: the recorded source "
+                        "policy is not the one on disk")
+                # A declared proximal_centre must genuinely be the proximal centre.
+                if source_kind == "proximal_centre" and artifact_name != "update_source_pi.npz":
+                    problems.append(
+                        "proximal_centre is declared but the source artifact is "
+                        f"{artifact_name!r}")
     elif reproduction_mode_required:
         problems.append(
             "solution.json declares no opponent_artifacts metadata; nu_update and "

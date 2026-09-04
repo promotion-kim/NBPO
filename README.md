@@ -121,7 +121,7 @@ V, d, and surpluses at finite β and reports Nash welfare as `null` whenever any
 surplus is nonpositive (no clamping); `scripts/bpo/eval_bpo_surplus.py` is the
 fixed-reference diagnostic.
 
-### Paper-exact stage, command by command
+### Finite-pool NBPO stage, command by command
 
 ```bash
 export PYTHONPATH=$(pwd)
@@ -188,7 +188,7 @@ of inventing prompt text. Tests: `tests/test_nbpo_*.py` (the real-mode stub orch
 | Path | Description |
 |---|---|
 | `game_nbpo_iclr/` | Manuscript source and figures (`main_v2.tex`). |
-| `scripts/nbpo/` | **Paper-exact finite-temperature NBPO** (Algorithm 1): judging, tensors, dual solver CLI, pair targets, game-value evaluator, stage runner. |
+| `scripts/nbpo/` | **Finite-pool finite-temperature NBPO realization**: judging, tensors, dual solver CLI, pair targets, game-value evaluator, stage runner. |
 | `mnpo_scripts/nbpo_core.py`, `nbpo_solver.py` | Finite-pool math and the fixed-point + projected dual solver. |
 | `scripts/bpo/` | Legacy **fixed-reference (β = ∞) Anchored-BPO** baselines. |
 | `mnpo_scripts/` | Training pipeline: config dataclasses, precomputation, trainer, `run_mnpo.py`. |

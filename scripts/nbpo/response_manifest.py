@@ -142,6 +142,8 @@ def verify_manifest(manifest_path, expected_role: str, expected_fingerprint: str
                     expected_prompts_file=None, required_seeds=None,
                     expected_decode_params: dict = None,
                     expected_chat_template_kwargs: dict = None,
+                    expected_num_prompts: int = None,
+                    expected_manifest_sha256: str = None,
                     allow_partial_prompt_intersection: bool = False) -> dict:
     """Verify one manifest against everything the caller knows; return ``{seed: path}``.
 
@@ -153,6 +155,26 @@ def verify_manifest(manifest_path, expected_role: str, expected_fingerprint: str
     manifest_path = Path(manifest_path)
     man = json.loads(manifest_path.read_text())
     problems = []
+    if expected_manifest_sha256 is not None:
+        got_manifest = sha256_file_hex(str(manifest_path))
+        if got_manifest != expected_manifest_sha256:
+            problems.append(
+                f"manifest sha256 {got_manifest[:12]} != configured "
+                f"{expected_manifest_sha256[:12]} (this is not the manifest the "
+                "experiment was run with)")
+    # Declared seeds and actual output entries must be the same set: a seed
+    # listed but not produced (or produced but not listed) changes the pool
+    # cardinality while every per-file hash still matches.
+    declared_seeds = {str(s) for s in man.get("seeds") or []}
+    output_seeds = {str(s) for s in (man.get("outputs") or {})}
+    if declared_seeds != output_seeds:
+        problems.append(
+            f"manifest seeds {sorted(declared_seeds)} != output keys "
+            f"{sorted(output_seeds)}")
+    if expected_num_prompts is not None:
+        n = len(man.get("prompt_ids") or [])
+        if n != int(expected_num_prompts):
+            problems.append(f"manifest covers {n} prompts, expected {expected_num_prompts}")
     if man.get("role") != expected_role:
         problems.append(f"role={man.get('role')!r}, expected {expected_role!r}")
     if expected_fingerprint is not None and man.get("checkpoint_fingerprint") != expected_fingerprint:
