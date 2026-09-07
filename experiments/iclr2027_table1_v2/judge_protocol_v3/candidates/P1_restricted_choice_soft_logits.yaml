@@ -1,0 +1,109 @@
+name: P1_restricted_choice_soft_logits
+kind: P1
+description: preferred protocol. One constrained decoding step over three VERIFIED single-token labels
+  gives an exact restricted softmax over A/B/TIE. Under the Qwen3 tokenizer 'TIE' is two tokens and '[[A]]'
+  is three, so the sentinel 'T' stands for TIE and is mapped back in every artifact.
+rubric_file: training_configs/nbpo/objectives/ultrafeedback_v2.yaml
+rubric_sha256: 934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954
+rubric_note: only the per-objective `criterion` paragraphs are taken; v2's shared preamble ends by demanding
+  [[A]]/[[B]]/[[TIE]], which would contradict this protocol's verdict format. The semantic definitions
+  of the four objectives are therefore unchanged.
+common_system: 'You are an impartial evaluator comparing two assistant responses.
+
+
+  Evaluate ONLY the objective stated below. Do not use any other criterion,
+
+  even if that criterion would normally matter. Judge the response content
+
+  rather than its position as Response A or Response B.
+
+
+  Choose A only when Response A is materially better on the specified
+
+  objective. Choose B only when Response B is materially better.
+
+  If neither response is materially better, choose TIE.'
+verdict_instruction: "Reply with exactly ONE character and nothing else:\n  A  - Response A is materially\
+  \ better on the stated objective\n  B  - Response B is materially better on the stated objective\n \
+  \ T  - neither is materially better (a tie)\nDo not explain. Do not use any other character."
+labels:
+  A:
+    token: A
+    id: 32
+  B:
+    token: B
+    id: 33
+  TIE:
+    token: T
+    id: 51
+labels_note: 'verified single-token in context under the Qwen3 tokenizer (tok_probe: A=32, B=33, T=51).
+  Artifacts always store A/B/TIE.'
+objective_procedures: null
+templates:
+- id: t0
+  user_template: '[USER REQUEST]
+
+    {prompt}
+
+
+    [RESPONSE A]
+
+    {a}
+
+
+    [RESPONSE B]
+
+    {b}
+
+
+    [VERDICT]'
+- id: t1
+  user_template: 'Below is a user''s request, followed by two candidate assistant replies.
+
+
+    ### Request
+
+    {prompt}
+
+
+    ### Reply A
+
+    {a}
+
+
+    ### Reply B
+
+    {b}
+
+
+    ### Your verdict on the stated objective
+
+    '
+- id: t2
+  user_template: 'Compare these two answers on the stated objective only.
+
+
+    USER ASKED:
+
+    {prompt}
+
+
+    CANDIDATE A:
+
+    {a}
+
+
+    CANDIDATE B:
+
+    {b}
+
+
+    Which is materially better on that objective? Verdict: '
+max_tokens: 1
+decoding:
+  temperature: 0.0
+  top_p: 1.0
+  top_k: -1
+order_gap_threshold: 0.25
+entropy_threshold: 0.9
+max_templates_when_unstable: 3
