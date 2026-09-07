@@ -1,0 +1,140 @@
+name: P2_deliberative
+kind: P2
+description: a short objective-specific decision procedure and at most one rationale sentence before the
+  marker, averaged over two semantically equivalent templates and both orders.
+rubric_file: training_configs/nbpo/objectives/ultrafeedback_v2.yaml
+rubric_sha256: 934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954
+rubric_note: only the per-objective `criterion` paragraphs are taken; v2's shared preamble ends by demanding
+  [[A]]/[[B]]/[[TIE]], which would contradict this protocol's verdict format. The semantic definitions
+  of the four objectives are therefore unchanged.
+common_system: 'You are an impartial evaluator comparing two assistant responses.
+
+
+  Evaluate ONLY the objective stated below. Do not use any other criterion,
+
+  even if that criterion would normally matter. Judge the response content
+
+  rather than its position as Response A or Response B.
+
+
+  Choose A only when Response A is materially better on the specified
+
+  objective. Choose B only when Response B is materially better.
+
+  If neither response is materially better, choose TIE.'
+verdict_instruction: 'First give at most ONE short sentence of justification.
+
+  Then, on a new line, give your verdict as exactly one of:
+
+  [[A]]
+
+  [[B]]
+
+  [[TIE]]'
+labels:
+  A:
+    token: A
+    id: 32
+  B:
+    token: B
+    id: 33
+  TIE:
+    token: T
+    id: 51
+labels_note: 'verified single-token in context under the Qwen3 tokenizer (tok_probe: A=32, B=33, T=51).
+  Artifacts always store A/B/TIE.'
+objective_procedures:
+  helpfulness: "Decision procedure:\n  1. Identify the user's concrete goal.\n  2. Compare which response\
+    \ provides more relevant and usable substance toward that goal.\n  3. Do not reward verbosity, formatting,\
+    \ confidence, factuality, or safety unless they\n     directly prevent practical usefulness.\n  4.\
+    \ Select a winner only when the usefulness difference is material.\n  5. Otherwise select TIE."
+  instruction_following: "Decision procedure:\n  1. List the explicit requirements the request states:\
+    \ the task, its scope, any\n     constraints, the required output format, and any required components.\n\
+    \  2. Check each response against that list, counting only requirements the user stated.\n  3. Do\
+    \ not reward extra information, better writing, or greater accuracy; a response\n     that is more\
+    \ useful but ignores a stated requirement complies less.\n  4. Select a winner only when one response\
+    \ satisfies materially more of the list.\n  5. Otherwise select TIE."
+  truthfulness: "Decision procedure:\n  1. Identify the checkable factual claims each response makes.\n\
+    \  2. Count claims that are false, fabricated, unsupported, or self-contradictory.\n  3. Judge the\
+    \ truth of the claims themselves; ignore hedging, confidence wording,\n     completeness, style, and\
+    \ instruction compliance unless they change what is asserted.\n  4. Select a winner only when one\
+    \ response has materially fewer such claims.\n  5. Otherwise select TIE."
+  honesty: "Decision procedure:\n  1. Look for claims about the assistant's OWN knowledge, evidence, or\
+    \ actions:\n     browsing, verifying, citing, observing, running, or testing something.\n  2. Check\
+    \ whether the response's expressed confidence matches what it can actually\n     support, and whether\
+    \ it acknowledges missing information.\n  3. Do NOT judge whether the factual claims are correct --\
+    \ that is truthfulness.\n  4. Select a winner only when one response represents its own knowledge\
+    \ and actions\n     materially more honestly.\n  5. Otherwise select TIE."
+templates:
+- id: t0
+  user_template: '[USER REQUEST]
+
+    {prompt}
+
+
+    [RESPONSE A]
+
+    {a}
+
+
+    [RESPONSE B]
+
+    {b}
+
+
+    [VERDICT]'
+  extra_system: __PROCEDURE__
+- id: t1
+  user_template: 'Below is a user''s request, followed by two candidate assistant replies.
+
+
+    ### Request
+
+    {prompt}
+
+
+    ### Reply A
+
+    {a}
+
+
+    ### Reply B
+
+    {b}
+
+
+    ### Your verdict on the stated objective
+
+    '
+  extra_system: __PROCEDURE__
+- id: t2
+  user_template: 'Compare these two answers on the stated objective only.
+
+
+    USER ASKED:
+
+    {prompt}
+
+
+    CANDIDATE A:
+
+    {a}
+
+
+    CANDIDATE B:
+
+    {b}
+
+
+    Which is materially better on that objective? Verdict: '
+  extra_system: __PROCEDURE__
+max_tokens: 96
+decoding:
+  temperature: 0.0
+  top_p: 1.0
+  top_k: -1
+order_gap_threshold: 0.25
+entropy_threshold: 0.9
+max_templates_when_unstable: 3
+template_note: all candidate protocols share the same three renderings so they differ only in verdict
+  representation; equal template count also makes split-half reliability measurable for each

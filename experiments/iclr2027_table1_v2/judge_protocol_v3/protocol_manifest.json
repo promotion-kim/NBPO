@@ -1,0 +1,124 @@
+{
+  "frozen_at_git_commit": "3b9cec6d5193ae724f499d5af7025c63dc07699b",
+  "selected_protocol": "P2_deliberative",
+  "selected_by": "lexicographic ranking over calibration and reliability metrics only",
+  "override_reason": null,
+  "ranking": [
+    "P2",
+    "P3",
+    "P1",
+    "P0"
+  ],
+  "selection_rule": "lexicographic: min clear-control directional accuracy > identical confident-tie accuracy > -max |position bias| > confident-pair swap consistency > split-half Spearman > -cost",
+  "selection_inputs": "calibration and reliability metrics only; no downstream policy or NBPO quantity was consulted",
+  "protocol_file": {
+    "path": "experiments/iclr2027_table1_v2/judge_protocol_v3/protocol.yaml",
+    "sha256": "ef02d851130e7b59775ed875b8433983797b24916d2eda3838d0b27a7c9881c7"
+  },
+  "protocol_sha256": "f3d299ee66b95632985f16f29030f078eee900f459d172b1f4274d9fe1177be0",
+  "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+  "labels": {
+    "A": {
+      "token": "A",
+      "id": 32
+    },
+    "B": {
+      "token": "B",
+      "id": 33
+    },
+    "TIE": {
+      "token": "T",
+      "id": 51
+    }
+  },
+  "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+  "tokenization_verification": {
+    "verified_single_token_in_context": true,
+    "labels": {
+      "A": {
+        "token": "A",
+        "id": 32
+      },
+      "B": {
+        "token": "B",
+        "id": 33
+      },
+      "TIE": {
+        "token": "T",
+        "id": 51
+      }
+    },
+    "prefix_token_count": 19
+  },
+  "entropy_threshold": 0.9,
+  "order_gap_threshold": 0.25,
+  "max_templates_when_unstable": 3,
+  "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+  "calibration_source": "experiments/iclr2027_table1_v2/calibration_all/analysis/calibration_results.json",
+  "calibration_gate_status_on_development_controls": {
+    "clear_control_directional_accuracy_min": {
+      "threshold": 0.9,
+      "worst_objective": "honesty",
+      "value": 0.833333,
+      "pass": false
+    },
+    "identical_confident_tie_accuracy_min": {
+      "threshold": 0.9,
+      "worst_objective": "helpfulness",
+      "value": 1.0,
+      "pass": true
+    },
+    "abs_signed_position_bias_max": {
+      "threshold": 0.03,
+      "worst_objective": "instruction_following",
+      "value": 0.061558,
+      "pass": false
+    },
+    "confident_decisive_swap_consistency_min": {
+      "threshold": 0.85,
+      "worst_objective": "truthfulness",
+      "value": 0.891473,
+      "pass": true
+    },
+    "split_half_spearman_min": {
+      "threshold": 0.75,
+      "worst_objective": "truthfulness",
+      "value": 0.889808,
+      "pass": true
+    }
+  },
+  "gates_open_at_freeze": [
+    "clear_control_directional_accuracy_min",
+    "abs_signed_position_bias_max"
+  ],
+  "gate_note": "these are the Section F thresholds evaluated on the DEVELOPMENT controls, recorded so a reader knows what was already failing before the holdout ran. The holdout audit is the binding evaluation and is a separate, later run on prompts this protocol has never seen.",
+  "frozen_fields": [
+    "protocol text",
+    "model revision",
+    "tokenizer revision",
+    "candidate-token mapping",
+    "entropy threshold",
+    "adjudication rule",
+    "template set",
+    "decoding"
+  ],
+  "judge_revision_fingerprint": {
+    "config.json": "97e295b63283935788fac5e4f8860862",
+    "generation_config.json": "2325da0f15bb848e018c5ae071b79433",
+    "model.safetensors.index.json": "bed42c6c55274bc08a1f616bceb3bcb8",
+    "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab6",
+    "tokenizer_config.json": "d5d09f07b48c3086c508b30d1c9114bd",
+    "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c1",
+    "merges.txt": "8831e4f1a044471340f7c0a83d7bd713"
+  },
+  "adjudication_caveat": "P2 emits a hard verdict, so its per-observation normalized entropy is identically 0.000. The entropy trigger in the Section D adjudication rule is therefore INOPERATIVE for this protocol and adjudication is driven by the forward/reverse order gap alone. Uncertainty is still expressed, but at the aggregate level -- as disagreement across the three templates and two orders (mean |Delta| ~0.33, mean tie mass ~0.28) -- rather than within a single call. Anyone reading `mean_normalized_entropy` from a P2 bank should know it carries no information.",
+  "rejected_candidates": {
+    "P3_deliberative_soft_logits": "composed P2's decision procedure with P1's constrained scoring, expecting the accuracy of one and the uncertainty of the other. It delivered neither: min clear-control accuracy 0.640 against P2's 0.833, and generating a rationale first collapses the label distribution to one-hot, so its entropy is also 0.000. Ranked second and not selected.",
+    "P1_restricted_choice_soft_logits": "the protocol the brief preferred if it passed calibration. It does not: honesty degradation accuracy 0.020, worse than the hard baseline, and worst-objective position bias 0.289.",
+    "P0_hard_verdict": "baseline diagnostic; last on every criterion that separates."
+  },
+  "what_the_open_gates_mean": {
+    "clear_control_directional_accuracy_min": "0.833 on honesty against a 0.90 threshold. Decomposing it matters: P2's honesty DEGRADATION accuracy is 1.000 -- it detects every deterministic dishonesty edit -- and the shortfall is entirely on NATURAL controls (0.750), i.e. agreement with UltraFeedback's own GPT-4-derived honesty ratings. Disagreement with a noisy external label is not the same defect as failing a deterministic control, and the holdout audit should be read with that distinction in mind.",
+    "abs_signed_position_bias_max": "+0.062 on instruction following against a 0.03 threshold, down from 0.275 for the hard baseline. Still above gate."
+  }
+}
