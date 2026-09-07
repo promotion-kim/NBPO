@@ -1,0 +1,725 @@
+{
+  "manifest": {
+    "protocol_sha256": "33962ad4275fff7be1149077149f875f95e42cec160cc181411bb943994810a7",
+    "protocol_name": "P2_long",
+    "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+    "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+    "schemes": [
+      "ab",
+      "opaque"
+    ],
+    "label_orders": [
+      "AB",
+      "BA"
+    ],
+    "positions": [
+      "y_first",
+      "z_first"
+    ],
+    "templates": [
+      "t0",
+      "t1",
+      "t2"
+    ],
+    "per_objective": 50,
+    "selection": "lowest sha256('opaque-factorial-v5|'+pair_id) per objective; outcome-blind",
+    "tokenization": {
+      "ab": {
+        "A": {
+          "n_tokens": 1,
+          "ids": [
+            32
+          ]
+        },
+        "[[A]]": {
+          "n_tokens": 3,
+          "ids": [
+            15505,
+            32,
+            5053
+          ]
+        },
+        "B": {
+          "n_tokens": 1,
+          "ids": [
+            33
+          ]
+        },
+        "[[B]]": {
+          "n_tokens": 3,
+          "ids": [
+            15505,
+            33,
+            5053
+          ]
+        },
+        "TIE": {
+          "n_tokens": 2,
+          "ids": [
+            51,
+            5371
+          ]
+        },
+        "[[TIE]]": {
+          "n_tokens": 4,
+          "ids": [
+            15505,
+            51,
+            5371,
+            5053
+          ]
+        }
+      },
+      "opaque": {
+        "K7": {
+          "n_tokens": 2,
+          "ids": [
+            42,
+            22
+          ]
+        },
+        "[[K7]]": {
+          "n_tokens": 4,
+          "ids": [
+            15505,
+            42,
+            22,
+            5053
+          ]
+        },
+        "Q2": {
+          "n_tokens": 2,
+          "ids": [
+            48,
+            17
+          ]
+        },
+        "[[Q2]]": {
+          "n_tokens": 4,
+          "ids": [
+            15505,
+            48,
+            17,
+            5053
+          ]
+        },
+        "TIE": {
+          "n_tokens": 2,
+          "ids": [
+            51,
+            5371
+          ]
+        },
+        "[[TIE]]": {
+          "n_tokens": 4,
+          "ids": [
+            15505,
+            51,
+            5371,
+            5053
+          ]
+        }
+      }
+    },
+    "pairs_input": "/work/iclr27_table1_v2/v4_dev/pairs.jsonl",
+    "controls_input": "experiments/iclr2027_table1_v2/calibration/controls.jsonl",
+    "blocks": {
+      "natural": {
+        "n_pairs": 200,
+        "n_renderings": 4800
+      },
+      "controls": {
+        "n_pairs": 800,
+        "n_renderings": 19200
+      }
+    },
+    "max_tokens": 512,
+    "retry_max_tokens": 1024,
+    "wall_clock_seconds": 1023.0
+  },
+  "schemes": {
+    "ab": {
+      "n_renderings": 12000,
+      "unresolved_invalid_rate": 0.0004166666666666667,
+      "first_pass_invalid_rate": 0.0004166666666666667,
+      "per_objective": {
+        "helpfulness": {
+          "physical_first_position_effect": {
+            "estimate": 0.011666666666666714,
+            "ci95": [
+              -0.013333333333333308,
+              0.036666666666666625
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "identifier_effect": {
+            "estimate": 0.2366666666666667,
+            "ci95": [
+              0.18331250000000002,
+              0.2875
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "template_means_win_learner": {
+            "t0": 0.4675,
+            "t1": 0.4975,
+            "t2": 0.47
+          },
+          "template_effect_range": 0.02999999999999997,
+          "n_pairs": 50,
+          "mean_abs_delta": 0.04333333333333334,
+          "raw_all_pair_swap_consistency": 0.0,
+          "confident_semantic_swap_consistency": 0.0,
+          "contradiction_rate": 1.0,
+          "n_decisive_pairs": 4,
+          "order_split_half_pearson": -0.43370780657661445,
+          "order_split_half_spearman": -0.23217286914765903,
+          "template_split_half": {
+            "pearson": 0.0415124813810077,
+            "spearman": 0.20182472989195677
+          },
+          "deterministic_degradation_accuracy": 0.48,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.39,
+          "unresolved_invalid_rate": 0.0,
+          "finite_pool_target_pearson": null,
+          "finite_pool_target_sign_agreement": null
+        },
+        "honesty": {
+          "physical_first_position_effect": {
+            "estimate": -0.020000000000000018,
+            "ci95": [
+              -0.04083333333333333,
+              0.0
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "identifier_effect": {
+            "estimate": 0.01666666666666672,
+            "ci95": [
+              -0.010000000000000009,
+              0.0458541666666665
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "template_means_win_learner": {
+            "t0": 0.505,
+            "t1": 0.5,
+            "t2": 0.505
+          },
+          "template_effect_range": 0.0050000000000000044,
+          "n_pairs": 50,
+          "mean_abs_delta": 0.04666666666666666,
+          "raw_all_pair_swap_consistency": 0.22,
+          "confident_semantic_swap_consistency": 0.2,
+          "contradiction_rate": 0.8,
+          "n_decisive_pairs": 5,
+          "order_split_half_pearson": -0.07088706661394838,
+          "order_split_half_spearman": 0.04643457382953182,
+          "template_split_half": {
+            "pearson": 0.06542785033976521,
+            "spearman": 0.18146458583433375
+          },
+          "deterministic_degradation_accuracy": 0.68,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.47,
+          "unresolved_invalid_rate": 0.0,
+          "finite_pool_target_pearson": null,
+          "finite_pool_target_sign_agreement": null
+        },
+        "instruction_following": {
+          "physical_first_position_effect": {
+            "estimate": 0.025833333333333375,
+            "ci95": [
+              0.0024999999999999467,
+              0.050833333333333286
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "identifier_effect": {
+            "estimate": 0.14749999999999996,
+            "ci95": [
+              0.08583333333333332,
+              0.20668749999999989
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "template_means_win_learner": {
+            "t0": 0.4725,
+            "t1": 0.49,
+            "t2": 0.485
+          },
+          "template_effect_range": 0.017500000000000016,
+          "n_pairs": 50,
+          "mean_abs_delta": 0.06250000000000003,
+          "raw_all_pair_swap_consistency": 0.08,
+          "confident_semantic_swap_consistency": 0.5,
+          "contradiction_rate": 0.5,
+          "n_decisive_pairs": 4,
+          "order_split_half_pearson": -0.0863786207992536,
+          "order_split_half_spearman": -0.0003361344537815126,
+          "template_split_half": {
+            "pearson": 0.10302078239046233,
+            "spearman": 0.16504201680672267
+          },
+          "deterministic_degradation_accuracy": 0.98,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.46,
+          "unresolved_invalid_rate": 0.0003333333333333333,
+          "finite_pool_target_pearson": null,
+          "finite_pool_target_sign_agreement": null
+        },
+        "truthfulness": {
+          "physical_first_position_effect": {
+            "estimate": -0.01583333333333331,
+            "ci95": [
+              -0.04583333333333334,
+              0.013333333333333308
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "identifier_effect": {
+            "estimate": -0.019166666666666665,
+            "ci95": [
+              -0.07168749999999999,
+              0.030000000000000027
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "template_means_win_learner": {
+            "t0": 0.4975,
+            "t1": 0.5125,
+            "t2": 0.4925
+          },
+          "template_effect_range": 0.019999999999999962,
+          "n_pairs": 50,
+          "mean_abs_delta": 0.07916666666666668,
+          "raw_all_pair_swap_consistency": 0.22,
+          "confident_semantic_swap_consistency": 0.6,
+          "contradiction_rate": 0.4,
+          "n_decisive_pairs": 5,
+          "order_split_half_pearson": 0.07565912182590494,
+          "order_split_half_spearman": 0.0036974789915966387,
+          "template_split_half": {
+            "pearson": 0.39850583142444534,
+            "spearman": 0.29546218487394954
+          },
+          "deterministic_degradation_accuracy": 0.64,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.53,
+          "unresolved_invalid_rate": 0.0013333333333333333,
+          "finite_pool_target_pearson": null,
+          "finite_pool_target_sign_agreement": null
+        }
+      },
+      "decision": {
+        "checks": [
+          {
+            "gate": "unresolved_invalid_rate",
+            "threshold": 0.002,
+            "op": "<",
+            "status": "PASS",
+            "per_objective": {
+              "helpfulness": 0.0,
+              "honesty": 0.0,
+              "instruction_following": 0.0003333333333333333,
+              "truthfulness": 0.0013333333333333333
+            }
+          },
+          {
+            "gate": "deterministic_degradation_accuracy",
+            "threshold": 0.9,
+            "op": ">=",
+            "status": "FAIL",
+            "per_objective": {
+              "helpfulness": 0.48,
+              "honesty": 0.68,
+              "instruction_following": 0.98,
+              "truthfulness": 0.64
+            }
+          },
+          {
+            "gate": "identical_confident_tie_accuracy",
+            "threshold": 0.9,
+            "op": ">=",
+            "status": "PASS",
+            "per_objective": {
+              "helpfulness": 1.0,
+              "honesty": 1.0,
+              "instruction_following": 1.0,
+              "truthfulness": 1.0
+            }
+          },
+          {
+            "gate": "confident_semantic_swap_consistency",
+            "threshold": 0.85,
+            "op": ">=",
+            "status": "FAIL",
+            "per_objective": {
+              "helpfulness": 0.0,
+              "honesty": 0.2,
+              "instruction_following": 0.5,
+              "truthfulness": 0.6
+            }
+          },
+          {
+            "gate": "order_split_half_spearman",
+            "threshold": 0.75,
+            "op": ">=",
+            "status": "FAIL",
+            "per_objective": {
+              "helpfulness": -0.23217286914765903,
+              "honesty": 0.04643457382953182,
+              "instruction_following": -0.0003361344537815126,
+              "truthfulness": 0.0036974789915966387
+            }
+          },
+          {
+            "gate": "finite_pool_target_pearson",
+            "threshold": 0.9,
+            "op": ">=",
+            "status": "NOT EVALUATED",
+            "per_objective": {
+              "helpfulness": null,
+              "honesty": null,
+              "instruction_following": null,
+              "truthfulness": null
+            }
+          },
+          {
+            "gate": "finite_pool_target_sign_agreement",
+            "threshold": 0.85,
+            "op": ">=",
+            "status": "NOT EVALUATED",
+            "per_objective": {
+              "helpfulness": null,
+              "honesty": null,
+              "instruction_following": null,
+              "truthfulness": null
+            }
+          }
+        ],
+        "worst_per_gate": {
+          "unresolved_invalid_rate": 0.0013333333333333333,
+          "deterministic_degradation_accuracy": 0.48,
+          "identical_confident_tie_accuracy": 1.0,
+          "confident_semantic_swap_consistency": 0.0,
+          "order_split_half_spearman": -0.23217286914765903
+        },
+        "judge_level_gates_pass": false,
+        "gates_not_evaluated": [
+          "finite_pool_target_pearson",
+          "finite_pool_target_sign_agreement"
+        ],
+        "decision": "B: permanently retire prompted-Qwen judging from the main experiment; no further prompt variants, no lowered thresholds"
+      }
+    },
+    "opaque": {
+      "n_renderings": 12000,
+      "unresolved_invalid_rate": 8.333333333333333e-05,
+      "first_pass_invalid_rate": 0.00016666666666666666,
+      "per_objective": {
+        "helpfulness": {
+          "physical_first_position_effect": {
+            "estimate": 0.16833333333333333,
+            "ci95": [
+              0.12,
+              0.21916666666666662
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "identifier_effect": {
+            "estimate": 0.06833333333333336,
+            "ci95": [
+              0.04247916666666665,
+              0.09833333333333338
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "template_means_win_learner": {
+            "t0": 0.545,
+            "t1": 0.545,
+            "t2": 0.545
+          },
+          "template_effect_range": 0.0,
+          "n_pairs": 50,
+          "mean_abs_delta": 0.20666666666666667,
+          "raw_all_pair_swap_consistency": 0.48,
+          "confident_semantic_swap_consistency": 0.5263157894736842,
+          "contradiction_rate": 0.4736842105263158,
+          "n_decisive_pairs": 38,
+          "order_split_half_pearson": 0.33173514810619836,
+          "order_split_half_spearman": 0.3556782713085234,
+          "template_split_half": {
+            "pearson": 0.7759211148689438,
+            "spearman": 0.6562785114045617
+          },
+          "deterministic_degradation_accuracy": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.93,
+          "unresolved_invalid_rate": 0.0,
+          "finite_pool_target_pearson": null,
+          "finite_pool_target_sign_agreement": null
+        },
+        "honesty": {
+          "physical_first_position_effect": {
+            "estimate": -0.004166666666666652,
+            "ci95": [
+              -0.03666666666666668,
+              0.029166666666666674
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "identifier_effect": {
+            "estimate": -0.01583333333333331,
+            "ci95": [
+              -0.03583333333333333,
+              0.004166666666666652
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "template_means_win_learner": {
+            "t0": 0.5125,
+            "t1": 0.5375,
+            "t2": 0.5325
+          },
+          "template_effect_range": 0.025000000000000022,
+          "n_pairs": 50,
+          "mean_abs_delta": 0.1408333333333333,
+          "raw_all_pair_swap_consistency": 0.38,
+          "confident_semantic_swap_consistency": 0.75,
+          "contradiction_rate": 0.25,
+          "n_decisive_pairs": 16,
+          "order_split_half_pearson": 0.49111494920988963,
+          "order_split_half_spearman": 0.4648739495798319,
+          "template_split_half": {
+            "pearson": 0.7779356887582657,
+            "spearman": 0.6402400960384154
+          },
+          "deterministic_degradation_accuracy": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.84,
+          "unresolved_invalid_rate": 0.0,
+          "finite_pool_target_pearson": null,
+          "finite_pool_target_sign_agreement": null
+        },
+        "instruction_following": {
+          "physical_first_position_effect": {
+            "estimate": 0.15833333333333333,
+            "ci95": [
+              0.10331250000000006,
+              0.21499999999999997
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "identifier_effect": {
+            "estimate": -0.0050000000000000044,
+            "ci95": [
+              -0.02583333333333332,
+              0.01666666666666672
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "template_means_win_learner": {
+            "t0": 0.49,
+            "t1": 0.495,
+            "t2": 0.515
+          },
+          "template_effect_range": 0.025000000000000022,
+          "n_pairs": 50,
+          "mean_abs_delta": 0.14666666666666667,
+          "raw_all_pair_swap_consistency": 0.26,
+          "confident_semantic_swap_consistency": 0.4482758620689655,
+          "contradiction_rate": 0.5517241379310345,
+          "n_decisive_pairs": 29,
+          "order_split_half_pearson": 0.07290725510952635,
+          "order_split_half_spearman": 0.007635054021608643,
+          "template_split_half": {
+            "pearson": 0.82597836604181,
+            "spearman": 0.7571188475390156
+          },
+          "deterministic_degradation_accuracy": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.87,
+          "unresolved_invalid_rate": 0.0,
+          "finite_pool_target_pearson": null,
+          "finite_pool_target_sign_agreement": null
+        },
+        "truthfulness": {
+          "physical_first_position_effect": {
+            "estimate": 0.01666666666666672,
+            "ci95": [
+              -0.030000000000000027,
+              0.0641666666666667
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "identifier_effect": {
+            "estimate": -0.016666666666666663,
+            "ci95": [
+              -0.043333333333333335,
+              0.009166666666666656
+            ],
+            "n_pairs": 50,
+            "n_observations": 600
+          },
+          "template_means_win_learner": {
+            "t0": 0.54,
+            "t1": 0.53,
+            "t2": 0.505
+          },
+          "template_effect_range": 0.03500000000000003,
+          "n_pairs": 50,
+          "mean_abs_delta": 0.15999999999999998,
+          "raw_all_pair_swap_consistency": 0.34,
+          "confident_semantic_swap_consistency": 0.6,
+          "contradiction_rate": 0.4,
+          "n_decisive_pairs": 25,
+          "order_split_half_pearson": 0.299050070930021,
+          "order_split_half_spearman": 0.24331332533013206,
+          "template_split_half": {
+            "pearson": 0.7541878604069178,
+            "spearman": 0.6681872749099641
+          },
+          "deterministic_degradation_accuracy": 0.94,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.92,
+          "unresolved_invalid_rate": 0.0003333333333333333,
+          "finite_pool_target_pearson": null,
+          "finite_pool_target_sign_agreement": null
+        }
+      },
+      "decision": {
+        "checks": [
+          {
+            "gate": "unresolved_invalid_rate",
+            "threshold": 0.002,
+            "op": "<",
+            "status": "PASS",
+            "per_objective": {
+              "helpfulness": 0.0,
+              "honesty": 0.0,
+              "instruction_following": 0.0,
+              "truthfulness": 0.0003333333333333333
+            }
+          },
+          {
+            "gate": "deterministic_degradation_accuracy",
+            "threshold": 0.9,
+            "op": ">=",
+            "status": "PASS",
+            "per_objective": {
+              "helpfulness": 1.0,
+              "honesty": 1.0,
+              "instruction_following": 1.0,
+              "truthfulness": 0.94
+            }
+          },
+          {
+            "gate": "identical_confident_tie_accuracy",
+            "threshold": 0.9,
+            "op": ">=",
+            "status": "PASS",
+            "per_objective": {
+              "helpfulness": 1.0,
+              "honesty": 1.0,
+              "instruction_following": 1.0,
+              "truthfulness": 1.0
+            }
+          },
+          {
+            "gate": "confident_semantic_swap_consistency",
+            "threshold": 0.85,
+            "op": ">=",
+            "status": "FAIL",
+            "per_objective": {
+              "helpfulness": 0.5263157894736842,
+              "honesty": 0.75,
+              "instruction_following": 0.4482758620689655,
+              "truthfulness": 0.6
+            }
+          },
+          {
+            "gate": "order_split_half_spearman",
+            "threshold": 0.75,
+            "op": ">=",
+            "status": "FAIL",
+            "per_objective": {
+              "helpfulness": 0.3556782713085234,
+              "honesty": 0.4648739495798319,
+              "instruction_following": 0.007635054021608643,
+              "truthfulness": 0.24331332533013206
+            }
+          },
+          {
+            "gate": "finite_pool_target_pearson",
+            "threshold": 0.9,
+            "op": ">=",
+            "status": "NOT EVALUATED",
+            "per_objective": {
+              "helpfulness": null,
+              "honesty": null,
+              "instruction_following": null,
+              "truthfulness": null
+            }
+          },
+          {
+            "gate": "finite_pool_target_sign_agreement",
+            "threshold": 0.85,
+            "op": ">=",
+            "status": "NOT EVALUATED",
+            "per_objective": {
+              "helpfulness": null,
+              "honesty": null,
+              "instruction_following": null,
+              "truthfulness": null
+            }
+          }
+        ],
+        "worst_per_gate": {
+          "unresolved_invalid_rate": 0.0003333333333333333,
+          "deterministic_degradation_accuracy": 0.94,
+          "identical_confident_tie_accuracy": 1.0,
+          "confident_semantic_swap_consistency": 0.4482758620689655,
+          "order_split_half_spearman": 0.007635054021608643
+        },
+        "judge_level_gates_pass": false,
+        "gates_not_evaluated": [
+          "finite_pool_target_pearson",
+          "finite_pool_target_sign_agreement"
+        ],
+        "decision": "B: permanently retire prompted-Qwen judging from the main experiment; no further prompt variants, no lowered thresholds"
+      }
+    }
+  },
+  "design_balance": {
+    "ab": {
+      "y_first|AB": 600,
+      "y_first|BA": 600,
+      "z_first|AB": 600,
+      "z_first|BA": 600
+    },
+    "opaque": {
+      "y_first|AB": 600,
+      "y_first|BA": 600,
+      "z_first|AB": 600,
+      "z_first|BA": 600
+    }
+  },
+  "design_is_balanced": true
+}

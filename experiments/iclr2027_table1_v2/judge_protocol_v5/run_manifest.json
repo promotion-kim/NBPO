@@ -1,0 +1,138 @@
+{
+  "protocol_sha256": "33962ad4275fff7be1149077149f875f95e42cec160cc181411bb943994810a7",
+  "protocol_name": "P2_long",
+  "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+  "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+  "schemes": [
+    "ab",
+    "opaque"
+  ],
+  "label_orders": [
+    "AB",
+    "BA"
+  ],
+  "positions": [
+    "y_first",
+    "z_first"
+  ],
+  "templates": [
+    "t0",
+    "t1",
+    "t2"
+  ],
+  "per_objective": 50,
+  "selection": "lowest sha256('opaque-factorial-v5|'+pair_id) per objective; outcome-blind",
+  "tokenization": {
+    "ab": {
+      "A": {
+        "n_tokens": 1,
+        "ids": [
+          32
+        ]
+      },
+      "[[A]]": {
+        "n_tokens": 3,
+        "ids": [
+          15505,
+          32,
+          5053
+        ]
+      },
+      "B": {
+        "n_tokens": 1,
+        "ids": [
+          33
+        ]
+      },
+      "[[B]]": {
+        "n_tokens": 3,
+        "ids": [
+          15505,
+          33,
+          5053
+        ]
+      },
+      "TIE": {
+        "n_tokens": 2,
+        "ids": [
+          51,
+          5371
+        ]
+      },
+      "[[TIE]]": {
+        "n_tokens": 4,
+        "ids": [
+          15505,
+          51,
+          5371,
+          5053
+        ]
+      }
+    },
+    "opaque": {
+      "K7": {
+        "n_tokens": 2,
+        "ids": [
+          42,
+          22
+        ]
+      },
+      "[[K7]]": {
+        "n_tokens": 4,
+        "ids": [
+          15505,
+          42,
+          22,
+          5053
+        ]
+      },
+      "Q2": {
+        "n_tokens": 2,
+        "ids": [
+          48,
+          17
+        ]
+      },
+      "[[Q2]]": {
+        "n_tokens": 4,
+        "ids": [
+          15505,
+          48,
+          17,
+          5053
+        ]
+      },
+      "TIE": {
+        "n_tokens": 2,
+        "ids": [
+          51,
+          5371
+        ]
+      },
+      "[[TIE]]": {
+        "n_tokens": 4,
+        "ids": [
+          15505,
+          51,
+          5371,
+          5053
+        ]
+      }
+    }
+  },
+  "pairs_input": "/work/iclr27_table1_v2/v4_dev/pairs.jsonl",
+  "controls_input": "experiments/iclr2027_table1_v2/calibration/controls.jsonl",
+  "blocks": {
+    "natural": {
+      "n_pairs": 200,
+      "n_renderings": 4800
+    },
+    "controls": {
+      "n_pairs": 800,
+      "n_renderings": 19200
+    }
+  },
+  "max_tokens": 512,
+  "retry_max_tokens": 1024,
+  "wall_clock_seconds": 1023.0
+}

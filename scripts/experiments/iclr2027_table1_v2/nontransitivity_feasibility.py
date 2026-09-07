@@ -392,3 +392,80 @@ def reference_is_equilibrium(A, mu, beta, d, pi_ref, tol=1e-9):
         "exploitability": exploitability(A, pi_ref),
         "is_stationary_for_every_objective": bool(max(per_obj) <= tol),
     }
+
+
+# --------------------------------------------------------------------------
+# a convergent practical solver
+# --------------------------------------------------------------------------
+
+def stationarity_residual(A, mu, beta, pi, pi_ref, w, eta):
+    """How far ``pi`` is from solving the proximal subproblem at weights ``w``.
+
+    The Eq. (21) map's fixed point is exactly the stationary point of the
+    concave program ``max_pi sum_k w_k s_k(pi) - D(pi||pi_ref)/eta``, so the
+    honest residual is how far one *undamped* application of that map moves the
+    iterate -- not how far the last damped step moved, which shrinks with the
+    damping regardless of convergence.
+    """
+    q = value_gradient(A, pi, mu, beta) * A.shape[1]      # per-prompt representer
+    g = np.tensordot(np.asarray(w, dtype=np.float64), q, axes=(0, 0))
+    log_new = np.log(np.clip(pi_ref, FLOOR, None)) + eta * g
+    log_new -= logsumexp(log_new, axis=-1, keepdims=True)
+    return float(np.abs(np.exp(log_new) - pi).max())
+
+
+def solve_proximal_exact(A, mu, beta, d, w, pi_ref, eta, pi0=None):
+    """The inner proximal solve done by concave maximization instead of iteration.
+
+    The deployed solver applies the Eq. (21) map ``R`` times. That map is only a
+    contraction while the weighted score is small; once raw Nash multipliers grow
+    (``lambda_k = 1/s_k``, so they diverge as a surplus approaches zero) the
+    exponent saturates the per-prompt softmax and the iteration bang-bangs
+    between vertices instead of converging -- fixed-point residual 1.000 in the
+    audit. Damping hides that in the *last-step* residual without fixing it: the
+    undamped map still moves the damped iterate by 0.54.
+
+    The subproblem itself is concave, so it does not need iterating at all. This
+    solves it directly and reports the stationarity residual, which is the
+    quantity the R-step loop was implicitly trying to drive to zero.
+    """
+    pi, res = solve_weighted(A, mu, beta, d, w, pi0=pi0, eta=eta, pi_ref=pi_ref)
+    return pi, {
+        "stationarity_residual": stationarity_residual(A, mu, beta, pi, pi_ref, w, eta),
+        "slsqp_status": int(res.status), "slsqp_iterations": int(res.nit),
+    }
+
+
+def solve_nash_dual_exact_inner(A, mu, beta, d, pi_ref, eta, *, M=200, gamma=0.5,
+                                lambda_box=(1e-3, 1e3), warm_start=True):
+    """The deployed outer dual loop, with the inner map replaced by an exact solve.
+
+    Nothing about the projected dual update changes -- ``lambda <- clamp(lambda -
+    gamma (s - 1/lambda))`` is the same Eq. (27) step, the multipliers stay raw
+    and are never renormalized, and the box is the same. Only the inner
+    subproblem is solved rather than iterated.
+    """
+    K = A.shape[0]
+    lam = np.ones(K)
+    lo, hi = lambda_box
+    pi = np.array(pi_ref, dtype=np.float64, copy=True)
+    history = []
+    for m in range(M):
+        pi, info = solve_proximal_exact(A, mu, beta, d, lam, pi_ref, eta,
+                                        pi0=pi if warm_start else None)
+        s = game_values(A, pi, mu, beta) - d
+        if m % max(1, M // 10) == 0:
+            history.append({"iteration": m, "lambda": lam.tolist(),
+                            "surplus": s.tolist(), "min_surplus": float(s.min()),
+                            "kkt_residual": float(np.abs(s - 1.0 / lam).max()),
+                            "stationarity_residual": info["stationarity_residual"]})
+        lam = np.clip(lam - gamma * (s - 1.0 / lam), lo, hi)
+    pi, info = solve_proximal_exact(A, mu, beta, d, lam, pi_ref, eta, pi0=pi)
+    s = game_values(A, pi, mu, beta) - d
+    return pi, {
+        "weights": lam.tolist(), "weight_l1": float(lam.sum()),
+        "surplus": s.tolist(), "min_surplus": float(s.min()),
+        "kkt_residual": float(np.abs(s - 1.0 / lam).max()),
+        "stationarity_residual": info["stationarity_residual"],
+        "outer_iterations": M, "history": history,
+    }

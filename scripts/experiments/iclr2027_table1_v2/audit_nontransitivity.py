@@ -39,7 +39,7 @@ from mnpo_scripts.nbpo_generic import (
     KSUndefinedError, matched_weight_l1, solve_finite_pool, solve_proximal,
 )
 from mnpo_scripts.nbpo_representations import (
-    AdaptiveGameRepresentation, FixedReferenceRepresentation,
+    AdaptiveGameRepresentation, BTRewardRepresentation, FixedReferenceRepresentation,
 )
 from scripts.experiments.iclr2027_table1_v2 import nontransitivity_feasibility as nf
 from scripts.experiments.iclr2027_table1_v2.controlled_nontransitivity import (
@@ -103,8 +103,20 @@ def practical_solutions(A, beta, eta, M, R, gamma=0.5):
     game = AdaptiveGameRepresentation(At, At, mu_t,
                                       torch.full((K,), float(beta[0]), dtype=torch.float64))
     fixed = FixedReferenceRepresentation(At, At, mu_t)
+    # BT-RM: the best SCALAR summary of the same payoff, fitted per prompt. Its
+    # Eq. (21) map is constant, so like fixed_reference it lands on its fixed
+    # point in one application and cannot diverge -- which is exactly why it has
+    # to be in the table next to a solver that can.
+    r = np.zeros((K, X, I))
+    for k in range(K):
+        for x in range(X):
+            _, sc = bt_fit(0.5 + A[k, x])
+            r[k, x] = sc
+    bt = BTRewardRepresentation(torch.from_numpy(r), torch.from_numpy(r), mu_t)
+
     nash_game = solve_finite_pool(game, "nash", eta=eta, M=M, R=R, gamma=gamma)
     nash_fixed = solve_finite_pool(fixed, "nash", eta=eta, M=M, R=R, gamma=gamma)
+    nash_bt = solve_finite_pool(bt, "nash", eta=eta, M=M, R=R, gamma=gamma)
     L = matched_weight_l1(nash_fixed)
     w = nash_game.weights * (L / float(nash_game.weights.sum()))
     matched = solve_proximal(game, mu_t, w, eta, R)
@@ -130,6 +142,12 @@ def practical_solutions(A, beta, eta, M, R, gamma=0.5):
             "pi": nash_fixed.pi.numpy(),
             "weight_l1": float(nash_fixed.weights.sum()),
             "fixed_point_residual": nash_fixed.fixed_point_residual,
+        },
+        "bt_rm_nash": {
+            "pi": nash_bt.pi.numpy(),
+            "weight_l1": float(nash_bt.weights.sum()),
+            "fixed_point_residual": nash_bt.fixed_point_residual,
+            "extra_map_residual": nash_bt.extra_map_residual,
         },
     }
 
@@ -166,7 +184,7 @@ def ks_definedness(A, mu, beta, d):
 # driver
 # --------------------------------------------------------------------------
 
-def audit_instance(inst, seed, alpha, eta, M, R, skip_ks=False):
+def audit_instance(inst, seed, alpha, eta, M, R, skip_ks=False, c2_outer=120):
     A, mu, beta, d = inst["A"], inst["mu"], inst["beta"], inst["d"]
     K, X, I, _ = A.shape
     pi_ref = mu
@@ -196,7 +214,21 @@ def audit_instance(inst, seed, alpha, eta, M, R, skip_ks=False):
     policies = {"C_practical": prac["C_practical"]["pi"],
                 "D_matched_step": prac["D_matched_step"]["pi"],
                 "fixed_reference_native": prac["fixed_reference_native"]["pi"],
+                "bt_rm_nash": prac["bt_rm_nash"]["pi"],
                 "reference": pi_ref}
+
+    # C2: the SAME outer dual loop with the inner proximal map replaced by a
+    # direct concave maximization. This is the repaired practical solver, and it
+    # is what Section 4's "fixed-point residual < 1e-4 and close to the exact
+    # proximal policy" gate is actually asking for.
+    pi_c2, c2 = nf.solve_nash_dual_exact_inner(A, mu, beta, d, pi_ref, eta,
+                                               M=c2_outer, gamma=0.5)
+    policies["C2_exact_inner_solve"] = pi_c2
+    prac["C2_exact_inner_solve"] = {
+        "weight_l1": c2["weight_l1"], "weights": c2["weights"],
+        "fixed_point_residual": c2["stationarity_residual"],
+        "kkt_residual": c2["kkt_residual"],
+        "outer_iterations": c2["outer_iterations"]}
 
     if row["feasible"]:
         pi_a, res_a, s_a = nf.solve_nash(A, mu, beta, d, pi0=feas["pi"])
@@ -244,6 +276,7 @@ def main() -> None:
     ap.add_argument("--v2-cycle-amp", type=float, default=0.28)
     ap.add_argument("--v2-responses", type=int, default=5)
     ap.add_argument("--skip-ks", action="store_true")
+    ap.add_argument("--c2-outer-iterations", type=int, default=120)
     args = ap.parse_args()
 
     rows, v2_cfg = [], None
@@ -267,13 +300,18 @@ def main() -> None:
             rows.append(audit_instance(inst, seed, alpha, args.eta,
                                        args.dual_iterations,
                                        args.fixed_point_iterations,
-                                       skip_ks=args.skip_ks))
+                                       skip_ks=args.skip_ks,
+                                       c2_outer=args.c2_outer_iterations))
             rows[-1].update(row_extra)
             r = rows[-1]
+            pol = r["policies"]
             print(f"  [{args.benchmark}] seed {seed} alpha {alpha:.2f}  "
                   f"rho*={r['rho_star']:+.6f} (gap {r['rho_star_gap']:.1e})  "
-                  f"BTdev={r['bt_deviance_per_edge']:.4f}  "
-                  f"feasible={r['feasible']}", flush=True)
+                  f"BTdev={r['bt_deviance_per_edge']:.4f}  feasible={r['feasible']}  "
+                  f"C={pol['C_practical']['min_surplus']:+.5f}  "
+                  f"C2={pol['C2_exact_inner_solve']['min_surplus']:+.5f}  "
+                  f"resid={pol['C2_exact_inner_solve'].get('fixed_point_residual', float('nan')):.1e}",
+                  flush=True)
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     tag = args.benchmark
@@ -314,7 +352,8 @@ def write_tables(rows, out_dir, tag):
     (out_dir / f"feasibility_{tag}.csv").write_text("\n".join(lines) + "\n")
 
     methods = ["A_exact_global_nash", "B_exact_proximal_nash", "C_practical",
-               "D_matched_step", "fixed_reference_native", "reference"]
+               "C2_exact_inner_solve", "D_matched_step", "fixed_reference_native",
+               "bt_rm_nash", "reference"]
     head = ("alpha,method,n,min_surplus_mean,min_surplus_std,avg_surplus_mean,"
             "nash_welfare_mean,kl_from_reference_mean,exploitability_mean,"
             "weight_l1_mean,target_log_ratio_l2_mean,fixed_point_residual_max,"
