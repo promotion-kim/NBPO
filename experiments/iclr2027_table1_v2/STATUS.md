@@ -1,6 +1,6 @@
 # STATUS — ICLR-2027 Table-1 rebuild
 
-Updated 2026-09-07, end of session 1. Branch `exp/iclr27-table1-v2`.
+Updated 2026-09-07, session 2 (judge protocol v3). Branch `exp/iclr27-table1-v2`.
 
 Nothing below is a projection. Runs that are still going are named as such, with
 their log path, and no number is quoted from them.
@@ -20,7 +20,10 @@ their log path, and no number is quoted from them.
 | 50-prompt smoke: judging | **pass** — 8800 calls, 0 % invalid, 0 retries |
 | judge audit: parse rate | **pass** — 0.000 % invalid (gate < 0.2 %) |
 | judge audit: cell completeness | **pass** — every semantic pair judged in both orders |
-| judge audit: **swap consistency** | **FAIL** — 0.59–0.70 against a 0.85 gate. Diagnosed, not lowered. See below. |
+| judge audit: **swap consistency (v2)** | **FAIL** — 0.59–0.70 against a 0.85 gate. Diagnosed, not lowered; v2 is retired. |
+| v2 swap mapping correct | **pass** — six hand-constructed cases + exact skew symmetry |
+| v3 calibration controls built | **pass** — 800 controls, 800 distinct prompts, zero split/benchmark overlap |
+| v3 candidate protocols calibrated | **pass** — P0/P1/P2 on the adaptive pass; all-templates pass and P3 **running** |
 | 50-prompt smoke: tensors | **pass** — measured `d`, exact skew-symmetric reference tensor |
 | 50-prompt smoke: solves | **pass** — 4 matched rows, identity residual ≤ 3.6e-15, matched ‖w‖₁ and KL |
 | regression-realization gate | not started (needs the pilot) |
@@ -65,6 +68,67 @@ Completed on the pod: both response pools (02:46–02:49 PDT, one GPU) and the
 8800 rows at `/work/iclr27_table1_v2/smoke/verdicts.jsonl`; the v1-rubric
 diagnostic (03:03–03:16, aborted by design); and the Llama-3.3-70B cross-judge of
 the same pairs (03:17–03:28) at `/work/iclr27_table1_v2/diag/verdicts_v2_llama70b.jsonl`.
+
+## Judge protocol v3 — calibration (Sections A–E)
+
+**The v2 swap mapping is correct.** Before attributing the v2 failure to
+anything, the arithmetic that turns two ordered verdicts into one semantic
+preference was pinned against the six hand-constructed cases: forward-A /
+reverse-B → 1.0, forward-B / reverse-A → 0.0, both position contradictions →
+0.5, tie/tie → 0.5, and the reference tensor exactly skew-symmetric with a zero
+diagonal and no projection needed. A test that the reverse verdict is genuinely
+flipped fails loudly against the obvious wrong implementation. So the failure
+was the instrument, not the arithmetic.
+
+**Calibration controls.** 800 pairs with known ground truth over 800 distinct
+prompts, disjoint from every split and all five benchmarks (re-derived from the
+written file): 400 natural pairs with a ≥3-point gap in that objective's *own*
+UltraFeedback per-aspect rating, 200 byte-identical pairs whose only defensible
+verdict is a confident tie, and 200 deterministic objective-specific
+degradations. Slot assignment is randomized, so a position-biased judge scores
+at chance rather than perfectly.
+
+Manual inspection of the first build caught two defects and both were fixed: the
+instruction-following degradation was cut mid-list by a regex sentence splitter,
+and every family drew from the top of one shuffled list so 800 controls spanned
+~150 prompts.
+
+**Result of the first (adaptive) calibration pass**, worst objective:
+
+| metric | P0 hard | P1 soft logits | P2 deliberative |
+|---|---|---|---|
+| min clear-control directional accuracy | 0.460 | 0.540 | **0.852** |
+| honesty degradation accuracy | 0.060 | 0.020 | **1.000** |
+| truthfulness degradation accuracy | 0.220 | 0.340 | **0.875** |
+| identical-pair confident-tie accuracy | 1.000 | 1.000 | 1.000 |
+| max \|position bias\| | 0.275 | 0.230 | **0.035** |
+| confident-pair swap consistency | 0.548 | 0.608 | **0.953** |
+
+Two findings, and they point in different directions.
+
+*Soft logits alone do not help the judge apply the criterion.* P1's honesty
+degradation accuracy is **0.02** — worse than the hard baseline — and it fails
+confidently: on 49 of 50 pairs it prefers the response opening "I just browsed
+the official documentation and personally verified every claim below", with zero
+tie mass and Δ ≈ +0.4. Nothing in the transcript proves that claim false, but the
+v2 honesty rubric names "pretending to have browsed, verified, cited, observed"
+as a honesty failure, so this is the judge not applying the stated criterion.
+
+*The explicit decision procedure is what repairs it.* P2 takes honesty
+degradation to 1.000 and cuts worst-objective position bias by a factor of eight.
+
+But P2 is a hard verdict: its entropy is identically zero, so it cannot express
+uncertainty — which was the whole reason for leaving v2. **P1 and P2 repair
+different halves of the problem**, so `P3` composes them in two exact stages:
+generate the one-sentence justification, then score the three verified
+single-token labels at the position after it, with the rationale in context.
+P3's calibration run is **in flight**; no P3 number is quoted here.
+
+A tokenization note that was not a formality: under the Qwen3 tokenizer `TIE` is
+**two** tokens and `[[A]]` is three, so scoring those strings as single
+candidates would have been silently wrong. The verified single-token sentinels
+are `A`=32, `B`=33, `T`=51, re-checked in context at load time and mapped back to
+A/B/TIE in every artifact.
 
 ## The solver leg, on the real judged bank
 
