@@ -46,6 +46,9 @@ experiments/iclr2027_table1_v2/*
 !experiments/iclr2027_table1_v2/splits/
 !experiments/iclr2027_table1_v2/configs_frozen/
 !experiments/iclr2027_table1_v2/judge_audit/
+!experiments/iclr2027_table1_v2/judge_audit_v2/
+!experiments/iclr2027_table1_v2/judge_protocol_v3/
+!experiments/iclr2027_table1_v2/calibration/
 !experiments/iclr2027_table1_v2/plans/
 experiments/iclr2027_table1_v2/judge_audit/*
 !experiments/iclr2027_table1_v2/judge_audit/report.json
