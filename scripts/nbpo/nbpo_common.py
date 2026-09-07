@@ -227,16 +227,36 @@ def check_pool_cardinality(learner_pools, comparator_pools, reproduction_mode: b
 def load_objective_rubrics(config_path: Path, objectives: Sequence[str]) -> dict:
     """Load rubrics for ``objectives`` from a versioned YAML file, failing loudly.
 
-    The YAML schema is::
+    Two schemas are accepted, and which one a file uses is decided by what the
+    file contains, never by its version number.
 
-        version: <int>
-        dataset: <name>
+    **Per-objective (v1)** -- every objective carries its own complete prompt::
+
         objectives:
           <name>:
-            available: true|false
-            source: <provenance path in this repo>
-            system: <exact system prompt>            # required when available
+            available: true
+            system: <exact system prompt>
             user_template: <template with {prompt},{a},{b}>
+
+    **Shared instruction (v2)** -- one evaluator instruction, four criteria::
+
+        common_system: <the instruction every objective shares>
+        common_user_template: <template with {prompt},{response_a},{response_b}>
+        objectives:
+          <name>:
+            available: true
+            criterion: <what THIS objective judges, and what it must ignore>
+
+    The v2 system prompt is composed as ``common_system + "\n\n" + criterion``.
+    Composing rather than repeating is the point of the schema: in v1 the four
+    preambles drifted apart, so a change to "how to judge" had to be made four
+    times and the objective-label correlations were high. A file may not mix the
+    two schemas for one objective -- that would leave which text was used
+    ambiguous, and the whole purpose of hashing the rubric is that it is not.
+
+    Every returned rubric carries ``rubric_sha256`` over the exact composed
+    system + user template, so a judgment row records the text that produced it
+    and not merely the file it came from.
 
     Any requested objective that is missing, or marked ``available: false``,
     raises :class:`RubricUnavailableError` naming it -- rubrics whose exact
@@ -255,15 +275,52 @@ def load_objective_rubrics(config_path: Path, objectives: Sequence[str]) -> dict
         if not entry.get("available", False):
             unavailable.append((obj, entry.get("reason", "no reason recorded")))
             continue
-        if not entry.get("system") or not entry.get("user_template"):
+        has_own = bool(entry.get("system")) and bool(entry.get("user_template"))
+        has_criterion = bool(entry.get("criterion"))
+        if has_own and has_criterion:
             raise RubricUnavailableError(
-                f"objective {obj!r} in {config_path} is marked available but lacks "
-                "system/user_template text"
-            )
+                f"objective {obj!r} in {config_path} gives BOTH its own system/"
+                "user_template and a criterion for the shared instruction. Which text "
+                "the judge saw would be ambiguous, and the rubric hash exists precisely "
+                "so that it is not.")
+        if has_own:
+            system = entry["system"]
+            user_template = entry["user_template"]
+            schema = "per_objective"
+        elif has_criterion:
+            common = cfg.get("common_system")
+            template = cfg.get("common_user_template")
+            if not common or not template:
+                raise RubricUnavailableError(
+                    f"objective {obj!r} in {config_path} supplies a criterion, but the "
+                    "file has no common_system/common_user_template to compose it with")
+            system = f"{common.rstrip()}\n\n{entry['criterion'].strip()}"
+            # The judge formats templates with {prompt}, {a}, {b}. The v2 file is
+            # written with the self-describing {response_a}/{response_b} names, so
+            # they are rewritten here -- once, at load, with the result hashed --
+            # rather than teaching every call site a second placeholder spelling.
+            user_template = (template.replace("{response_a}", "{a}")
+                                     .replace("{response_b}", "{b}"))
+            schema = "shared_instruction"
+        else:
+            raise RubricUnavailableError(
+                f"objective {obj!r} in {config_path} is marked available but lacks both "
+                "system/user_template text and a criterion")
+        try:
+            user_template.format(prompt="", a="", b="")
+        except (KeyError, IndexError) as exc:
+            raise RubricUnavailableError(
+                f"objective {obj!r} in {config_path} has a user_template the judge cannot "
+                f"format: unknown placeholder {exc}. The judge substitutes {{prompt}}, "
+                "{a} and {b} only.") from exc
         rubrics[obj] = {
-            "system": entry["system"],
-            "user_template": entry["user_template"],
-            "source": entry.get("source", "unknown"),
+            "system": system,
+            "user_template": user_template,
+            "schema": schema,
+            "source": entry.get("source", str(config_path)),
+            # Hash the TEXT, not just the file: two files can share a hash and
+            # differ in the prompt an objective actually saw.
+            "rubric_sha256": sha256_text(system + "\x00" + user_template),
         }
     problems = []
     if missing:
