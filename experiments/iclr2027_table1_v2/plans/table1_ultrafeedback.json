@@ -1,0 +1,264 @@
+{
+  "name": "table1_ultrafeedback",
+  "runs": [
+    {
+      "run_id": "gen-learner-pool",
+      "phase": "generate",
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. bash smoke_gen.sh",
+      "outputs": [
+        "/work/iclr27_table1_v2/smoke/manifest_learner.json",
+        "/work/iclr27_table1_v2/smoke/manifest_reference.json"
+      ],
+      "note": "4 learner seeds 101-104 + 4 comparator seeds 201-204, disjoint"
+    },
+    {
+      "run_id": "judge-training-bank",
+      "phase": "judge",
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. bash smoke_judge.sh",
+      "outputs": [
+        "/work/iclr27_table1_v2/smoke/verdicts.jsonl"
+      ],
+      "note": "Qwen3-32B TRAINING judge, TP=2, both presentation orders"
+    },
+    {
+      "run_id": "solve-nbpo-s42",
+      "phase": "cpu",
+      "method": "nbpo",
+      "representation": "adaptive_game",
+      "aggregation": "nash",
+      "seed": 42,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. python3 -m scripts.nbpo.solve_nbpo_dual --tensor-dir /work/iclr27_table1_v2/smoke/tensor --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 3 --out-dir /work/iclr27_table1_v2/final/solve/nbpo_s42 ",
+      "outputs": [
+        "/work/iclr27_table1_v2/final/solve/nbpo_s42/solution.json"
+      ]
+    },
+    {
+      "run_id": "solve-nbpo-s43",
+      "phase": "cpu",
+      "method": "nbpo",
+      "representation": "adaptive_game",
+      "aggregation": "nash",
+      "seed": 43,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. python3 -m scripts.nbpo.solve_nbpo_dual --tensor-dir /work/iclr27_table1_v2/smoke/tensor --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 3 --out-dir /work/iclr27_table1_v2/final/solve/nbpo_s43 ",
+      "outputs": [
+        "/work/iclr27_table1_v2/final/solve/nbpo_s43/solution.json"
+      ]
+    },
+    {
+      "run_id": "solve-nbpo-s44",
+      "phase": "cpu",
+      "method": "nbpo",
+      "representation": "adaptive_game",
+      "aggregation": "nash",
+      "seed": 44,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. python3 -m scripts.nbpo.solve_nbpo_dual --tensor-dir /work/iclr27_table1_v2/smoke/tensor --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 3 --out-dir /work/iclr27_table1_v2/final/solve/nbpo_s44 ",
+      "outputs": [
+        "/work/iclr27_table1_v2/final/solve/nbpo_s44/solution.json"
+      ]
+    },
+    {
+      "run_id": "solve-fixed-reference-nash-s42",
+      "phase": "cpu",
+      "method": "fixed-reference-nash",
+      "representation": "fixed_reference",
+      "aggregation": "nash",
+      "seed": 42,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. python3 -m scripts.nbpo.solve_nbpo_dual --tensor-dir /work/iclr27_table1_v2/smoke/tensor --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 3 --out-dir /work/iclr27_table1_v2/final/solve/fixed-reference-nash_s42 --representation fixed_reference",
+      "outputs": [
+        "/work/iclr27_table1_v2/final/solve/fixed-reference-nash_s42/solution.json"
+      ]
+    },
+    {
+      "run_id": "solve-fixed-reference-nash-s43",
+      "phase": "cpu",
+      "method": "fixed-reference-nash",
+      "representation": "fixed_reference",
+      "aggregation": "nash",
+      "seed": 43,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. python3 -m scripts.nbpo.solve_nbpo_dual --tensor-dir /work/iclr27_table1_v2/smoke/tensor --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 3 --out-dir /work/iclr27_table1_v2/final/solve/fixed-reference-nash_s43 --representation fixed_reference",
+      "outputs": [
+        "/work/iclr27_table1_v2/final/solve/fixed-reference-nash_s43/solution.json"
+      ]
+    },
+    {
+      "run_id": "solve-fixed-reference-nash-s44",
+      "phase": "cpu",
+      "method": "fixed-reference-nash",
+      "representation": "fixed_reference",
+      "aggregation": "nash",
+      "seed": 44,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. python3 -m scripts.nbpo.solve_nbpo_dual --tensor-dir /work/iclr27_table1_v2/smoke/tensor --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 3 --out-dir /work/iclr27_table1_v2/final/solve/fixed-reference-nash_s44 --representation fixed_reference",
+      "outputs": [
+        "/work/iclr27_table1_v2/final/solve/fixed-reference-nash_s44/solution.json"
+      ]
+    },
+    {
+      "run_id": "solve-game-utilitarian-s42",
+      "phase": "cpu",
+      "method": "game-utilitarian",
+      "representation": "adaptive_game",
+      "aggregation": "utilitarian",
+      "seed": 42,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. python3 -m scripts.nbpo.solve_nbpo_dual --tensor-dir /work/iclr27_table1_v2/smoke/tensor --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 3 --out-dir /work/iclr27_table1_v2/final/solve/game-utilitarian_s42 --aggregation utilitarian --match-weight-l1-to-nash",
+      "outputs": [
+        "/work/iclr27_table1_v2/final/solve/game-utilitarian_s42/solution.json"
+      ]
+    },
+    {
+      "run_id": "solve-game-utilitarian-s43",
+      "phase": "cpu",
+      "method": "game-utilitarian",
+      "representation": "adaptive_game",
+      "aggregation": "utilitarian",
+      "seed": 43,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. python3 -m scripts.nbpo.solve_nbpo_dual --tensor-dir /work/iclr27_table1_v2/smoke/tensor --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 3 --out-dir /work/iclr27_table1_v2/final/solve/game-utilitarian_s43 --aggregation utilitarian --match-weight-l1-to-nash",
+      "outputs": [
+        "/work/iclr27_table1_v2/final/solve/game-utilitarian_s43/solution.json"
+      ]
+    },
+    {
+      "run_id": "solve-game-utilitarian-s44",
+      "phase": "cpu",
+      "method": "game-utilitarian",
+      "representation": "adaptive_game",
+      "aggregation": "utilitarian",
+      "seed": 44,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. python3 -m scripts.nbpo.solve_nbpo_dual --tensor-dir /work/iclr27_table1_v2/smoke/tensor --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 3 --out-dir /work/iclr27_table1_v2/final/solve/game-utilitarian_s44 --aggregation utilitarian --match-weight-l1-to-nash",
+      "outputs": [
+        "/work/iclr27_table1_v2/final/solve/game-utilitarian_s44/solution.json"
+      ]
+    },
+    {
+      "run_id": "solve-game-ks-s42",
+      "phase": "cpu",
+      "method": "game-ks",
+      "representation": "adaptive_game",
+      "aggregation": "kalai_smorodinsky",
+      "seed": 42,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. python3 -m scripts.nbpo.solve_nbpo_dual --tensor-dir /work/iclr27_table1_v2/smoke/tensor --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 3 --out-dir /work/iclr27_table1_v2/final/solve/game-ks_s42 --aggregation kalai_smorodinsky --match-weight-l1-to-nash --ks-unregularized-diagnostics",
+      "outputs": [
+        "/work/iclr27_table1_v2/final/solve/game-ks_s42/solution.json"
+      ]
+    },
+    {
+      "run_id": "solve-game-ks-s43",
+      "phase": "cpu",
+      "method": "game-ks",
+      "representation": "adaptive_game",
+      "aggregation": "kalai_smorodinsky",
+      "seed": 43,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. python3 -m scripts.nbpo.solve_nbpo_dual --tensor-dir /work/iclr27_table1_v2/smoke/tensor --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 3 --out-dir /work/iclr27_table1_v2/final/solve/game-ks_s43 --aggregation kalai_smorodinsky --match-weight-l1-to-nash --ks-unregularized-diagnostics",
+      "outputs": [
+        "/work/iclr27_table1_v2/final/solve/game-ks_s43/solution.json"
+      ]
+    },
+    {
+      "run_id": "solve-game-ks-s44",
+      "phase": "cpu",
+      "method": "game-ks",
+      "representation": "adaptive_game",
+      "aggregation": "kalai_smorodinsky",
+      "seed": 44,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. python3 -m scripts.nbpo.solve_nbpo_dual --tensor-dir /work/iclr27_table1_v2/smoke/tensor --beta 0.25 --eta 1.0 --gamma 0.5 -M 40000 -R 3 --out-dir /work/iclr27_table1_v2/final/solve/game-ks_s44 --aggregation kalai_smorodinsky --match-weight-l1-to-nash --ks-unregularized-diagnostics",
+      "outputs": [
+        "/work/iclr27_table1_v2/final/solve/game-ks_s44/solution.json"
+      ]
+    },
+    {
+      "run_id": "train-nbpo-s42",
+      "phase": "policy",
+      "method": "nbpo",
+      "seed": 42,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. echo 'policy training for nbpo seed 42 is wired but not launched: the judge audit gate is open'",
+      "outputs": []
+    },
+    {
+      "run_id": "train-nbpo-s43",
+      "phase": "policy",
+      "method": "nbpo",
+      "seed": 43,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. echo 'policy training for nbpo seed 43 is wired but not launched: the judge audit gate is open'",
+      "outputs": []
+    },
+    {
+      "run_id": "train-nbpo-s44",
+      "phase": "policy",
+      "method": "nbpo",
+      "seed": 44,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. echo 'policy training for nbpo seed 44 is wired but not launched: the judge audit gate is open'",
+      "outputs": []
+    },
+    {
+      "run_id": "train-fixed-reference-nash-s42",
+      "phase": "policy",
+      "method": "fixed-reference-nash",
+      "seed": 42,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. echo 'policy training for fixed-reference-nash seed 42 is wired but not launched: the judge audit gate is open'",
+      "outputs": []
+    },
+    {
+      "run_id": "train-fixed-reference-nash-s43",
+      "phase": "policy",
+      "method": "fixed-reference-nash",
+      "seed": 43,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. echo 'policy training for fixed-reference-nash seed 43 is wired but not launched: the judge audit gate is open'",
+      "outputs": []
+    },
+    {
+      "run_id": "train-fixed-reference-nash-s44",
+      "phase": "policy",
+      "method": "fixed-reference-nash",
+      "seed": 44,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. echo 'policy training for fixed-reference-nash seed 44 is wired but not launched: the judge audit gate is open'",
+      "outputs": []
+    },
+    {
+      "run_id": "train-game-utilitarian-s42",
+      "phase": "policy",
+      "method": "game-utilitarian",
+      "seed": 42,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. echo 'policy training for game-utilitarian seed 42 is wired but not launched: the judge audit gate is open'",
+      "outputs": []
+    },
+    {
+      "run_id": "train-game-utilitarian-s43",
+      "phase": "policy",
+      "method": "game-utilitarian",
+      "seed": 43,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. echo 'policy training for game-utilitarian seed 43 is wired but not launched: the judge audit gate is open'",
+      "outputs": []
+    },
+    {
+      "run_id": "train-game-utilitarian-s44",
+      "phase": "policy",
+      "method": "game-utilitarian",
+      "seed": 44,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. echo 'policy training for game-utilitarian seed 44 is wired but not launched: the judge audit gate is open'",
+      "outputs": []
+    },
+    {
+      "run_id": "train-game-ks-s42",
+      "phase": "policy",
+      "method": "game-ks",
+      "seed": 42,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. echo 'policy training for game-ks seed 42 is wired but not launched: the judge audit gate is open'",
+      "outputs": []
+    },
+    {
+      "run_id": "train-game-ks-s43",
+      "phase": "policy",
+      "method": "game-ks",
+      "seed": 43,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. echo 'policy training for game-ks seed 43 is wired but not launched: the judge audit gate is open'",
+      "outputs": []
+    },
+    {
+      "run_id": "train-game-ks-s44",
+      "phase": "policy",
+      "method": "game-ks",
+      "seed": 44,
+      "command": "cd /work/iclr27_table1_v2/code && PYTHONPATH=. echo 'policy training for game-ks seed 44 is wired but not launched: the judge audit gate is open'",
+      "outputs": []
+    }
+  ]
+}

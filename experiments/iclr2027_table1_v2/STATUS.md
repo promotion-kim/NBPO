@@ -21,6 +21,8 @@ their log path, and no number is quoted from them.
 | judge audit: parse rate | **pass** — 0.000 % invalid (gate < 0.2 %) |
 | judge audit: cell completeness | **pass** — every semantic pair judged in both orders |
 | judge audit: **swap consistency** | **FAIL** — 0.59–0.70 against a 0.85 gate. Diagnosed, not lowered. See below. |
+| 50-prompt smoke: tensors | **pass** — measured `d`, exact skew-symmetric reference tensor |
+| 50-prompt smoke: solves | **pass** — 4 matched rows, identity residual ≤ 3.6e-15, matched ‖w‖₁ and KL |
 | regression-realization gate | not started (needs the pilot) |
 | final seeds 42/43/44 | not started |
 
@@ -65,6 +67,39 @@ Completed on the pod: both response pools (02:46–02:49 PDT, one GPU) and the
 50-prompt training judgment bank (02:51–02:57 PDT, Qwen3-32B TP=2) —
 8800 rows at `/work/iclr27_table1_v2/smoke/verdicts.jsonl`.
 
+## The solver leg, on the real judged bank
+
+The four game rows were solved on the 50-prompt bank (4000 dual iterations,
+R = 3, beta = 0.25, eta = 1.0). Every one reproduces its own weighted-q target
+to 1e-15, which is the identity the Eq. (26) pair builder depends on.
+
+| row | min s | sum s | KL | ‖w‖₁ | identity |
+|---|---|---|---|---|---|
+| NBPO (adaptive + Nash) | 0.0886 | 0.5338 | 0.768 | 31.71 | 3.6e-15 |
+| Fixed-reference Nash | 0.1056 | 0.5886 | 0.822 | 28.38 | 1.8e-15 |
+| Game-utilitarian | 0.0886 | 0.5425 | 0.821 | 31.71 | 3.6e-15 |
+| Game-KS | 0.0909 | 0.5358 | 0.811 | 31.71 | 1.8e-15 |
+
+The three adaptive-game rows sit at the same weight norm by construction, and
+their proximal divergences land within 0.05 of each other, so they differ in the
+direction of the weight vector rather than in step size. Fixed-reference carries
+its own Nash norm, as it must.
+
+The disagreement point is **measured**, and the two representations disagree
+about it exactly as the theory says they should: the adaptive game gives
+`d = [-0.043, -0.034, -0.030, -0.065]` (a soft-min of a skew game at finite beta
+is negative), while the fixed-reference control gives `d = [0, 0, 0, 0]` — which
+is what `V^FR(mu)` evaluates to on an exactly skew-symmetric shared pool. The
+code computes it in both cases; neither is hard-coded.
+
+Game-KS behaved as a bargaining rule: ideal point individually rational on all
+four objectives, IR violation exactly 0, `rho* = 0.822`, normalized surpluses
+0.829–0.870, Stage-2 refinement applied with a positive gain. The spec-literal
+diagnostics at a near-unregularized step agree (`rho* = 0.828`, IR violation 0).
+
+These are pipeline-validation numbers on 50 prompts. **They are not results and
+must not reach a table.**
+
 ## The swap-consistency gate fails, and what the diagnosis says
 
 On the 50-prompt smoke bank the swap-consistent winner rate — agreement over the
@@ -82,10 +117,13 @@ What has been ruled out so far, each by measurement rather than by argument:
 * **Thinking mode / truncation.** `enable_thinking: false` is applied *and*
   recorded, and every completion contains a verdict marker inside 16 tokens.
 * **The rubric.** Re-judging the identical pool with the **v1** rubric at the
-  same 16-token budget gives **86.5 % unparseable** — v1's phrasing makes the
-  judge write a preamble, and the published campaigns used a 512-token budget
-  with it. v2 is 0 % at 16 tokens. So v2 is strictly better on the axis it was
-  meant to fix, and the consistency number is not a v2 artifact.
+  same 16-token budget fails outright: 86.5 % unparseable on the first pass and
+  **6684 of 8800 cells still invalid after two retries**, at which point the
+  judging CLI refused to write a matrix rather than emit a bank with holes in
+  it. v1's phrasing makes the judge write a preamble, and the published
+  campaigns always ran it at 512 tokens. v2 is 0 % invalid at 16 tokens. So v2
+  is strictly better on the axis it was designed for, and the consistency number
+  is not a v2 artifact.
 
 The live hypothesis is the **pool**, not the judge: eight samples from one 8B
 model on one prompt are frequently near-equal, and a judge asked which is
