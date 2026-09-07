@@ -1,6 +1,6 @@
 # STATUS — ICLR-2027 Table-1 rebuild
 
-Updated 2026-09-07, session 3. Branch `exp/iclr27-table1-v2`, pushed to `nbpo` (promotion-kim/NBPO).
+Updated 2026-09-07, session 4. Branch `exp/iclr27-table1-v2`, pushed to `nbpo` (promotion-kim/NBPO).
 
 Nothing below is a projection. Runs that are still going are named as such, with
 their log path, and no number is quoted from them.
@@ -32,7 +32,10 @@ their log path, and no number is quoted from them.
 | **Downstream target stability** | **FAIL** — target Pearson 0.869/0.870 < 0.90, sign agreement 0.736/0.771 < 0.85 |
 | Admissible judge protocol | **NONE** — every candidate fails a known-answer prerequisite |
 | Full 7,500-prompt bank | **NOT LAUNCHED**, and blocked |
-| Section I pool-size pilot (4+4 vs 8+8) | **running** |
+| Section I pool-size pilot (4+4 vs 8+8) | **QUARANTINED** — stopped mid-run, `exploratory_v3_invalid_protocol`; may not select pool geometry |
+| v4 decoding repair (512/1024, stop-on-marker) | **pass** — final unresolved invalid 0.0000 on every objective |
+| v4 known-answer eligibility | **P2-long eligible**; P2-balanced fails deterministic (honesty 0.880, truthfulness 0.840) |
+| v4 real-pair position bias | **severe** — +0.40 helpfulness, +0.42 instruction following |
 | 50-prompt smoke: tensors | **pass** — measured `d`, exact skew-symmetric reference tensor |
 | 50-prompt smoke: solves | **pass** — 4 matched rows, identity residual ≤ 3.6e-15, matched ‖w‖₁ and KL |
 | regression-realization gate | not started (needs the pilot) |
@@ -246,18 +249,16 @@ not a semantic one, leaving rubric, templates and decision procedures untouched.
 It nonetheless requires re-freezing and re-running calibration and a *fresh*
 holdout, because the current holdout has been read.
 
-## Section I — pool-size pilot, running
+## Section I — pool-size pilot: QUARANTINED, not running
 
-The remedy under test is **more samples from the same frozen reference**, not a
-different comparator checkpoint (which the instruction rules out). 100 fresh
-validation prompts, disjoint from everything above:
+The 8+8 arm was stopped cleanly ~19 minutes in on operator instruction and the
+whole directory moved to
+`QUARANTINED_poolsize100_exploratory_v3_invalid_protocol`. Its results file was
+never written, so no partial score exists; pools and pair lists are preserved.
 
-* 4+4 — 22 pairs per prompt per objective (current geometry)
-* 8+8 — 92 pairs per prompt per objective
-
-Seeds are *extended* rather than changed, so the 4+4 arm is a strict subset of
-the 8+8 one and the comparison is not confounded by different responses. **No
-result is quoted here; the run is in flight.**
+**It may not be used** to select 4+4 versus 8+8, to fill any paper cell, or in
+combination with v4 measurements. The pool-size comparison restarts from scratch
+on a new development set once a judge passes.
 
 ## The solver leg, on the real judged bank
 

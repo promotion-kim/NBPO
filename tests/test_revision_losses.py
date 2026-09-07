@@ -89,6 +89,8 @@ def test_kto_formula_matches_trl_reference():
     fake = SimpleNamespace(
         accelerator=_FakeAccelerator(),
         beta=0.05,
+        calculate_KL=True,
+        loss_type="kto",
         desirable_weight=1.0,
         undesirable_weight=1.0,
     )
