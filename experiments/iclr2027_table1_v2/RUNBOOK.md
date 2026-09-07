@@ -270,3 +270,49 @@ python -m pytest tests/test_uf_split_v2.py -q    # split disjointness + decontam
 The two skips in `tests/test_nbpo_bt_reward.py` are intentional and documented:
 at a hard label (`p_hat` 0 or 1) the soft-BT optimum is at infinity, so there is
 no finite margin to check the gradient at.
+
+## v4 analysis — pairing controls with the protocol that produced them
+
+`analyze_v4.py` takes `name=dev_results.jsonl,ctl_results.jsonl` and now derives
+each file's `*_run_manifest.json` from its own path, then **refuses** to score a
+protocol against another protocol's controls:
+
+```bash
+W=/work/iclr27_table1_v2
+python3 -m scripts.experiments.iclr2027_table1_v2.analyze_v4 \
+  --protocol "P2_long=$W/v4_dev/scored_dev_P2_long_t3/P2_long_results.jsonl,$W/v4_controls2/P2_long/P2_long_results.jsonl" \
+  --protocol "P2_balanced=$W/v4_dev/scored_dev_P2_balanced/P2_balanced_results.jsonl,$W/v4_dev/scored_controls_P2_balanced/P2_balanced_results.jsonl" \
+  --out-dir $W/v4_dev_analysis --label development_final
+```
+
+**The trap this closes.** `v4_dev/scored_controls_P2_long` was judged by the
+2-template cost-parity cut (`ac8fcab2bf6d`), *not* by the restored 3-template
+protocol (`33962ad4275f`) whose dev run lives in `scored_dev_P2_long_t3`. The two
+are one directory apart with identical filenames. Pairing them moves truthfulness
+deterministic-degradation accuracy 0.960 → 0.860, across a hard eligibility gate.
+Every metric in the report mixes control and real-pair evidence, so a mismatch is
+never cosmetic. Pass `v4_controls2/P2_long` for the 3-template protocol.
+
+`v4_controls2/P2_balanced` is a **different** four-template variant
+(`c6292d72f9ff`) with no matching dev run. It is excluded from the v4 decision.
+
+## Reclaiming the pod GPUs
+
+`nvidia-smi` in `nbpo-judge` under-reports: it can show 0 MiB while an engine
+still holds ~130 GB. Check live processes instead, and note that killing a
+`run_judge_protocol` parent does **not** kill its vLLM engine child.
+
+```bash
+export KUBECONFIG=~/.kube/aipr-kubeconfig.yaml
+K="kubectl -n p-aipr exec nbpo-judge -c main -- bash -lc"
+$K 'ps -eo pid,etime,rss,cmd | grep -E "VLLM::EngineCore|run_judge_protocol" | grep -v grep'
+```
+
+Defunct (`<defunct>`) entries hold nothing and can be ignored. `pgrep -f` matched
+against a script name will also match this very `kubectl` command line, so filter
+on `ps` output rather than trusting a `pgrep` hit.
+
+`nbpo-judge2` has been **Pending since 2026-09-07 16:xx** —
+`0/317 nodes are available: 2 Insufficient nvidia.com/gpu` on
+`private-h200-aipr-0`. Its four GPUs have never been schedulable; all judge work
+runs on `nbpo-judge`'s three idle H200s.

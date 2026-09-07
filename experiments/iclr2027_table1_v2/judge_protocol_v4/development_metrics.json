@@ -1,0 +1,216 @@
+{
+  "runs": {
+    "P2_long": {
+      "per_objective": {
+        "helpfulness": {
+          "n_pairs_attempted": 2200,
+          "n_pairs_valid": 2200,
+          "final_unresolved_invalid_rate": 0.0,
+          "first_pass_invalid_rate": 0.0,
+          "control_final_unresolved_invalid_rate": 0.0,
+          "deterministic_degradation_accuracy": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.92,
+          "raw_all_pair_swap_consistency": 0.4860064585575888,
+          "confident_semantic_swap_consistency": 0.4943883277216611,
+          "contradiction_rate": 0.5139935414424112,
+          "signed_position_bias": 0.3639393939393939,
+          "response_length_bias": null,
+          "tie_rate": 0.08454545454545455,
+          "unresolved_uncertainty_rate": 0.0,
+          "order_split_half_pearson": 0.29706551923365376,
+          "order_split_half_spearman": 0.3040938163980462,
+          "template_split_half_pearson": 0.8147986939552436,
+          "template_split_half_spearman": 0.7937856328257318,
+          "n_template_split_pairs": 2200,
+          "mean_abs_delta": 0.2168939393939394,
+          "verdict_token_position": {
+            "p50": 52,
+            "p90": 75,
+            "p95": 83,
+            "p99": 98,
+            "max": 218
+          }
+        },
+        "honesty": {
+          "n_pairs_attempted": 2200,
+          "n_pairs_valid": 2200,
+          "final_unresolved_invalid_rate": 0.0,
+          "first_pass_invalid_rate": 0.0,
+          "control_final_unresolved_invalid_rate": 0.0,
+          "deterministic_degradation_accuracy": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.77,
+          "raw_all_pair_swap_consistency": 0.6847635726795096,
+          "confident_semantic_swap_consistency": 0.707983193277311,
+          "contradiction_rate": 0.31523642732049034,
+          "signed_position_bias": 0.03681818181818182,
+          "response_length_bias": null,
+          "tie_rate": 0.3209090909090909,
+          "unresolved_uncertainty_rate": 0.0,
+          "order_split_half_pearson": 0.41996770358853946,
+          "order_split_half_spearman": 0.42831026768243696,
+          "template_split_half_pearson": 0.6979421656442403,
+          "template_split_half_spearman": 0.6747790714231741,
+          "n_template_split_pairs": 2200,
+          "mean_abs_delta": 0.16992424242424242,
+          "verdict_token_position": {
+            "p50": 61,
+            "p90": 94,
+            "p95": 105,
+            "p99": 131,
+            "max": 246
+          }
+        },
+        "instruction_following": {
+          "n_pairs_attempted": 2200,
+          "n_pairs_valid": 2200,
+          "final_unresolved_invalid_rate": 0.0,
+          "first_pass_invalid_rate": 0.0,
+          "control_final_unresolved_invalid_rate": 0.0,
+          "deterministic_degradation_accuracy": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.86,
+          "raw_all_pair_swap_consistency": 0.41365461847389556,
+          "confident_semantic_swap_consistency": 0.4120913016656385,
+          "contradiction_rate": 0.5863453815261044,
+          "signed_position_bias": 0.4036363636363636,
+          "response_length_bias": null,
+          "tie_rate": 0.11272727272727273,
+          "unresolved_uncertainty_rate": 0.0,
+          "order_split_half_pearson": 0.2087178776276681,
+          "order_split_half_spearman": 0.18943976228094261,
+          "template_split_half_pearson": 0.749719496900189,
+          "template_split_half_spearman": 0.7108419458914614,
+          "n_template_split_pairs": 2200,
+          "mean_abs_delta": 0.1818939393939394,
+          "verdict_token_position": {
+            "p50": 64,
+            "p90": 94,
+            "p95": 105,
+            "p99": 131,
+            "max": 333
+          }
+        },
+        "truthfulness": {
+          "n_pairs_attempted": 2200,
+          "n_pairs_valid": 2200,
+          "final_unresolved_invalid_rate": 0.0,
+          "first_pass_invalid_rate": 0.00045454545454545455,
+          "control_final_unresolved_invalid_rate": 0.0,
+          "deterministic_degradation_accuracy": 0.96,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.89,
+          "raw_all_pair_swap_consistency": 0.6713780918727915,
+          "confident_semantic_swap_consistency": 0.691415313225058,
+          "contradiction_rate": 0.3286219081272085,
+          "signed_position_bias": 0.015454545454545455,
+          "response_length_bias": null,
+          "tie_rate": 0.2290909090909091,
+          "unresolved_uncertainty_rate": 0.0,
+          "order_split_half_pearson": 0.3903769769482552,
+          "order_split_half_spearman": 0.40431272290458214,
+          "template_split_half_pearson": 0.7488628649637822,
+          "template_split_half_spearman": 0.7342204244257076,
+          "n_template_split_pairs": 2200,
+          "mean_abs_delta": 0.21030303030303032,
+          "verdict_token_position": {
+            "p50": 66,
+            "p90": 107,
+            "p95": 119,
+            "p99": 151,
+            "max": 241
+          }
+        }
+      },
+      "summary": {
+        "max_final_unresolved_invalid_rate": 0.0,
+        "min_deterministic_degradation_accuracy": 0.96,
+        "min_identical_confident_tie_accuracy": 1.0,
+        "min_confident_semantic_swap_consistency": 0.4120913016656385,
+        "min_order_split_half_spearman": 0.18943976228094261,
+        "min_template_split_half_spearman": 0.6747790714231741,
+        "max_abs_position_bias": 0.4036363636363636
+      },
+      "manifest": {
+        "protocol_name": "P2_long",
+        "protocol_kind": "P2",
+        "protocol_sha256": "33962ad4275fff7be1149077149f875f95e42cec160cc181411bb943994810a7",
+        "rubric_path": "/work/iclr27_table1_v2/code/training_configs/nbpo/objectives/ultrafeedback_v2.yaml",
+        "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+        "labels": {
+          "A": {
+            "token": "A",
+            "id": 32
+          },
+          "B": {
+            "token": "B",
+            "id": 33
+          },
+          "TIE": {
+            "token": "T",
+            "id": 51
+          }
+        },
+        "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+        "order_gap_threshold": 0.25,
+        "entropy_threshold": 0.9,
+        "max_templates_when_unstable": 3,
+        "n_templates": 3,
+        "max_tokens": 512,
+        "stop_after_marker": true,
+        "retry_max_tokens": 1024,
+        "always_all_templates": true,
+        "decoding": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": -1
+        },
+        "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+        "tokenization_verification": {
+          "verified_single_token_in_context": true,
+          "labels": {
+            "A": {
+              "token": "A",
+              "id": 32
+            },
+            "B": {
+              "token": "B",
+              "id": 33
+            },
+            "TIE": {
+              "token": "T",
+              "id": 51
+            }
+          },
+          "prefix_token_count": 19
+        },
+        "n_pairs": 8800,
+        "n_renderings": 52800,
+        "n_adjudicated": 0,
+        "wall_clock_seconds": 1921.8,
+        "input": "/work/iclr27_table1_v2/v4_dev/pairs.jsonl",
+        "adjudication_enabled": false,
+        "all_templates_mode": true,
+        "first_pass_invalid_renderings": 2,
+        "final_unresolved_invalid_renderings": 1,
+        "templates_scored": [
+          "t0",
+          "t1",
+          "t2"
+        ]
+      },
+      "cost_renderings": 52800,
+      "wall_clock_seconds": 1921.8
+    }
+  },
+  "ranking": [
+    "P2_long"
+  ],
+  "eligible": [
+    "P2_long"
+  ],
+  "selected": "P2_long",
+  "eligibility_rule": "final unresolved invalid < 0.2%, deterministic degradation >= 0.90, identical confident-tie >= 0.90, every objective",
+  "selection_inputs": "calibration and reliability metrics only; no NBPO, baseline or policy quantity consulted"
+}

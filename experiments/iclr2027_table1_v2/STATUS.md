@@ -1,6 +1,6 @@
 # STATUS — ICLR-2027 Table-1 rebuild
 
-Updated 2026-09-07, session 4. Branch `exp/iclr27-table1-v2`, pushed to `nbpo` (promotion-kim/NBPO).
+Updated 2026-09-08, session 5. Branch `exp/iclr27-table1-v2`, pushed to `nbpo` (promotion-kim/NBPO).
 
 Nothing below is a projection. Runs that are still going are named as such, with
 their log path, and no number is quoted from them.
@@ -34,8 +34,12 @@ their log path, and no number is quoted from them.
 | Full 7,500-prompt bank | **NOT LAUNCHED**, and blocked |
 | Section I pool-size pilot (4+4 vs 8+8) | **QUARANTINED** — stopped mid-run, `exploratory_v3_invalid_protocol`; may not select pool geometry |
 | v4 decoding repair (512/1024, stop-on-marker) | **pass** — final unresolved invalid 0.0000 on every objective |
-| v4 known-answer eligibility | **P2-long eligible**; P2-balanced fails deterministic (honesty 0.880, truthfulness 0.840) |
-| v4 real-pair position bias | **severe** — +0.40 helpfulness, +0.42 instruction following |
+| v4 known-answer eligibility | **P2-long eligible and selected** (invalid 0.0000, deterministic 0.960, identical 1.000); P2-balanced **rejected** — deterministic 0.800 on honesty and truthfulness |
+| **v4 stability — confident semantic swap** | **FAIL** — 0.412–0.708 against 0.85, every objective |
+| **v4 stability — order split-half Spearman** | **FAIL** — 0.189–0.428 against 0.75, every objective |
+| v4 real-pair position bias | **severe and concentrated** — +0.364 helpfulness, +0.404 instruction following; +0.037 / +0.016 on honesty and truthfulness |
+| **Admissible final judge protocol** | **NONE.** P2-long is selected among candidates and still not admissible |
+| judge_v4_holdout / backup holdout | **unopened / sealed** |
 | 50-prompt smoke: tensors | **pass** — measured `d`, exact skew-symmetric reference tensor |
 | 50-prompt smoke: solves | **pass** — 4 matched rows, identity residual ≤ 3.6e-15, matched ‖w‖₁ and KL |
 | regression-realization gate | not started (needs the pilot) |
@@ -433,3 +437,41 @@ evaluation artifacts are complete.
 RACO is **not** started: `references/chen_raco_icml_2026.pdf` is present but no
 official implementation has been located, and the brief forbids inventing one.
 It stays marked blocked until a faithful source is pinned.
+
+## v4 development — FINAL (2026-09-08)
+
+Full record: `judge_protocol_v4/DECISION_V4_FINAL.md`; numbers in
+`judge_protocol_v4/development_final_{report.md,metrics.json}`.
+
+**P2-long is selected and is not admissible.** It is the only candidate that
+passes all three known-answer prerequisites (final unresolved invalid 0.0000,
+deterministic degradation 0.960 min, identical-pair confident tie 1.000), and it
+fails both pre-registered natural-pair stability gates on every objective:
+confident semantic swap 0.412–0.708 against 0.85, order split-half Spearman
+0.189–0.428 against 0.75. P2-balanced is rejected earlier, on the known-answer
+controls (deterministic 0.800 for honesty and for truthfulness), and its position
+bias is worse, not better.
+
+**The decoding problem is solved.** Measured verdict-token positions have p99 at
+98–151 and a maximum of 333 against v3's 96-token cap — the mechanism behind the
+4–21 % invalid rate, confirmed directly. At 512 tokens with a 1024-token
+deterministic retry, final unresolved invalid is 0.0000 on every objective.
+
+**The instability is concentrated.** Helpfulness and instruction-following carry
++0.364 / +0.404 position bias with swap consistency *below chance*; honesty and
+truthfulness carry +0.037 / +0.016 and reach ≈0.70. One bounded diagnostic
+remains: an opaque-identifier factorial that separates the lexical "A" effect
+from the physical first-slot effect, which the ordinary rendering confounds
+exactly. If it fails, the prompted-Qwen training-judge route is retired for the
+main paper; no further prompt variants will be made either way.
+
+**A pairing bug found while freezing this.** `v4_dev/scored_controls_P2_long`
+was judged by the 2-template cost-parity cut (`ac8fcab2bf6d`), not by the
+restored 3-template protocol (`33962ad4275f`). Scoring the 3-template dev run
+against those controls moves truthfulness deterministic accuracy 0.960 → 0.860,
+across a hard gate. `analyze_v4.py` now derives each results file's sibling
+manifest and refuses to mix protocols; two tests pin it.
+
+Unchanged and still true: `judge_v4_holdout` unopened, backup holdout sealed, the
+7 500-prompt bank not launched, no RM and no policy trained from any v2/v3/v4
+prompted-Qwen label.

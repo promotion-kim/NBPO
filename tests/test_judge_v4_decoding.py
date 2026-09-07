@@ -152,3 +152,46 @@ def test_semantic_swap_mapping_is_unchanged_by_a_retry():
     retried["retried_at_max_tokens"] = 1024
     agg = combine([first_try, retried])
     assert agg["p_hat"] == pytest.approx(1.0)     # learner wins in both orders
+
+
+# --------------------------------------------------------------------------
+# The dev/control protocol-identity guard (added after a real mispairing).
+# --------------------------------------------------------------------------
+
+def _write_run(tmp_path, tag, sha, rows):
+    import json
+    d = tmp_path / tag
+    d.mkdir(parents=True, exist_ok=True)
+    (d / f"{tag}_results.jsonl").write_text(
+        "\n".join(json.dumps(r) for r in rows) + "\n")
+    (d / f"{tag}_run_manifest.json").write_text(
+        json.dumps({"protocol_sha256": sha, "n_renderings": len(rows)}))
+    return d / f"{tag}_results.jsonl"
+
+
+def test_sibling_manifest_is_derived_from_the_results_path(tmp_path):
+    from scripts.experiments.iclr2027_table1_v2.analyze_v4 import sibling_manifest
+    p = _write_run(tmp_path, "P", "a" * 64, [{"objective": "h", "valid": True}])
+    assert sibling_manifest(p)["protocol_sha256"] == "a" * 64
+    assert sibling_manifest(tmp_path / "absent_results.jsonl") == {}
+
+
+def test_mismatched_dev_and_control_protocols_are_refused(tmp_path):
+    """Scoring a protocol against another protocol's controls must not be possible.
+
+    This mispairing moved a hard eligibility gate across its threshold once, so
+    the guard is pinned rather than trusted.
+    """
+    import pytest
+    from scripts.experiments.iclr2027_table1_v2.analyze_v4 import (
+        assert_same_protocol, sibling_manifest)
+    dev = _write_run(tmp_path, "dev", "a" * 64, [{"objective": "h", "valid": True}])
+    ctl = _write_run(tmp_path, "ctl", "b" * 64, [{"objective": "h", "valid": True}])
+    with pytest.raises(SystemExit) as e:
+        assert_same_protocol("P2_long", dev, sibling_manifest(dev),
+                             ctl, sibling_manifest(ctl))
+    assert "SAME frozen protocol" in str(e.value)
+
+    same = _write_run(tmp_path, "ctl2", "a" * 64, [{"objective": "h", "valid": True}])
+    assert_same_protocol("P2_long", dev, sibling_manifest(dev),
+                         same, sibling_manifest(same))       # no raise

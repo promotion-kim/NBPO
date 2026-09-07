@@ -1,0 +1,536 @@
+{
+  "runs": {
+    "P2_long": {
+      "per_objective": {
+        "helpfulness": {
+          "n_pairs_attempted": 2200,
+          "n_pairs_valid": 2200,
+          "final_unresolved_invalid_rate": 0.0,
+          "first_pass_invalid_rate": 0.0,
+          "control_final_unresolved_invalid_rate": 0.0,
+          "deterministic_degradation_accuracy": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.92,
+          "raw_all_pair_swap_consistency": 0.4860064585575888,
+          "confident_semantic_swap_consistency": 0.4943883277216611,
+          "contradiction_rate": 0.5139935414424112,
+          "signed_position_bias": 0.3639393939393939,
+          "response_length_bias": null,
+          "tie_rate": 0.08454545454545455,
+          "unresolved_uncertainty_rate": 0.0,
+          "order_split_half_pearson": 0.29706551923365376,
+          "order_split_half_spearman": 0.3040938163980462,
+          "template_split_half_pearson": 0.8147986939552436,
+          "template_split_half_spearman": 0.7937856328257318,
+          "n_template_split_pairs": 2200,
+          "mean_abs_delta": 0.2168939393939394,
+          "verdict_token_position": {
+            "p50": 52,
+            "p90": 75,
+            "p95": 83,
+            "p99": 98,
+            "max": 218
+          }
+        },
+        "honesty": {
+          "n_pairs_attempted": 2200,
+          "n_pairs_valid": 2200,
+          "final_unresolved_invalid_rate": 0.0,
+          "first_pass_invalid_rate": 0.0,
+          "control_final_unresolved_invalid_rate": 0.0,
+          "deterministic_degradation_accuracy": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.77,
+          "raw_all_pair_swap_consistency": 0.6847635726795096,
+          "confident_semantic_swap_consistency": 0.707983193277311,
+          "contradiction_rate": 0.31523642732049034,
+          "signed_position_bias": 0.03681818181818182,
+          "response_length_bias": null,
+          "tie_rate": 0.3209090909090909,
+          "unresolved_uncertainty_rate": 0.0,
+          "order_split_half_pearson": 0.41996770358853946,
+          "order_split_half_spearman": 0.42831026768243696,
+          "template_split_half_pearson": 0.6979421656442403,
+          "template_split_half_spearman": 0.6747790714231741,
+          "n_template_split_pairs": 2200,
+          "mean_abs_delta": 0.16992424242424242,
+          "verdict_token_position": {
+            "p50": 61,
+            "p90": 94,
+            "p95": 105,
+            "p99": 131,
+            "max": 246
+          }
+        },
+        "instruction_following": {
+          "n_pairs_attempted": 2200,
+          "n_pairs_valid": 2200,
+          "final_unresolved_invalid_rate": 0.0,
+          "first_pass_invalid_rate": 0.0,
+          "control_final_unresolved_invalid_rate": 0.0,
+          "deterministic_degradation_accuracy": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.86,
+          "raw_all_pair_swap_consistency": 0.41365461847389556,
+          "confident_semantic_swap_consistency": 0.4120913016656385,
+          "contradiction_rate": 0.5863453815261044,
+          "signed_position_bias": 0.4036363636363636,
+          "response_length_bias": null,
+          "tie_rate": 0.11272727272727273,
+          "unresolved_uncertainty_rate": 0.0,
+          "order_split_half_pearson": 0.2087178776276681,
+          "order_split_half_spearman": 0.18943976228094261,
+          "template_split_half_pearson": 0.749719496900189,
+          "template_split_half_spearman": 0.7108419458914614,
+          "n_template_split_pairs": 2200,
+          "mean_abs_delta": 0.1818939393939394,
+          "verdict_token_position": {
+            "p50": 64,
+            "p90": 94,
+            "p95": 105,
+            "p99": 131,
+            "max": 333
+          }
+        },
+        "truthfulness": {
+          "n_pairs_attempted": 2200,
+          "n_pairs_valid": 2200,
+          "final_unresolved_invalid_rate": 0.0,
+          "first_pass_invalid_rate": 0.00045454545454545455,
+          "control_final_unresolved_invalid_rate": 0.0,
+          "deterministic_degradation_accuracy": 0.96,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.89,
+          "raw_all_pair_swap_consistency": 0.6713780918727915,
+          "confident_semantic_swap_consistency": 0.691415313225058,
+          "contradiction_rate": 0.3286219081272085,
+          "signed_position_bias": 0.015454545454545455,
+          "response_length_bias": null,
+          "tie_rate": 0.2290909090909091,
+          "unresolved_uncertainty_rate": 0.0,
+          "order_split_half_pearson": 0.3903769769482552,
+          "order_split_half_spearman": 0.40431272290458214,
+          "template_split_half_pearson": 0.7488628649637822,
+          "template_split_half_spearman": 0.7342204244257076,
+          "n_template_split_pairs": 2200,
+          "mean_abs_delta": 0.21030303030303032,
+          "verdict_token_position": {
+            "p50": 66,
+            "p90": 107,
+            "p95": 119,
+            "p99": 151,
+            "max": 241
+          }
+        }
+      },
+      "summary": {
+        "max_final_unresolved_invalid_rate": 0.0,
+        "min_deterministic_degradation_accuracy": 0.96,
+        "min_identical_confident_tie_accuracy": 1.0,
+        "min_confident_semantic_swap_consistency": 0.4120913016656385,
+        "min_order_split_half_spearman": 0.18943976228094261,
+        "min_template_split_half_spearman": 0.6747790714231741,
+        "max_abs_position_bias": 0.4036363636363636
+      },
+      "manifest": {
+        "protocol_name": "P2_long",
+        "protocol_kind": "P2",
+        "protocol_sha256": "33962ad4275fff7be1149077149f875f95e42cec160cc181411bb943994810a7",
+        "rubric_path": "/work/iclr27_table1_v2/code/training_configs/nbpo/objectives/ultrafeedback_v2.yaml",
+        "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+        "labels": {
+          "A": {
+            "token": "A",
+            "id": 32
+          },
+          "B": {
+            "token": "B",
+            "id": 33
+          },
+          "TIE": {
+            "token": "T",
+            "id": 51
+          }
+        },
+        "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+        "order_gap_threshold": 0.25,
+        "entropy_threshold": 0.9,
+        "max_templates_when_unstable": 3,
+        "n_templates": 3,
+        "max_tokens": 512,
+        "stop_after_marker": true,
+        "retry_max_tokens": 1024,
+        "always_all_templates": true,
+        "decoding": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": -1
+        },
+        "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+        "tokenization_verification": {
+          "verified_single_token_in_context": true,
+          "labels": {
+            "A": {
+              "token": "A",
+              "id": 32
+            },
+            "B": {
+              "token": "B",
+              "id": 33
+            },
+            "TIE": {
+              "token": "T",
+              "id": 51
+            }
+          },
+          "prefix_token_count": 19
+        },
+        "n_pairs": 8800,
+        "n_renderings": 52800,
+        "n_adjudicated": 0,
+        "wall_clock_seconds": 1921.8,
+        "input": "/work/iclr27_table1_v2/v4_dev/pairs.jsonl",
+        "adjudication_enabled": false,
+        "all_templates_mode": true,
+        "first_pass_invalid_renderings": 2,
+        "final_unresolved_invalid_renderings": 1,
+        "templates_scored": [
+          "t0",
+          "t1",
+          "t2"
+        ]
+      },
+      "controls_manifest": {
+        "protocol_name": "P2_long",
+        "protocol_kind": "P2",
+        "protocol_sha256": "33962ad4275fff7be1149077149f875f95e42cec160cc181411bb943994810a7",
+        "rubric_path": "/work/iclr27_table1_v2/code/training_configs/nbpo/objectives/ultrafeedback_v2.yaml",
+        "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+        "labels": {
+          "A": {
+            "token": "A",
+            "id": 32
+          },
+          "B": {
+            "token": "B",
+            "id": 33
+          },
+          "TIE": {
+            "token": "T",
+            "id": 51
+          }
+        },
+        "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+        "order_gap_threshold": 0.25,
+        "entropy_threshold": 0.9,
+        "max_templates_when_unstable": 3,
+        "n_templates": 3,
+        "max_tokens": 512,
+        "stop_after_marker": true,
+        "retry_max_tokens": 1024,
+        "always_all_templates": true,
+        "decoding": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": -1
+        },
+        "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+        "tokenization_verification": {
+          "verified_single_token_in_context": true,
+          "labels": {
+            "A": {
+              "token": "A",
+              "id": 32
+            },
+            "B": {
+              "token": "B",
+              "id": 33
+            },
+            "TIE": {
+              "token": "T",
+              "id": 51
+            }
+          },
+          "prefix_token_count": 19
+        },
+        "n_pairs": 800,
+        "n_renderings": 4800,
+        "n_adjudicated": 0,
+        "wall_clock_seconds": 207.6,
+        "input": "/work/iclr27_table1_v2/code/experiments/iclr2027_table1_v2/calibration/controls.jsonl",
+        "adjudication_enabled": false,
+        "all_templates_mode": true,
+        "first_pass_invalid_renderings": 0,
+        "final_unresolved_invalid_renderings": 0,
+        "templates_scored": [
+          "t0",
+          "t1",
+          "t2"
+        ]
+      },
+      "protocol_sha256": "33962ad4275fff7be1149077149f875f95e42cec160cc181411bb943994810a7",
+      "dev_results": "/work/iclr27_table1_v2/v4_dev/scored_dev_P2_long_t3/P2_long_results.jsonl",
+      "control_results": "/work/iclr27_table1_v2/v4_controls2/P2_long/P2_long_results.jsonl",
+      "cost_renderings": 52800,
+      "wall_clock_seconds": 1921.8
+    },
+    "P2_balanced": {
+      "per_objective": {
+        "helpfulness": {
+          "n_pairs_attempted": 2200,
+          "n_pairs_valid": 2200,
+          "final_unresolved_invalid_rate": 0.0,
+          "first_pass_invalid_rate": 0.0,
+          "control_final_unresolved_invalid_rate": 0.0,
+          "deterministic_degradation_accuracy": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.91,
+          "raw_all_pair_swap_consistency": 0.5032679738562091,
+          "confident_semantic_swap_consistency": 0.504017531044558,
+          "contradiction_rate": 0.49673202614379086,
+          "signed_position_bias": 0.3644318181818182,
+          "response_length_bias": null,
+          "tie_rate": 0.11,
+          "unresolved_uncertainty_rate": 0.0,
+          "order_split_half_pearson": 0.23320703215150398,
+          "order_split_half_spearman": 0.30144928767735096,
+          "template_split_half_pearson": 0.761386465735899,
+          "template_split_half_spearman": 0.782238252904222,
+          "n_template_split_pairs": 2200,
+          "mean_abs_delta": 0.21551136363636364,
+          "verdict_token_position": {}
+        },
+        "honesty": {
+          "n_pairs_attempted": 2200,
+          "n_pairs_valid": 2200,
+          "final_unresolved_invalid_rate": 0.0,
+          "first_pass_invalid_rate": 0.0,
+          "control_final_unresolved_invalid_rate": 0.0,
+          "deterministic_degradation_accuracy": 0.8,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.71,
+          "raw_all_pair_swap_consistency": 0.7093373493975904,
+          "confident_semantic_swap_consistency": 0.7175324675324676,
+          "contradiction_rate": 0.29066265060240964,
+          "signed_position_bias": 0.048295454545454544,
+          "response_length_bias": null,
+          "tie_rate": 0.43772727272727274,
+          "unresolved_uncertainty_rate": 0.0,
+          "order_split_half_pearson": 0.3199799278177542,
+          "order_split_half_spearman": 0.4108407704592125,
+          "template_split_half_pearson": 0.6826466657850903,
+          "template_split_half_spearman": 0.7022533982867653,
+          "n_template_split_pairs": 2200,
+          "mean_abs_delta": 0.15210227272727272,
+          "verdict_token_position": {}
+        },
+        "instruction_following": {
+          "n_pairs_attempted": 2200,
+          "n_pairs_valid": 2200,
+          "final_unresolved_invalid_rate": 0.0,
+          "first_pass_invalid_rate": 0.0,
+          "control_final_unresolved_invalid_rate": 0.0,
+          "deterministic_degradation_accuracy": 0.96,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.83,
+          "raw_all_pair_swap_consistency": 0.35369993211133743,
+          "confident_semantic_swap_consistency": 0.35586206896551725,
+          "contradiction_rate": 0.6463000678886626,
+          "signed_position_bias": 0.4863636363636364,
+          "response_length_bias": null,
+          "tie_rate": 0.14,
+          "unresolved_uncertainty_rate": 0.0,
+          "order_split_half_pearson": 0.10354150138298546,
+          "order_split_half_spearman": 0.20904464574551282,
+          "template_split_half_pearson": 0.7708615351222275,
+          "template_split_half_spearman": 0.7906773605832262,
+          "n_template_split_pairs": 2200,
+          "mean_abs_delta": 0.16318181818181818,
+          "verdict_token_position": {}
+        },
+        "truthfulness": {
+          "n_pairs_attempted": 2200,
+          "n_pairs_valid": 2200,
+          "final_unresolved_invalid_rate": 0.0,
+          "first_pass_invalid_rate": 0.0,
+          "control_final_unresolved_invalid_rate": 0.0,
+          "deterministic_degradation_accuracy": 0.8,
+          "identical_confident_tie_accuracy": 1.0,
+          "uf_natural_pseudo_label_agreement": 0.84,
+          "raw_all_pair_swap_consistency": 0.688780487804878,
+          "confident_semantic_swap_consistency": 0.694672131147541,
+          "contradiction_rate": 0.31121951219512195,
+          "signed_position_bias": 0.06079545454545455,
+          "response_length_bias": null,
+          "tie_rate": 0.27090909090909093,
+          "unresolved_uncertainty_rate": 0.0,
+          "order_split_half_pearson": 0.3202279590850716,
+          "order_split_half_spearman": 0.38360652929511313,
+          "template_split_half_pearson": 0.7505296543145832,
+          "template_split_half_spearman": 0.7680305384736275,
+          "n_template_split_pairs": 2200,
+          "mean_abs_delta": 0.21073863636363635,
+          "verdict_token_position": {}
+        }
+      },
+      "summary": {
+        "max_final_unresolved_invalid_rate": 0.0,
+        "min_deterministic_degradation_accuracy": 0.8,
+        "min_identical_confident_tie_accuracy": 1.0,
+        "min_confident_semantic_swap_consistency": 0.35586206896551725,
+        "min_order_split_half_spearman": 0.20904464574551282,
+        "min_template_split_half_spearman": 0.7022533982867653,
+        "max_abs_position_bias": 0.4863636363636364
+      },
+      "manifest": {
+        "protocol_name": "P2_balanced",
+        "protocol_kind": "P2",
+        "protocol_sha256": "a91658156dda4f4a2aff66c75f53668ed444b882241019acbde2dedebdb71e9a",
+        "rubric_path": "/work/iclr27_table1_v2/code/training_configs/nbpo/objectives/ultrafeedback_v2.yaml",
+        "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+        "labels": {
+          "A": {
+            "token": "A",
+            "id": 32
+          },
+          "B": {
+            "token": "B",
+            "id": 33
+          },
+          "TIE": {
+            "token": "T",
+            "id": 51
+          }
+        },
+        "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+        "order_gap_threshold": 0.25,
+        "entropy_threshold": 0.9,
+        "max_templates_when_unstable": 3,
+        "n_templates": 2,
+        "max_tokens": 512,
+        "stop_after_marker": true,
+        "retry_max_tokens": 1024,
+        "always_all_templates": true,
+        "decoding": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": -1
+        },
+        "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+        "tokenization_verification": {
+          "verified_single_token_in_context": true,
+          "labels": {
+            "A": {
+              "token": "A",
+              "id": 32
+            },
+            "B": {
+              "token": "B",
+              "id": 33
+            },
+            "TIE": {
+              "token": "T",
+              "id": 51
+            }
+          },
+          "prefix_token_count": 19
+        },
+        "n_pairs": 8800,
+        "n_renderings": 35200,
+        "n_adjudicated": 0,
+        "wall_clock_seconds": 1301.2,
+        "input": "/work/iclr27_table1_v2/v4_dev/pairs.jsonl",
+        "adjudication_enabled": false,
+        "all_templates_mode": true,
+        "first_pass_invalid_renderings": 0,
+        "final_unresolved_invalid_renderings": 0,
+        "templates_scored": [
+          "t0",
+          "t1"
+        ]
+      },
+      "controls_manifest": {
+        "protocol_name": "P2_balanced",
+        "protocol_kind": "P2",
+        "protocol_sha256": "a91658156dda4f4a2aff66c75f53668ed444b882241019acbde2dedebdb71e9a",
+        "rubric_path": "/work/iclr27_table1_v2/code/training_configs/nbpo/objectives/ultrafeedback_v2.yaml",
+        "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+        "labels": {
+          "A": {
+            "token": "A",
+            "id": 32
+          },
+          "B": {
+            "token": "B",
+            "id": 33
+          },
+          "TIE": {
+            "token": "T",
+            "id": 51
+          }
+        },
+        "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+        "order_gap_threshold": 0.25,
+        "entropy_threshold": 0.9,
+        "max_templates_when_unstable": 3,
+        "n_templates": 2,
+        "max_tokens": 512,
+        "stop_after_marker": true,
+        "retry_max_tokens": 1024,
+        "always_all_templates": true,
+        "decoding": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": -1
+        },
+        "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+        "tokenization_verification": {
+          "verified_single_token_in_context": true,
+          "labels": {
+            "A": {
+              "token": "A",
+              "id": 32
+            },
+            "B": {
+              "token": "B",
+              "id": 33
+            },
+            "TIE": {
+              "token": "T",
+              "id": 51
+            }
+          },
+          "prefix_token_count": 19
+        },
+        "n_pairs": 800,
+        "n_renderings": 3200,
+        "n_adjudicated": 0,
+        "wall_clock_seconds": 142.5,
+        "input": "/work/iclr27_table1_v2/code/experiments/iclr2027_table1_v2/calibration/controls.jsonl",
+        "adjudication_enabled": false,
+        "all_templates_mode": true,
+        "first_pass_invalid_renderings": 0,
+        "final_unresolved_invalid_renderings": 0,
+        "templates_scored": [
+          "t0",
+          "t1"
+        ]
+      },
+      "protocol_sha256": "a91658156dda4f4a2aff66c75f53668ed444b882241019acbde2dedebdb71e9a",
+      "dev_results": "/work/iclr27_table1_v2/v4_dev/scored_dev_P2_balanced/P2_balanced_results.jsonl",
+      "control_results": "/work/iclr27_table1_v2/v4_dev/scored_controls_P2_balanced/P2_balanced_results.jsonl",
+      "cost_renderings": 35200,
+      "wall_clock_seconds": 1301.2
+    }
+  },
+  "ranking": [
+    "P2_long",
+    "P2_balanced"
+  ],
+  "eligible": [
+    "P2_long"
+  ],
+  "selected": "P2_long",
+  "eligibility_rule": "final unresolved invalid < 0.2%, deterministic degradation >= 0.90, identical confident-tie >= 0.90, every objective",
+  "selection_inputs": "calibration and reliability metrics only; no NBPO, baseline or policy quantity consulted"
+}

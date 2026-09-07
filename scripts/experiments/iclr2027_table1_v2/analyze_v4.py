@@ -196,6 +196,43 @@ def key(s, cost):
             -s["max_abs_position_bias"], -cost)
 
 
+def sibling_manifest(results_path: Path, explicit: str | None = None) -> dict:
+    """The run manifest that goes with a results file.
+
+    `run_judge_protocol` writes `<tag>_results.jsonl` and `<tag>_run_manifest.json`
+    side by side, so the manifest is derivable and does not have to be passed.
+    """
+    if explicit:
+        p = Path(explicit)
+        return json.loads(p.read_text()) if p.exists() else {}
+    p = Path(str(results_path).replace("_results.jsonl", "_run_manifest.json"))
+    return json.loads(p.read_text()) if p.exists() else {}
+
+
+def assert_same_protocol(name, dev_path, dev_man, ctl_path, ctl_man) -> None:
+    """Refuse to score a protocol against controls judged by a DIFFERENT protocol.
+
+    This is not hypothetical. The v4 development directory holds two P2-long runs
+    -- a 2-template cost-parity cut and the restored 3-template protocol -- whose
+    control files are named alike and sit one directory apart. Pairing the
+    3-template dev run with the 2-template controls silently moved truthfulness
+    deterministic-degradation accuracy from 0.960 to 0.860, which is the
+    difference between passing and failing a hard eligibility gate. Every metric
+    here mixes the two sources, so a mismatch is never merely cosmetic.
+    """
+    a, b = dev_man.get("protocol_sha256"), ctl_man.get("protocol_sha256")
+    if a and b and a != b:
+        raise SystemExit(
+            f"protocol {name!r}: dev results {dev_path} were produced by protocol "
+            f"{a[:16]}... but the controls {ctl_path} by {b[:16]}.... Known-answer "
+            "gates and real-pair metrics must come from the SAME frozen protocol; "
+            "re-run one side or pass the matching file.")
+    if not a or not b:
+        print(f"  [warn] protocol {name!r}: no protocol_sha256 on "
+              f"{'dev' if not a else 'controls'} manifest; the match is unverified",
+              flush=True)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -209,12 +246,18 @@ def main() -> None:
     for spec in args.protocol:
         name, paths = spec.split("=", 1)
         parts = paths.split(",")
-        dev, ctl = read_jsonl(parts[0]), read_jsonl(parts[1])
-        man = json.loads(Path(parts[2]).read_text()) if len(parts) > 2 and Path(parts[2]).exists() else {}
+        dev_path, ctl_path = Path(parts[0]), Path(parts[1])
+        dev, ctl = read_jsonl(dev_path), read_jsonl(ctl_path)
+        dev_man = sibling_manifest(dev_path, parts[2] if len(parts) > 2 else None)
+        ctl_man = sibling_manifest(ctl_path, parts[3] if len(parts) > 3 else None)
+        assert_same_protocol(name, dev_path, dev_man, ctl_path, ctl_man)
         po = analyse(dev, ctl)
-        runs[name] = {"per_objective": po, "summary": summarise(po), "manifest": man,
-                      "cost_renderings": man.get("n_renderings"),
-                      "wall_clock_seconds": man.get("wall_clock_seconds")}
+        runs[name] = {"per_objective": po, "summary": summarise(po),
+                      "manifest": dev_man, "controls_manifest": ctl_man,
+                      "protocol_sha256": dev_man.get("protocol_sha256"),
+                      "dev_results": str(dev_path), "control_results": str(ctl_path),
+                      "cost_renderings": dev_man.get("n_renderings"),
+                      "wall_clock_seconds": dev_man.get("wall_clock_seconds")}
 
     ranked = sorted(runs.items(), key=lambda kv: key(kv[1]["summary"],
                                                      kv[1].get("cost_renderings") or 0),
