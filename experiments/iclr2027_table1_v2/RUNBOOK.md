@@ -140,6 +140,71 @@ is empty and the Nash program is infeasible on the same pool. That writes
 `solution_blocked.json` with diagnostics and exits nonzero. It is a property of
 the stage, not a bug — do not work around it by clamping surpluses.
 
+## Judge protocols: v2 retired, v3 inadmissible, v4 under test
+
+Read `judge_protocol_v3/PROTOCOL_AMENDMENT_001.md` and
+`judge_protocol_v4/PROTOCOL_AMENDMENT_002.md` before interpreting any judge
+number. In short:
+
+* **v2** (hard verdict, 16-token budget) — retired. Swap consistency 0.59-0.70.
+* **v3 / P2_deliberative** — **inadmissible**. It is the only protocol that
+  detects deterministic dishonesty edits (1.000) but its 96-token budget left
+  4-21% of pairs with no verdict at all, five times the gate even at
+  calibration. Its artifacts are quarantined.
+* **v4** — the same protocol with the budget repaired (512 tokens,
+  stop-on-marker with the marker retained, one deterministic 1024-token retry),
+  plus a balanced-analysis-order variant. Under test.
+
+**A larger token budget is not by itself sufficient.** v3 had two defects; the
+budget repair addresses only the first. Nothing may be described as validated
+until the fresh holdout and the downstream target-stability gates both pass.
+
+### v4 prompt splits — do not reuse
+
+`splits_judge_v4/` holds three immutable groups cut from prompts used by nothing
+else: `judge_v4_dev` (100), `judge_v4_holdout` (200) and
+`judge_v4_backup_holdout` (200). **The backup is sealed** — open it only if v4
+itself needs revision, so a second attempt does not have to reuse the first
+attempt's holdout. Hashes and the six zero-overlap checks are in
+`judge_v4_split_manifest.json`.
+
+### Quarantined artifacts
+
+`QUARANTINED_poolsize100_exploratory_v3_invalid_protocol/` on the pod, mirrored
+by `quarantine/` in the repo. It may not select 4+4 versus 8+8, enter the paper,
+or be combined with v4 measurements. The pool-size comparison restarts from
+scratch under a passing judge.
+
+### Running v4
+
+```bash
+$K 'cd /work/iclr27_table1_v2/code && setsid nohup bash run_v4_dev.sh \
+      > /work/iclr27_table1_v2/logs/v4_dev.log 2>&1 < /dev/null &'
+python -m scripts.experiments.iclr2027_table1_v2.analyze_v4 \
+   --protocol P2_long=<dev>.jsonl,<controls>.jsonl,<manifest>.json \
+   --protocol P2_balanced=<dev>.jsonl,<controls>.jsonl,<manifest>.json \
+   --out-dir experiments/iclr2027_table1_v2/judge_protocol_v4 --label development
+python -m scripts.experiments.iclr2027_table1_v2.target_stability \
+   --results <holdout results>.jsonl --pairs <pairs>.jsonl \
+   --out-dir experiments/iclr2027_table1_v2/judge_audit_v4_holdout
+```
+
+### A GPU trap that has cost two runs
+
+`nvidia-smi` inside this pod under-reports: it shows 0 MiB while a hung engine
+holds 130 GB, and a decode then dies with *"Free memory on device (18.18/139.8
+GiB) ... less than desired GPU memory utilization"*. Check for live engines
+instead:
+
+```bash
+$K 'ps -eo pid,ppid,etime,pcpu,cmd | grep VLLM::EngineCore | grep -v defunct'
+```
+
+An engine whose **parent is 1** is orphaned. Three of them (started Sep 6) belong
+to the v3 campaign and are left alone. Killing a `run_judge_protocol` parent does
+**not** kill its engine child — reclaim that explicitly or the next run has one
+fewer GPU.
+
 ## The judge audit
 
 ```bash
