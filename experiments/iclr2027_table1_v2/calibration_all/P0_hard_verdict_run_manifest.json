@@ -1,0 +1,62 @@
+{
+  "protocol_name": "P0_hard_verdict",
+  "protocol_kind": "P0",
+  "protocol_sha256": "27cf62a16c2e329e1074d48ebc6b768d9759efc8b14cf7c52e14d2cbe2016018",
+  "rubric_path": "/work/iclr27_table1_v2/code/training_configs/nbpo/objectives/ultrafeedback_v2.yaml",
+  "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+  "labels": {
+    "A": {
+      "token": "A",
+      "id": 32
+    },
+    "B": {
+      "token": "B",
+      "id": 33
+    },
+    "TIE": {
+      "token": "T",
+      "id": 51
+    }
+  },
+  "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+  "order_gap_threshold": 0.25,
+  "entropy_threshold": 0.9,
+  "max_templates_when_unstable": 3,
+  "n_templates": 3,
+  "decoding": {
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "top_k": -1
+  },
+  "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+  "tokenization_verification": {
+    "verified_single_token_in_context": true,
+    "labels": {
+      "A": {
+        "token": "A",
+        "id": 32
+      },
+      "B": {
+        "token": "B",
+        "id": 33
+      },
+      "TIE": {
+        "token": "T",
+        "id": 51
+      }
+    },
+    "prefix_token_count": 19
+  },
+  "n_pairs": 800,
+  "n_renderings": 4800,
+  "n_adjudicated": 0,
+  "wall_clock_seconds": 164.1,
+  "input": "/work/iclr27_table1_v2/code/experiments/iclr2027_table1_v2/calibration/controls.jsonl",
+  "adjudication_enabled": false,
+  "all_templates_mode": true,
+  "templates_scored": [
+    "t0",
+    "t1",
+    "t2"
+  ]
+}

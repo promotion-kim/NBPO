@@ -1,0 +1,495 @@
+{
+  "runs": {
+    "P0": {
+      "per_objective": {
+        "helpfulness": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.9266666666666666,
+          "directional_accuracy_natural": 0.89,
+          "directional_accuracy_degradation": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.019166666666666665,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.9523809523809523,
+          "n_both_orders_commit": 147,
+          "split_half_pearson": 0.9857823356375992,
+          "split_half_spearman": 0.984144241080501,
+          "n_split_half_pairs": 200,
+          "mean_abs_delta": 0.34958333333333336,
+          "mean_tie_probability": 0.2608333333333333,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        },
+        "honesty": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.5266666666666666,
+          "directional_accuracy_natural": 0.72,
+          "directional_accuracy_degradation": 0.14,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.25416666666666665,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.5639097744360902,
+          "n_both_orders_commit": 133,
+          "split_half_pearson": 0.8884736112936243,
+          "split_half_spearman": 0.8383652063493666,
+          "n_split_half_pairs": 200,
+          "mean_abs_delta": 0.20125,
+          "mean_tie_probability": 0.3175,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        },
+        "instruction_following": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.8933333333333333,
+          "directional_accuracy_natural": 0.88,
+          "directional_accuracy_degradation": 0.92,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.095,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.8307692307692308,
+          "n_both_orders_commit": 130,
+          "split_half_pearson": 0.9482429795241621,
+          "split_half_spearman": 0.9483960197760609,
+          "n_split_half_pairs": 200,
+          "mean_abs_delta": 0.2841666666666667,
+          "mean_tie_probability": 0.345,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        },
+        "truthfulness": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.7133333333333334,
+          "directional_accuracy_natural": 0.89,
+          "directional_accuracy_degradation": 0.36,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.16166666666666668,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.704,
+          "n_both_orders_commit": 125,
+          "split_half_pearson": 0.8804978690036482,
+          "split_half_spearman": 0.859020213565771,
+          "n_split_half_pairs": 200,
+          "mean_abs_delta": 0.225,
+          "mean_tie_probability": 0.37666666666666665,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        }
+      },
+      "summary": {
+        "invalid_rate": 0.0,
+        "min_directional_accuracy_clear": 0.5266666666666666,
+        "min_identical_confident_tie_accuracy": 1.0,
+        "max_abs_position_bias": 0.25416666666666665,
+        "min_confident_pair_swap_consistency": 0.5639097744360902,
+        "min_split_half_spearman": 0.8383652063493666,
+        "min_split_half_pearson": 0.8804978690036482
+      },
+      "manifest": {
+        "protocol_name": "P0_hard_verdict",
+        "protocol_kind": "P0",
+        "protocol_sha256": "27cf62a16c2e329e1074d48ebc6b768d9759efc8b14cf7c52e14d2cbe2016018",
+        "rubric_path": "/work/iclr27_table1_v2/code/training_configs/nbpo/objectives/ultrafeedback_v2.yaml",
+        "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+        "labels": {
+          "A": {
+            "token": "A",
+            "id": 32
+          },
+          "B": {
+            "token": "B",
+            "id": 33
+          },
+          "TIE": {
+            "token": "T",
+            "id": 51
+          }
+        },
+        "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+        "order_gap_threshold": 0.25,
+        "entropy_threshold": 0.9,
+        "max_templates_when_unstable": 3,
+        "n_templates": 3,
+        "decoding": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": -1
+        },
+        "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+        "tokenization_verification": {
+          "verified_single_token_in_context": true,
+          "labels": {
+            "A": {
+              "token": "A",
+              "id": 32
+            },
+            "B": {
+              "token": "B",
+              "id": 33
+            },
+            "TIE": {
+              "token": "T",
+              "id": 51
+            }
+          },
+          "prefix_token_count": 19
+        },
+        "n_pairs": 800,
+        "n_renderings": 4800,
+        "n_adjudicated": 0,
+        "wall_clock_seconds": 164.1,
+        "input": "/work/iclr27_table1_v2/code/experiments/iclr2027_table1_v2/calibration/controls.jsonl",
+        "adjudication_enabled": false,
+        "all_templates_mode": true,
+        "templates_scored": [
+          "t0",
+          "t1",
+          "t2"
+        ]
+      },
+      "cost_renderings": 4800,
+      "wall_clock_seconds": 164.1
+    },
+    "P1": {
+      "per_objective": {
+        "helpfulness": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.9466666666666667,
+          "directional_accuracy_natural": 0.92,
+          "directional_accuracy_degradation": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.02630537831994711,
+          "position_bias_identical_only": 1.88653527406224e-05,
+          "confident_pair_swap_consistency": 0.9366197183098591,
+          "n_both_orders_commit": 142,
+          "split_half_pearson": 0.9800508289430543,
+          "split_half_spearman": 0.9628424221904591,
+          "n_split_half_pairs": 200,
+          "mean_abs_delta": 0.32242981937634274,
+          "mean_tie_probability": 0.25687558252851667,
+          "mean_normalized_entropy": 0.08685468771379731,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        },
+        "honesty": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.54,
+          "directional_accuracy_natural": 0.81,
+          "directional_accuracy_degradation": 0.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.2893685419035165,
+          "position_bias_identical_only": -0.0003719811130987272,
+          "confident_pair_swap_consistency": 0.5304347826086957,
+          "n_both_orders_commit": 115,
+          "split_half_pearson": 0.8722537601171391,
+          "split_half_spearman": 0.8701095229960331,
+          "n_split_half_pairs": 200,
+          "mean_abs_delta": 0.17188928972405404,
+          "mean_tie_probability": 0.3090131366326321,
+          "mean_normalized_entropy": 0.2123156192297407,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        },
+        "instruction_following": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.92,
+          "directional_accuracy_natural": 0.88,
+          "directional_accuracy_degradation": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.1230650439169101,
+          "position_bias_identical_only": -0.0012229626391111338,
+          "confident_pair_swap_consistency": 0.7454545454545455,
+          "n_both_orders_commit": 110,
+          "split_half_pearson": 0.9397878157858846,
+          "split_half_spearman": 0.9406308250088842,
+          "n_split_half_pairs": 200,
+          "mean_abs_delta": 0.22570251382776646,
+          "mean_tie_probability": 0.33864895111191456,
+          "mean_normalized_entropy": 0.199808094093482,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        },
+        "truthfulness": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.6533333333333333,
+          "directional_accuracy_natural": 0.86,
+          "directional_accuracy_degradation": 0.24,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.1447265196885659,
+          "position_bias_identical_only": 0.0005100191205523874,
+          "confident_pair_swap_consistency": 0.7476635514018691,
+          "n_both_orders_commit": 107,
+          "split_half_pearson": 0.9098089898571303,
+          "split_half_spearman": 0.8815936829717368,
+          "n_split_half_pairs": 200,
+          "mean_abs_delta": 0.20009417501911814,
+          "mean_tie_probability": 0.38126819904156684,
+          "mean_normalized_entropy": 0.2135537988545275,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        }
+      },
+      "summary": {
+        "invalid_rate": 0.0,
+        "min_directional_accuracy_clear": 0.54,
+        "min_identical_confident_tie_accuracy": 1.0,
+        "max_abs_position_bias": 0.2893685419035165,
+        "min_confident_pair_swap_consistency": 0.5304347826086957,
+        "min_split_half_spearman": 0.8701095229960331,
+        "min_split_half_pearson": 0.8722537601171391
+      },
+      "manifest": {
+        "protocol_name": "P1_restricted_choice_soft_logits",
+        "protocol_kind": "P1",
+        "protocol_sha256": "93fc4af9716dbb81f66fee0b8c4db9d1c0c939918e8d84a6cbb862d49c3bab1c",
+        "rubric_path": "/work/iclr27_table1_v2/code/training_configs/nbpo/objectives/ultrafeedback_v2.yaml",
+        "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+        "labels": {
+          "A": {
+            "token": "A",
+            "id": 32
+          },
+          "B": {
+            "token": "B",
+            "id": 33
+          },
+          "TIE": {
+            "token": "T",
+            "id": 51
+          }
+        },
+        "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+        "order_gap_threshold": 0.25,
+        "entropy_threshold": 0.9,
+        "max_templates_when_unstable": 3,
+        "n_templates": 3,
+        "decoding": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": -1
+        },
+        "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+        "tokenization_verification": {
+          "verified_single_token_in_context": true,
+          "labels": {
+            "A": {
+              "token": "A",
+              "id": 32
+            },
+            "B": {
+              "token": "B",
+              "id": 33
+            },
+            "TIE": {
+              "token": "T",
+              "id": 51
+            }
+          },
+          "prefix_token_count": 19
+        },
+        "n_pairs": 800,
+        "n_renderings": 4800,
+        "n_adjudicated": 0,
+        "wall_clock_seconds": 162.1,
+        "input": "/work/iclr27_table1_v2/code/experiments/iclr2027_table1_v2/calibration/controls.jsonl",
+        "adjudication_enabled": false,
+        "all_templates_mode": true,
+        "templates_scored": [
+          "t0",
+          "t1",
+          "t2"
+        ]
+      },
+      "cost_renderings": 4800,
+      "wall_clock_seconds": 162.1
+    },
+    "P2": {
+      "per_objective": {
+        "helpfulness": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.9466666666666667,
+          "directional_accuracy_natural": 0.92,
+          "directional_accuracy_degradation": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": 0.0125,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.972972972972973,
+          "n_both_orders_commit": 148,
+          "split_half_pearson": 0.9772129625029279,
+          "split_half_spearman": 0.9791658321079788,
+          "n_split_half_pairs": 198,
+          "mean_abs_delta": 0.35625,
+          "mean_tie_probability": 0.25766666666666665,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        },
+        "honesty": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.8333333333333334,
+          "directional_accuracy_natural": 0.75,
+          "directional_accuracy_degradation": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": 0.013333333333333332,
+          "position_bias_identical_only": 0.006666666666666666,
+          "confident_pair_swap_consistency": 0.927007299270073,
+          "n_both_orders_commit": 137,
+          "split_half_pearson": 0.935740258430633,
+          "split_half_spearman": 0.9337719982909631,
+          "n_split_half_pairs": 189,
+          "mean_abs_delta": 0.3183333333333333,
+          "mean_tie_probability": 0.27825,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        },
+        "instruction_following": {
+          "n": 199,
+          "n_clear": 149,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.8993288590604027,
+          "directional_accuracy_natural": 0.8484848484848485,
+          "directional_accuracy_degradation": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": 0.06155778894472362,
+          "position_bias_identical_only": -0.006666666666666666,
+          "confident_pair_swap_consistency": 0.9172413793103448,
+          "n_both_orders_commit": 145,
+          "split_half_pearson": 0.9581051456223972,
+          "split_half_spearman": 0.9559894610030378,
+          "n_split_half_pairs": 191,
+          "mean_abs_delta": 0.3243299832495813,
+          "mean_tie_probability": 0.2767169179229481,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        },
+        "truthfulness": {
+          "n": 193,
+          "n_clear": 143,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.9090909090909091,
+          "directional_accuracy_natural": 0.8817204301075269,
+          "directional_accuracy_degradation": 0.96,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.008635578583765116,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.8914728682170543,
+          "n_both_orders_commit": 129,
+          "split_half_pearson": 0.8960325135578593,
+          "split_half_spearman": 0.8898077194095011,
+          "n_split_half_pairs": 166,
+          "mean_abs_delta": 0.3009499136442142,
+          "mean_tie_probability": 0.3051813471502591,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        }
+      },
+      "summary": {
+        "invalid_rate": 0.01,
+        "min_directional_accuracy_clear": 0.8333333333333334,
+        "min_identical_confident_tie_accuracy": 1.0,
+        "max_abs_position_bias": 0.06155778894472362,
+        "min_confident_pair_swap_consistency": 0.8914728682170543,
+        "min_split_half_spearman": 0.8898077194095011,
+        "min_split_half_pearson": 0.8960325135578593
+      },
+      "manifest": {
+        "protocol_name": "P2_deliberative",
+        "protocol_kind": "P2",
+        "protocol_sha256": "f3d299ee66b95632985f16f29030f078eee900f459d172b1f4274d9fe1177be0",
+        "rubric_path": "/work/iclr27_table1_v2/code/training_configs/nbpo/objectives/ultrafeedback_v2.yaml",
+        "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+        "labels": {
+          "A": {
+            "token": "A",
+            "id": 32
+          },
+          "B": {
+            "token": "B",
+            "id": 33
+          },
+          "TIE": {
+            "token": "T",
+            "id": 51
+          }
+        },
+        "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+        "order_gap_threshold": 0.25,
+        "entropy_threshold": 0.9,
+        "max_templates_when_unstable": 3,
+        "n_templates": 3,
+        "decoding": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": -1
+        },
+        "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+        "tokenization_verification": {
+          "verified_single_token_in_context": true,
+          "labels": {
+            "A": {
+              "token": "A",
+              "id": 32
+            },
+            "B": {
+              "token": "B",
+              "id": 33
+            },
+            "TIE": {
+              "token": "T",
+              "id": 51
+            }
+          },
+          "prefix_token_count": 19
+        },
+        "n_pairs": 800,
+        "n_renderings": 4800,
+        "n_adjudicated": 0,
+        "wall_clock_seconds": 208.9,
+        "input": "/work/iclr27_table1_v2/code/experiments/iclr2027_table1_v2/calibration/controls.jsonl",
+        "adjudication_enabled": false,
+        "all_templates_mode": true,
+        "templates_scored": [
+          "t0",
+          "t1",
+          "t2"
+        ]
+      },
+      "cost_renderings": 4800,
+      "wall_clock_seconds": 208.9
+    }
+  },
+  "ranking": [
+    "P2",
+    "P1",
+    "P0"
+  ],
+  "selected": "P2",
+  "selection_rule": "lexicographic: min clear-control directional accuracy > identical confident-tie accuracy > -max |position bias| > confident-pair swap consistency > split-half Spearman > -cost",
+  "selection_inputs": "calibration and reliability metrics only; no downstream policy or NBPO quantity was consulted"
+}

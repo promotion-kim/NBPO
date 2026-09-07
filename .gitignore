@@ -57,6 +57,10 @@ experiments/iclr2027_table1_v2/calibration_runs/*
 !experiments/iclr2027_table1_v2/calibration_runs/*_run_manifest.json
 !experiments/iclr2027_table1_v2/calibration_runs/adaptive_pass/
 !experiments/iclr2027_table1_v2/calibration_runs/all_templates_pass/
+!experiments/iclr2027_table1_v2/calibration_all/
+experiments/iclr2027_table1_v2/calibration_all/*
+!experiments/iclr2027_table1_v2/calibration_all/*_run_manifest.json
+!experiments/iclr2027_table1_v2/calibration_all/analysis/
 !experiments/iclr2027_table1_v2/plans/
 experiments/iclr2027_table1_v2/judge_audit/*
 !experiments/iclr2027_table1_v2/judge_audit/report.json
