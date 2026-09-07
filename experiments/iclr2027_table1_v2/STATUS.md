@@ -58,14 +58,13 @@ policy and exit sentinels, so `status` stays honest after a crash.
 
 ## Running now
 
-| run | where | log |
-|---|---|---|
-| rubric diagnostic (v1@16 tokens, v2@64 tokens), Qwen3-32B TP=2 | pod `nbpo-judge`, GPUs 0–1 | `/work/iclr27_table1_v2/logs/diag_judge.log` |
-| 70B cross-judge of the same pairs (chained behind it) | pod `nbpo-judge`, GPUs 0–1 | `/work/iclr27_table1_v2/logs/diag_70b.log` |
+Nothing is running on the pod's GPUs as of this update; all three are idle.
 
 Completed on the pod: both response pools (02:46–02:49 PDT, one GPU) and the
 50-prompt training judgment bank (02:51–02:57 PDT, Qwen3-32B TP=2) —
-8800 rows at `/work/iclr27_table1_v2/smoke/verdicts.jsonl`.
+8800 rows at `/work/iclr27_table1_v2/smoke/verdicts.jsonl`; the v1-rubric
+diagnostic (03:03–03:16, aborted by design); and the Llama-3.3-70B cross-judge of
+the same pairs (03:17–03:28) at `/work/iclr27_table1_v2/diag/verdicts_v2_llama70b.jsonl`.
 
 ## The solver leg, on the real judged bank
 
@@ -133,15 +132,43 @@ pairs are ties in both orders. Under that reading the low consistency is the
 measurement being honest about indifference, and swap averaging is doing exactly
 the job it exists for.
 
-That hypothesis is being tested directly: the same pairs, same rubric, same
+That hypothesis was tested directly: the same pairs, the same rubric, the same
 decoding, judged by **Llama-3.3-70B** (`/work/models/xj_judges/llama70`, TP=2,
-`--judge-role monitoring` so it can never be mistaken for the training bank). If
-a far stronger judge lands near 0.65 the cause is the pool; if it reaches 0.85
-the cause is Qwen3-32B. **That run is in flight and no conclusion is drawn from
-it here.**
+`--judge-role monitoring` so it can never be mistaken for the training bank).
+The result rules against blaming Qwen3-32B.
 
-Whichever way it resolves, the full labelling run stays blocked until the gate
-is met or the protocol's threshold is revised deliberately and on the record.
+| objective | Qwen3-32B | Llama-3.3-70B | both-order-decisive pairs (70B) |
+|---|---|---|---|
+| truthfulness | 0.663 | **0.807** | 176 of 1096 |
+| honesty | 0.592 | **0.710** | 162 of 1100 |
+| instruction following | **0.696** | 0.571 | 161 of 1100 |
+| helpfulness | **0.645** | 0.433 | 527 of 1100 |
+
+**Neither judge reaches 0.85 on more than one objective, and the 70B does not
+reach it at all.** It is better where it is much more cautious — it ties both
+orders on 762 of 1100 honesty pairs and 734 of 1096 truthfulness pairs, leaving
+only ~160 decided — and it is *worse* on the other two. Helpfulness at 0.433 is
+below chance: on that criterion the 70B contradicts itself more often than it
+agrees whenever both orders commit.
+
+So the failure is not a property of the training judge, and swapping judges will
+not fix it. Two things follow:
+
+1. the reading that the **pool** is the cause survives the test — near-equal
+   samples from one 8B model give a judge little to be stable about, and both
+   judges respond by tying heavily;
+2. **helpfulness is the worst-behaved criterion under both judges** and needs
+   attention on its own terms before the full bank is labelled, rather than
+   being averaged in with the other three.
+
+The 70B also sits at 0.170 % invalid with retries needed on 10 cells — inside
+the 0.2 % parse gate, but only just, where Qwen3-32B was at 0.000 %.
+
+The full labelling run stays blocked. The honest options are to fix the
+measurement (a pool with real quality spread, e.g. comparators from a different
+checkpoint, which would also make the surpluses less degenerate) or to revise
+the 0.85 threshold deliberately and on the record with these numbers attached.
+Neither is a decision to take silently, and neither has been taken.
 
 ## Findings worth carrying forward
 
@@ -197,10 +224,14 @@ evaluation artifacts are complete.
 
 ## Next
 
-1. finish smoke judging → tensors → solve → pair targets → short 8B fit → decode
-   → independent evaluation (closes execution-order step 9);
-2. 200-prompt judge audit against the hard gates (step 10);
-3. full train/validation pool and judgment bank (step 11);
+1. **Resolve the swap-consistency gate.** It is the only thing blocking the
+   expensive phases, and it is now known not to be fixable by changing judges.
+   The two honest routes are above; both need a decision rather than a rerun.
+2. the rest of smoke step 9 — pair targets → short 8B fit → decode → independent
+   evaluation. The solver leg is done; the pair-target handoff is fixed and
+   tested but has not yet been run on the real artifact;
+3. 200-prompt judge audit once the gate question is settled (step 10);
+4. full train/validation pool and judgment bank (step 11);
 4. beta/R diagnostics, then the sequential eta/LR/step pilot on tuning seed 11
    (steps 12–13);
 5. regression-realization gate, then freeze and launch seeds 42/43/44.
