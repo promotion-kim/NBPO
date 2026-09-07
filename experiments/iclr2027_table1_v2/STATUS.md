@@ -35,6 +35,8 @@ their log path, and no number is quoted from them.
 | **Controlled-nontransitivity feasibility (rho\*)** | **pass** — rho\* > 0 on all 25 v1 instances, certified gap ≤ 3.1e-7 |
 | **Exact NBPO on the stress test** | **pass** — exact global and proximal Nash reach 88–94 % of rho\* at every alpha |
 | **Deployed alternating solver** | **FAIL** — fixed-point residual 1.000 at alpha ≥ 0.5; the stress-test negative was this |
+| **Repaired solver (`inner_solver="exact"`)** | **pass** — residual 8.2e-7, TV 0.027 to the exact proximal policy, Eq. (26) identity 6.1e-16 |
+| **Section 4 go/no-go** | **NO-GO** — 3 of 4 conditions pass; the GPM's decisive clause is unevaluable. Nothing launched. |
 | **SafeRLHF splits** | **pass** — prompt-disjoint, overlap 0, hashes recorded |
 | **SafeRLHF observable cycles** | **ZERO, structurally** — the annotation graph is a near-perfect matching |
 | **GPM beats a constant predictor** | **pass** — NLL 0.56/0.52 vs 0.66/0.60, balanced accuracy 0.72/0.75 vs 0.50 |
@@ -559,3 +561,36 @@ a constant predictor decisively; GPM's advantage over BT is −0.0039 nats on
 helpfulness [−0.0073, −0.0005] and nothing on harmlessness, with no accuracy gain
 on either. That null is what a matching graph predicts, and it is **not** evidence
 that human preferences are transitive.
+
+## Track 2b — the solver is now repaired in the production stack
+
+`solve_finite_pool(..., inner_solver="exact")` and `--inner-solver exact` solve
+the Eq. (18) subproblem by concave maximization instead of iterating the Eq. (21)
+map. The subproblem **separates across prompts** (`V_k(pi) = mean_x v_{k,x}(pi_x)`
+and each `v_{k,x}` touches only that prompt's row), so it is X small independent
+programs — linear in the number of prompts, and usable at 7 000.
+
+At alpha = 1: min surplus **+0.0115** against an attainable `rho* = +0.0154` and
+the exact proximal point's +0.0139; fixed-point residual **8.2e-07**; TV to the
+exact proximal policy **0.027**; Eq. (26) identity residual **6.1e-16**.
+
+The last number was nearly fatal and is worth remembering: an optimizer iterate
+satisfies the Eq. (26) identity only to its own tolerance (~1e-7) and
+`write_generic_solution_artifact` refuses above 1e-9, so the target artifact would
+have been rejected. The solver returns the Eq. (21) map **applied at** the
+maximizer, which makes the identity exact by construction.
+
+**The default is unchanged** and a test pins that the default path is bitwise
+identical, so no existing artifact moves silently.
+
+## Section 4 go/no-go: NO-GO
+
+Full reasoning in `GO_NO_GO.md`. Conditions 1–3 pass (feasibility positive, exact
+NBPO correct, a practical solver at residual < 1e-4 and close to the exact
+proximal policy). Condition 4 passes only on its weaker clause: the GPM clears
+the constant-predictor floor, but the clause that decides the route — a defensible
+benefit over BT on an observable nontransitive subset — **cannot be evaluated**,
+because that subset is empty by construction of SafeRLHF's annotation protocol.
+
+Not launched: policy training, reward-model training, the 7 500-prompt bank, and
+seeds 42/43/44.

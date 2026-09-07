@@ -316,3 +316,76 @@ on `ps` output rather than trusting a `pgrep` hit.
 `0/317 nodes are available: 2 Insufficient nvidia.com/gpu` on
 `private-h200-aipr-0`. Its four GPUs have never been schedulable; all judge work
 runs on `nbpo-judge`'s three idle H200s.
+
+## Session-5 tracks: exact commands
+
+All three are reproducible from a clean checkout. Nothing below trains a policy.
+
+```bash
+export KUBECONFIG=~/.kube/aipr-kubeconfig.yaml     # the pod work needs this
+```
+
+### Track 1 — the opaque-identifier factorial (closed; do not extend)
+
+```bash
+K="kubectl -n p-aipr exec nbpo-judge -c main -- bash -lc"
+$K 'bash /work/iclr27_table1_v2/code/run_opaque.sh'          # 24000 renderings, ~17 min, GPUs 0,1
+$K 'cd /work/iclr27_table1_v2/code && python3 -m scripts.experiments.iclr2027_table1_v2.analyze_opaque_factorial \
+      --run-dir /work/iclr27_table1_v2/v5_opaque_factorial \
+      --out-dir /work/iclr27_table1_v2/v5_opaque_factorial/analysis'
+```
+
+The decision is **B** and it is final. Do not create P6/P7, do not lower a gate,
+do not open `judge_v4_holdout` or the backup, and do not launch the bank.
+
+### Track 2 — the feasibility and solver audit (CPU only)
+
+```bash
+python -m scripts.experiments.iclr2027_table1_v2.audit_nontransitivity \
+  --benchmark v1 --seeds 5 --prompts 40 --responses 4 \
+  --dual-iterations 1500 --fixed-point-iterations 3 --c2-outer-iterations 120 \
+  --out-dir results/iclr2027_table1_v2/nontransitivity_audit          # ~45 min
+
+# the rho*-matched benchmark, which removes the shrinking-margin confound
+python -m scripts.experiments.iclr2027_table1_v2.audit_nontransitivity \
+  --benchmark v2_matched --seeds 3 --prompts 40 --v2-responses 5 \
+  --v2-base-amp 0.05 --v2-cycle-amp 0.28 --v2-target-rho-star 0.030 \
+  --out-dir results/iclr2027_table1_v2/nontransitivity_audit          # ~90 min, bisection-bound
+
+python -m scripts.experiments.iclr2027_table1_v2.audit_step_size_claim \
+  --out results/iclr2027_table1_v2/nontransitivity_audit/step_size_claim_audit.json
+
+python -m scripts.experiments.iclr2027_table1_v2.build_paper_tables_v5 --benchmark v1
+```
+
+`--benchmark v2_matched` bisects the shared-direction weight `m` per alpha to hold
+`rho*` at the target, so it costs ~18 exact max-min solves per (seed, alpha). That
+is the slow part; lower `--seeds` before lowering the bisection accuracy.
+
+**Using the repaired solver.** `--inner-solver exact` on `solve_nbpo_dual`, or
+`solve_finite_pool(..., inner_solver="exact")`. The default stays
+`fixed_point` so no existing artifact changes; switch deliberately, and expect
+`fixed_point_residual` to become a *stationarity* residual (~1e-7) rather than a
+last-step change.
+
+### Track 3 — SafeRLHF splits and the GPM
+
+```bash
+python -m scripts.experiments.iclr2027_table1_v2.build_saferlhf_splits \
+  --out-dir experiments/iclr2027_table1_v2/saferlhf_splits             # ~4 min, CPU
+
+CUDA_VISIBLE_DEVICES=0 HF_HUB_OFFLINE=1 \
+python -m scripts.experiments.iclr2027_table1_v2.train_saferlhf_gpm \
+  --splits-dir experiments/iclr2027_table1_v2/saferlhf_splits \
+  --out-dir results/iclr2027_table1_v2/saferlhf_gpm \
+  --encoder roberta-base --width 512 --bt-width 768 --max-len 384 \
+  --batch-size 32 --epochs 2 --lr 1e-5 --seed 42 --models gpm bt       # ~15 min/model, 1 GPU
+```
+
+The split `.jsonl` files are **not** in the repository — 122 MB of raw responses
+from a public dataset — but `split_manifest.json` carries every hash, so a
+rebuild can be verified byte for byte against it.
+
+`--bt-width 768` is not cosmetic: it brings the scalar baseline's head to within
+3.6 % of the GPM's parameter count, so "more capacity" is unavailable as an
+explanation in either direction.

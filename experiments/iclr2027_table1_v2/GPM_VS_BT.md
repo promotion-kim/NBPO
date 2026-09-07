@@ -14,6 +14,9 @@ difference is the head:
 * **GPM** `logit_k = ½[a_k(h_y,h_z) - a_k(h_z,h_y)]` -- a joint pair score,
   antisymmetrized exactly.
 
+Labels are the released binary ids. **No tie is invented** -- the schema cannot
+express one -- and no label is softened.
+
 | | GPM | BT |
 |---|---|---|
 | head parameters | 1 837 058 | 1 772 546 |
@@ -46,23 +49,37 @@ disguise.
 | harmlessness | **BT** | **0.5234** | 0.7542 | 0.8457 | **0.1758** | 0.1758 | 0.089 |
 | harmlessness | constant | 0.6042 | 0.500 | 0.500 | — | — | — |
 
+(Run 2, same seed and configuration, different GPU: GPM 0.5587 / 0.7219 / 0.7996
+and 0.5232 / 0.7536 / 0.8469; BT 0.5612 / 0.7214 / 0.7982 and 0.5244 / 0.7510 /
+0.8440. Both runs are in `gpm_vs_bt_run1.json` and `gpm_vs_bt.json`.)
+
 **Both models clear the constant-predictor floor decisively** — NLL 0.56/0.52
 against 0.66/0.60, balanced accuracy 0.72/0.75 against 0.50 — so the route is not
 stopped on that clause.
 
-## GPM minus BT, cluster-bootstrapped over prompts (2 000 draws)
+## GPM minus BT, cluster-bootstrapped over prompts (2 000 draws), twice
 
-| objective | ΔNLL (GPM − BT) | 95 % CI | Δaccuracy | 95 % CI |
-|---|---|---|---|---|
-| helpfulness | **−0.00389** | [−0.00732, −0.00050] | −0.00030 | [−0.00616, +0.00574] |
-| harmlessness | +0.00140 | [−0.00236, +0.00529] | −0.00187 | [−0.00808, +0.00469] |
+The configuration was trained **twice** at the same seed, differing only in the
+GPU and in nondeterministic kernel scheduling. Both runs are reported, because
+the difference between them is the finding.
+
+| objective | run | ΔNLL (GPM − BT) | 95 % CI | Δaccuracy | 95 % CI |
+|---|---|---|---|---|---|
+| helpfulness | 1 | −0.00389 | [−0.00732, **−0.00050**] | −0.00030 | [−0.00616, +0.00574] |
+| helpfulness | 2 | −0.00241 | [−0.00586, **+0.00119**] | −0.00032 | [−0.00603, +0.00549] |
+| harmlessness | 1 | +0.00140 | [−0.00236, +0.00529] | −0.00187 | [−0.00808, +0.00469] |
+| harmlessness | 2 | −0.00118 | [−0.00520, +0.00283] | +0.00264 | [−0.00405, +0.00908] |
 
 Rows sharing a prompt are not independent, so prompts are the resampling unit.
 
-The one significant difference is a 0.0039-nat NLL improvement on helpfulness —
-**0.7 % of the loss**, with the accuracy interval straddling zero. Harmlessness
-shows no difference in either direction. On this data the joint anti-symmetric
-head buys essentially nothing over a scalar reward difference.
+Run 1's single significant result — a 0.0039-nat NLL gain on helpfulness, 0.6 %
+of the loss — **did not replicate**. At the same seed and configuration, run 2
+gives −0.0024 with an interval that includes zero, and harmlessness flips sign
+between runs. The effect is smaller than run-to-run variance. No accuracy
+interval excludes zero in either run.
+
+**On this data the joint anti-symmetric head buys nothing reliable over a scalar
+reward difference.**
 
 ## Why that is the expected answer here, and what it does and does not mean
 
@@ -82,14 +99,32 @@ unavailable, not as a pass and not as a failure.
 
 ## Observed versus predicted cycles
 
-These are kept strictly apart.
+These are kept strictly apart, and together they make the sharpest point in this
+section.
 
-* **Observed** three-cycles in the human annotations: **0** in train, 0 in
-  validation, 0 in test, for both objectives. Structural, not statistical.
-* **Predicted** cycles: the model is defined on every pair, so it can be asked
-  about triples annotators never compared. Those counts are reported separately
-  in `gpm_vs_bt.json` under `predicted_cycles_test` and are a property of the
-  model, never evidence about people.
+**Observed** three-cycles in the human annotations: **0** in train, 0 in
+validation, 0 in test, for both objectives. Structural, not statistical — the
+annotation graph has no triangles to count.
+
+**Predicted** cycles, on 400 held-out prompts with at least three distinct
+responses, 3 392 triples per objective — triples annotators never compared, so
+these are model predictions and nothing else:
+
+| model | max cyclic logit residual on **real** encodings | predicted 3-cycles, helpfulness | harmlessness |
+|---|---|---|---|
+| **GPM** | **2.414** | **0 / 3 392** | **0 / 3 392** |
+| BT | **0.000** (exactly, as it must be) | 0 / 3 392 | 0 / 3 392 |
+
+The GPM's cyclic residual of 2.41 on *real* response encodings — not on random
+vectors — establishes that the trained model is genuinely free to be
+intransitive on this data. It has the capacity, on these very inputs. And it
+predicts **zero cycles in 3 392 triples**.
+
+So a model that can be intransitive, trained on human preference data, learns a
+transitive preference. That is a much stronger statement than the null NLL
+comparison, and it is the honest form of the claim: it is evidence about what
+this model learned from this dataset, **not** evidence that human preferences are
+transitive — the annotations cannot speak to that either way.
 
 ## A confound worth naming
 

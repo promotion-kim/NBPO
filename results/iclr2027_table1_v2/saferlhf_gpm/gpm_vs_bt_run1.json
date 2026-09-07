@@ -1,0 +1,297 @@
+{
+  "config": {
+    "splits_dir": "experiments/iclr2027_table1_v2/saferlhf_splits",
+    "out_dir": "results/iclr2027_table1_v2/saferlhf_gpm",
+    "encoder": "roberta-base",
+    "width": "512",
+    "bt_width": "768",
+    "dropout": "0.1",
+    "max_len": "384",
+    "batch_size": "32",
+    "epochs": "2",
+    "lr": "1e-05",
+    "weight_decay": "0.01",
+    "clip": "1.0",
+    "seed": "42",
+    "workers": "4",
+    "log_every": "250",
+    "limit_train": "None",
+    "models": "['gpm', 'bt']"
+  },
+  "split_manifest_prompt_hashes": {
+    "train": "01251ff0ff1521914d43064c4686ba70d4f6bd9ca2fd5239291038c02b2dae46",
+    "validation": "9f96ee3eaf0d3896e99cccdbb48c91aaebfd991afff3de76ee000766ff1597f8",
+    "test": "132a0551290c962ed3135135518130f3399944e1ac217cc3b4abf23438f09aca"
+  },
+  "observed_three_cycles": {
+    "train": {
+      "helpfulness": 0,
+      "harmlessness": 0
+    },
+    "validation": {
+      "helpfulness": 0,
+      "harmlessness": 0
+    },
+    "test": {
+      "helpfulness": 0,
+      "harmlessness": 0
+    }
+  },
+  "models": {
+    "gpm": {
+      "kind": "gpm",
+      "train_seconds": 419.4746425151825,
+      "head_parameters": 1837058,
+      "total_parameters": 126482690,
+      "optimizer_steps": 3728,
+      "validation": {
+        "exactness": {
+          "max_antisymmetry_residual": 1.1920928955078125e-07,
+          "max_self_tie_residual": 0.0
+        },
+        "per_objective": {
+          "helpfulness": {
+            "nll": 0.5611138433294494,
+            "accuracy": 0.7108351528384279,
+            "balanced_accuracy": 0.7164021530007528,
+            "roc_auc": 0.7955630553821802,
+            "brier": 0.18847061063666237,
+            "ece": 0.1252265737471313,
+            "base_rate": 0.3640829694323144,
+            "n": 7328,
+            "logit_vs_length_difference_pearson": 0.38525085774706797
+          },
+          "harmlessness": {
+            "nll": 0.5303137578650211,
+            "accuracy": 0.7229803493449781,
+            "balanced_accuracy": 0.7459539750166653,
+            "roc_auc": 0.8388256093673014,
+            "brier": 0.17860812240552415,
+            "ece": 0.17738766536199782,
+            "base_rate": 0.2893013100436681,
+            "n": 7328,
+            "logit_vs_length_difference_pearson": 0.08002747942861646
+          }
+        }
+      },
+      "test": {
+        "exactness": {
+          "max_antisymmetry_residual": 1.1920928955078125e-07,
+          "max_self_tie_residual": 0.0
+        },
+        "per_objective": {
+          "helpfulness": {
+            "nll": 0.5572587324204845,
+            "accuracy": 0.7151689432063264,
+            "balanced_accuracy": 0.7228239632196034,
+            "roc_auc": 0.8006517974862584,
+            "brier": 0.1872984747829682,
+            "ece": 0.12288134372756314,
+            "base_rate": 0.3636232925952552,
+            "n": 6955,
+            "logit_vs_length_difference_pearson": 0.41624705269173357
+          },
+          "harmlessness": {
+            "nll": 0.5247892261635496,
+            "accuracy": 0.7272465851905104,
+            "balanced_accuracy": 0.7535928912081096,
+            "roc_auc": 0.8458210753769627,
+            "brier": 0.17656980573163852,
+            "ece": 0.1747641231226122,
+            "base_rate": 0.2923076923076923,
+            "n": 6955,
+            "logit_vs_length_difference_pearson": 0.09197965642928652
+          }
+        }
+      },
+      "not_scalar_decomposable": {
+        "max_cyclic_residual": 0.08087202906608582,
+        "triple": [
+          0,
+          2,
+          7
+        ],
+        "scalar_decomposable": false,
+        "note": "a scalar reward model has residual 0 for every triple; a materially nonzero residual proves this model can represent a cyclic preference"
+      },
+      "provenance": {
+        "encoder_name": "roberta-base",
+        "adaptation_mode": "full_finetune",
+        "n_objectives": 2,
+        "hidden_size": 768,
+        "head_width": 512,
+        "train_split_sha256": null,
+        "label_source": "PKU-SafeRLHF released better_response_id/safer_response_id",
+        "extra": {},
+        "fingerprint": "1dc52bacc7737f277238b25730f8984e559c5919bea64694aefb1799c1c63a0f",
+        "architecture": "joint pair encoder + explicit antisymmetrization",
+        "guarantees": [
+          "P(y>z) + P(z>y) == 1 exactly",
+          "P(y>y) == 0.5 exactly",
+          "not decomposable into r(y) - r(z)"
+        ]
+      }
+    },
+    "bt": {
+      "kind": "bt",
+      "train_seconds": 420.3667805194855,
+      "head_parameters": 1772546,
+      "total_parameters": 126418178,
+      "optimizer_steps": 3728,
+      "validation": {
+        "exactness": {
+          "max_antisymmetry_residual": 1.1920928955078125e-07,
+          "max_self_tie_residual": 0.0
+        },
+        "per_objective": {
+          "helpfulness": {
+            "nll": 0.5643446196784603,
+            "accuracy": 0.7108351528384279,
+            "balanced_accuracy": 0.7174435850744156,
+            "roc_auc": 0.7932909350046007,
+            "brier": 0.18950200228932604,
+            "ece": 0.12498912023366006,
+            "base_rate": 0.3640829694323144,
+            "n": 7328,
+            "logit_vs_length_difference_pearson": 0.39126823637858027
+          },
+          "harmlessness": {
+            "nll": 0.5314113298344532,
+            "accuracy": 0.7203875545851528,
+            "balanced_accuracy": 0.7472064023418253,
+            "roc_auc": 0.8391849984059357,
+            "brier": 0.17899815374605074,
+            "ece": 0.17862275907552677,
+            "base_rate": 0.2893013100436681,
+            "n": 7328,
+            "logit_vs_length_difference_pearson": 0.08112319219620415
+          }
+        }
+      },
+      "test": {
+        "exactness": {
+          "max_antisymmetry_residual": 1.1920928955078125e-07,
+          "max_self_tie_residual": 0.0
+        },
+        "per_objective": {
+          "helpfulness": {
+            "nll": 0.5611818789003271,
+            "accuracy": 0.7154565061107118,
+            "balanced_accuracy": 0.7229651630780194,
+            "roc_auc": 0.7984018016405092,
+            "brier": 0.18792917460373226,
+            "ece": 0.1247981402557134,
+            "base_rate": 0.3636232925952552,
+            "n": 6955,
+            "logit_vs_length_difference_pearson": 0.41728554452271643
+          },
+          "harmlessness": {
+            "nll": 0.5233669970449948,
+            "accuracy": 0.7291157440690151,
+            "balanced_accuracy": 0.7541917064094612,
+            "roc_auc": 0.8457304336233537,
+            "brier": 0.17575487467242637,
+            "ece": 0.17583805243217335,
+            "base_rate": 0.2923076923076923,
+            "n": 6955,
+            "logit_vs_length_difference_pearson": 0.08855873072568332
+          }
+        }
+      }
+    }
+  },
+  "gpm_vs_bt": {
+    "validation": {
+      "helpfulness": {
+        "delta_nll_gpm_minus_bt_mean": -0.0032389126824354996,
+        "delta_nll_gpm_minus_bt_ci95": [
+          -0.006903709868157309,
+          0.00022942224293917213
+        ],
+        "delta_accuracy_gpm_minus_bt_mean": -9.925528544760354e-05,
+        "delta_accuracy_gpm_minus_bt_ci95": [
+          -0.006329353762321072,
+          0.00612044069741192
+        ],
+        "n_bootstrap": 2000,
+        "resampling_unit": "prompt",
+        "constant_predictor": {
+          "nll": 0.6557757423856295,
+          "accuracy": 0.6359170305676856,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.5,
+          "brier": 0.23154707961228646,
+          "predicted_probability": 0.35955320005366964
+        }
+      },
+      "harmlessness": {
+        "delta_nll_gpm_minus_bt_mean": -0.0011035584978156786,
+        "delta_nll_gpm_minus_bt_ci95": [
+          -0.005234166548505947,
+          0.002910710187792787
+        ],
+        "delta_accuracy_gpm_minus_bt_mean": 0.0025555455294859085,
+        "delta_accuracy_gpm_minus_bt_ci95": [
+          -0.003531402746996823,
+          0.008712422487654697
+        ],
+        "n_bootstrap": 2000,
+        "resampling_unit": "prompt",
+        "constant_predictor": {
+          "nll": 0.6015266569715585,
+          "accuracy": 0.7106986899563319,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.5,
+          "brier": 0.20560678507226302,
+          "predicted_probability": 0.2901516167986046
+        }
+      }
+    },
+    "test": {
+      "helpfulness": {
+        "delta_nll_gpm_minus_bt_mean": -0.0038905321720370594,
+        "delta_nll_gpm_minus_bt_ci95": [
+          -0.0073177056500990404,
+          -0.0004986999983256551
+        ],
+        "delta_accuracy_gpm_minus_bt_mean": -0.0002984600517251438,
+        "delta_accuracy_gpm_minus_bt_ci95": [
+          -0.006158276185407441,
+          0.005735137967329224
+        ],
+        "n_bootstrap": 2000,
+        "resampling_unit": "prompt",
+        "constant_predictor": {
+          "nll": 0.6555103691511679,
+          "accuracy": 0.6363767074047448,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.5,
+          "brier": 0.2314179593307376,
+          "predicted_probability": 0.35955320005366964
+        }
+      },
+      "harmlessness": {
+        "delta_nll_gpm_minus_bt_mean": 0.0013962500453852127,
+        "delta_nll_gpm_minus_bt_ci95": [
+          -0.0023624040183101657,
+          0.005289780965522785
+        ],
+        "delta_accuracy_gpm_minus_bt_mean": -0.0018739802226852408,
+        "delta_accuracy_gpm_minus_bt_ci95": [
+          -0.0080753026889534,
+          0.004688785263350334
+        ],
+        "n_bootstrap": 2000,
+        "resampling_unit": "prompt",
+        "constant_predictor": {
+          "nll": 0.6042163102486383,
+          "accuracy": 0.7076923076923076,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.5,
+          "brier": 0.20686855398704465,
+          "predicted_probability": 0.2901516167986046
+        }
+      }
+    }
+  }
+}

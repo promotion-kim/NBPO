@@ -1,0 +1,3628 @@
+{
+  "config": {
+    "benchmark": "v2_matched",
+    "v2_target_rho_star": 0.03,
+    "out_dir": "results/iclr2027_table1_v2/nontransitivity_audit",
+    "seeds": 3,
+    "objectives": 4,
+    "prompts": 40,
+    "responses": 4,
+    "beta": 0.25,
+    "eta": 1.0,
+    "dual_iterations": 1500,
+    "fixed_point_iterations": 3,
+    "v2_margin": 0.16,
+    "v2_base_amp": 0.05,
+    "v2_cycle_amp": 0.28,
+    "v2_responses": 5,
+    "skip_ks": false
+  },
+  "v2_config": {
+    "target_rho_star": 0.03,
+    "base_amp": 0.05,
+    "cycle_amp": 0.28,
+    "margin_cap": 0.16999999999999998,
+    "I": 5,
+    "K": 4,
+    "X": 40,
+    "seed": 2,
+    "bisection_iterations": 18
+  },
+  "rows": [
+    {
+      "seed": 0,
+      "alpha": 0.0,
+      "bt_deviance_per_edge": 0.0002615387837484665,
+      "disagreement": [
+        -0.0021036327439842863,
+        -0.001748430316104277,
+        -0.0015667817611458134,
+        -0.001953877526469437
+      ],
+      "rho_star": 0.030000003697083454,
+      "rho_star_certified_upper_bound": 0.030000003697233105,
+      "rho_star_gap": 1.496511248255672e-13,
+      "rho_star_surplus_at_argmax": [
+        0.031013379758439413,
+        0.03000000369708347,
+        0.030000003697083482,
+        0.030000003697083454
+      ],
+      "certificate_weights": [
+        8.423495368776186e-19,
+        0.333408652314256,
+        0.5927628968243687,
+        0.07382845086137531
+      ],
+      "primal_residual": 2.2204460492523326e-16,
+      "complementary_slackness_residual": 1.6452475404948005e-17,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.04432509365875965,
+          0.03967093949658157,
+          0.036048496124734576,
+          0.04326540276784332
+        ],
+        "min_objective_ascent_gap": 0.036048496124734576,
+        "certified_rho_star_upper_bound_at_reference": 0.030098322743367344,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.03968729924007426,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.044213471180933404,
+          0.03955164320684525,
+          0.035941731849467584,
+          0.043148051687864855
+        ],
+        "ir_constrained_ideal_min": 0.035941731849467584,
+        "objectivewise_max_surplus": [
+          0.04421347118093342,
+          0.03955164320684525,
+          0.035941731849467584,
+          0.043148051687864855
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.61314747158998
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            0.0350820368848914,
+            0.02877713928187779,
+            0.023068191757734675,
+            0.032597487074503315
+          ],
+          "min_surplus": 0.023068191757734675,
+          "avg_surplus": 0.029881213749751796,
+          "nash_welfare": -14.091060698883688,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.015964473172744,
+          "exploitability": 0.07014828820639094,
+          "implied_raw_lambda": [
+            28.50461628784915,
+            34.74980574701333,
+            43.349735016170214,
+            30.677211335783216
+          ],
+          "implied_raw_lambda_l1": 137.28136838681593,
+          "target_log_ratio_l2": 46.93945505493471,
+          "target_log_ratio_mean_abs": 2.6475842392296225,
+          "tv_to_exact_A": 0.2152292413031641,
+          "tv_to_exact_B": 0.05450162941672421,
+          "weight_l1": 104.2955706504662,
+          "weights": [
+            24.136682802935724,
+            26.469215097132484,
+            28.676300092588313,
+            25.01337265780969
+          ],
+          "fixed_point_residual": 1.021568973857967e-08,
+          "extra_map_residual": 1.3692447176083533e-10,
+          "kkt_residual": 0.011803810445173667,
+          "projected_kkt_residual": 0.011803810445172758
+        },
+        "D_matched_step": {
+          "surplus": [
+            0.03506975774997735,
+            0.028766933782306568,
+            0.023061311470096085,
+            0.0325866780094867
+          ],
+          "min_surplus": 0.023061311470096085,
+          "avg_surplus": 0.029871170252966674,
+          "nash_welfare": -14.0923954243028,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.0149311017468432,
+          "exploitability": 0.07013756319377844,
+          "implied_raw_lambda": [
+            28.514596739712175,
+            34.7621337598052,
+            43.362668306904986,
+            30.687387026958625
+          ],
+          "implied_raw_lambda_l1": 137.326785833381,
+          "target_log_ratio_l2": 46.85038426400459,
+          "target_log_ratio_mean_abs": 2.6425911814523055,
+          "tv_to_exact_A": 0.21559995409075752,
+          "tv_to_exact_B": 0.054874242679490384,
+          "weight_l1": 104.13226740346286,
+          "weights": [
+            24.098890223164346,
+            26.427770299965804,
+            28.63139950008994,
+            24.97420738024278
+          ],
+          "fixed_point_residual": 6.326097033437783e-05,
+          "extra_map_residual": 8.445343864238453e-07,
+          "common_weight_l1": 104.13226740346286
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.035100058223319096,
+            0.02876899352810592,
+            0.023168196284165877,
+            0.03262079777558676
+          ],
+          "min_surplus": 0.023168196284165877,
+          "avg_surplus": 0.02991451145279441,
+          "nash_welfare": -14.085789591193233,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.0197907828575272,
+          "exploitability": 0.0702175206920457,
+          "implied_raw_lambda": [
+            28.4899812313029,
+            34.75964492894227,
+            43.16261774264414,
+            30.65528951435991
+          ],
+          "implied_raw_lambda_l1": 137.06753341724922,
+          "target_log_ratio_l2": 47.07588621918848,
+          "target_log_ratio_mean_abs": 2.656921732551559,
+          "tv_to_exact_A": 0.2127169550873409,
+          "tv_to_exact_B": 0.0522127333074648,
+          "weight_l1": 104.13226740346286,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.03968729924007426,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.7999999999959997,
+          "tv_to_exact_B": 0.6622482308975479
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.0375295346061585,
+            0.03167138696436942,
+            0.027482597732688734,
+            0.03484194013290588
+          ],
+          "min_surplus": 0.027482597732688734,
+          "avg_surplus": 0.032881364859030635,
+          "nash_welfare": -13.686104417568997,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.6094379123195686,
+          "exploitability": 0.07355522999954126,
+          "implied_raw_lambda": [
+            26.645680808306707,
+            31.57424084789872,
+            36.38666219716799,
+            28.701042369783732
+          ],
+          "implied_raw_lambda_l1": 123.30762622315716,
+          "target_log_ratio_l2": 329.30641935665847,
+          "target_log_ratio_mean_abs": 21.13910221001608,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.16173899791000787
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.03603940452570452,
+            0.02990459981519126,
+            0.024548176898979694,
+            0.03352980401035246
+          ],
+          "min_surplus": 0.024548176898979694,
+          "avg_surplus": 0.031005496312556988,
+          "nash_welfare": -13.935323591374324,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.1498877180180345,
+          "exploitability": 0.07138456313966152,
+          "implied_raw_lambda": [
+            27.74740629487278,
+            33.43967169532258,
+            40.736222657804106,
+            29.82421250333721
+          ],
+          "implied_raw_lambda_l1": 131.74751315133668,
+          "target_log_ratio_l2": 61.45816866373677,
+          "target_log_ratio_mean_abs": 3.4412074000329316,
+          "tv_to_exact_A": 0.16173899791000787,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.07138254165649414,
+      "margin_at_cap": false
+    },
+    {
+      "seed": 0,
+      "alpha": 0.25,
+      "bt_deviance_per_edge": 0.02028498688226695,
+      "disagreement": [
+        -0.0026664076755475857,
+        -0.00222493006671655,
+        -0.001993437766102971,
+        -0.0024789419645424304
+      ],
+      "rho_star": 0.029999943509449765,
+      "rho_star_certified_upper_bound": 0.02999996724684829,
+      "rho_star_gap": 2.373739852595813e-08,
+      "rho_star_surplus_at_argmax": [
+        0.030498150846468473,
+        0.029999943509449765,
+        0.029999943509450046,
+        0.029999943509449838
+      ],
+      "certificate_weights": [
+        1.993227710089099e-08,
+        0.29080445970093105,
+        0.6442903520397038,
+        0.06490516832708806
+      ],
+      "primal_residual": 2.2204460492523326e-16,
+      "complementary_slackness_residual": 9.930406695153885e-12,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.05122707624102058,
+          0.04540177669658248,
+          0.0402197531272811,
+          0.04945132241498898
+        ],
+        "min_objective_ascent_gap": 0.0402197531272811,
+        "certified_rho_star_upper_bound_at_reference": 0.036428728747162284,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.044625911661262736,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.04419054013151593,
+          0.03868816245216492,
+          0.03407131528329944,
+          0.042735431604848564
+        ],
+        "ir_constrained_ideal_min": 0.03407131528329944,
+        "objectivewise_max_surplus": [
+          0.04419054013151593,
+          0.03868816245216492,
+          0.03407131528329944,
+          0.042735431604848564
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.6871834273739839
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            0.0351022724426379,
+            0.029671762290108764,
+            0.023468353081257505,
+            0.03331623553642477
+          ],
+          "min_surplus": 0.023468353081257505,
+          "avg_surplus": 0.030389655837607235,
+          "nash_welfare": -14.020861748705407,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.8712990733202364,
+          "exploitability": 0.10922260045505544,
+          "implied_raw_lambda": [
+            28.48818410928073,
+            33.70207641267587,
+            42.61057418633387,
+            30.015395914304186
+          ],
+          "implied_raw_lambda_l1": 134.81623062259465,
+          "target_log_ratio_l2": 45.052376606079925,
+          "target_log_ratio_mean_abs": 2.4105074677928284,
+          "tv_to_exact_A": 0.19037118467803965,
+          "tv_to_exact_B": 0.040700905021834946,
+          "weight_l1": 102.95428354234124,
+          "weights": [
+            23.99056232208504,
+            25.985023663356674,
+            28.342059734159673,
+            24.636637822739864
+          ],
+          "fixed_point_residual": 1.9875822291237633e-05,
+          "extra_map_residual": 1.7018610175223436e-05,
+          "kkt_residual": 0.011814897655622963,
+          "projected_kkt_residual": 0.0118148976556256
+        },
+        "D_matched_step": {
+          "surplus": [
+            0.03504528956705193,
+            0.029760928023931234,
+            0.02351584884653737,
+            0.03321913812967493
+          ],
+          "min_surplus": 0.02351584884653737,
+          "avg_surplus": 0.030385301141798868,
+          "nash_welfare": -14.020382737849467,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.8773538502481909,
+          "exploitability": 0.11080352427593491,
+          "implied_raw_lambda": [
+            28.534505274573533,
+            33.60110273429257,
+            42.52451215033416,
+            30.10312898836745
+          ],
+          "implied_raw_lambda_l1": 134.7632491475677,
+          "target_log_ratio_l2": 41.33794379861118,
+          "target_log_ratio_mean_abs": 2.2526027389564325,
+          "tv_to_exact_A": 0.17419838445405791,
+          "tv_to_exact_B": 0.041630662211443945,
+          "weight_l1": 93.7191669155086,
+          "weights": [
+            21.838581526680496,
+            23.654137411465925,
+            25.799744659119813,
+            22.426703318242364
+          ],
+          "fixed_point_residual": 0.24469055284181862,
+          "extra_map_residual": 0.19630654393591795,
+          "common_weight_l1": 93.7191669155086
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.03658881250972744,
+            0.03137137943289077,
+            0.024535284733801767,
+            0.03488008885726922
+          ],
+          "min_surplus": 0.024535284733801767,
+          "avg_surplus": 0.03184389138342229,
+          "nash_welfare": -13.833354175914216,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.0766818546580361,
+          "exploitability": 0.12055289527154736,
+          "implied_raw_lambda": [
+            27.33075854085567,
+            31.876188362682186,
+            40.75762767172293,
+            28.669651734318734
+          ],
+          "implied_raw_lambda_l1": 128.6342263095795,
+          "target_log_ratio_l2": 51.628166481360864,
+          "target_log_ratio_mean_abs": 2.9337676017535044,
+          "tv_to_exact_A": 0.1020240609948416,
+          "tv_to_exact_B": 0.061211947318605596,
+          "weight_l1": 93.7191669155086,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.044625911661262736,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.7276134892928592,
+          "tv_to_exact_B": 0.595080456497857
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.037917991912245805,
+            0.032938250122382114,
+            0.025321314993191044,
+            0.035865531004273525
+          ],
+          "min_surplus": 0.025321314993191044,
+          "avg_surplus": 0.033010772008023125,
+          "nash_welfare": -13.6895375696921,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.3939291644746885,
+          "exploitability": 0.1304607084852909,
+          "implied_raw_lambda": [
+            26.372704607203765,
+            30.359839890841155,
+            39.492419736846294,
+            27.881923730080725
+          ],
+          "implied_raw_lambda_l1": 124.10688796497195,
+          "target_log_ratio_l2": 309.1564510964108,
+          "target_log_ratio_mean_abs": 18.704684179310004,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.15072120999906666
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.035794090625951035,
+            0.030460670988880813,
+            0.024572923142073717,
+            0.0340252942813794
+          ],
+          "min_surplus": 0.024572923142073717,
+          "avg_surplus": 0.03121324475957124,
+          "nash_welfare": -13.908052577778228,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9685088348379111,
+          "exploitability": 0.11358222639729348,
+          "implied_raw_lambda": [
+            27.937572445966573,
+            32.8292177268529,
+            40.69519911075625,
+            29.38990010579446
+          ],
+          "implied_raw_lambda_l1": 130.85188938937017,
+          "target_log_ratio_l2": 58.2694846486866,
+          "target_log_ratio_mean_abs": 3.0650407661859047,
+          "tv_to_exact_A": 0.15072120999906666,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.08864595413208005,
+      "margin_at_cap": false
+    },
+    {
+      "seed": 0,
+      "alpha": 0.5,
+      "bt_deviance_per_edge": 0.08155609704787359,
+      "disagreement": [
+        -0.004031886119785189,
+        -0.0034274847859260297,
+        -0.0030962591575945846,
+        -0.003775278772599741
+      ],
+      "rho_star": 0.029999988559054305,
+      "rho_star_certified_upper_bound": 0.030000089376113957,
+      "rho_star_gap": 1.0081705965198084e-07,
+      "rho_star_surplus_at_argmax": [
+        0.029999988559054516,
+        0.029999988559054384,
+        0.029999988559054305,
+        0.02999998855905434
+      ],
+      "certificate_weights": [
+        0.06882316194981197,
+        0.27952238777376115,
+        0.5215656153040914,
+        0.13008883497233542
+      ],
+      "primal_residual": 2.220446049254352e-16,
+      "complementary_slackness_residual": 2.230512621408285e-17,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.06451717919124333,
+          0.057903220385177145,
+          0.05087837949716876,
+          0.0627473616303515
+        ],
+        "min_objective_ascent_gap": 0.05087837949716876,
+        "certified_rho_star_upper_bound_at_reference": 0.04898503383367708,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.05564588922717678,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.043343299013574005,
+          0.03856990318301754,
+          0.03475388525417304,
+          0.04165635145390331
+        ],
+        "ir_constrained_ideal_min": 0.03475388525417304,
+        "objectivewise_max_surplus": [
+          0.043343299013574005,
+          0.03856990318301754,
+          0.03475388525417304,
+          0.04165635145390331
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.763617124725157
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            0.02638342743564407,
+            0.025435774518771218,
+            0.010183823240461702,
+            0.03190882447244291
+          ],
+          "min_surplus": 0.010183823240461702,
+          "avg_surplus": 0.023477962416829975,
+          "nash_welfare": -15.338445317548471,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.563142927853285,
+          "exploitability": 0.22400505300182294,
+          "implied_raw_lambda": [
+            37.90258117294486,
+            39.314706114493,
+            98.19494863450352,
+            31.33929301794304
+          ],
+          "implied_raw_lambda_l1": 206.75152893988442,
+          "target_log_ratio_l2": 135.63455808218777,
+          "target_log_ratio_mean_abs": 8.119283506929996,
+          "tv_to_exact_A": 0.32482616249656315,
+          "tv_to_exact_B": 0.39802081612030216,
+          "weight_l1": 130.62058418212686,
+          "weights": [
+            31.376668235167855,
+            32.79361190248841,
+            34.43136764198164,
+            32.01893640248897
+          ],
+          "fixed_point_residual": 0.9996790314694953,
+          "extra_map_residual": 0.9996790314725884,
+          "kkt_residual": 0.01885946108091726,
+          "projected_kkt_residual": 0.018859461080921847
+        },
+        "D_matched_step": {
+          "surplus": [
+            0.032794207279810285,
+            0.028854053906046388,
+            0.01726067140672137,
+            0.03157444237521774
+          ],
+          "min_surplus": 0.01726067140672137,
+          "avg_surplus": 0.027620843741948946,
+          "nash_welfare": -14.477740131469627,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.349374462808282,
+          "exploitability": 0.21257320343792607,
+          "implied_raw_lambda": [
+            30.493190198735153,
+            34.65717514967452,
+            57.935173924381424,
+            31.671184818290996
+          ],
+          "implied_raw_lambda_l1": 154.7567240910821,
+          "target_log_ratio_l2": 65.49111205705066,
+          "target_log_ratio_mean_abs": 3.95032333217089,
+          "tv_to_exact_A": 0.2292610195474226,
+          "tv_to_exact_B": 0.3008363822892489,
+          "weight_l1": 76.67053662783336,
+          "weights": [
+            18.417204349886727,
+            19.24890964369709,
+            20.2102252908326,
+            18.794197343416936
+          ],
+          "fixed_point_residual": 0.9590381052274509,
+          "extra_map_residual": 0.9768320274021798,
+          "common_weight_l1": 76.67053662783336
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.034348913465345104,
+            0.030624633869802197,
+            0.02129540370735656,
+            0.03351066831995713
+          ],
+          "min_surplus": 0.02129540370735656,
+          "avg_surplus": 0.029944904840615252,
+          "nash_welfare": -14.102290909035144,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.126000233094782,
+          "exploitability": 0.19851690712350667,
+          "implied_raw_lambda": [
+            29.113002395517054,
+            32.6534516053778,
+            46.95848990430489,
+            29.841243106585683
+          ],
+          "implied_raw_lambda_l1": 138.56618701178544,
+          "target_log_ratio_l2": 56.936426769359464,
+          "target_log_ratio_mean_abs": 3.2579349592098343,
+          "tv_to_exact_A": 0.1537735483763476,
+          "tv_to_exact_B": 0.21642485830605715,
+          "weight_l1": 76.67053662783336,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.05564588922717678,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.5646954836454195,
+          "tv_to_exact_B": 0.4851883490120531
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.03603312703335269,
+            0.03150857147387558,
+            0.025062176503929747,
+            0.03461822389123469
+          ],
+          "min_surplus": 0.025062176503929747,
+          "avg_surplus": 0.03180552472559818,
+          "nash_welfare": -13.830582743250426,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9301338321873887,
+          "exploitability": 0.16901115442226297,
+          "implied_raw_lambda": [
+            27.752240294726246,
+            31.73739567435233,
+            39.90076439862276,
+            28.886519514746087
+          ],
+          "implied_raw_lambda_l1": 128.27691988244743,
+          "target_log_ratio_l2": 256.4896031181569,
+          "target_log_ratio_mean_abs": 13.054434661310733,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.08890990736824049
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.03456976460708243,
+            0.030518917132287906,
+            0.0252418897645848,
+            0.03309480111736537
+          ],
+          "min_surplus": 0.0252418897645848,
+          "avg_surplus": 0.030856343155330125,
+          "nash_welfare": -13.941813835201774,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.6989810876620851,
+          "exploitability": 0.15112721698731632,
+          "implied_raw_lambda": [
+            28.927012126519557,
+            32.766562314953056,
+            39.61668517398538,
+            30.21622630254406
+          ],
+          "implied_raw_lambda_l1": 131.52648591800207,
+          "target_log_ratio_l2": 55.38922878441516,
+          "target_log_ratio_mean_abs": 2.597016843313372,
+          "tv_to_exact_A": 0.08890990736824049,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.12128164291381834,
+      "margin_at_cap": false
+    },
+    {
+      "seed": 0,
+      "alpha": 0.75,
+      "bt_deviance_per_edge": 0.18880682474606691,
+      "disagreement": [
+        -0.005883376354677859,
+        -0.005108792692813648,
+        -0.004665370869322799,
+        -0.00555750935068951
+      ],
+      "rho_star": 0.03000004710753279,
+      "rho_star_certified_upper_bound": 0.030000346772680916,
+      "rho_star_gap": 2.996651481262935e-07,
+      "rho_star_surplus_at_argmax": [
+        0.03000004710753279,
+        0.03000004710753324,
+        0.030000047107532908,
+        0.030000047107532807
+      ],
+      "certificate_weights": [
+        0.1285497867495142,
+        0.2508220772096334,
+        0.446715480035159,
+        0.17391265600569347
+      ],
+      "primal_residual": 2.2204460492523326e-16,
+      "complementary_slackness_residual": 1.1312780586349277e-16,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.08083574026520038,
+          0.07398447410970167,
+          0.06594574712623368,
+          0.07832202741463717
+        ],
+        "min_objective_ascent_gap": 0.06594574712623368,
+        "certified_rho_star_upper_bound_at_reference": 0.06370466839285067,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.06843508007431684,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.044500046162270566,
+          0.04075473181230479,
+          0.03706110316931917,
+          0.0423712703432868
+        ],
+        "ir_constrained_ideal_min": 0.03706110316931917,
+        "objectivewise_max_surplus": [
+          0.044500046162270566,
+          0.04075473181230479,
+          0.03706110316931917,
+          0.0423712703432868
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.7810483437710372
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            -0.03731398725006955,
+            -0.04423701937414916,
+            -0.03112585426422299,
+            -0.0491786484345466
+          ],
+          "min_surplus": -0.0491786484345466,
+          "avg_surplus": -0.04046387733074708,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.4537624836779781,
+          "exploitability": 0.2591674872544608,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 208.72642187727388,
+          "target_log_ratio_mean_abs": 11.768348183115918,
+          "tv_to_exact_A": 0.6562923459242551,
+          "tv_to_exact_B": 0.6673087195311729,
+          "weight_l1": 190.27620060308928,
+          "weights": [
+            46.22445353738457,
+            47.39679110221976,
+            48.97643493996023,
+            47.67852102352473
+          ],
+          "fixed_point_residual": 0.999999999977717,
+          "extra_map_residual": 0.999999999977717,
+          "kkt_residual": 0.07015245337926368,
+          "projected_kkt_residual": 0.07015245337926501
+        },
+        "D_matched_step": {
+          "surplus": [
+            0.01608059942721359,
+            0.013551297258558893,
+            -0.0019372467834946425,
+            0.01658979547558804
+          ],
+          "min_surplus": -0.0019372467834946425,
+          "avg_surplus": 0.011071111344466469,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.4729993168076452,
+          "exploitability": 0.30633384134497843,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 105.3763845206097,
+          "target_log_ratio_mean_abs": 6.244647505975206,
+          "tv_to_exact_A": 0.38979641912161533,
+          "tv_to_exact_B": 0.43053299960290115,
+          "weight_l1": 62.70598874304236,
+          "weights": [
+            15.233382072909968,
+            15.619728793680089,
+            16.14030429599418,
+            15.71257358045812
+          ],
+          "fixed_point_residual": 0.9992860824781379,
+          "extra_map_residual": 0.9996754082653426,
+          "common_weight_l1": 62.705988743042354
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.02481293729725259,
+            0.02218971619426831,
+            0.0097961684475666,
+            0.024445681838176716
+          ],
+          "min_surplus": 0.0097961684475666,
+          "avg_surplus": 0.020311125944316055,
+          "nash_welfare": -15.841582063630717,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.1431139336476837,
+          "exploitability": 0.2776690620505168,
+          "implied_raw_lambda": [
+            40.301556725036534,
+            45.06592113414699,
+            102.08072731215675,
+            40.9070201690306
+          ],
+          "implied_raw_lambda_l1": 228.35522534037088,
+          "target_log_ratio_l2": 59.256366464534835,
+          "target_log_ratio_mean_abs": 3.4003406714361257,
+          "tv_to_exact_A": 0.2791747636618497,
+          "tv_to_exact_B": 0.314082243452511,
+          "weight_l1": 62.705988743042354,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.06843508007431684,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.4662491096127933,
+          "tv_to_exact_B": 0.4139679375761892
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.03457592607595057,
+            0.030954047030466027,
+            0.02571513740386283,
+            0.03275817901538307
+          ],
+          "min_surplus": 0.02571513740386283,
+          "avg_surplus": 0.031000822381415626,
+          "nash_welfare": -13.919127208950131,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.6772566160526285,
+          "exploitability": 0.1909389856558087,
+          "implied_raw_lambda": [
+            28.921857300463,
+            32.3059533706777,
+            38.88760088249747,
+            30.526727371823853
+          ],
+          "implied_raw_lambda_l1": 130.64213892546204,
+          "target_log_ratio_l2": 219.63166451151523,
+          "target_log_ratio_mean_abs": 9.754658721267367,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.05603715363056673
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.03366720574090962,
+            0.030283042837063442,
+            0.025727857937502593,
+            0.03196477799580089
+          ],
+          "min_surplus": 0.025727857937502593,
+          "avg_surplus": 0.03041072112781914,
+          "nash_welfare": -13.991699982020855,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.5317698449100652,
+          "exploitability": 0.17671172313082778,
+          "implied_raw_lambda": [
+            29.70249469752942,
+            33.021780716701926,
+            38.8683738237817,
+            31.284434389982835
+          ],
+          "implied_raw_lambda_l1": 132.8770836279959,
+          "target_log_ratio_l2": 52.55291380720055,
+          "target_log_ratio_mean_abs": 2.1998081137667715,
+          "tv_to_exact_A": 0.05603715363056673,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.1554783058166504,
+      "margin_at_cap": false
+    },
+    {
+      "seed": 0,
+      "alpha": 1.0,
+      "bt_deviance_per_edge": 0.3496975687710121,
+      "disagreement": [
+        -0.006798926338029428,
+        -0.005952327548171929,
+        -0.005458901619881601,
+        -0.006444684396307375
+      ],
+      "rho_star": 0.024746225215820976,
+      "rho_star_certified_upper_bound": 0.02474635397006255,
+      "rho_star_gap": 1.2875424157399173e-07,
+      "rho_star_surplus_at_argmax": [
+        0.024746225215821215,
+        0.024746225215820976,
+        0.02474622521582101,
+        0.02474622521582111
+      ],
+      "certificate_weights": [
+        0.16124097872165705,
+        0.2674927888997311,
+        0.3866419742807723,
+        0.18462425809783958
+      ],
+      "primal_residual": 2.2204460492523326e-16,
+      "complementary_slackness_residual": 3.859977452875507e-17,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.09097095714765803,
+          0.08302524902839026,
+          0.07555596346282888,
+          0.08764281913207861
+        ],
+        "min_objective_ascent_gap": 0.07555596346282888,
+        "certified_rho_star_upper_bound_at_reference": 0.07074605169649911,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.07412388499345376,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.04195943625822681,
+          0.038869070907729085,
+          0.035217275761667104,
+          0.0398008354426282
+        ],
+        "ir_constrained_ideal_min": 0.035217275761667104,
+        "objectivewise_max_surplus": [
+          0.0421639968780732,
+          0.038876205107894565,
+          0.03523957583270732,
+          0.0398008354426282
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.7484227154501639
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            -0.09727663957009774,
+            -0.08904538378650985,
+            -0.08085833802322757,
+            -0.09554171846315537
+          ],
+          "min_surplus": -0.09727663957009774,
+          "avg_surplus": -0.09068051996074764,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.5088027812855112,
+          "exploitability": 0.3273706751339113,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 286.20980476107883,
+          "target_log_ratio_mean_abs": 17.417370814496863,
+          "tv_to_exact_A": 0.6888226923127678,
+          "tv_to_exact_B": 0.6978612472398898,
+          "weight_l1": 293.73582224355994,
+          "weights": [
+            73.45159875907336,
+            73.04381314896278,
+            73.92454774709665,
+            73.31586258842717
+          ],
+          "fixed_point_residual": 1.0,
+          "extra_map_residual": 1.0,
+          "kkt_residual": 0.11089104711049823,
+          "projected_kkt_residual": 0.11089104711049913
+        },
+        "D_matched_step": {
+          "surplus": [
+            -0.017190954643661837,
+            -0.019564183332264465,
+            -0.033487905607722065,
+            -0.017173524923662774
+          ],
+          "min_surplus": -0.033487905607722065,
+          "avg_surplus": -0.021854142126827784,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.4562000700812512,
+          "exploitability": 0.3806743888412699,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 148.7573541689351,
+          "target_log_ratio_mean_abs": 8.429408406256277,
+          "tv_to_exact_A": 0.4807175624443449,
+          "tv_to_exact_B": 0.5045984639599335,
+          "weight_l1": 57.885049830298335,
+          "weights": [
+            14.474739314425785,
+            14.394379043141756,
+            14.567941006782588,
+            14.447990465948209
+          ],
+          "fixed_point_residual": 0.9999880483116494,
+          "extra_map_residual": 0.9999937997575061,
+          "common_weight_l1": 57.88504983029833
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.0004649483277150545,
+            -0.0011822599949474237,
+            -0.016422780724674534,
+            0.00031224592109682734
+          ],
+          "min_surplus": -0.016422780724674534,
+          "avg_surplus": -0.004206961617702519,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.1459004179103052,
+          "exploitability": 0.3445067452517589,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 59.674184328955775,
+          "target_log_ratio_mean_abs": 3.42753853267478,
+          "tv_to_exact_A": 0.375366930673087,
+          "tv_to_exact_B": 0.39685768813419214,
+          "weight_l1": 57.88504983029833,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.07412388499345376,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.38468305194227687,
+          "tv_to_exact_B": 0.3444549460278827
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.02838440341782446,
+            0.025092470942999847,
+            0.02131394297564297,
+            0.02659701968223195
+          ],
+          "min_surplus": 0.02131394297564297,
+          "avg_surplus": 0.025346959254674808,
+          "nash_welfare": -14.722452832489484,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.4818072030210775,
+          "exploitability": 0.1904431471911045,
+          "implied_raw_lambda": [
+            35.23061539394671,
+            39.85259173046783,
+            46.91764452700161,
+            37.59819754045776
+          ],
+          "implied_raw_lambda_l1": 159.59904919187392,
+          "target_log_ratio_l2": 182.50511169338304,
+          "target_log_ratio_mean_abs": 6.89426886372191,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.042700966152270974
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.027668661082158753,
+            0.024732541037754702,
+            0.02136533502530509,
+            0.026346073707896066
+          ],
+          "min_surplus": 0.02136533502530509,
+          "avg_surplus": 0.025028152713278656,
+          "nash_welfare": -14.769511876113393,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.3794205413572614,
+          "exploitability": 0.17804321394766343,
+          "implied_raw_lambda": [
+            36.14197293575647,
+            40.43256204340187,
+            46.80478910420083,
+            37.95631983297361
+          ],
+          "implied_raw_lambda_l1": 161.33564391633277,
+          "target_log_ratio_l2": 49.8211474745739,
+          "target_log_ratio_mean_abs": 1.7744457719267268,
+          "tv_to_exact_A": 0.042700966152270974,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.16999971389770507,
+      "margin_at_cap": true
+    },
+    {
+      "seed": 1,
+      "alpha": 0.0,
+      "bt_deviance_per_edge": 0.00028076768433573436,
+      "disagreement": [
+        -0.002102622175126982,
+        -0.001664189203529781,
+        -0.0018286057698833347,
+        -0.002007223881040558
+      ],
+      "rho_star": 0.03000002907865046,
+      "rho_star_certified_upper_bound": 0.030000029078843384,
+      "rho_star_gap": 1.9292553665728462e-13,
+      "rho_star_surplus_at_argmax": [
+        0.03000002907868591,
+        0.030000029078681333,
+        0.03000002907865046,
+        0.03000002907868695
+      ],
+      "certificate_weights": [
+        0.08032722563576815,
+        0.33857090687388525,
+        0.3560185633038939,
+        0.22508330418645267
+      ],
+      "primal_residual": 1.1102230246958385e-16,
+      "complementary_slackness_residual": 1.0453244173975698e-14,
+      "slsqp_status": 8,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.04303291024431345,
+          0.03748428768819629,
+          0.039267526590292104,
+          0.041862441178932966
+        ],
+        "min_objective_ascent_gap": 0.03748428768819629,
+        "certified_rho_star_upper_bound_at_reference": 0.030096326834325216,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.042083012622959645,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.04289805434422733,
+          0.03741794764591214,
+          0.039164251192404936,
+          0.041721992968051
+        ],
+        "ir_constrained_ideal_min": 0.03741794764591214,
+        "objectivewise_max_surplus": [
+          0.04289805434422733,
+          0.03741794764591214,
+          0.039164251192404936,
+          0.041721992968051
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.6050200425831993
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            0.031555536243529865,
+            0.025301602907858406,
+            0.02638757234631244,
+            0.028525865003278576
+          ],
+          "min_surplus": 0.025301602907858406,
+          "avg_surplus": 0.027942644125244824,
+          "nash_welfare": -14.32469994279646,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9107252364199798,
+          "exploitability": 0.07016589982982968,
+          "implied_raw_lambda": [
+            31.690160239474288,
+            39.5231876668735,
+            37.89662750615807,
+            35.055904523318276
+          ],
+          "implied_raw_lambda_l1": 144.16587993582414,
+          "target_log_ratio_l2": 48.11712248411005,
+          "target_log_ratio_mean_abs": 2.641908118323623,
+          "tv_to_exact_A": 0.29308710103823915,
+          "tv_to_exact_B": 0.049058573423589005,
+          "weight_l1": 106.90424469321233,
+          "weights": [
+            25.38333832855508,
+            27.78561696628115,
+            27.254416085507163,
+            26.480873312868937
+          ],
+          "fixed_point_residual": 1.715953357184219e-08,
+          "extra_map_residual": 2.837747814510294e-10,
+          "kkt_residual": 0.01068824037017771,
+          "projected_kkt_residual": 0.010688240370178903
+        },
+        "D_matched_step": {
+          "surplus": [
+            0.03154447713984157,
+            0.025293679862480815,
+            0.0263818986382361,
+            0.028517477726637368
+          ],
+          "min_surplus": 0.025293679862480815,
+          "avg_surplus": 0.027934383341798964,
+          "nash_welfare": -14.325872766363759,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9098483681599785,
+          "exploitability": 0.07015674139153052,
+          "implied_raw_lambda": [
+            31.701270417856175,
+            39.53556799314687,
+            37.90477757922506,
+            35.06621481695516
+          ],
+          "implied_raw_lambda_l1": 144.20783080718326,
+          "target_log_ratio_l2": 48.0221929213972,
+          "target_log_ratio_mean_abs": 2.6368367965598463,
+          "tv_to_exact_A": 0.29343582161604137,
+          "tv_to_exact_B": 0.04940199187000919,
+          "weight_l1": 106.72611032958615,
+          "weights": [
+            25.341042114472646,
+            27.739317839333918,
+            27.209002097696604,
+            26.43674827808299
+          ],
+          "fixed_point_residual": 0.00011716329872524245,
+          "extra_map_residual": 1.8218307006323542e-06,
+          "common_weight_l1": 106.72611032958616
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.03154627231801605,
+            0.02535188564731733,
+            0.0263562593198373,
+            0.02866297874332441
+          ],
+          "min_surplus": 0.02535188564731733,
+          "avg_surplus": 0.02797934900712377,
+          "nash_welfare": -14.31940043076624,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9149574580571495,
+          "exploitability": 0.07028093399662858,
+          "implied_raw_lambda": [
+            31.69946641933034,
+            39.444797673494456,
+            37.94165127398561,
+            34.88820924562488
+          ],
+          "implied_raw_lambda_l1": 143.97412461243528,
+          "target_log_ratio_l2": 48.250492480718805,
+          "target_log_ratio_mean_abs": 2.6499243359665137,
+          "tv_to_exact_A": 0.289524986377726,
+          "tv_to_exact_B": 0.0474218071325795,
+          "weight_l1": 106.72611032958616,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.042083012622959645,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.7999999999959997,
+          "tv_to_exact_B": 0.612670382164658
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.03580502292593762,
+            0.027499845983121645,
+            0.028048255595290523,
+            0.03193451710588541
+          ],
+          "min_surplus": 0.027499845983121645,
+          "avg_surplus": 0.030821910402558796,
+          "nash_welfare": -13.941138616464897,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.609437912319568,
+          "exploitability": 0.07406811890112935,
+          "implied_raw_lambda": [
+            27.929042304161946,
+            36.363840023459105,
+            35.652841104596405,
+            31.314079266778826
+          ],
+          "implied_raw_lambda_l1": 131.25980269899628,
+          "target_log_ratio_l2": 329.3062822930501,
+          "target_log_ratio_mean_abs": 21.139093537042836,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.24640833535868656
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.032610855430199294,
+            0.02651668182436701,
+            0.027190961428438097,
+            0.029456367770244157
+          ],
+          "min_surplus": 0.02651668182436701,
+          "avg_surplus": 0.02894371661331214,
+          "nash_welfare": -14.182807129107298,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.0320016637040064,
+          "exploitability": 0.0712946247194131,
+          "implied_raw_lambda": [
+            30.664635649942188,
+            37.71210917804462,
+            36.77692687078487,
+            33.948516931886175
+          ],
+          "implied_raw_lambda_l1": 139.10218863065785,
+          "target_log_ratio_l2": 65.24358820996632,
+          "target_log_ratio_mean_abs": 3.559456833877966,
+          "tv_to_exact_A": 0.24640833535868656,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.06582071304321288,
+      "margin_at_cap": false
+    },
+    {
+      "seed": 1,
+      "alpha": 0.25,
+      "bt_deviance_per_edge": 0.020129363415223308,
+      "disagreement": [
+        -0.002568284339879616,
+        -0.0020391588893203527,
+        -0.0022433098834525695,
+        -0.0024391149971294155
+      ],
+      "rho_star": 0.030000035712048956,
+      "rho_star_certified_upper_bound": 0.030000150297573826,
+      "rho_star_gap": 1.1458552487061957e-07,
+      "rho_star_surplus_at_argmax": [
+        0.030000035712049115,
+        0.030000035712049195,
+        0.030000035712048956,
+        0.030000035712049174
+      ],
+      "certificate_weights": [
+        0.06985601906223518,
+        0.33513953543387376,
+        0.32745983986016297,
+        0.2675446056437282
+      ],
+      "primal_residual": 2.2204460492563715e-16,
+      "complementary_slackness_residual": 8.022966993862404e-17,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.04856333969616401,
+          0.043340699241104536,
+          0.043460012461491435,
+          0.04587549933271676
+        ],
+        "min_objective_ascent_gap": 0.043340699241104536,
+        "certified_rho_star_upper_bound_at_reference": 0.036296237559888214,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.046131207278777224,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.04183269670744779,
+          0.036402877343524605,
+          0.03711118872280552,
+          0.03984679067370196
+        ],
+        "ir_constrained_ideal_min": 0.036402877343524605,
+        "objectivewise_max_surplus": [
+          0.04183269670744779,
+          0.036402877343524605,
+          0.03711118872280552,
+          0.03984679067370196
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.6710117562098494
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            0.03194372006305399,
+            0.027004907083910297,
+            0.027033699411887296,
+            0.027127708790209037
+          ],
+          "min_surplus": 0.027004907083910297,
+          "avg_surplus": 0.028277508837265153,
+          "nash_welfare": -14.273387032015572,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.8144265817972635,
+          "exploitability": 0.10139471905974264,
+          "implied_raw_lambda": [
+            31.305057708560284,
+            37.03030700652944,
+            36.990867759677705,
+            36.86267822076154
+          ],
+          "implied_raw_lambda_l1": 142.188910695529,
+          "target_log_ratio_l2": 46.18384032594714,
+          "target_log_ratio_mean_abs": 2.4487374117217837,
+          "tv_to_exact_A": 0.2067180744092189,
+          "tv_to_exact_B": 0.06326714504842683,
+          "weight_l1": 105.71340078059184,
+          "weights": [
+            25.18885112239896,
+            27.329657269898874,
+            26.780123959695175,
+            26.414768428598833
+          ],
+          "fixed_point_residual": 0.6331043085765962,
+          "extra_map_residual": 0.6331533014443581,
+          "kkt_residual": 0.010729901156403869,
+          "projected_kkt_residual": 0.010729901156402377
+        },
+        "D_matched_step": {
+          "surplus": [
+            0.03201799344028896,
+            0.026246298567977933,
+            0.02723034761210587,
+            0.029034007343966717
+          ],
+          "min_surplus": 0.026246298567977933,
+          "avg_surplus": 0.02863216174108487,
+          "nash_welfare": -14.224398221623346,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.8374942485092053,
+          "exploitability": 0.10369929599367964,
+          "implied_raw_lambda": [
+            31.232438155905097,
+            38.10061054552128,
+            36.72373244164636,
+            34.44236918979083
+          ],
+          "implied_raw_lambda_l1": 140.49915033286356,
+          "target_log_ratio_l2": 43.122391403700746,
+          "target_log_ratio_mean_abs": 2.327371134617829,
+          "tv_to_exact_A": 0.15389647705778206,
+          "tv_to_exact_B": 0.04964897855395532,
+          "weight_l1": 98.11629203686643,
+          "weights": [
+            23.37865071551254,
+            25.365607521474868,
+            24.855566501606067,
+            24.516467298272953
+          ],
+          "fixed_point_residual": 0.2887734695587014,
+          "extra_map_residual": 0.26932429346698017,
+          "common_weight_l1": 98.11629203686643
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.033475775226158445,
+            0.026861557614664727,
+            0.027794502900066798,
+            0.029894222130034787
+          ],
+          "min_surplus": 0.026861557614664727,
+          "avg_surplus": 0.029506514467731188,
+          "nash_welfare": -14.10699940106091,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9735004737668735,
+          "exploitability": 0.1113600694007658,
+          "implied_raw_lambda": [
+            29.872347787142083,
+            37.227923054397365,
+            35.97833728472966,
+            33.45128017214062
+          ],
+          "implied_raw_lambda_l1": 136.52988829840973,
+          "target_log_ratio_l2": 52.38282038396783,
+          "target_log_ratio_mean_abs": 2.898662718476028,
+          "tv_to_exact_A": 0.12572518041830927,
+          "tv_to_exact_B": 0.07380635441977981,
+          "weight_l1": 98.11629203686643,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.046131207278777224,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.6909307114660929,
+          "tv_to_exact_B": 0.5656084058423247
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.03441920573500793,
+            0.02888592140930113,
+            0.02904996985492999,
+            0.029886619805169042
+          ],
+          "min_surplus": 0.02888592140930113,
+          "avg_surplus": 0.030560429201102024,
+          "nash_welfare": -13.962623745452062,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.2743645108383639,
+          "exploitability": 0.11839613811233216,
+          "implied_raw_lambda": [
+            29.05354666516594,
+            34.6189406884561,
+            34.423443638455026,
+            33.45978924746267
+          ],
+          "implied_raw_lambda_l1": 131.55572023953974,
+          "target_log_ratio_l2": 299.14955822844,
+          "target_log_ratio_mean_abs": 17.558461216007554,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.14877506308051297
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.03244530954881339,
+            0.02730877539987972,
+            0.02818893446491186,
+            0.029079244107015994
+          ],
+          "min_surplus": 0.02730877539987972,
+          "avg_surplus": 0.02925556588015524,
+          "nash_welfare": -14.135302968583721,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.8992888788497329,
+          "exploitability": 0.10379059324876959,
+          "implied_raw_lambda": [
+            30.821095989098758,
+            36.618265936758355,
+            35.47491308139897,
+            34.38878934816358
+          ],
+          "implied_raw_lambda_l1": 137.30306435541965,
+          "target_log_ratio_l2": 61.35699788680555,
+          "target_log_ratio_mean_abs": 3.20803602625823,
+          "tv_to_exact_A": 0.14877506308051297,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.0795147132873535,
+      "margin_at_cap": false
+    },
+    {
+      "seed": 1,
+      "alpha": 0.5,
+      "bt_deviance_per_edge": 0.08117099536758045,
+      "disagreement": [
+        -0.003769686915210582,
+        -0.0030548343028171552,
+        -0.0033394913093354834,
+        -0.0035698601421858918
+      ],
+      "rho_star": 0.029999915827647473,
+      "rho_star_certified_upper_bound": 0.02999999330671151,
+      "rho_star_gap": 7.747906403607341e-08,
+      "rho_star_surplus_at_argmax": [
+        0.029999915827647473,
+        0.02999991582764751,
+        0.02999991582764767,
+        0.02999991582764758
+      ],
+      "certificate_weights": [
+        0.07157814879908272,
+        0.336962983450191,
+        0.28228156667385584,
+        0.3091773010768705
+      ],
+      "primal_residual": 2.2204460492563715e-16,
+      "complementary_slackness_residual": 5.582357250209011e-17,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.06068805580085388,
+          0.05573570429414325,
+          0.05465892282149862,
+          0.0563902937324764
+        ],
+        "min_objective_ascent_gap": 0.05465892282149862,
+        "certified_rho_star_upper_bound_at_reference": 0.04906933713419144,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.05562040590979955,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.040772081650804405,
+          0.03514468085671497,
+          0.0371375818383936,
+          0.03800441367543089
+        ],
+        "ir_constrained_ideal_min": 0.03514468085671497,
+        "objectivewise_max_surplus": [
+          0.040772081650804405,
+          0.03514468085671497,
+          0.0371375818383936,
+          0.03800441367543089
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.7554833549271918
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            0.004327061173126626,
+            0.011359132201981394,
+            0.01868600537549867,
+            0.0003855649778657876
+          ],
+          "min_surplus": 0.0003855649778657876,
+          "avg_surplus": 0.00868944093211812,
+          "nash_welfare": -21.761381174904898,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.3449476059418786,
+          "exploitability": 0.19401145434811606,
+          "implied_raw_lambda": [
+            231.10373530435325,
+            88.03489405868243,
+            53.51598588916242,
+            2593.5965593537203
+          ],
+          "implied_raw_lambda_l1": 2966.2511746059185,
+          "target_log_ratio_l2": 105.11496657351671,
+          "target_log_ratio_mean_abs": 5.853177581098573,
+          "tv_to_exact_A": 0.5230365928613683,
+          "tv_to_exact_B": 0.5221201990173939,
+          "weight_l1": 131.29458359540706,
+          "weights": [
+            31.470780921655155,
+            33.71766543616549,
+            32.60003283618564,
+            33.50610440140077
+          ],
+          "fixed_point_residual": 0.9997774405417104,
+          "extra_map_residual": 0.9997774405442083,
+          "kkt_residual": 0.029459742850823294,
+          "projected_kkt_residual": 0.029459742850818316
+        },
+        "D_matched_step": {
+          "surplus": [
+            0.026567494632128954,
+            0.022576541479660917,
+            0.021981460959544407,
+            0.021606048893082177
+          ],
+          "min_surplus": 0.021606048893082177,
+          "avg_surplus": 0.023182886491104115,
+          "nash_welfare": -15.071248542863955,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.3830534265824626,
+          "exploitability": 0.20754219436756233,
+          "implied_raw_lambda": [
+            37.63998125704585,
+            44.29376398953288,
+            45.49288156235118,
+            46.28333504883347
+          ],
+          "implied_raw_lambda_l1": 173.70996185776337,
+          "target_log_ratio_l2": 66.29946314922985,
+          "target_log_ratio_mean_abs": 4.038099301018051,
+          "tv_to_exact_A": 0.29369846317893844,
+          "tv_to_exact_B": 0.3491257182918404,
+          "weight_l1": 81.94646507600592,
+          "weights": [
+            19.64223640525917,
+            21.044611418424456,
+            20.347049963000803,
+            20.912567289321498
+          ],
+          "fixed_point_residual": 0.9804283445688065,
+          "extra_map_residual": 0.9940882766654218,
+          "common_weight_l1": 81.94646507600592
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.0321681993038763,
+            0.025539559733889508,
+            0.026738943612588297,
+            0.02731847411034768
+          ],
+          "min_surplus": 0.025539559733889508,
+          "avg_surplus": 0.027941294190175447,
+          "nash_welfare": -14.326129892802388,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.0472194775007,
+          "exploitability": 0.18262902568050463,
+          "implied_raw_lambda": [
+            31.08660172593183,
+            39.154942779732345,
+            37.39863528225606,
+            36.60526557818324
+          ],
+          "implied_raw_lambda_l1": 144.24544536610347,
+          "target_log_ratio_l2": 57.90850588469301,
+          "target_log_ratio_mean_abs": 3.2431368296091057,
+          "tv_to_exact_A": 0.16243569143040273,
+          "tv_to_exact_B": 0.21219751312091967,
+          "weight_l1": 81.94646507600592,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.05562040590979955,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.5642290780733067,
+          "tv_to_exact_B": 0.4878747771057794
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.03323347460616432,
+            0.02909323304025443,
+            0.03002608968312847,
+            0.02927299880625922
+          ],
+          "min_surplus": 0.02909323304025443,
+          "avg_surplus": 0.030406449033951607,
+          "nash_welfare": -13.978225662608804,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9066179592710345,
+          "exploitability": 0.15432667063026842,
+          "implied_raw_lambda": [
+            30.09014290111317,
+            34.3722541463977,
+            33.30436998467688,
+            34.161173804515634
+          ],
+          "implied_raw_lambda_l1": 131.92794083670339,
+          "target_log_ratio_l2": 260.4248575026696,
+          "target_log_ratio_mean_abs": 13.445419420267662,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.08240992627193482
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.03238025602160207,
+            0.027721962479441153,
+            0.02951038998518537,
+            0.028790456409260135
+          ],
+          "min_surplus": 0.027721962479441153,
+          "avg_surplus": 0.029600766223872182,
+          "nash_welfare": -14.086460930824657,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.6839852746827999,
+          "exploitability": 0.13894911282020828,
+          "implied_raw_lambda": [
+            30.883017087105888,
+            36.072482268945016,
+            33.886370207307124,
+            34.73373210152934
+          ],
+          "implied_raw_lambda_l1": 135.57560166488736,
+          "target_log_ratio_l2": 57.4301637744152,
+          "target_log_ratio_mean_abs": 2.709881481985278,
+          "tv_to_exact_A": 0.08240992627193482,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.10758420944213867,
+      "margin_at_cap": false
+    },
+    {
+      "seed": 1,
+      "alpha": 0.75,
+      "bt_deviance_per_edge": 0.18797064853793968,
+      "disagreement": [
+        -0.005430605211457289,
+        -0.004516667973169219,
+        -0.004886278051981267,
+        -0.0051529406135048415
+      ],
+      "rho_star": 0.02999995006616045,
+      "rho_star_certified_upper_bound": 0.0300001219489723,
+      "rho_star_gap": 1.7188281185159804e-07,
+      "rho_star_surplus_at_argmax": [
+        0.029999950066160637,
+        0.02999995006616065,
+        0.029999950066160547,
+        0.02999995006616045
+      ],
+      "certificate_weights": [
+        0.1461422956432109,
+        0.32544433720921984,
+        0.23154703175203806,
+        0.2968663353955312
+      ],
+      "primal_residual": 2.2204460492523326e-16,
+      "complementary_slackness_residual": 6.548848809814334e-17,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.07527396857433633,
+          0.0712566446428681,
+          0.07001463130775112,
+          0.06968463264119518
+        ],
+        "min_objective_ascent_gap": 0.06968463264119518,
+        "certified_rho_star_upper_bound_at_reference": 0.06355299552646546,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.06701304346303472,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.04186173447234981,
+          0.03671268061096337,
+          0.03959736534095012,
+          0.03847876969444172
+        ],
+        "ir_constrained_ideal_min": 0.03671268061096337,
+        "objectivewise_max_surplus": [
+          0.04186173447234981,
+          0.03671268061096337,
+          0.03959736534095012,
+          0.03847876969444172
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.7867912949364305
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            -0.03675493922247672,
+            -0.031343067650960794,
+            -0.018827415269861918,
+            -0.03593042651830583
+          ],
+          "min_surplus": -0.03675493922247672,
+          "avg_surplus": -0.030713962165401315,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.460870356015168,
+          "exploitability": 0.26877630144865894,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 223.3045770092106,
+          "target_log_ratio_mean_abs": 12.628110651431227,
+          "tv_to_exact_A": 0.6234690857081227,
+          "tv_to_exact_B": 0.632746285377068,
+          "weight_l1": 186.70701125286132,
+          "weights": [
+            45.947261986935004,
+            48.077770964429725,
+            45.70273931597095,
+            46.97923898552567
+          ],
+          "fixed_point_residual": 0.9999999999991271,
+          "extra_map_residual": 0.9999999999991271,
+          "kkt_residual": 0.05851902171088152,
+          "projected_kkt_residual": 0.05851902171087886
+        },
+        "D_matched_step": {
+          "surplus": [
+            0.004981268535572885,
+            0.00421548215411504,
+            0.005490137844521241,
+            0.00213142887682098
+          ],
+          "min_surplus": 0.00213142887682098,
+          "avg_surplus": 0.004204579352757537,
+          "nash_welfare": -22.126826603837035,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.5290647641058412,
+          "exploitability": 0.3016754797959673,
+          "implied_raw_lambda": [
+            200.75207607433117,
+            237.22078837976505,
+            182.14478913274053,
+            469.1688335814879
+          ],
+          "implied_raw_lambda_l1": 1089.2864871683246,
+          "target_log_ratio_l2": 112.24605545707708,
+          "target_log_ratio_mean_abs": 6.742048017265461,
+          "tv_to_exact_A": 0.43171827174110494,
+          "tv_to_exact_B": 0.4687329466317648,
+          "weight_l1": 67.68759069201735,
+          "weights": [
+            16.657432636948617,
+            17.42981402030773,
+            16.56878491902913,
+            17.031559115731884
+          ],
+          "fixed_point_residual": 0.9995394546162019,
+          "extra_map_residual": 0.9999268947818304,
+          "common_weight_l1": 67.68759069201735
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.023248089056462536,
+            0.017479539308692817,
+            0.01887383092680055,
+            0.016955621305645253
+          ],
+          "min_surplus": 0.016955621305645253,
+          "avg_surplus": 0.019139270149400287,
+          "nash_welfare": -15.855391388989919,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.0810129832160191,
+          "exploitability": 0.2577027134136207,
+          "implied_raw_lambda": [
+            43.01428808068071,
+            57.20974576845319,
+            52.98341411864696,
+            58.977490825833506
+          ],
+          "implied_raw_lambda_l1": 212.18493879361438,
+          "target_log_ratio_l2": 60.581922133980456,
+          "target_log_ratio_mean_abs": 3.4204299530340423,
+          "tv_to_exact_A": 0.2704464616210398,
+          "tv_to_exact_B": 0.3013381862424557,
+          "weight_l1": 67.68759069201735,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.06701304346303472,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.46123706453050933,
+          "tv_to_exact_B": 0.41477422333068237
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.03262032532293803,
+            0.028584936051106125,
+            0.030871155525441795,
+            0.028971354187322995
+          ],
+          "min_surplus": 0.028584936051106125,
+          "avg_surplus": 0.030261942771702237,
+          "nash_welfare": -13.997075853147551,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.6486010213893147,
+          "exploitability": 0.17446298089572695,
+          "implied_raw_lambda": [
+            30.655733506643415,
+            34.98346115632832,
+            32.392697421898305,
+            34.516853907974046
+          ],
+          "implied_raw_lambda_l1": 132.5487459928441,
+          "target_log_ratio_l2": 216.43979608277937,
+          "target_log_ratio_mean_abs": 9.478811670208577,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.05065134387410604
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.03219493250742153,
+            0.027877261095357785,
+            0.030505170215148994,
+            0.028703905900384553
+          ],
+          "min_surplus": 0.027877261095357785,
+          "avg_surplus": 0.029820317429578212,
+          "nash_welfare": -14.05647131719607,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.5278728765131371,
+          "exploitability": 0.1617414819532221,
+          "implied_raw_lambda": [
+            31.060788829716646,
+            35.87152972379067,
+            32.78132831081191,
+            34.83846426581975
+          ],
+          "implied_raw_lambda_l1": 134.552111130139,
+          "target_log_ratio_l2": 55.35446523051324,
+          "target_log_ratio_mean_abs": 2.349661572582629,
+          "tv_to_exact_A": 0.05065134387410604,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.13777830123901363,
+      "margin_at_cap": false
+    },
+    {
+      "seed": 1,
+      "alpha": 1.0,
+      "bt_deviance_per_edge": 0.3514447670816526,
+      "disagreement": [
+        -0.007392607259341032,
+        -0.006287760302186597,
+        -0.006737471557581106,
+        -0.007038417461268993
+      ],
+      "rho_star": 0.030000013386463097,
+      "rho_star_certified_upper_bound": 0.03000009671648271,
+      "rho_star_gap": 8.333001961374764e-08,
+      "rho_star_surplus_at_argmax": [
+        0.030000013386463444,
+        0.030000013386463346,
+        0.030000013386463353,
+        0.030000013386463097
+      ],
+      "certificate_weights": [
+        0.17225378001063454,
+        0.32024608135859983,
+        0.2186302206999432,
+        0.2888699179308225
+      ],
+      "primal_residual": 2.2204460492523326e-16,
+      "complementary_slackness_residual": 7.99975289408172e-17,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.09075041573565146,
+          0.08781173071821391,
+          0.08709291097715732,
+          0.0849350614620664
+        ],
+        "min_objective_ascent_gap": 0.0849350614620664,
+        "certified_rho_star_upper_bound_at_reference": 0.07799868603060148,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.07862486969242218,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.044118449343454005,
+          0.039493558822936245,
+          0.04296374959814738,
+          0.04079895424993972
+        ],
+        "ir_constrained_ideal_min": 0.039493558822936245,
+        "objectivewise_max_surplus": [
+          0.044118449343454005,
+          0.039493558822936245,
+          0.04296374959814738,
+          0.04079895424993972
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.7826398485674292
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            -0.08543564162410215,
+            -0.08463111239840325,
+            -0.0789642707564553,
+            -0.08113939502130829
+          ],
+          "min_surplus": -0.08543564162410215,
+          "avg_surplus": -0.08254260495006725,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.5446316576573467,
+          "exploitability": 0.3431101442504607,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 283.2981960049702,
+          "target_log_ratio_mean_abs": 17.064657319841977,
+          "tv_to_exact_A": 0.6856148442902662,
+          "tv_to_exact_B": 0.6963407157121948,
+          "weight_l1": 276.151526433527,
+          "weights": [
+            69.50907880118434,
+            69.99085769641921,
+            67.06841928446032,
+            69.58317065146316
+          ],
+          "fixed_point_residual": 1.0,
+          "extra_map_residual": 1.0,
+          "kkt_residual": 0.09982225150653613,
+          "projected_kkt_residual": 0.0998222515065379
+        },
+        "D_matched_step": {
+          "surplus": [
+            -0.022053852649573442,
+            -0.02110122431982704,
+            -0.020498372809320854,
+            -0.023683410529433523
+          ],
+          "min_surplus": -0.023683410529433523,
+          "avg_surplus": -0.021834215077038716,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.5191344223026886,
+          "exploitability": 0.3832838939636881,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 147.75799411470658,
+          "target_log_ratio_mean_abs": 8.493640433129551,
+          "tv_to_exact_A": 0.4916544266763957,
+          "tv_to_exact_B": 0.5123727865260537,
+          "weight_l1": 56.991539237352484,
+          "weights": [
+            14.345129440388904,
+            14.444557899706567,
+            13.841431545219466,
+            14.360420352037549
+          ],
+          "fixed_point_residual": 0.9999711533940395,
+          "extra_map_residual": 0.9999911688440449,
+          "common_weight_l1": 56.99153923735248
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.0073203160419852125,
+            0.0030169362293453804,
+            0.004340450419948306,
+            -0.0002526670524844203
+          ],
+          "min_surplus": -0.0002526670524844203,
+          "avg_surplus": 0.0036062589096986196,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.094646988394193,
+          "exploitability": 0.331501290472884,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 61.37873012708514,
+          "target_log_ratio_mean_abs": 3.4831269775314935,
+          "tv_to_exact_A": 0.33892513151614834,
+          "tv_to_exact_B": 0.3568852628551574,
+          "weight_l1": 56.99153923735248,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.07862486969242218,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.3979924484911205,
+          "tv_to_exact_B": 0.36584658314094753
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.03221314905315167,
+            0.028362788802962578,
+            0.03139057731646748,
+            0.028956411576040744
+          ],
+          "min_surplus": 0.028362788802962578,
+          "avg_surplus": 0.030230731687155617,
+          "nash_welfare": -14.001268945837218,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.5189951436303665,
+          "exploitability": 0.19008225668775808,
+          "implied_raw_lambda": [
+            31.043223944048467,
+            35.2574638180695,
+            31.85669348857119,
+            34.534665919289004
+          ],
+          "implied_raw_lambda_l1": 132.69204716997817,
+          "target_log_ratio_l2": 200.1178184322343,
+          "target_log_ratio_mean_abs": 8.121766951553354,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.034526444996720015
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.03190173253110973,
+            0.028044489271893645,
+            0.030999186559206762,
+            0.028647840919920498
+          ],
+          "min_surplus": 0.028044489271893645,
+          "avg_surplus": 0.029898312320532656,
+          "nash_welfare": -14.04552960064478,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.43061331319222623,
+          "exploitability": 0.17976639777277428,
+          "implied_raw_lambda": [
+            31.346259925689814,
+            35.65762921566933,
+            32.25891099077888,
+            34.90664454592954
+          ],
+          "implied_raw_lambda_l1": 134.16944467806755,
+          "target_log_ratio_l2": 52.54623013266498,
+          "target_log_ratio_mean_abs": 2.037105650979368,
+          "tv_to_exact_A": 0.034526444996720015,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.16691438674926756,
+      "margin_at_cap": false
+    },
+    {
+      "seed": 2,
+      "alpha": 0.0,
+      "bt_deviance_per_edge": 0.00027374480074586396,
+      "disagreement": [
+        -0.0017048593873723802,
+        -0.0018970888601972837,
+        -0.001605957406107386,
+        -0.0015847757424091488
+      ],
+      "rho_star": 0.030000109778966836,
+      "rho_star_certified_upper_bound": 0.030000109779121008,
+      "rho_star_gap": 1.5417181420396275e-13,
+      "rho_star_surplus_at_argmax": [
+        0.03000010977896693,
+        0.030000109778967467,
+        0.030000109778967256,
+        0.030000109778966836
+      ],
+      "certificate_weights": [
+        0.1078185652294635,
+        0.117611771306039,
+        0.4489935945679397,
+        0.3255760688965579
+      ],
+      "primal_residual": 1.110223024685741e-16,
+      "complementary_slackness_residual": 1.8848889443257266e-16,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.03928181933043154,
+          0.04165687699850206,
+          0.03650293776600148,
+          0.03795560112202
+        ],
+        "min_objective_ascent_gap": 0.03650293776600148,
+        "certified_rho_star_upper_bound_at_reference": 0.030100439497359445,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.03812078536321661,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.03913057648085398,
+          0.04155887940957858,
+          0.036394787367741106,
+          0.037824354898531636
+        ],
+        "ir_constrained_ideal_min": 0.036394787367741106,
+        "objectivewise_max_surplus": [
+          0.03913057648085398,
+          0.04155887940957858,
+          0.036394787367741106,
+          0.037824354898531636
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.5709879444360764
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            0.029316554834554292,
+            0.031150743054497127,
+            0.025572350411863346,
+            0.026217490381402395
+          ],
+          "min_surplus": 0.025572350411863346,
+          "avg_surplus": 0.02806428467057929,
+          "nash_welfare": -14.306092183409259,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9978265684516625,
+          "exploitability": 0.06658984783853697,
+          "implied_raw_lambda": [
+            34.11042005595209,
+            32.10196296924716,
+            39.1047355403079,
+            38.14247608952528
+          ],
+          "implied_raw_lambda_l1": 143.45959465503242,
+          "target_log_ratio_l2": 45.26061409846266,
+          "target_log_ratio_mean_abs": 2.58677865093109,
+          "tv_to_exact_A": 0.2164098115643806,
+          "tv_to_exact_B": 0.05118434810481427,
+          "weight_l1": 107.06477054396964,
+          "weights": [
+            26.337613868799153,
+            25.55820047175042,
+            27.71650894993881,
+            27.45244725348126
+          ],
+          "fixed_point_residual": 1.421252404654183e-08,
+          "extra_map_residual": 2.3135238169658123e-10,
+          "kkt_residual": 0.0105072295166979,
+          "projected_kkt_residual": 0.010507229516697691
+        },
+        "D_matched_step": {
+          "surplus": [
+            0.029307919353289084,
+            0.03114334766414928,
+            0.025566054378088673,
+            0.026211215181967378
+          ],
+          "min_surplus": 0.025566054378088673,
+          "avg_surplus": 0.028057134144373604,
+          "nash_welfare": -14.307109836769028,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9970638056445612,
+          "exploitability": 0.06658217689057878,
+          "implied_raw_lambda": [
+            34.12047057812635,
+            32.10958599518676,
+            39.114365682373254,
+            38.15160773957453
+          ],
+          "implied_raw_lambda_l1": 143.4960299952609,
+          "target_log_ratio_l2": 45.19395015145731,
+          "target_log_ratio_mean_abs": 2.5830676071979064,
+          "tv_to_exact_A": 0.2166802077063365,
+          "tv_to_exact_B": 0.051453793428531944,
+          "weight_l1": 106.93527325759096,
+          "weights": [
+            26.305757923016333,
+            25.52728724428075,
+            27.68298519904791,
+            27.419242891245975
+          ],
+          "fixed_point_residual": 7.930757994356608e-05,
+          "extra_map_residual": 1.6491059777190564e-06,
+          "common_weight_l1": 106.93527325759096
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.029358913148290054,
+            0.031174494225422105,
+            0.025602918183207903,
+            0.0262678311198814
+          ],
+          "min_surplus": 0.025602918183207903,
+          "avg_surplus": 0.028101039169200363,
+          "nash_welfare": -14.300773287557561,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.001897133838229,
+          "exploitability": 0.06665491951201917,
+          "implied_raw_lambda": [
+            34.061206385572305,
+            32.077505180004565,
+            39.058047713321464,
+            38.069378299113836
+          ],
+          "implied_raw_lambda_l1": 143.26613757801215,
+          "target_log_ratio_l2": 45.34845403358182,
+          "target_log_ratio_mean_abs": 2.5960431794399734,
+          "tv_to_exact_A": 0.2152061460004909,
+          "tv_to_exact_B": 0.05000992079284171,
+          "weight_l1": 106.93527325759096,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.03812078536321661,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.7876565452684832,
+          "tv_to_exact_B": 0.6546622004470102
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.03279707407078346,
+            0.03259332391429544,
+            0.027790460706717122,
+            0.030157339734128593
+          ],
+          "min_surplus": 0.027790460706717122,
+          "avg_surplus": 0.030834549606481153,
+          "nash_welfare": -13.925453174268752,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.5673357394778582,
+          "exploitability": 0.06994277412335977,
+          "implied_raw_lambda": [
+            30.490524790161928,
+            30.681129750052886,
+            35.9835704255991,
+            33.15942350406709
+          ],
+          "implied_raw_lambda_l1": 130.314648469881,
+          "target_log_ratio_l2": 326.2049778142822,
+          "target_log_ratio_mean_abs": 20.75416177494594,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.16631686599972775
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.030616830744790307,
+            0.03208100079524036,
+            0.026755749482079517,
+            0.02741936347021405
+          ],
+          "min_surplus": 0.026755749482079517,
+          "avg_surplus": 0.029218236123081057,
+          "nash_welfare": -14.143208410516035,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.1373397385555197,
+          "exploitability": 0.06785373506970094,
+          "implied_raw_lambda": [
+            32.6617737915332,
+            31.171097385102875,
+            37.37514438419229,
+            36.47057675450091
+          ],
+          "implied_raw_lambda_l1": 137.67859231532927,
+          "target_log_ratio_l2": 61.09514054645115,
+          "target_log_ratio_mean_abs": 3.4626309423815123,
+          "tv_to_exact_A": 0.16631686599972775,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.06615430831909179,
+      "margin_at_cap": false
+    },
+    {
+      "seed": 2,
+      "alpha": 0.25,
+      "bt_deviance_per_edge": 0.019976871276444895,
+      "disagreement": [
+        -0.0021561779757243147,
+        -0.002398238998924322,
+        -0.0020488224284738567,
+        -0.0020101808290479777
+      ],
+      "rho_star": 0.030000083094272254,
+      "rho_star_certified_upper_bound": 0.030000110306996116,
+      "rho_star_gap": 2.7212723862496402e-08,
+      "rho_star_surplus_at_argmax": [
+        0.030000083094273478,
+        0.03000008309427412,
+        0.030000083094272528,
+        0.030000083094272254
+      ],
+      "certificate_weights": [
+        0.09617905164905002,
+        0.05016434072244333,
+        0.45814880432399135,
+        0.39550780330451524
+      ],
+      "primal_residual": 2.2204460492644495e-16,
+      "complementary_slackness_residual": 1.255723148435421e-16,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.044598989735219786,
+          0.0473652489596406,
+          0.041841571325903534,
+          0.04324468489684419
+        ],
+        "min_objective_ascent_gap": 0.041841571325903534,
+        "certified_rho_star_upper_bound_at_reference": 0.03630710918944931,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.04278448570327267,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.03823485613674234,
+          0.041031913488550106,
+          0.035459149272744114,
+          0.0368720494862659
+        ],
+        "ir_constrained_ideal_min": 0.035459149272744114,
+        "objectivewise_max_surplus": [
+          0.03823485613674234,
+          0.041031913488550106,
+          0.035459149272744114,
+          0.0368720494862659
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.6496576953872295
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            0.029535166642910317,
+            0.032314522512801536,
+            0.026879107717210943,
+            0.026351917375290128
+          ],
+          "min_surplus": 0.026351917375290128,
+          "avg_surplus": 0.02877017856205323,
+          "nash_welfare": -14.207032372319505,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.8972309116900702,
+          "exploitability": 0.10773017699636192,
+          "implied_raw_lambda": [
+            33.857943382894106,
+            30.945838658264123,
+            37.20361592805742,
+            37.94790283221242
+          ],
+          "implied_raw_lambda_l1": 139.95530080142805,
+          "target_log_ratio_l2": 42.766627611942404,
+          "target_log_ratio_mean_abs": 2.3650351888996037,
+          "tv_to_exact_A": 0.18055600711086736,
+          "tv_to_exact_B": 0.05870698498181044,
+          "weight_l1": 105.35210203547092,
+          "weights": [
+            25.942880982404496,
+            25.087390149528673,
+            27.29235263659686,
+            27.029478266940888
+          ],
+          "fixed_point_residual": 0.6226997965655371,
+          "extra_map_residual": 0.6227441707921577,
+          "kkt_residual": 0.01064472718159265,
+          "projected_kkt_residual": 0.010644727181592373
+        },
+        "D_matched_step": {
+          "surplus": [
+            0.02999204508930727,
+            0.03216168967683647,
+            0.026416137663790855,
+            0.026825061653186738
+          ],
+          "min_surplus": 0.026416137663790855,
+          "avg_surplus": 0.02884873352078033,
+          "nash_welfare": -14.19600126507953,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.8894458654640938,
+          "exploitability": 0.10894067333221646,
+          "implied_raw_lambda": [
+            33.34217446733964,
+            31.092893751792563,
+            37.855647662327286,
+            37.278572289178804
+          ],
+          "implied_raw_lambda_l1": 139.5692881706383,
+          "target_log_ratio_l2": 39.130794109659604,
+          "target_log_ratio_mean_abs": 2.204797202261551,
+          "tv_to_exact_A": 0.14696874541107427,
+          "tv_to_exact_B": 0.047637793897564736,
+          "weight_l1": 96.16459939115356,
+          "weights": [
+            23.680464922145898,
+            22.89957938083407,
+            24.912252409133423,
+            24.672302679040165
+          ],
+          "fixed_point_residual": 0.2808841632961885,
+          "extra_map_residual": 0.24229833847497506,
+          "common_weight_l1": 96.16459939115356
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.03161146983200045,
+            0.033485981246372754,
+            0.027057207310806967,
+            0.028279926128868843
+          ],
+          "min_surplus": 0.027057207310806967,
+          "avg_surplus": 0.03010864612951225,
+          "nash_welfare": -14.026268568119011,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.0740458817311267,
+          "exploitability": 0.11825675679270417,
+          "implied_raw_lambda": [
+            31.63408741556506,
+            29.86324314770741,
+            36.9587292773038,
+            35.36077129208536
+          ],
+          "implied_raw_lambda_l1": 133.81683113266163,
+          "target_log_ratio_l2": 50.04673210929417,
+          "target_log_ratio_mean_abs": 2.8951707715275283,
+          "tv_to_exact_A": 0.09626201100722133,
+          "tv_to_exact_B": 0.07332144404151904,
+          "weight_l1": 96.16459939115356,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.04278448570327267,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.7085173816448714,
+          "tv_to_exact_B": 0.6041384980429386
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.03262602145952734,
+            0.03501008840616685,
+            0.028547772954402733,
+            0.028641622529698176
+          ],
+          "min_surplus": 0.028547772954402733,
+          "avg_surplus": 0.031206376337448775,
+          "nash_welfare": -13.883834760518392,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.3410545717338826,
+          "exploitability": 0.12428433499188489,
+          "implied_raw_lambda": [
+            30.650381360182163,
+            28.56319551092179,
+            35.02900214308229,
+            34.91422313673436
+          ],
+          "implied_raw_lambda_l1": 129.1568021509206,
+          "target_log_ratio_l2": 308.03761751349623,
+          "target_log_ratio_mean_abs": 18.544595782930642,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.12650834376026387
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.030953430439380546,
+            0.033062497602003874,
+            0.02732279020186673,
+            0.027885291600276887
+          ],
+          "min_surplus": 0.02732279020186673,
+          "avg_surplus": 0.02980600246088201,
+          "nash_welfare": -14.064317120849427,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9922453993317852,
+          "exploitability": 0.11092456196840719,
+          "implied_raw_lambda": [
+            32.3065969039654,
+            30.245748885570922,
+            36.59948316448584,
+            35.86119931376549
+          ],
+          "implied_raw_lambda_l1": 135.01302826778766,
+          "target_log_ratio_l2": 56.223256392726334,
+          "target_log_ratio_mean_abs": 3.0689472580876496,
+          "tv_to_exact_A": 0.12650834376026387,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.08244840621948242,
+      "margin_at_cap": false
+    },
+    {
+      "seed": 2,
+      "alpha": 0.5,
+      "bt_deviance_per_edge": 0.08085770881668967,
+      "disagreement": [
+        -0.0033270104299943258,
+        -0.003662329500311383,
+        -0.0032014118550369314,
+        -0.0031295052334830804
+      ],
+      "rho_star": 0.03000007987987397,
+      "rho_star_certified_upper_bound": 0.030000270711753933,
+      "rho_star_gap": 1.908318799613562e-07,
+      "rho_star_surplus_at_argmax": [
+        0.030000079879874398,
+        0.03000007987987397,
+        0.030000079879873978,
+        0.030000079879874245
+      ],
+      "certificate_weights": [
+        0.23341453275595242,
+        0.04547411455191569,
+        0.40161137830551275,
+        0.3194999743866192
+      ],
+      "primal_residual": 2.220446049254352e-16,
+      "complementary_slackness_residual": 9.960777872305339e-17,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.0572731150876527,
+          0.06187944639986993,
+          0.05497233120818025,
+          0.054649976651263144
+        ],
+        "min_objective_ascent_gap": 0.054649976651263144,
+        "certified_rho_star_upper_bound_at_reference": 0.04927141513600861,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.05294972656551523,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.03847723317517257,
+          0.040662768513200324,
+          0.03531818827432276,
+          0.03633975674906919
+        ],
+        "ir_constrained_ideal_min": 0.03531818827432276,
+        "objectivewise_max_surplus": [
+          0.03847723317517257,
+          0.040662768513200324,
+          0.03531818827432276,
+          0.03633975674906919
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.739053574456634
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            0.006672131035004719,
+            0.009931628239045899,
+            0.017799035998080547,
+            0.00156353738963923
+          ],
+          "min_surplus": 0.00156353738963923,
+          "avg_surplus": 0.008991583165442598,
+          "nash_welfare": -20.111262265089955,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.3175949053109357,
+          "exploitability": 0.18561597902553786,
+          "implied_raw_lambda": [
+            149.87715240507004,
+            100.6884244890007,
+            56.182817996875805,
+            639.5753671300049
+          ],
+          "implied_raw_lambda_l1": 946.3237620209514,
+          "target_log_ratio_l2": 102.94793289325608,
+          "target_log_ratio_mean_abs": 5.691442001234832,
+          "tv_to_exact_A": 0.5057892488200977,
+          "tv_to_exact_B": 0.4949716546632075,
+          "weight_l1": 131.63032614793516,
+          "weights": [
+            33.058827711228105,
+            31.523361862980618,
+            33.6765340256697,
+            33.371602548056735
+          ],
+          "fixed_point_residual": 0.9999101420678927,
+          "extra_map_residual": 0.9999101420679178,
+          "kkt_residual": 0.02840205981414956,
+          "projected_kkt_residual": 0.028402059814155223
+        },
+        "D_matched_step": {
+          "surplus": [
+            0.02579312352686482,
+            0.030891076098915178,
+            0.021808569068347067,
+            0.020566750961887648
+          ],
+          "min_surplus": 0.020566750961887648,
+          "avg_surplus": 0.02476487991400368,
+          "nash_welfare": -14.844467136729284,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.379107137443117,
+          "exploitability": 0.21464089821515625,
+          "implied_raw_lambda": [
+            38.77002329548999,
+            32.371808505405795,
+            45.85353568434707,
+            48.6221670040691
+          ],
+          "implied_raw_lambda_l1": 165.61753448931196,
+          "target_log_ratio_l2": 61.33414880476317,
+          "target_log_ratio_mean_abs": 3.78318887147616,
+          "tv_to_exact_A": 0.26167996752493755,
+          "tv_to_exact_B": 0.321597381953695,
+          "weight_l1": 77.80356856375877,
+          "weights": [
+            19.540290172777727,
+            18.632712672231456,
+            19.905401746944236,
+            19.725163971805358
+          ],
+          "fixed_point_residual": 0.9721074541499767,
+          "extra_map_residual": 0.9888587247540924,
+          "common_weight_l1": 77.80356856375879
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.030191408320859463,
+            0.03213099889548487,
+            0.024350163439601093,
+            0.02582176820884008
+          ],
+          "min_surplus": 0.024350163439601093,
+          "avg_surplus": 0.028123584716196373,
+          "nash_welfare": -14.309886036063805,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.152051500493676,
+          "exploitability": 0.1984687279019245,
+          "implied_raw_lambda": [
+            33.12200574986404,
+            31.12259295930332,
+            41.067486157964865,
+            38.72701481603611
+          ],
+          "implied_raw_lambda_l1": 144.03909968316833,
+          "target_log_ratio_l2": 55.36674887254204,
+          "target_log_ratio_mean_abs": 3.2362447753463757,
+          "tv_to_exact_A": 0.1700375173894424,
+          "tv_to_exact_B": 0.22573374707360774,
+          "weight_l1": 77.80356856375879,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.05294972656551523,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.5838848718094617,
+          "tv_to_exact_B": 0.5116184155713086
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.031614151295478066,
+            0.03404811735342809,
+            0.0280523418579667,
+            0.029214697274174004
+          ],
+          "min_surplus": 0.0280523418579667,
+          "avg_surplus": 0.030732326945261713,
+          "nash_welfare": -13.940897498220611,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9818565800229241,
+          "exploitability": 0.16499243203233524,
+          "implied_raw_lambda": [
+            31.631404261136534,
+            29.370199521452143,
+            35.64764771023942,
+            34.22934664067209
+          ],
+          "implied_raw_lambda_l1": 130.8785981335002,
+          "target_log_ratio_l2": 270.60556190438,
+          "target_log_ratio_mean_abs": 14.44500544524145,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.08145614277654414
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.030600321415910736,
+            0.032504059740977455,
+            0.027363166735835665,
+            0.028640896118915952
+          ],
+          "min_surplus": 0.027363166735835665,
+          "avg_surplus": 0.029777111002909952,
+          "nash_welfare": -14.064612146599288,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.7384744221687625,
+          "exploitability": 0.14832380765075082,
+          "implied_raw_lambda": [
+            32.67939530465346,
+            30.765387707533428,
+            36.54547770928752,
+            34.915108656099186
+          ],
+          "implied_raw_lambda_l1": 134.9053693775736,
+          "target_log_ratio_l2": 51.04254306527984,
+          "target_log_ratio_mean_abs": 2.537550340608305,
+          "tv_to_exact_A": 0.08145614277654414,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.1137514305114746,
+      "margin_at_cap": false
+    },
+    {
+      "seed": 2,
+      "alpha": 0.75,
+      "bt_deviance_per_edge": 0.1876230095512772,
+      "disagreement": [
+        -0.005030749734308654,
+        -0.005462313279742165,
+        -0.004882399304160416,
+        -0.00477522761732657
+      ],
+      "rho_star": 0.030000069035229206,
+      "rho_star_certified_upper_bound": 0.030000211611377392,
+      "rho_star_gap": 1.4257614818630193e-07,
+      "rho_star_surplus_at_argmax": [
+        0.03000006903522958,
+        0.030000069035229206,
+        0.03000006903522936,
+        0.030000069035229407
+      ],
+      "certificate_weights": [
+        0.2369239263944228,
+        0.1473972926738254,
+        0.3582077710482716,
+        0.25747100988348026
+      ],
+      "primal_residual": 2.2204460492523326e-16,
+      "complementary_slackness_residual": 8.877545938159336e-17,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.07256750319443066,
+          0.07948607121272996,
+          0.07056822811016242,
+          0.06940166082158963
+        ],
+        "min_objective_ascent_gap": 0.06940166082158963,
+        "certified_rho_star_upper_bound_at_reference": 0.0638768629327146,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.06508230736193857,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.041552794360256384,
+          0.04170190477033792,
+          0.037394469106304444,
+          0.038455133751015017
+        ],
+        "ir_constrained_ideal_min": 0.037394469106304444,
+        "objectivewise_max_surplus": [
+          0.041552794360256384,
+          0.04170190477033792,
+          0.037394469106304444,
+          0.038455133751015017
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.76761110499602
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            -0.044593749270838146,
+            -0.04518982178795649,
+            -0.0431349143471864,
+            -0.036248500955516086
+          ],
+          "min_surplus": -0.04518982178795649,
+          "avg_surplus": -0.04229174659037428,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.5029572530207798,
+          "exploitability": 0.25686202367818484,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 204.6713494815267,
+          "target_log_ratio_mean_abs": 11.690973387369766,
+          "tv_to_exact_A": 0.6697353251401953,
+          "tv_to_exact_B": 0.6804785156314583,
+          "weight_l1": 190.06149720241402,
+          "weights": [
+            47.72283791730457,
+            45.746692920523834,
+            48.67284951904662,
+            47.91911684553899
+          ],
+          "fixed_point_residual": 0.9999999999963296,
+          "extra_map_residual": 0.9999999999963296,
+          "kkt_residual": 0.06704932541890332,
+          "projected_kkt_residual": 0.06704932541890685
+        },
+        "D_matched_step": {
+          "surplus": [
+            0.008257893569092041,
+            0.015964026584095632,
+            0.0035085955614576675,
+            0.0019246445848705223
+          ],
+          "min_surplus": 0.0019246445848705223,
+          "avg_surplus": 0.007413790074878966,
+          "nash_welfare": -20.83955657240545,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.5225512388981595,
+          "exploitability": 0.3115923280240446,
+          "implied_raw_lambda": [
+            121.09625676732358,
+            62.64083780693919,
+            285.01432624070924,
+            519.5764495226393
+          ],
+          "implied_raw_lambda_l1": 988.3278703376113,
+          "target_log_ratio_l2": 102.75373407658378,
+          "target_log_ratio_mean_abs": 6.177121216937703,
+          "tv_to_exact_A": 0.4127871632547381,
+          "tv_to_exact_B": 0.45252304725921977,
+          "weight_l1": 62.492160240251785,
+          "weights": [
+            15.691254031697072,
+            15.041498181014314,
+            16.00361754624382,
+            15.755790481296579
+          ],
+          "fixed_point_residual": 0.9993869577814414,
+          "extra_map_residual": 0.9996325553251547,
+          "common_weight_l1": 62.49216024025179
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            0.020445574198923032,
+            0.022812813192923234,
+            0.013302969248765761,
+            0.01446951055387686
+          ],
+          "min_surplus": 0.013302969248765761,
+          "avg_surplus": 0.017757716798622224,
+          "nash_welfare": -16.225901339917908,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 1.1851048483535238,
+          "exploitability": 0.2825033631019305,
+          "implied_raw_lambda": [
+            48.910340706042625,
+            43.835014627227565,
+            75.17118782280724,
+            69.11083801186813
+          ],
+          "implied_raw_lambda_l1": 237.02738116794558,
+          "target_log_ratio_l2": 57.41485916013566,
+          "target_log_ratio_mean_abs": 3.3713172483816614,
+          "tv_to_exact_A": 0.30167530675822707,
+          "tv_to_exact_B": 0.33428697757488857,
+          "weight_l1": 62.49216024025179,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.06508230736193857,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.49407805406179445,
+          "tv_to_exact_B": 0.43944575180240353
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.0309863149045365,
+            0.03253596340202994,
+            0.027961897367769106,
+            0.029718462529689828
+          ],
+          "min_surplus": 0.027961897367769106,
+          "avg_surplus": 0.030300659551006345,
+          "nash_welfare": -13.992518158035331,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.7228323169447657,
+          "exploitability": 0.18755263348037843,
+          "implied_raw_lambda": [
+            32.27231127937697,
+            30.735220212892465,
+            35.76295223630539,
+            33.649116235436594
+          ],
+          "implied_raw_lambda_l1": 132.4195999640114,
+          "target_log_ratio_l2": 231.60313962934686,
+          "target_log_ratio_mean_abs": 10.787280070769492,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.05760695960923547
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.030299917216742855,
+            0.03158449414006782,
+            0.027644447324358265,
+            0.029326887685589574
+          ],
+          "min_surplus": 0.027644447324358265,
+          "avg_surplus": 0.02971393659168963,
+          "nash_welfare": -14.069280175764748,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.5628919711507503,
+          "exploitability": 0.1735948673887925,
+          "implied_raw_lambda": [
+            33.003390499279284,
+            31.661105464133694,
+            36.17362967205617,
+            34.098401805227105
+          ],
+          "implied_raw_lambda_l1": 134.93652744069624,
+          "target_log_ratio_l2": 47.31313087309014,
+          "target_log_ratio_mean_abs": 2.146976517660221,
+          "tv_to_exact_A": 0.05760695960923547,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.14740736007690425,
+      "margin_at_cap": false
+    },
+    {
+      "seed": 2,
+      "alpha": 1.0,
+      "bt_deviance_per_edge": 0.3495747046560297,
+      "disagreement": [
+        -0.006432093374150924,
+        -0.006925691072340525,
+        -0.006266533593802516,
+        -0.006136034542853446
+      ],
+      "rho_star": 0.026923820627650592,
+      "rho_star_certified_upper_bound": 0.026923918346737404,
+      "rho_star_gap": 9.771908681191488e-08,
+      "rho_star_surplus_at_argmax": [
+        0.026923820627650592,
+        0.026923820627651016,
+        0.02692382062765085,
+        0.026923820627650804
+      ],
+      "certificate_weights": [
+        0.2372295960106014,
+        0.21333161787708937,
+        0.31921399439857917,
+        0.23022479171373006
+      ],
+      "primal_residual": 2.2204460492523326e-16,
+      "complementary_slackness_residual": 9.02974132306781e-17,
+      "slsqp_status": 0,
+      "feasible": true,
+      "reference": {
+        "surplus_at_reference": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max_abs_surplus_at_reference": 0.0,
+        "per_objective_linearized_ascent_gap": [
+          0.08480585908661142,
+          0.09319652355246799,
+          0.08376659436031007,
+          0.08229891157912372
+        ],
+        "min_objective_ascent_gap": 0.08229891157912372,
+        "certified_rho_star_upper_bound_at_reference": 0.07399169354301333,
+        "reference_is_max_min_optimal": false,
+        "exploitability": 0.07371882007544903,
+        "is_stationary_for_every_objective": false
+      },
+      "kalai_smorodinsky": {
+        "ir_constrained_ideal": [
+          0.042496383637906865,
+          0.04152003322899662,
+          0.037592185156181915,
+          0.039117429776652696
+        ],
+        "ir_constrained_ideal_min": 0.037592185156181915,
+        "objectivewise_max_surplus": [
+          0.042496383637906865,
+          0.04152003322899662,
+          0.037592185156181915,
+          0.039117429776652696
+        ],
+        "ideal_is_numerically_meaningful": true,
+        "solver_says_defined": true,
+        "solver_rho_star": 0.7475803865409335
+      },
+      "exact_status": {
+        "global": 0,
+        "proximal": 0
+      },
+      "policies": {
+        "C_practical": {
+          "surplus": [
+            -0.09420089034441148,
+            -0.09328013725649181,
+            -0.08508100495163913,
+            -0.08257334731517417
+          ],
+          "min_surplus": -0.09420089034441148,
+          "avg_surplus": -0.08878384496692915,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.5534224832720187,
+          "exploitability": 0.32690645667426615,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 281.6836957445276,
+          "target_log_ratio_mean_abs": 17.00833582667953,
+          "tv_to_exact_A": 0.6832110703037182,
+          "tv_to_exact_B": 0.6967297654180863,
+          "weight_l1": 280.97402134471565,
+          "weights": [
+            71.3031474445687,
+            68.4363767008,
+            71.31832327441937,
+            69.9161739249276
+          ],
+          "fixed_point_residual": 1.0,
+          "extra_map_residual": 1.0,
+          "kkt_residual": 0.10822551668755297,
+          "projected_kkt_residual": 0.10822551668755409
+        },
+        "D_matched_step": {
+          "surplus": [
+            -0.02163205834688766,
+            -0.011656354255511233,
+            -0.02750561948774707,
+            -0.028214929977001414
+          ],
+          "min_surplus": -0.028214929977001414,
+          "avg_surplus": -0.022252240516786842,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.5299246794572832,
+          "exploitability": 0.39404389298323084,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 140.75378106565176,
+          "target_log_ratio_mean_abs": 8.13114579618265,
+          "tv_to_exact_A": 0.4978910987210261,
+          "tv_to_exact_B": 0.5203103387639032,
+          "weight_l1": 54.63274043076432,
+          "weights": [
+            13.864222491432484,
+            13.306806040013745,
+            13.867173287983302,
+            13.59453861133479
+          ],
+          "fixed_point_residual": 0.9999780588587593,
+          "extra_map_residual": 0.9999790342037185,
+          "common_weight_l1": 54.632740430764315
+        },
+        "fixed_reference_native": {
+          "surplus": [
+            -0.0011833575629869742,
+            0.0013188661334360254,
+            -0.009615568678392309,
+            -0.008784528657479387
+          ],
+          "min_surplus": -0.009615568678392309,
+          "avg_surplus": -0.004566147191355661,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.1936859971468265,
+          "exploitability": 0.3585230119070108,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 57.780987237188384,
+          "target_log_ratio_mean_abs": 3.39994399856625,
+          "tv_to_exact_A": 0.38875902847699867,
+          "tv_to_exact_B": 0.40737659109877844,
+          "weight_l1": 54.632740430764315,
+          "fixed_point_residual": 0.0
+        },
+        "reference": {
+          "surplus": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "min_surplus": 0.0,
+          "avg_surplus": 0.0,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.0,
+          "exploitability": 0.07371882007544903,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 0.0,
+          "target_log_ratio_mean_abs": 0.0,
+          "tv_to_exact_A": 0.4142824128909224,
+          "tv_to_exact_B": 0.3764957388578688
+        },
+        "A_exact_global_nash": {
+          "surplus": [
+            0.02758113073088548,
+            0.027869972499318663,
+            0.02529274756729139,
+            0.02736173237659337
+          ],
+          "min_surplus": 0.02529274756729139,
+          "avg_surplus": 0.027026395793522225,
+          "nash_welfare": -14.446676285611876,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.5324576017819139,
+          "exploitability": 0.19437189020278378,
+          "implied_raw_lambda": [
+            36.25667162659852,
+            35.88091089879787,
+            39.53702528123917,
+            36.54739349966931
+          ],
+          "implied_raw_lambda_l1": 148.2220013063049,
+          "target_log_ratio_l2": 196.7662867354684,
+          "target_log_ratio_mean_abs": 7.932119579299059,
+          "tv_to_exact_A": 0.0,
+          "tv_to_exact_B": 0.04023254063513697
+        },
+        "B_exact_proximal_nash": {
+          "surplus": [
+            0.027010754443672957,
+            0.02763473163965454,
+            0.025102312037322088,
+            0.026918736022719502
+          ],
+          "min_surplus": 0.025102312037322088,
+          "avg_surplus": 0.026666633535842272,
+          "nash_welfare": -14.499930136632484,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.42707166031108806,
+          "exploitability": 0.1827478370228024,
+          "implied_raw_lambda": [
+            37.022290587453085,
+            36.186347421049206,
+            39.83696794594861,
+            37.148846779284014
+          ],
+          "implied_raw_lambda_l1": 150.19445273373492,
+          "target_log_ratio_l2": 41.88164763308237,
+          "target_log_ratio_mean_abs": 1.710128866921385,
+          "tv_to_exact_A": 0.04023254063513697,
+          "tv_to_exact_B": 0.0
+        }
+      },
+      "margin": 0.16999971389770507,
+      "margin_at_cap": true
+    }
+  ]
+}
