@@ -98,8 +98,10 @@ def half_delta(observations, template_ids):
 
 
 def analyse(rows):
+    all_by_obj = defaultdict(list)
     by_obj = defaultdict(list)
     for r in rows:
+        all_by_obj[r["objective"]].append(r)
         if r.get("valid"):
             by_obj[r["objective"]].append(r)
 
@@ -154,6 +156,13 @@ def analyse(rows):
         deltas = [r["delta"] for r in rs]
         per_obj[obj] = {
             "n": len(rs),
+            # Reported PER OBJECTIVE and used as a hard prerequisite. Burying this
+            # in a run-level summary is how a protocol already failing the 0.2%
+            # gate at 1.0% got selected.
+            "invalid_rate": (sum(1 for r in all_by_obj[obj] if not r.get("valid"))
+                             / max(1, len(all_by_obj[obj]))),
+            "deterministic_degradation_accuracy": directional(
+                [r for r in rs if r.get("family") == "degradation"]),
             "n_clear": len(clear), "n_identical": len(ident),
             "directional_accuracy_clear": directional(clear),
             "directional_accuracy_natural": directional(
@@ -188,6 +197,10 @@ def analyse(rows):
         "per_objective": per_obj,
         "summary": {
             "invalid_rate": invalid / max(1, len(rows)),
+            "max_invalid_rate": (max((v["invalid_rate"] for v in per_obj.values()),
+                                     default=None)),
+            "min_deterministic_degradation_accuracy": worst(
+                "deterministic_degradation_accuracy"),
             "min_directional_accuracy_clear": worst("directional_accuracy_clear"),
             "min_identical_confident_tie_accuracy": worst("identical_confident_tie_accuracy"),
             "max_abs_position_bias": worst_abs("position_bias"),
@@ -199,10 +212,18 @@ def analyse(rows):
 
 
 def selection_key(summary, cost):
-    """Section E's lexicographic order, as a sort key (all maximized except bias/cost)."""
+    """Section E's lexicographic order, as a sort key (all maximized except bias/cost).
+
+    Gate 1 (invalid rate < 0.2%) is a PREREQUISITE, not a tie-break: a protocol
+    that cannot reliably emit a parseable verdict is not a candidate at all,
+    whatever its accuracy. It leads the key so a failing protocol sorts below
+    every passing one.
+    """
     def g(v, default):
         return default if v is None else v
-    return (g(summary["min_directional_accuracy_clear"], -1.0),
+    return (int(g(summary.get("max_invalid_rate"), 1.0) < 0.002),
+            g(summary["min_deterministic_degradation_accuracy"], -1.0),
+            g(summary["min_directional_accuracy_clear"], -1.0),
             g(summary["min_identical_confident_tie_accuracy"], -1.0),
             -g(summary["max_abs_position_bias"], 1e9),
             g(summary["min_confident_pair_swap_consistency"], -1.0),
@@ -234,12 +255,29 @@ def main() -> None:
                     key=lambda kv: selection_key(kv[1]["summary"],
                                                  kv[1].get("cost_renderings") or 0),
                     reverse=True)
-    selected = ranked[0][0]
+
+    def admissible(s):
+        """Both known-answer prerequisites, per Amendment 001. A candidate that
+        fails either is not eligible at any accuracy -- ranking least-bad here
+        is how an inadmissible protocol gets frozen."""
+        inv = s.get("max_invalid_rate")
+        det = s.get("min_deterministic_degradation_accuracy")
+        return (inv is not None and inv < 0.002
+                and det is not None and det >= 0.90)
+
+    eligible = [k for k, v in ranked if admissible(v["summary"])]
+    selected = eligible[0] if eligible else None
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     (args.out_dir / "calibration_results.json").write_text(
         json.dumps({"runs": runs, "ranking": [k for k, _ in ranked],
                     "selected": selected,
+                    "admissible_candidates": eligible,
+                    "admissibility_rule": ("a candidate must pass BOTH known-answer "
+                                           "prerequisites -- invalid rate < 0.2% and "
+                                           "deterministic-degradation accuracy >= 0.90 on "
+                                           "every objective -- before any other criterion "
+                                           "is consulted"),
                     "selection_rule": ("lexicographic: min clear-control directional "
                                        "accuracy > identical confident-tie accuracy > "
                                        "-max |position bias| > confident-pair swap "
@@ -272,14 +310,28 @@ def main() -> None:
          "## Ranking", ""]
     for i, (name, a) in enumerate(ranked, 1):
         s = a["summary"]
-        L.append(f"{i}. **{name}** — min clear-control accuracy "
+        L.append(f"{i}. **{name}** — max invalid rate "
+                 f"{fmt(s.get('max_invalid_rate'))}"
+                 f"{fail_tag(s.get('max_invalid_rate'), 0.002)}"
+                 f", min deterministic-degradation accuracy "
+                 f"{fmt(s.get('min_deterministic_degradation_accuracy'))}"
+                 f", min clear-control accuracy "
                  f"{fmt(s['min_directional_accuracy_clear'])}, identical confident-tie "
                  f"{fmt(s['min_identical_confident_tie_accuracy'])}, max |position bias| "
                  f"{fmt(s['max_abs_position_bias'])}, confident swap "
                  f"{fmt(s['min_confident_pair_swap_consistency'])}, split-half rho "
                  f"{fmt(s['min_split_half_spearman'])}, cost "
                  f"{a.get('cost_renderings')} renderings")
-    L += ["", f"**Selected: `{selected}`**", "", "## Per objective", ""]
+    if selected is None:
+        L += ["", "**NO ADMISSIBLE CANDIDATE.** Every protocol fails at least one "
+              "known-answer prerequisite (invalid rate < 0.2%, deterministic-degradation "
+              "accuracy >= 0.90 per objective). The ranking above is reported for "
+              "diagnosis only and must not be read as a selection -- picking the "
+              "least-bad protocol here is precisely how an inadmissible one gets "
+              "frozen.", ""]
+    else:
+        L += ["", f"**Selected: `{selected}`**", "", ]
+    L += ["## Per objective", ""]
     for name, a in runs.items():
         L += [f"### {name}", "",
               "| objective | clear acc | natural | degrade | ident. tie | pos. bias | "
@@ -304,6 +356,14 @@ def main() -> None:
 
 def fmt(v):
     return "n/a" if v is None else f"{v:.3f}"
+
+
+def fail_tag(value, threshold):
+    """`value or default` is a trap here: a passing 0.0 is falsy and would be
+    reported as a failure. Test for None explicitly."""
+    if value is None:
+        return " **(UNMEASURED)**"
+    return "" if value < threshold else " **(GATE 1 FAIL)**"
 
 
 if __name__ == "__main__":

@@ -153,7 +153,17 @@ class Registry:
         tmp.unlink(missing_ok=True)
 
 
-def alive(rec: dict) -> bool:
+def alive(rec: dict):
+    """True / False / None. None means *not determinable from here*.
+
+    A run executed inside a cluster pod carries a PID from that pod's namespace.
+    Probing it with a local os.kill asks about an unrelated process on this
+    machine and will usually say "gone" -- which previously made `status`
+    announce a healthy remote job as failed. A run that declares a `host` other
+    than this one is reported as unknown, and the operator is told how to check.
+    """
+    if rec.get("host") and rec["host"] != "local":
+        return None
     if rec.get("slurm_job_id"):
         try:
             out = subprocess.check_output(["squeue", "-h", "-j", str(rec["slurm_job_id"])],
@@ -175,7 +185,16 @@ def refresh(rec: dict, root: Path) -> dict:
     """Re-derive a running run's state from the world, not from the record."""
     if rec["status"] != "running":
         return rec
-    if alive(rec):
+    live = alive(rec)
+    if live is None:
+        rec = dict(rec)
+        rec["status"] = "running_remote_unverified"
+        rec["liveness_note"] = (
+            f"declared host {rec.get('host')!r}; liveness cannot be checked from this "
+            "machine. Verify with the command in `check_command` before treating this "
+            "run as finished or failed.")
+        return rec
+    if live:
         return rec
     done = root / "done" / f"{rec['run_id']}.exit"
     if done.exists():
@@ -271,7 +290,8 @@ def cmd_status(args, root, reg):
     for r in runs.values():
         by_status.setdefault(r["status"], []).append(r)
     width = max(len(r) for r in runs)
-    for status in ("running", "pending", "complete", "failed", "cancelled"):
+    for status in ("running", "running_remote_unverified", "pending", "complete",
+                   "failed", "cancelled"):
         for r in sorted(by_status.get(status, []), key=lambda x: x["run_id"]):
             ident = (f"job {r['slurm_job_id']}" if r.get("slurm_job_id")
                      else (f"pid {r['pid']}" if r.get("pid") else "-"))

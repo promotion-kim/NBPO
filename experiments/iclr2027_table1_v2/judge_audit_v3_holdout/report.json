@@ -9,7 +9,9 @@
   "per_objective": {
     "helpfulness": {
       "n_pairs": 4224,
-      "invalid_rate": 0.0,
+      "n_pairs_attempted": 4400,
+      "invalid_rate": 0.04,
+      "n_invalid_pairs": 176,
       "adjudicated_rate": 0.3428030303030303,
       "unresolved_uncertainty_rate": 0.2978219696969697,
       "raw_all_pair_hard_swap_consistency": 0.727122381477398,
@@ -45,7 +47,9 @@
     },
     "honesty": {
       "n_pairs": 3824,
-      "invalid_rate": 0.0,
+      "n_pairs_attempted": 4400,
+      "invalid_rate": 0.13090909090909092,
+      "n_invalid_pairs": 576,
       "adjudicated_rate": 0.3457112970711297,
       "unresolved_uncertainty_rate": 0.2622907949790795,
       "raw_all_pair_hard_swap_consistency": 0.7679910044977512,
@@ -81,7 +85,9 @@
     },
     "instruction_following": {
       "n_pairs": 3717,
-      "invalid_rate": 0.0,
+      "n_pairs_attempted": 4400,
+      "invalid_rate": 0.1552272727272727,
+      "n_invalid_pairs": 683,
       "adjudicated_rate": 0.3817594834543987,
       "unresolved_uncertainty_rate": 0.3177293516276567,
       "raw_all_pair_hard_swap_consistency": 0.7016072676450035,
@@ -117,7 +123,9 @@
     },
     "truthfulness": {
       "n_pairs": 3480,
-      "invalid_rate": 0.0,
+      "n_pairs_attempted": 4400,
+      "invalid_rate": 0.20909090909090908,
+      "n_invalid_pairs": 920,
       "adjudicated_rate": 0.32988505747126434,
       "unresolved_uncertainty_rate": 0.25028735632183907,
       "raw_all_pair_hard_swap_consistency": 0.7692307692307693,
@@ -206,23 +214,32 @@
   },
   "control_based_gates": {
     "helpfulness": {
-      "clear_control_directional_accuracy": 0.9466666666666667,
-      "identical_confident_tie_accuracy": 1.0
+      "deterministic_degradation_accuracy": 1.0,
+      "identical_confident_tie_accuracy": 1.0,
+      "natural_pseudo_label_agreement": 0.92,
+      "clear_control_directional_accuracy_pooled": 0.9466666666666667
     },
     "honesty": {
-      "clear_control_directional_accuracy": 0.8333333333333334,
-      "identical_confident_tie_accuracy": 1.0
+      "deterministic_degradation_accuracy": 1.0,
+      "identical_confident_tie_accuracy": 1.0,
+      "natural_pseudo_label_agreement": 0.75,
+      "clear_control_directional_accuracy_pooled": 0.8333333333333334
     },
     "instruction_following": {
-      "clear_control_directional_accuracy": 0.8993288590604027,
-      "identical_confident_tie_accuracy": 1.0
+      "deterministic_degradation_accuracy": 1.0,
+      "identical_confident_tie_accuracy": 1.0,
+      "natural_pseudo_label_agreement": 0.8484848484848485,
+      "clear_control_directional_accuracy_pooled": 0.8993288590604027
     },
     "truthfulness": {
-      "clear_control_directional_accuracy": 0.9090909090909091,
-      "identical_confident_tie_accuracy": 1.0
-    }
+      "deterministic_degradation_accuracy": 0.96,
+      "identical_confident_tie_accuracy": 1.0,
+      "natural_pseudo_label_agreement": 0.8817204301075269,
+      "clear_control_directional_accuracy_pooled": 0.9090909090909091
+    },
+    "_note": "calibration selected no admissible candidate; control metrics shown are for P2, the protocol this holdout ran"
   },
-  "control_gate_caveat": "the clear-control and identical-pair gates are evaluated on the DEVELOPMENT controls, which also selected this protocol. They are reported for completeness and are not independent evidence.",
+  "control_gate_caveat": "the deterministic and identical-pair gates are evaluated on the DEVELOPMENT controls, which also informed protocol selection, so they are not independent evidence. Per Amendment 001 the UltraFeedback natural agreement is reported as a diagnostic and does not gate.",
   "run_manifest": {
     "protocol_name": "P2_deliberative",
     "protocol_kind": "P2",
@@ -286,20 +303,22 @@
   "total_judge_calls": 56548,
   "wall_clock_seconds": 1449.8,
   "gate_failures": [
+    "helpfulness: invalid rate 4.0000%",
     "helpfulness: |position bias| 0.156",
     "helpfulness: confident-decisive swap consistency 0.727",
     "helpfulness: split-half Spearman 0.423",
     "helpfulness: unresolved uncertainty 0.298",
+    "honesty: invalid rate 13.0909%",
     "honesty: |position bias| 0.049",
     "honesty: confident-decisive swap consistency 0.774",
     "honesty: split-half Spearman 0.437",
     "honesty: unresolved uncertainty 0.262",
-    "honesty: clear-control directional accuracy 0.833 (development controls)",
+    "instruction_following: invalid rate 15.5227%",
     "instruction_following: |position bias| 0.193",
     "instruction_following: confident-decisive swap consistency 0.703",
     "instruction_following: split-half Spearman 0.426",
     "instruction_following: unresolved uncertainty 0.318",
-    "instruction_following: clear-control directional accuracy 0.899 (development controls)",
+    "truthfulness: invalid rate 20.9091%",
     "truthfulness: |position bias| 0.040",
     "truthfulness: confident-decisive swap consistency 0.772",
     "truthfulness: split-half Spearman 0.432",

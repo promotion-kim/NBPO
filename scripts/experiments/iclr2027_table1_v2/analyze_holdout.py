@@ -155,8 +155,13 @@ def main() -> None:
                                         "comparator_id")})
         r["len_diff"] = len(m.get("response_a") or "") - len(m.get("response_b") or "")
 
+    # Keep the invalid rows: the invalid RATE is a hard gate, and computing it
+    # over a list that has already been filtered to valid rows makes it
+    # identically zero. That is exactly the bug this line replaces.
+    all_by_obj = defaultdict(list)
     by_obj = defaultdict(list)
     for r in rows:
+        all_by_obj[r["objective"]].append(r)
         if r.get("valid"):
             by_obj[r["objective"]].append(r)
 
@@ -202,7 +207,10 @@ def main() -> None:
 
         per_obj[obj] = {
             "n_pairs": n,
-            "invalid_rate": sum(1 for r in by_obj[obj] if not r.get("valid")) / max(1, n),
+            "n_pairs_attempted": len(all_by_obj[obj]),
+            "invalid_rate": (sum(1 for r in all_by_obj[obj] if not r.get("valid"))
+                             / max(1, len(all_by_obj[obj]))),
+            "n_invalid_pairs": sum(1 for r in all_by_obj[obj] if not r.get("valid")),
             "adjudicated_rate": sum(1 for r in rs if r.get("adjudicated")) / max(1, n),
             "unresolved_uncertainty_rate": sum(1 for r in rs
                                                if r.get("unresolved_uncertainty")) / max(1, n),
@@ -294,11 +302,31 @@ def main() -> None:
     controls = {}
     if args.control_calibration and args.control_calibration.exists():
         c = json.loads(args.control_calibration.read_text())
+        # The calibration may legitimately have selected NOTHING -- that is what
+        # it reports when no candidate passes both known-answer prerequisites.
+        # Fall back to the protocol this holdout actually ran, and say so.
         sel = c.get("selected")
-        po = c["runs"][sel]["per_objective"]
-        controls = {o: {"clear_control_directional_accuracy": v["directional_accuracy_clear"],
-                        "identical_confident_tie_accuracy": v["identical_confident_tie_accuracy"]}
+        if sel is None:
+            ran = (manifest.get("protocol_name") or "").split("_")[0].upper()
+            sel = ran if ran in c["runs"] else None
+            controls_note = ("calibration selected no admissible candidate; control "
+                             f"metrics shown are for {sel}, the protocol this holdout ran")
+        else:
+            controls_note = "calibration-selected protocol"
+        if sel is None:
+            po = {}
+        else:
+            po = c["runs"][sel]["per_objective"]
+        controls = {o: {"deterministic_degradation_accuracy":
+                            v.get("deterministic_degradation_accuracy"),
+                        "identical_confident_tie_accuracy":
+                            v["identical_confident_tie_accuracy"],
+                        "natural_pseudo_label_agreement":
+                            v.get("directional_accuracy_natural"),
+                        "clear_control_directional_accuracy_pooled":
+                            v["directional_accuracy_clear"]}
                     for o, v in po.items()}
+        controls["_note"] = controls_note
 
     failures = []
     for obj, v in per_obj.items():
@@ -317,19 +345,28 @@ def main() -> None:
         if v["unresolved_uncertainty_rate"] > GATES["unresolved_uncertainty_rate_max"]:
             failures.append(f"{obj}: unresolved uncertainty "
                             f"{v['unresolved_uncertainty_rate']:.3f}")
-        c = controls.get(obj, {})
-        if c.get("clear_control_directional_accuracy") is not None and \
-                c["clear_control_directional_accuracy"] < 0.90:
-            failures.append(f"{obj}: clear-control directional accuracy "
-                            f"{c['clear_control_directional_accuracy']:.3f} (development controls)")
+        # Amendment 001: the deterministic and identical controls are known-answer
+        # and gate; the UltraFeedback natural agreement is a GPT-4-derived
+        # pseudo-label and is reported as a diagnostic only.
+        c = controls.get(obj, {}) if isinstance(controls.get(obj), dict) else {}
+        d = c.get("deterministic_degradation_accuracy")
+        if d is not None and d < 0.90:
+            failures.append(f"{obj}: deterministic degradation accuracy {d:.3f} "
+                            "(development controls)")
+        t_ = c.get("identical_confident_tie_accuracy")
+        if t_ is not None and t_ < 0.90:
+            failures.append(f"{obj}: identical-pair confident-tie accuracy {t_:.3f} "
+                            "(development controls)")
 
     report = {"gates": GATES, "per_objective": per_obj,
               "objective_label_correlation": corr, "cycles": cycles,
               "control_based_gates": controls,
-              "control_gate_caveat": ("the clear-control and identical-pair gates are "
+              "control_gate_caveat": ("the deterministic and identical-pair gates are "
                                       "evaluated on the DEVELOPMENT controls, which also "
-                                      "selected this protocol. They are reported for "
-                                      "completeness and are not independent evidence."),
+                                      "informed protocol selection, so they are not "
+                                      "independent evidence. Per Amendment 001 the "
+                                      "UltraFeedback natural agreement is reported as a "
+                                      "diagnostic and does not gate."),
               "run_manifest": manifest,
               "total_judge_calls": manifest.get("n_renderings"),
               "wall_clock_seconds": manifest.get("wall_clock_seconds"),

@@ -1,6 +1,6 @@
 # STATUS — ICLR-2027 Table-1 rebuild
 
-Updated 2026-09-07, session 2 (judge protocol v3). Branch `exp/iclr27-table1-v2`.
+Updated 2026-09-07, session 3. Branch `exp/iclr27-table1-v2`, pushed to `nbpo` (promotion-kim/NBPO).
 
 Nothing below is a projection. Runs that are still going are named as such, with
 their log path, and no number is quoted from them.
@@ -25,8 +25,13 @@ their log path, and no number is quoted from them.
 | v3 calibration controls built | **pass** — 800 controls, 800 distinct prompts, zero split/benchmark overlap |
 | v3 candidate protocols calibrated | **pass** — P0/P1/P2/P3, adaptive and all-templates passes |
 | v3 protocol frozen | **pass** — P2_deliberative, 2 gates recorded open at freeze |
+| **Gate 1: invalid rate** | **FAIL** — 4.0–20.9% per objective against 0.2%. Missed at calibration; see below |
+| **Deterministic-degradation gate** | **P2 passes** (0.96–1.00); P0/P1/P3 fail on honesty and truthfulness |
+| **Identical-pair confident-tie gate** | **pass** — 1.000 for every protocol and objective |
 | **Section F holdout (200 prompts)** | **FAIL** — confident swap 0.70–0.77 against 0.85; position bias up to +0.19 |
-| Section G target stability | not run — F failed first, and it needs an all-templates holdout |
+| **Downstream target stability** | **FAIL** — target Pearson 0.869/0.870 < 0.90, sign agreement 0.736/0.771 < 0.85 |
+| Admissible judge protocol | **NONE** — every candidate fails a known-answer prerequisite |
+| Full 7,500-prompt bank | **NOT LAUNCHED**, and blocked |
 | Section I pool-size pilot (4+4 vs 8+8) | **running** |
 | 50-prompt smoke: tensors | **pass** — measured `d`, exact skew-symmetric reference tensor |
 | 50-prompt smoke: solves | **pass** — 4 matched rows, identity residual ≤ 3.6e-15, matched ‖w‖₁ and KL |
@@ -134,6 +139,66 @@ candidates would have been silently wrong. The verified single-token sentinels
 are `A`=32, `B`=33, `T`=51, re-checked in context at load time and mapped back to
 A/B/TIE in every artifact.
 
+## Two analyzer bugs of mine, found and fixed
+
+Both inflated how good things looked, so they are stated before the results.
+
+1. **The invalid rate was computed over a list already filtered to valid rows**,
+   making it identically zero. My previous report of "invalid 0.000%" on the
+   holdout was wrong: the true rate is **13.38% of pairs** (truthfulness 20.9%,
+   instruction following 15.5%, honesty 13.1%, helpfulness 4.0%), because a
+   deliberative rationale can exhaust the 96-token budget before the verdict
+   marker.
+2. **The calibration reported invalid rate only in a run-level summary** that
+   neither the ranking line nor the selection rule consulted. P2 was already at
+   **1.0%** there — five times the 0.2% gate — and I froze it anyway. Gate 1 is
+   now a hard *prerequisite* in the selection key, reported per objective.
+
+A third, smaller one was fixed last session: the order split-half correlation
+was computed with a double sign flip and came out negative.
+
+## No admissible protocol
+
+With gate 1 enforced and Amendment 001 separating deterministic from natural
+controls, the picture is:
+
+| protocol | max invalid rate | min deterministic-degradation accuracy |
+|---|---|---|
+| P0 hard verdict | 0.000 | **0.14** (honesty) |
+| P1 soft logits | 0.000 | **0.00** (honesty) |
+| P2 deliberative | **0.035** | 0.96 |
+| P3 deliberative + soft logits | 0.000 | **0.48** (honesty) |
+
+**Every candidate fails a known-answer prerequisite.** The three protocols that
+always parse are exactly the three that cannot detect a deterministic dishonesty
+or falsehood edit, and the one that detects them is the one that sometimes runs
+out of budget saying why. That is a mechanism, not a coincidence: reasoning
+before answering is what catches the edit, and generating it is what risks the
+token budget.
+
+The calibration analyzer now refuses to name a winner in this situation rather
+than ranking the least-bad candidate.
+
+## Downstream target stability — FAIL
+
+Two tensors from disjoint halves of the same observations, mapped to one
+semantic orientation, each solved with the identical finite-pool procedure.
+
+| split | method | target Pearson | sign agreement | policy TV median / p90 | rank agreement |
+|---|---|---|---|---|---|
+| order | NBPO | **0.869** | **0.736** | 0.224 / 0.705 | 0.517 |
+| order | Fixed-reference Nash | **0.870** | **0.771** | 0.190 / 0.464 | 0.450 |
+| template | both | **not measurable** | — | — | — |
+
+Gates are 0.90 and 0.85; both fail. Only **24 of 200 prompts** had a complete
+tensor in both order halves — a consequence of the 13% invalid rate — so the
+sample is small and the estimate is correspondingly weak; that is itself a
+symptom rather than a mitigating detail.
+
+The template split is **not measurable at all**: only adjudicated pairs receive a
+second template, and a complete tensor needs every cell of a prompt adjudicated,
+which never happens. Measuring it requires an all-templates holdout.
+
 ## Section F — the frozen protocol fails on real pairs
 
 17600 pairs over 200 held-out validation prompts (disjoint from train, test and
@@ -164,6 +229,22 @@ One number in the first run of this audit was a bug of mine, not a judge result:
 the order split-half came out negative, which is impossible. `semantic_score` is
 already learner-oriented in both orders and I had written the reverse estimate
 as `0.5 - score`, double-flipping it. Fixed and pinned with a test.
+
+## Decision
+
+**Branch C, with a gate-1 failure on top.** Deterministic controls fail for P0,
+P1 and P3 (honesty and truthfulness); P2 passes them but fails the invalid-rate
+gate and downstream target stability. Therefore:
+
+* the 7,500-prompt judgment bank is **not launched** and stays blocked;
+* no RM or policy training is launched;
+* no v2 label is reused anywhere;
+* the protocol is **not** described as validated.
+
+The obvious repair is a larger judge token budget for P2 — a decoding change,
+not a semantic one, leaving rubric, templates and decision procedures untouched.
+It nonetheless requires re-freezing and re-running calibration and a *fresh*
+holdout, because the current holdout has been read.
 
 ## Section I — pool-size pilot, running
 

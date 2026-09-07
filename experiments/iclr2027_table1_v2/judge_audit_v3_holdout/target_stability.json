@@ -1,0 +1,95 @@
+{
+  "config": {
+    "beta": 0.25,
+    "eta": 1.0,
+    "M": 2000,
+    "R": 3,
+    "objectives": [
+      "instruction_following",
+      "truthfulness",
+      "honesty",
+      "helpfulness"
+    ]
+  },
+  "splits": {
+    "order": {
+      "n_prompts_complete_in_both_halves": 24,
+      "learner_ids": [
+        "policy:s101",
+        "policy:s102",
+        "policy:s103",
+        "policy:s104"
+      ],
+      "comparator_ids": [
+        "ref:r201",
+        "ref:r202",
+        "ref:r203",
+        "ref:r204"
+      ],
+      "NBPO": {
+        "delta_pearson": 0.6894800650384781,
+        "delta_spearman": 0.6272386023949951,
+        "target_log_ratio_pearson": 0.8685602111993672,
+        "target_log_ratio_spearman": 0.6636765533317258,
+        "target_sign_agreement": 0.7361111111111112,
+        "per_objective_value_difference": {
+          "instruction_following": 0.12811402233657196,
+          "truthfulness": 0.0463988201306686,
+          "honesty": 0.07074395556635316,
+          "helpfulness": 0.12405829853165135
+        },
+        "per_objective_surplus_difference": {
+          "instruction_following": 0.13353770684596744,
+          "truthfulness": 0.04506622890352613,
+          "honesty": 0.06796170471353,
+          "helpfulness": 0.12037221589126293
+        },
+        "policy_tv_median": 0.22372406128656805,
+        "policy_tv_p90": 0.70453178197163,
+        "candidate_ranking_agreement_spearman": 0.5166666666666667,
+        "n_prompts": 24
+      },
+      "Fixed-reference Nash": {
+        "delta_pearson": 0.6894800650384781,
+        "delta_spearman": 0.6272386023949951,
+        "target_log_ratio_pearson": 0.8696729278192135,
+        "target_log_ratio_spearman": 0.7859537014709429,
+        "target_sign_agreement": 0.7708333333333334,
+        "per_objective_value_difference": {
+          "instruction_following": 0.08632308438785656,
+          "truthfulness": 0.0741975252152838,
+          "honesty": 0.025549055975543883,
+          "helpfulness": 0.05664550570929966
+        },
+        "per_objective_surplus_difference": {
+          "instruction_following": 0.08632308438785656,
+          "truthfulness": 0.0741975252152838,
+          "honesty": 0.025549055975543883,
+          "helpfulness": 0.05664550570929966
+        },
+        "policy_tv_median": 0.18999355760381703,
+        "policy_tv_p90": 0.46374467274382836,
+        "candidate_ranking_agreement_spearman": 0.45,
+        "n_prompts": 24
+      }
+    },
+    "template": {
+      "status": "no complete prompt in both halves"
+    }
+  },
+  "gates": {
+    "forward_vs_reverse_target_pearson_min": 0.9,
+    "forward_vs_reverse_target_sign_agreement_min": 0.85,
+    "template_split_half_target_pearson_min": 0.9,
+    "template_split_half_target_sign_agreement_min": 0.85
+  },
+  "gate_failures": [
+    "order/NBPO: target Pearson 0.869 < 0.9",
+    "order/NBPO: target sign agreement 0.736 < 0.85",
+    "order/Fixed-reference Nash: target Pearson 0.870 < 0.9",
+    "order/Fixed-reference Nash: target sign agreement 0.771 < 0.85",
+    "template/NBPO: not measured",
+    "template/Fixed-reference Nash: not measured"
+  ],
+  "gates_passed": false
+}

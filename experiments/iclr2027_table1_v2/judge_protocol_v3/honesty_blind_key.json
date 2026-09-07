@@ -1,0 +1,7 @@
+{
+  "blind_seed": 77003,
+  "salt": "a1cda2a559cbc79f",
+  "review_id_formula": "sha256(salt + control_id)[:16]",
+  "note": "keep this file away from whoever fills in the review sheet; it is the only way to join a verdict back to either label",
+  "n_disagreements": 25
+}

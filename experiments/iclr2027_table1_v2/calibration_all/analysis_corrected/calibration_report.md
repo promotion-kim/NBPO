@@ -4,12 +4,12 @@ Selection uses calibration and reliability metrics only. No NBPO, fixed-referenc
 
 ## Ranking
 
-1. **P2** — min clear-control accuracy 0.833, identical confident-tie 1.000, max |position bias| 0.062, confident swap 0.891, split-half rho 0.890, cost 4800 renderings
-2. **P3** — min clear-control accuracy 0.640, identical confident-tie 1.000, max |position bias| 0.048, confident swap 0.669, split-half rho 0.437, cost 4800 renderings
-3. **P1** — min clear-control accuracy 0.540, identical confident-tie 1.000, max |position bias| 0.289, confident swap 0.530, split-half rho 0.870, cost 4800 renderings
-4. **P0** — min clear-control accuracy 0.527, identical confident-tie 1.000, max |position bias| 0.254, confident swap 0.564, split-half rho 0.838, cost 4800 renderings
+1. **P3** — max invalid rate 0.000, min deterministic-degradation accuracy 0.480, min clear-control accuracy 0.640, identical confident-tie 1.000, max |position bias| 0.048, confident swap 0.669, split-half rho 0.437, cost 4800 renderings
+2. **P0** — max invalid rate 0.000, min deterministic-degradation accuracy 0.140, min clear-control accuracy 0.527, identical confident-tie 1.000, max |position bias| 0.254, confident swap 0.564, split-half rho 0.838, cost 4800 renderings
+3. **P1** — max invalid rate 0.000, min deterministic-degradation accuracy 0.000, min clear-control accuracy 0.540, identical confident-tie 1.000, max |position bias| 0.289, confident swap 0.530, split-half rho 0.870, cost 4800 renderings
+4. **P2** — max invalid rate 0.035 **(GATE 1 FAIL)**, min deterministic-degradation accuracy 0.960, min clear-control accuracy 0.833, identical confident-tie 1.000, max |position bias| 0.062, confident swap 0.891, split-half rho 0.890, cost 4800 renderings
 
-**Selected: `P2`**
+**NO ADMISSIBLE CANDIDATE.** Every protocol fails at least one known-answer prerequisite (invalid rate < 0.2%, deterministic-degradation accuracy >= 0.90 per objective). The ranking above is reported for diagnosis only and must not be read as a selection -- picking the least-bad protocol here is precisely how an inadmissible one gets frozen.
 
 ## Per objective
 
