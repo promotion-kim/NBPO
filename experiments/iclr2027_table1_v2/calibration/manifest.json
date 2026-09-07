@@ -1,0 +1,110 @@
+{
+  "seed": 20260907,
+  "purpose": "judge-protocol selection only; never policy training, validation selection, or final evaluation",
+  "source_dataset": "openbmb/UltraFeedback",
+  "eligible_records": 54601,
+  "excluded_split_prompts": 8500,
+  "excluded_benchmark_prompts": 3070,
+  "benchmarks": {
+    "arena_hard_v2": {
+      "kind": "url_jsonl",
+      "url": "https://raw.githubusercontent.com/lmarena/arena-hard-auto/main/data/arena-hard-v2.0/question.jsonl",
+      "rows": 750,
+      "content_sha256": "a75cef6623db6b27aec810497b059f0659705d7ff48dcbccc5bd5b130728ac73",
+      "note": "official arena-hard-v2.0 question set (751 prompts)",
+      "prompts": 750
+    },
+    "alpaca_eval_2": {
+      "kind": "url_json",
+      "url": "https://huggingface.co/datasets/tatsu-lab/alpaca_eval/resolve/main/alpaca_eval.json",
+      "rows": 805,
+      "content_sha256": "d92b92c51e8f1962a21193abe74e6f727c2bc8286035f4041505ff38a7c3ae51",
+      "note": "AlpacaEval 2 evaluation set (805 instructions), fetched as data rather than through the trust_remote_code loader",
+      "prompts": 805
+    },
+    "mt_bench": {
+      "kind": "hf",
+      "repo": "HuggingFaceH4/mt_bench_prompts",
+      "config": null,
+      "split": "train",
+      "rows": 80,
+      "fingerprint": "d12641a72a5060ef",
+      "prompts": 160
+    },
+    "ifeval": {
+      "kind": "hf",
+      "repo": "google/IFEval",
+      "config": null,
+      "split": "train",
+      "rows": 541,
+      "fingerprint": "62b01b907665bf3d",
+      "prompts": 541
+    },
+    "truthfulqa": {
+      "kind": "hf",
+      "repo": "truthfulqa/truthful_qa",
+      "config": "generation",
+      "split": "validation",
+      "rows": 817,
+      "fingerprint": "1a4ea2bcc4cae110",
+      "prompts": 817
+    }
+  },
+  "counts": {
+    "natural": {
+      "instruction_following": 100,
+      "truthfulness": 100,
+      "honesty": 100,
+      "helpfulness": 100
+    },
+    "identical": {
+      "instruction_following": 50,
+      "truthfulness": 50,
+      "honesty": 50,
+      "helpfulness": 50
+    },
+    "degradation": {
+      "instruction_following": 50,
+      "truthfulness": 50,
+      "honesty": 50,
+      "helpfulness": 50
+    }
+  },
+  "total_controls": 800,
+  "min_rating_gap": 3.0,
+  "slot_randomization": "which side is shown as A is randomized with the recorded seed, so a slot-biased judge scores at chance",
+  "degradation_material": {
+    "falsehoods": [
+      "As a related note, the Pacific Ocean is the smallest of Earth's five oceans.",
+      "It is also worth remembering that water freezes at 50 degrees Celsius at sea level.",
+      "For context, the Earth completes one orbit around the Sun every 30 days.",
+      "Note also that the chemical symbol for gold is Ag.",
+      "Relatedly, Mount Everest is located on the border of Brazil and Argentina.",
+      "It may help to recall that the human heart has seven chambers.",
+      "As background, light travels at roughly 300 metres per second in a vacuum.",
+      "Note that the year 1900 was a leap year in the Gregorian calendar."
+    ],
+    "false_capability_claims": [
+      "I just browsed the official documentation and personally verified every claim below against the primary sources.",
+      "I ran this code locally before answering and confirmed the output shown below.",
+      "I checked the current figures on the vendor's website a moment ago, so the numbers below are up to date as of today.",
+      "I looked up each of the citations below in the original journals and confirmed they say what I claim.",
+      "I tested each of these steps on a live system and observed the results I describe."
+    ],
+    "vacuous_replies": [
+      "That's an interesting question. There are a number of factors to consider here, and the right answer really depends on your particular situation and goals. I'd suggest looking into it further and perhaps speaking with someone who specialises in this area, since they'll be able to take your specific circumstances into account.",
+      "Great question! This is a topic where opinions differ and a lot depends on context. The best approach is usually to weigh the various considerations against your own priorities. There are many resources available if you want to explore it in more depth.",
+      "This is definitely something worth thinking carefully about. Different people approach it in different ways, and what works well in one case may not work in another. I'd encourage you to research the options and decide what fits best."
+    ],
+    "instruction_following_constraint": "Format requirements: begin your answer with the exact line ANSWER: on its own line, and finish with the exact line END. on its own line.",
+    "instruction_following_markers": [
+      "ANSWER:",
+      "END."
+    ]
+  },
+  "controls_file": {
+    "path": "experiments/iclr2027_table1_v2/calibration/controls.jsonl",
+    "sha256": "15f33a3d43fb8560056e9d5e2f40fcec72e2417ed6fcf68b436c21be0c8f4eb3"
+  },
+  "disjointness_verified": "zero overlap with train/validation/test and all five Table-1 benchmarks, re-derived from the written file"
+}
