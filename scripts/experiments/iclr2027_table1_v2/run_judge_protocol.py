@@ -15,8 +15,18 @@ the label set explicitly and the pre-normalization mass is recorded, so the
 result does not depend on whether the backend already normalized after masking.
 
 ``P0`` and ``P2`` generate text and parse a marker; their one-hot distribution
-goes through the identical downstream algebra, which is what makes the three
+goes through the identical downstream algebra, which is what makes the
 protocols comparable on one set of metrics.
+
+``P3`` is the composition the calibration argued for. P2's explicit
+objective-specific decision procedure is what repairs directional accuracy and
+position bias -- P1's soft logits do not, on their own, help the judge apply the
+criterion -- while P1's constrained scoring is what supplies the uncertainty
+that P2, being a hard verdict, cannot express. P3 runs both in two exact stages:
+generate the one-sentence justification, then append it to the assistant turn
+and score the three label tokens at the position that follows. Stage two is the
+same single constrained step as P1, so the distribution is exact and the
+rationale is in context when it is taken.
 
 Adaptive adjudication (Section D): a pair whose forward/reverse semantic scores
 differ by more than ``order_gap_threshold``, or whose mean normalized entropy
@@ -114,8 +124,48 @@ class VllmRunner:
         prefix = self._chat("s", "u")
         return verify_label_tokenization(self.protocol, self.tok, prefix)
 
+    def _label_params(self):
+        d = self.protocol.decoding
+        return self.SamplingParams(
+            max_tokens=1, temperature=float(d.get("temperature", 0.0)),
+            top_p=float(d.get("top_p", 1.0)), top_k=int(d.get("top_k", -1)),
+            logprobs=len(self.label_ids), allowed_token_ids=list(self.label_ids))
+
+    def run_two_stage(self, renderings, rationale_tokens: int, cue: str):
+        """P3: generate the rationale, then score the labels after it, exactly.
+
+        The rationale is put back into the assistant turn before scoring, so the
+        distribution is conditioned on the reasoning the judge just produced
+        rather than on the prompt alone.
+        """
+        d = self.protocol.decoding
+        gen_params = self.SamplingParams(
+            max_tokens=rationale_tokens, temperature=float(d.get("temperature", 0.0)),
+            top_p=float(d.get("top_p", 1.0)), top_k=int(d.get("top_k", -1)),
+            stop=["\n"])
+        results = []
+        for i in range(0, len(renderings), self.batch_size):
+            chunk = renderings[i:i + self.batch_size]
+            stage1 = [self._chat(r["system"], r["user"]) for r in chunk]
+            rationales = [g.outputs[0].text.strip().replace("\n", " ")
+                          for g in self.llm.generate(stage1, gen_params, use_tqdm=False)]
+            stage2 = [p + rat + cue for p, rat in zip(stage1, rationales)]
+            gen = self.llm.generate(stage2, self._label_params(), use_tqdm=False)
+            for r, g, rat in zip(chunk, gen, rationales):
+                obs = self._to_observation(r, g, force_p1=True)
+                if obs.get("valid"):
+                    obs["rationale"] = rat[:400]
+                results.append(obs)
+            print(f"    scored {min(i + self.batch_size, len(renderings))}"
+                  f"/{len(renderings)}", flush=True)
+        return results
+
     def run(self, renderings):
         d = self.protocol.decoding
+        if self.protocol.kind == "P3":
+            return self.run_two_stage(
+                renderings, int(getattr(self.protocol, "rationale_tokens", 64)),
+                getattr(self.protocol, "verdict_cue", "\nVerdict: "))
         if self.protocol.kind == "P1":
             params = self.SamplingParams(
                 max_tokens=1, temperature=float(d.get("temperature", 0.0)),
@@ -137,9 +187,9 @@ class VllmRunner:
                   f"/{len(renderings)}", flush=True)
         return results
 
-    def _to_observation(self, rendering, gen):
+    def _to_observation(self, rendering, gen, force_p1: bool = False):
         out = gen.outputs[0]
-        if self.protocol.kind == "P1":
+        if force_p1 or self.protocol.kind == "P1":
             lp = out.logprobs[0] if out.logprobs else {}
             raw = {}
             for tid, choice in self.id_to_choice.items():

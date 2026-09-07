@@ -153,6 +153,8 @@ class Protocol:
     entropy_threshold: float = 0.90
     max_templates_when_unstable: int = 3
     max_tokens: int = 1
+    rationale_tokens: int = 64
+    verdict_cue: str = "\nVerdict: "
     decoding: dict = field(default_factory=dict)
 
     @property
@@ -169,6 +171,7 @@ class Protocol:
             "order_gap_threshold": self.order_gap_threshold,
             "entropy_threshold": self.entropy_threshold,
             "max_tokens": self.max_tokens, "decoding": self.decoding,
+            "rationale_tokens": self.rationale_tokens, "verdict_cue": self.verdict_cue,
         }, sort_keys=True).encode()
         return hashlib.sha256(payload).hexdigest()
 
@@ -221,6 +224,8 @@ def load_protocol(path: Path) -> Protocol:
         entropy_threshold=float(cfg.get("entropy_threshold", 0.90)),
         max_templates_when_unstable=int(cfg.get("max_templates_when_unstable", 3)),
         max_tokens=int(cfg.get("max_tokens", 1)),
+        rationale_tokens=int(cfg.get("rationale_tokens", 64)),
+        verdict_cue=cfg.get("verdict_cue", "\nVerdict: "),
         decoding=cfg.get("decoding", {}))
 
 
