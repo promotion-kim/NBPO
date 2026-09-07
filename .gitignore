@@ -8,7 +8,7 @@ nhn/
 .vllm051_pkgs/
 data/
 experiments/*
-results/
+results/*
 !nbpo_iclr/results/
 !nbpo_iclr/results/**
 !results/iclr2027_table1_v2/

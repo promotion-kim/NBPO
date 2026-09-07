@@ -1,0 +1,11 @@
+method,label,n_seeds,complete,missing_seeds,worst_objective_mean,worst_objective_std,average_objective_mean,average_objective_std
+base,Base ($\pi_\mathrm{ref}$),0,False,42;43;44,,,,
+nbpo,NBPO,0,False,42;43;44,,,,
+fixed-reference-nash,Fixed-reference Nash,0,False,42;43;44,,,,
+bt-rm-nash,BT-RM-Nash,0,False,42;43;44,,,,
+game-utilitarian,Game-utilitarian,0,False,42;43;44,,,,
+game-ks,Game-KS,0,False,42;43;44,,,,
+bt-rm-utilitarian,BT-RM-utilitarian,0,False,42;43;44,,,,
+prosper,PROSPER / MaxEntBW,0,False,42;43;44,,,,
+mopo,MOPO,0,False,42;43;44,,,,
+raco,RACO,0,False,42;43;44,,,,

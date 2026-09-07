@@ -1,0 +1,98 @@
+{
+  "rows_total": 10,
+  "rows_complete": 0,
+  "per_row": {
+    "base": {
+      "n_seeds": 0,
+      "complete": false,
+      "missing_seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    "nbpo": {
+      "n_seeds": 0,
+      "complete": false,
+      "missing_seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    "fixed-reference-nash": {
+      "n_seeds": 0,
+      "complete": false,
+      "missing_seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    "bt-rm-nash": {
+      "n_seeds": 0,
+      "complete": false,
+      "missing_seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    "game-utilitarian": {
+      "n_seeds": 0,
+      "complete": false,
+      "missing_seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    "game-ks": {
+      "n_seeds": 0,
+      "complete": false,
+      "missing_seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    "bt-rm-utilitarian": {
+      "n_seeds": 0,
+      "complete": false,
+      "missing_seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    "prosper": {
+      "n_seeds": 0,
+      "complete": false,
+      "missing_seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    "mopo": {
+      "n_seeds": 0,
+      "complete": false,
+      "missing_seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    "raco": {
+      "n_seeds": 0,
+      "complete": false,
+      "missing_seeds": [
+        42,
+        43,
+        44
+      ]
+    }
+  },
+  "manuscript_update_allowed": false,
+  "note": "the manuscript table is only updated when every required row has three valid seeds; until then these files stand alone and every incomplete cell renders as \\pending{}"
+}
