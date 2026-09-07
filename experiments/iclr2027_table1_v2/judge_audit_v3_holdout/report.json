@@ -1,0 +1,309 @@
+{
+  "gates": {
+    "invalid_rate_max": 0.002,
+    "abs_signed_position_bias_max": 0.03,
+    "confident_decisive_swap_consistency_min": 0.85,
+    "split_half_spearman_min": 0.75,
+    "unresolved_uncertainty_rate_max": 0.25
+  },
+  "per_objective": {
+    "helpfulness": {
+      "n_pairs": 4224,
+      "invalid_rate": 0.0,
+      "adjudicated_rate": 0.3428030303030303,
+      "unresolved_uncertainty_rate": 0.2978219696969697,
+      "raw_all_pair_hard_swap_consistency": 0.727122381477398,
+      "confident_decisive_swap_consistency": 0.7269187986651835,
+      "decisive_contradiction_rate": 0.272877618522602,
+      "n_both_orders_decisive": 3628,
+      "n_confident_decisive": 3596,
+      "signed_position_bias": 0.15646701388888887,
+      "position_bias_ci95": [
+        0.14500473484848486,
+        0.16785037878787878
+      ],
+      "response_length_bias": 0.059037980170107925,
+      "mean_abs_delta": 0.3164358428030303,
+      "abs_delta_deciles": [
+        0.5,
+        0.5,
+        0.33333,
+        0.0,
+        0.0,
+        0.0,
+        0.33333,
+        0.5,
+        0.5
+      ],
+      "confident_tie_rate": 0.11860795454545454,
+      "high_entropy_rate": 0.0,
+      "split_half_order_pearson": 0.5923809060203552,
+      "split_half_order_spearman": 0.5853255581127345,
+      "split_half_template_pearson": 0.4175847451275547,
+      "split_half_template_spearman": 0.42256555728187944,
+      "n_split_half_template_pairs": 1440
+    },
+    "honesty": {
+      "n_pairs": 3824,
+      "invalid_rate": 0.0,
+      "adjudicated_rate": 0.3457112970711297,
+      "unresolved_uncertainty_rate": 0.2622907949790795,
+      "raw_all_pair_hard_swap_consistency": 0.7679910044977512,
+      "confident_decisive_swap_consistency": 0.7739595265368461,
+      "decisive_contradiction_rate": 0.23200899550224888,
+      "n_both_orders_decisive": 2668,
+      "n_confident_decisive": 2619,
+      "signed_position_bias": 0.049359309623430964,
+      "position_bias_ci95": [
+        0.03857217573221757,
+        0.06084379358437936
+      ],
+      "response_length_bias": -0.06446353737999153,
+      "mean_abs_delta": 0.27899450836820083,
+      "abs_delta_deciles": [
+        0.5,
+        0.5,
+        0.16667,
+        0.0,
+        0.0,
+        0.0,
+        0.16667,
+        0.5,
+        0.5
+      ],
+      "confident_tie_rate": 0.22201882845188284,
+      "high_entropy_rate": 0.0,
+      "split_half_order_pearson": 0.6280757202208284,
+      "split_half_order_spearman": 0.6180574945212816,
+      "split_half_template_pearson": 0.42868450580417417,
+      "split_half_template_spearman": 0.437268157252222,
+      "n_split_half_template_pairs": 1292
+    },
+    "instruction_following": {
+      "n_pairs": 3717,
+      "invalid_rate": 0.0,
+      "adjudicated_rate": 0.3817594834543987,
+      "unresolved_uncertainty_rate": 0.3177293516276567,
+      "raw_all_pair_hard_swap_consistency": 0.7016072676450035,
+      "confident_decisive_swap_consistency": 0.7032693674484719,
+      "decisive_contradiction_rate": 0.2983927323549965,
+      "n_both_orders_decisive": 2862,
+      "n_confident_decisive": 2814,
+      "signed_position_bias": 0.19260604430095954,
+      "position_bias_ci95": [
+        0.17991659940812482,
+        0.20379338175948344
+      ],
+      "response_length_bias": -0.10181273285279557,
+      "mean_abs_delta": 0.2805017487220877,
+      "abs_delta_deciles": [
+        0.5,
+        0.5,
+        0.16667,
+        0.0,
+        0.0,
+        0.0,
+        0.16667,
+        0.5,
+        0.5
+      ],
+      "confident_tie_rate": 0.17325800376647835,
+      "high_entropy_rate": 0.0,
+      "split_half_order_pearson": 0.5626162718076247,
+      "split_half_order_spearman": 0.5431124678930331,
+      "split_half_template_pearson": 0.41570428694518835,
+      "split_half_template_spearman": 0.42566996888832204,
+      "n_split_half_template_pairs": 1382
+    },
+    "truthfulness": {
+      "n_pairs": 3480,
+      "invalid_rate": 0.0,
+      "adjudicated_rate": 0.32988505747126434,
+      "unresolved_uncertainty_rate": 0.25028735632183907,
+      "raw_all_pair_hard_swap_consistency": 0.7692307692307693,
+      "confident_decisive_swap_consistency": 0.7720951099147599,
+      "decisive_contradiction_rate": 0.23076923076923078,
+      "n_both_orders_decisive": 2275,
+      "n_confident_decisive": 2229,
+      "signed_position_bias": 0.039679118773946365,
+      "position_bias_ci95": [
+        0.02863984674329502,
+        0.05074233716475096
+      ],
+      "response_length_bias": -0.05805416584754445,
+      "mean_abs_delta": 0.26050047892720307,
+      "abs_delta_deciles": [
+        0.5,
+        0.5,
+        0.08333,
+        0.0,
+        0.0,
+        0.0,
+        0.16667,
+        0.5,
+        0.5
+      ],
+      "confident_tie_rate": 0.2614942528735632,
+      "high_entropy_rate": 0.0,
+      "split_half_order_pearson": 0.5924490638292567,
+      "split_half_order_spearman": 0.5846739868296466,
+      "split_half_template_pearson": 0.41439018645905473,
+      "split_half_template_spearman": 0.4323752229003059,
+      "n_split_half_template_pairs": 1054
+    }
+  },
+  "objective_label_correlation": {
+    "helpfulness|honesty": {
+      "n": 3699,
+      "pearson": 0.5068964020811083
+    },
+    "helpfulness|instruction_following": {
+      "n": 3615,
+      "pearson": 0.6749024955885807
+    },
+    "helpfulness|truthfulness": {
+      "n": 3384,
+      "pearson": 0.47014461644274963
+    },
+    "honesty|instruction_following": {
+      "n": 3335,
+      "pearson": 0.5032462914366606
+    },
+    "honesty|truthfulness": {
+      "n": 3147,
+      "pearson": 0.6015940688743194
+    },
+    "instruction_following|truthfulness": {
+      "n": 3075,
+      "pearson": 0.562789520524084
+    }
+  },
+  "cycles": {
+    "instruction_following": {
+      "reliable_triples": 474,
+      "hard_cycle_rate_reliable_edges": 0.006329113924050633,
+      "soft_cycle_mass_all_edges": 0.05714831804281353,
+      "mean_bt_deviance": 0.07257525610152926
+    },
+    "truthfulness": {
+      "reliable_triples": 438,
+      "hard_cycle_rate_reliable_edges": 0.0,
+      "soft_cycle_mass_all_edges": 0.07047766101278276,
+      "mean_bt_deviance": 0.07575407868718824
+    },
+    "honesty": {
+      "reliable_triples": 576,
+      "hard_cycle_rate_reliable_edges": 0.015625,
+      "soft_cycle_mass_all_edges": 0.06578493626331809,
+      "mean_bt_deviance": 0.09366890789274562
+    },
+    "helpfulness": {
+      "reliable_triples": 1056,
+      "hard_cycle_rate_reliable_edges": 0.002840909090909091,
+      "soft_cycle_mass_all_edges": 0.04676725826672948,
+      "mean_bt_deviance": 0.08453905225304645
+    }
+  },
+  "control_based_gates": {
+    "helpfulness": {
+      "clear_control_directional_accuracy": 0.9466666666666667,
+      "identical_confident_tie_accuracy": 1.0
+    },
+    "honesty": {
+      "clear_control_directional_accuracy": 0.8333333333333334,
+      "identical_confident_tie_accuracy": 1.0
+    },
+    "instruction_following": {
+      "clear_control_directional_accuracy": 0.8993288590604027,
+      "identical_confident_tie_accuracy": 1.0
+    },
+    "truthfulness": {
+      "clear_control_directional_accuracy": 0.9090909090909091,
+      "identical_confident_tie_accuracy": 1.0
+    }
+  },
+  "control_gate_caveat": "the clear-control and identical-pair gates are evaluated on the DEVELOPMENT controls, which also selected this protocol. They are reported for completeness and are not independent evidence.",
+  "run_manifest": {
+    "protocol_name": "P2_deliberative",
+    "protocol_kind": "P2",
+    "protocol_sha256": "f3d299ee66b95632985f16f29030f078eee900f459d172b1f4274d9fe1177be0",
+    "rubric_path": "/work/iclr27_table1_v2/code/training_configs/nbpo/objectives/ultrafeedback_v2.yaml",
+    "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+    "labels": {
+      "A": {
+        "token": "A",
+        "id": 32
+      },
+      "B": {
+        "token": "B",
+        "id": 33
+      },
+      "TIE": {
+        "token": "T",
+        "id": 51
+      }
+    },
+    "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+    "order_gap_threshold": 0.25,
+    "entropy_threshold": 0.9,
+    "max_templates_when_unstable": 3,
+    "n_templates": 3,
+    "decoding": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": -1
+    },
+    "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+    "tokenization_verification": {
+      "verified_single_token_in_context": true,
+      "labels": {
+        "A": {
+          "token": "A",
+          "id": 32
+        },
+        "B": {
+          "token": "B",
+          "id": 33
+        },
+        "TIE": {
+          "token": "T",
+          "id": 51
+        }
+      },
+      "prefix_token_count": 19
+    },
+    "n_pairs": 17600,
+    "n_renderings": 56548,
+    "n_adjudicated": 5337,
+    "wall_clock_seconds": 1449.8,
+    "input": "/work/iclr27_table1_v2/holdout200/pairs.jsonl",
+    "adjudication_enabled": true,
+    "all_templates_mode": false,
+    "templates_scored": [
+      "t0"
+    ]
+  },
+  "total_judge_calls": 56548,
+  "wall_clock_seconds": 1449.8,
+  "gate_failures": [
+    "helpfulness: |position bias| 0.156",
+    "helpfulness: confident-decisive swap consistency 0.727",
+    "helpfulness: split-half Spearman 0.423",
+    "helpfulness: unresolved uncertainty 0.298",
+    "honesty: |position bias| 0.049",
+    "honesty: confident-decisive swap consistency 0.774",
+    "honesty: split-half Spearman 0.437",
+    "honesty: unresolved uncertainty 0.262",
+    "honesty: clear-control directional accuracy 0.833 (development controls)",
+    "instruction_following: |position bias| 0.193",
+    "instruction_following: confident-decisive swap consistency 0.703",
+    "instruction_following: split-half Spearman 0.426",
+    "instruction_following: unresolved uncertainty 0.318",
+    "instruction_following: clear-control directional accuracy 0.899 (development controls)",
+    "truthfulness: |position bias| 0.040",
+    "truthfulness: confident-decisive swap consistency 0.772",
+    "truthfulness: split-half Spearman 0.432",
+    "truthfulness: unresolved uncertainty 0.250"
+  ],
+  "gates_passed": false
+}

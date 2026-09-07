@@ -179,3 +179,20 @@ def test_a_confident_tie_is_not_adjudicated_either():
     burn budget on the pairs the judge is surest about."""
     tie = combine([obs(FORWARD, 0.02, 0.02, 0.96), obs(REVERSE, 0.02, 0.02, 0.96)])
     assert not needs_adjudication(tie, order_gap_threshold=0.25, entropy_threshold=0.9)
+
+
+def test_both_orders_estimate_delta_with_the_same_sign():
+    """Each order's independent estimate of Delta is (semantic_score - 0.5).
+
+    `semantic_score` already converts from the shown slot to the learner, so a
+    reverse estimate written as (0.5 - score) double-flips it. That mistake makes
+    the order split-half reliability come out NEGATIVE, which is how it was
+    found; this pins the convention so it cannot come back.
+    """
+    fwd = obs(FORWARD, 0.9, 0.05, 0.05)      # learner shown as A, judged better
+    rev = obs(REVERSE, 0.05, 0.9, 0.05)      # learner shown as B, judged better
+    assert fwd["semantic_score"] - 0.5 > 0
+    assert rev["semantic_score"] - 0.5 > 0
+    agg = combine([fwd, rev])
+    assert agg["delta"] == pytest.approx(
+        0.5 * ((fwd["semantic_score"] - 0.5) + (rev["semantic_score"] - 0.5)), abs=1e-12)
