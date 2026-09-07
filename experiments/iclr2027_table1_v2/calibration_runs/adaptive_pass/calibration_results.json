@@ -1,0 +1,477 @@
+{
+  "runs": {
+    "P0": {
+      "per_objective": {
+        "helpfulness": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.8933333333333333,
+          "directional_accuracy_natural": 0.85,
+          "directional_accuracy_degradation": 0.98,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.025,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.9387755102040817,
+          "n_both_orders_commit": 147,
+          "split_half_pearson": null,
+          "split_half_spearman": null,
+          "n_split_half_pairs": 0,
+          "mean_abs_delta": 0.3475,
+          "mean_tie_probability": 0.26,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        },
+        "honesty": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.46,
+          "directional_accuracy_natural": 0.66,
+          "directional_accuracy_degradation": 0.06,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.275,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.5483870967741935,
+          "n_both_orders_commit": 124,
+          "split_half_pearson": null,
+          "split_half_spearman": null,
+          "n_split_half_pairs": 0,
+          "mean_abs_delta": 0.1975,
+          "mean_tie_probability": 0.325,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        },
+        "instruction_following": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.8066666666666666,
+          "directional_accuracy_natural": 0.83,
+          "directional_accuracy_degradation": 0.76,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.095,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.8620689655172413,
+          "n_both_orders_commit": 116,
+          "split_half_pearson": null,
+          "split_half_spearman": null,
+          "n_split_half_pairs": 0,
+          "mean_abs_delta": 0.285,
+          "mean_tie_probability": 0.35,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        },
+        "truthfulness": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.5733333333333334,
+          "directional_accuracy_natural": 0.75,
+          "directional_accuracy_degradation": 0.22,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.215,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.6379310344827587,
+          "n_both_orders_commit": 116,
+          "split_half_pearson": null,
+          "split_half_spearman": null,
+          "n_split_half_pairs": 0,
+          "mean_abs_delta": 0.2075,
+          "mean_tie_probability": 0.375,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.0,
+          "adjudicated_rate": 0.0
+        }
+      },
+      "summary": {
+        "invalid_rate": 0.0,
+        "min_directional_accuracy_clear": 0.46,
+        "min_identical_confident_tie_accuracy": 1.0,
+        "max_abs_position_bias": 0.275,
+        "min_confident_pair_swap_consistency": 0.5483870967741935,
+        "min_split_half_spearman": null,
+        "min_split_half_pearson": null
+      },
+      "manifest": {
+        "protocol_name": "P0_hard_verdict",
+        "protocol_kind": "P0",
+        "protocol_sha256": "f8bfccaf53f081bc5e9b13ecd5cd90e764de451df117c79a7e40a82016771414",
+        "rubric_path": "/work/iclr27_table1_v2/code/training_configs/nbpo/objectives/ultrafeedback_v2.yaml",
+        "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+        "labels": {
+          "A": {
+            "token": "A",
+            "id": 32
+          },
+          "B": {
+            "token": "B",
+            "id": 33
+          },
+          "TIE": {
+            "token": "T",
+            "id": 51
+          }
+        },
+        "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+        "order_gap_threshold": 0.25,
+        "entropy_threshold": 0.9,
+        "max_templates_when_unstable": 3,
+        "n_templates": 1,
+        "decoding": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": -1
+        },
+        "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+        "tokenization_verification": {
+          "verified_single_token_in_context": true,
+          "labels": {
+            "A": {
+              "token": "A",
+              "id": 32
+            },
+            "B": {
+              "token": "B",
+              "id": 33
+            },
+            "TIE": {
+              "token": "T",
+              "id": 51
+            }
+          },
+          "prefix_token_count": 19
+        },
+        "n_pairs": 800,
+        "n_renderings": 1600,
+        "n_adjudicated": 0,
+        "wall_clock_seconds": 54.2,
+        "input": "/work/iclr27_table1_v2/code/experiments/iclr2027_table1_v2/calibration/controls.jsonl",
+        "adjudication_enabled": true
+      },
+      "cost_renderings": 1600,
+      "wall_clock_seconds": 54.2
+    },
+    "P1": {
+      "per_objective": {
+        "helpfulness": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.94,
+          "directional_accuracy_natural": 0.91,
+          "directional_accuracy_degradation": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.020694076473478172,
+          "position_bias_identical_only": 3.074760459374937e-05,
+          "confident_pair_swap_consistency": 0.9361702127659575,
+          "n_both_orders_commit": 141,
+          "split_half_pearson": 0.6979273428319099,
+          "split_half_spearman": 0.6304347826086957,
+          "n_split_half_pairs": 23,
+          "mean_abs_delta": 0.32402142256773253,
+          "mean_tie_probability": 0.25819975176455,
+          "mean_normalized_entropy": 0.09108796910687421,
+          "unresolved_uncertainty_rate": 0.07,
+          "adjudicated_rate": 0.115
+        },
+        "honesty": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.54,
+          "directional_accuracy_natural": 0.8,
+          "directional_accuracy_degradation": 0.02,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.23003645040753798,
+          "position_bias_identical_only": -0.0007630344478902196,
+          "confident_pair_swap_consistency": 0.608,
+          "n_both_orders_commit": 125,
+          "split_half_pearson": 0.7531829736979168,
+          "split_half_spearman": 0.7561648877438351,
+          "n_split_half_pairs": 77,
+          "mean_abs_delta": 0.19290218046230614,
+          "mean_tie_probability": 0.30302717616917574,
+          "mean_normalized_entropy": 0.2156256390393561,
+          "unresolved_uncertainty_rate": 0.34,
+          "adjudicated_rate": 0.385
+        },
+        "instruction_following": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.9066666666666666,
+          "directional_accuracy_natural": 0.88,
+          "directional_accuracy_degradation": 0.96,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.09421691028363846,
+          "position_bias_identical_only": -0.0003439701036956999,
+          "confident_pair_swap_consistency": 0.8,
+          "n_both_orders_commit": 110,
+          "split_half_pearson": 0.8626215822667256,
+          "split_half_spearman": 0.8594877276023972,
+          "n_split_half_pairs": 68,
+          "mean_abs_delta": 0.23115005782620612,
+          "mean_tie_probability": 0.3474082364919252,
+          "mean_normalized_entropy": 0.2160736324841568,
+          "unresolved_uncertainty_rate": 0.275,
+          "adjudicated_rate": 0.34
+        },
+        "truthfulness": {
+          "n": 200,
+          "n_clear": 150,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.6866666666666666,
+          "directional_accuracy_natural": 0.86,
+          "directional_accuracy_degradation": 0.34,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.11569795232305805,
+          "position_bias_identical_only": 0.001495403100433883,
+          "confident_pair_swap_consistency": 0.7685185185185185,
+          "n_both_orders_commit": 108,
+          "split_half_pearson": 0.7352130247308183,
+          "split_half_spearman": 0.7510594668489405,
+          "n_split_half_pairs": 56,
+          "mean_abs_delta": 0.2054715925590216,
+          "mean_tie_probability": 0.3915434163280097,
+          "mean_normalized_entropy": 0.226290219680397,
+          "unresolved_uncertainty_rate": 0.2,
+          "adjudicated_rate": 0.28
+        }
+      },
+      "summary": {
+        "invalid_rate": 0.0,
+        "min_directional_accuracy_clear": 0.54,
+        "min_identical_confident_tie_accuracy": 1.0,
+        "max_abs_position_bias": 0.23003645040753798,
+        "min_confident_pair_swap_consistency": 0.608,
+        "min_split_half_spearman": 0.6304347826086957,
+        "min_split_half_pearson": 0.6979273428319099
+      },
+      "manifest": {
+        "protocol_name": "P1_restricted_choice_soft_logits",
+        "protocol_kind": "P1",
+        "protocol_sha256": "93fc4af9716dbb81f66fee0b8c4db9d1c0c939918e8d84a6cbb862d49c3bab1c",
+        "rubric_path": "/work/iclr27_table1_v2/code/training_configs/nbpo/objectives/ultrafeedback_v2.yaml",
+        "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+        "labels": {
+          "A": {
+            "token": "A",
+            "id": 32
+          },
+          "B": {
+            "token": "B",
+            "id": 33
+          },
+          "TIE": {
+            "token": "T",
+            "id": 51
+          }
+        },
+        "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+        "order_gap_threshold": 0.25,
+        "entropy_threshold": 0.9,
+        "max_templates_when_unstable": 3,
+        "n_templates": 3,
+        "decoding": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": -1
+        },
+        "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+        "tokenization_verification": {
+          "verified_single_token_in_context": true,
+          "labels": {
+            "A": {
+              "token": "A",
+              "id": 32
+            },
+            "B": {
+              "token": "B",
+              "id": 33
+            },
+            "TIE": {
+              "token": "T",
+              "id": 51
+            }
+          },
+          "prefix_token_count": 19
+        },
+        "n_pairs": 800,
+        "n_renderings": 2496,
+        "n_adjudicated": 224,
+        "wall_clock_seconds": 88.5,
+        "input": "/work/iclr27_table1_v2/code/experiments/iclr2027_table1_v2/calibration/controls.jsonl",
+        "adjudication_enabled": true
+      },
+      "cost_renderings": 2496,
+      "wall_clock_seconds": 88.5
+    },
+    "P2": {
+      "per_objective": {
+        "helpfulness": {
+          "n": 199,
+          "n_clear": 149,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.9530201342281879,
+          "directional_accuracy_natural": 0.9292929292929293,
+          "directional_accuracy_degradation": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": 0.013819095477386936,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.993006993006993,
+          "n_both_orders_commit": 143,
+          "split_half_pearson": 0.6671243849949912,
+          "split_half_spearman": 0.6804138174397717,
+          "n_split_half_pairs": 9,
+          "mean_abs_delta": 0.3611809045226131,
+          "mean_tie_probability": 0.26046901172529313,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.03015075376884422,
+          "adjudicated_rate": 0.05025125628140704
+        },
+        "honesty": {
+          "n": 192,
+          "n_clear": 142,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.852112676056338,
+          "directional_accuracy_natural": 0.7717391304347826,
+          "directional_accuracy_degradation": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": 0.028645833333333332,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.9609375,
+          "n_both_orders_commit": 128,
+          "split_half_pearson": 0.31242528987421625,
+          "split_half_spearman": 0.3262267543499192,
+          "n_split_half_pairs": 20,
+          "mean_abs_delta": 0.3294270833333333,
+          "mean_tie_probability": 0.2960069444444445,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.06770833333333333,
+          "adjudicated_rate": 0.109375
+        },
+        "instruction_following": {
+          "n": 193,
+          "n_clear": 143,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.9020979020979021,
+          "directional_accuracy_natural": 0.8494623655913979,
+          "directional_accuracy_degradation": 1.0,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": 0.034974093264248704,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.953125,
+          "n_both_orders_commit": 128,
+          "split_half_pearson": 0.6393110697585983,
+          "split_half_spearman": 0.653581757979396,
+          "n_split_half_pairs": 24,
+          "mean_abs_delta": 0.3322538860103627,
+          "mean_tie_probability": 0.28886010362694303,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.10362694300518134,
+          "adjudicated_rate": 0.12953367875647667
+        },
+        "truthfulness": {
+          "n": 170,
+          "n_clear": 120,
+          "n_identical": 50,
+          "directional_accuracy_clear": 0.8583333333333333,
+          "directional_accuracy_natural": 0.8472222222222222,
+          "directional_accuracy_degradation": 0.875,
+          "identical_confident_tie_accuracy": 1.0,
+          "position_bias": -0.004411764705882353,
+          "position_bias_identical_only": 0.0,
+          "confident_pair_swap_consistency": 0.9528301886792453,
+          "n_both_orders_commit": 106,
+          "split_half_pearson": 0.6340424687800879,
+          "split_half_spearman": 0.6422349343528511,
+          "n_split_half_pairs": 18,
+          "mean_abs_delta": 0.30514705882352944,
+          "mean_tie_probability": 0.3465686274509804,
+          "mean_normalized_entropy": 0.0,
+          "unresolved_uncertainty_rate": 0.07647058823529412,
+          "adjudicated_rate": 0.12352941176470589
+        }
+      },
+      "summary": {
+        "invalid_rate": 0.0575,
+        "min_directional_accuracy_clear": 0.852112676056338,
+        "min_identical_confident_tie_accuracy": 1.0,
+        "max_abs_position_bias": 0.034974093264248704,
+        "min_confident_pair_swap_consistency": 0.9528301886792453,
+        "min_split_half_spearman": 0.3262267543499192,
+        "min_split_half_pearson": 0.31242528987421625
+      },
+      "manifest": {
+        "protocol_name": "P2_deliberative",
+        "protocol_kind": "P2",
+        "protocol_sha256": "6e591e8ae5e95640647709f20a77f6eb242ebe14b06d70f8099c01a0b2efb0a1",
+        "rubric_path": "/work/iclr27_table1_v2/code/training_configs/nbpo/objectives/ultrafeedback_v2.yaml",
+        "rubric_sha256": "934d3062d67cff0d46975c12ffe1330cbed818fc3efbb4e270f0bda5e7376954",
+        "labels": {
+          "A": {
+            "token": "A",
+            "id": 32
+          },
+          "B": {
+            "token": "B",
+            "id": 33
+          },
+          "TIE": {
+            "token": "T",
+            "id": 51
+          }
+        },
+        "label_mapping_note": "stored artifacts always use A / B / TIE; the single-token sentinels are an implementation detail of exact candidate scoring",
+        "order_gap_threshold": 0.25,
+        "entropy_threshold": 0.9,
+        "max_templates_when_unstable": 3,
+        "n_templates": 2,
+        "decoding": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": -1
+        },
+        "judge_model_path": "/work/models/xj_judges/qwen3-32b",
+        "tokenization_verification": {
+          "verified_single_token_in_context": true,
+          "labels": {
+            "A": {
+              "token": "A",
+              "id": 32
+            },
+            "B": {
+              "token": "B",
+              "id": 33
+            },
+            "TIE": {
+              "token": "T",
+              "id": 51
+            }
+          },
+          "prefix_token_count": 19
+        },
+        "n_pairs": 800,
+        "n_renderings": 1754,
+        "n_adjudicated": 77,
+        "wall_clock_seconds": 76.6,
+        "input": "/work/iclr27_table1_v2/code/experiments/iclr2027_table1_v2/calibration/controls.jsonl",
+        "adjudication_enabled": true
+      },
+      "cost_renderings": 1754,
+      "wall_clock_seconds": 76.6
+    }
+  },
+  "ranking": [
+    "P2",
+    "P1",
+    "P0"
+  ],
+  "selected": "P2",
+  "selection_rule": "lexicographic: min clear-control directional accuracy > identical confident-tie accuracy > -max |position bias| > confident-pair swap consistency > split-half Spearman > -cost",
+  "selection_inputs": "calibration and reliability metrics only; no downstream policy or NBPO quantity was consulted"
+}
