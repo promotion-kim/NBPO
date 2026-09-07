@@ -1,0 +1,180 @@
+{
+  "claim": "roughly two thirds of the NBPO-minus-FixedRef deficit is step size",
+  "verdict": "RETRACTED",
+  "per_alpha": [
+    {
+      "alpha": 0.0,
+      "bt_deviance": 0.004803586053091502,
+      "nbpo_native_min_surplus": 0.09706971842075177,
+      "nbpo_matched_min_surplus": 0.09700490223992167,
+      "fixed_reference_min_surplus": 0.09407438809820157,
+      "gap_native": 0.0029953303225501993,
+      "gap_matched": 0.002930514141720103,
+      "abs_gap_reduction": 6.481618083009622e-05,
+      "fraction_explained_by_step_size": 0.021639076111950237,
+      "sign_flips_under_matching": false
+    },
+    {
+      "alpha": 0.25,
+      "bt_deviance": 0.06832308419066464,
+      "nbpo_native_min_surplus": 0.056676774702655794,
+      "nbpo_matched_min_surplus": 0.06614649661269509,
+      "fixed_reference_min_surplus": 0.06444361488643532,
+      "gap_native": -0.00776684018377953,
+      "gap_matched": 0.001702881726259764,
+      "abs_gap_reduction": 0.006063958457519766,
+      "fraction_explained_by_step_size": 0.780749740439348,
+      "sign_flips_under_matching": true
+    },
+    {
+      "alpha": 0.5,
+      "bt_deviance": 0.2112989647372588,
+      "nbpo_native_min_surplus": -0.060254424152188416,
+      "nbpo_matched_min_surplus": 0.0037737804713715837,
+      "fixed_reference_min_surplus": 0.017114416708490073,
+      "gap_native": -0.0773688408606785,
+      "gap_matched": -0.01334063623711849,
+      "abs_gap_reduction": 0.06402820462356,
+      "fraction_explained_by_step_size": 0.8275709434352058,
+      "sign_flips_under_matching": false
+    },
+    {
+      "alpha": 0.75,
+      "bt_deviance": 0.4452642105183836,
+      "nbpo_native_min_surplus": -0.11632915484218767,
+      "nbpo_matched_min_surplus": -0.08147738499867689,
+      "fixed_reference_min_surplus": -0.04198899119332532,
+      "gap_native": -0.07434016364886235,
+      "gap_matched": -0.039488393805351574,
+      "abs_gap_reduction": 0.03485176984351078,
+      "fraction_explained_by_step_size": 0.46881481197874825,
+      "sign_flips_under_matching": false
+    },
+    {
+      "alpha": 1.0,
+      "bt_deviance": 0.849292670153806,
+      "nbpo_native_min_surplus": -0.1850754262820215,
+      "nbpo_matched_min_surplus": -0.1647016665385141,
+      "fixed_reference_min_surplus": -0.09949689300272091,
+      "gap_native": -0.0855785332793006,
+      "gap_matched": -0.06520477353579318,
+      "abs_gap_reduction": 0.020373759743507414,
+      "fraction_explained_by_step_size": 0.23807091524943605,
+      "sign_flips_under_matching": false
+    }
+  ],
+  "summary": "The fraction is not a constant and is nowhere near two thirds at the alphas that matter. It is alpha=0.00: 2.2%; alpha=0.25: 78.1%; alpha=0.50: 82.8%; alpha=0.75: 46.9%; alpha=1.00: 23.8%. At the strongest intransitivity (alpha=1.0) step size accounts for 23.8%, not ~67%.",
+  "why_the_decomposition_is_void": "Both arms being differenced are non-converged. In the exact audit the practical alternating solver has a fixed-point residual of 1.000 at alpha >= 0.5 -- the maximum a simplex iterate can have -- while the fixed-reference control has a residual of exactly 0 because its Eq. (21) map is constant and one application lands on its fixed point. The difference therefore compares a diverging iteration against one that cannot diverge, and no split of it into 'step size' and 'representation' is meaningful.",
+  "exact_solver_says": {
+    "0.0": {
+      "A_exact_global_nash": {
+        "min_surplus": 0.1006748307112949,
+        "fixed_point_residual": null
+      },
+      "B_exact_proximal_nash": {
+        "min_surplus": 0.09707260153974835,
+        "fixed_point_residual": null
+      },
+      "C_practical": {
+        "min_surplus": 0.09706971842075177,
+        "fixed_point_residual": 6.265417906714532e-08
+      },
+      "D_matched_step": {
+        "min_surplus": 0.09700490223992166,
+        "fixed_point_residual": 0.08313806733677853
+      },
+      "fixed_reference_native": {
+        "min_surplus": 0.09407438809820158,
+        "fixed_point_residual": 0.0
+      }
+    },
+    "0.25": {
+      "A_exact_global_nash": {
+        "min_surplus": 0.06818893941523868,
+        "fixed_point_residual": null
+      },
+      "B_exact_proximal_nash": {
+        "min_surplus": 0.06592560476327372,
+        "fixed_point_residual": null
+      },
+      "C_practical": {
+        "min_surplus": 0.056676774702655794,
+        "fixed_point_residual": 0.9693150405782575
+      },
+      "D_matched_step": {
+        "min_surplus": 0.0661464966126951,
+        "fixed_point_residual": 0.8406886408342906
+      },
+      "fixed_reference_native": {
+        "min_surplus": 0.06444361488643534,
+        "fixed_point_residual": 0.0
+      }
+    },
+    "0.5": {
+      "A_exact_global_nash": {
+        "min_surplus": 0.03130441093253817,
+        "fixed_point_residual": null
+      },
+      "B_exact_proximal_nash": {
+        "min_surplus": 0.03121846901093537,
+        "fixed_point_residual": null
+      },
+      "C_practical": {
+        "min_surplus": -0.06025442415218842,
+        "fixed_point_residual": 0.9999999999998777
+      },
+      "D_matched_step": {
+        "min_surplus": 0.0037737804713715768,
+        "fixed_point_residual": 0.9998231198953224
+      },
+      "fixed_reference_native": {
+        "min_surplus": 0.017114416708490073,
+        "fixed_point_residual": 0.0
+      }
+    },
+    "0.75": {
+      "A_exact_global_nash": {
+        "min_surplus": 0.015274857171188644,
+        "fixed_point_residual": null
+      },
+      "B_exact_proximal_nash": {
+        "min_surplus": 0.015262462729482718,
+        "fixed_point_residual": null
+      },
+      "C_practical": {
+        "min_surplus": -0.11632915484218768,
+        "fixed_point_residual": 1.0
+      },
+      "D_matched_step": {
+        "min_surplus": -0.0814773849986769,
+        "fixed_point_residual": 0.999999998333878
+      },
+      "fixed_reference_native": {
+        "min_surplus": -0.04198899119332532,
+        "fixed_point_residual": 0.0
+      }
+    },
+    "1.0": {
+      "A_exact_global_nash": {
+        "min_surplus": 0.015827207953337724,
+        "fixed_point_residual": null
+      },
+      "B_exact_proximal_nash": {
+        "min_surplus": 0.015830978861200738,
+        "fixed_point_residual": null
+      },
+      "C_practical": {
+        "min_surplus": -0.18507542628202156,
+        "fixed_point_residual": 1.0
+      },
+      "D_matched_step": {
+        "min_surplus": -0.16470166653851412,
+        "fixed_point_residual": 0.9999999995768327
+      },
+      "fixed_reference_native": {
+        "min_surplus": -0.09949689300272098,
+        "fixed_point_residual": 0.0
+      }
+    }
+  }
+}

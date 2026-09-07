@@ -72,3 +72,19 @@ experiments/iclr2027_table1_v2/calibration_all/*
 experiments/iclr2027_table1_v2/judge_audit/*
 !experiments/iclr2027_table1_v2/judge_audit/report.json
 !experiments/iclr2027_table1_v2/judge_audit/report.md
+
+# SafeRLHF splits: the manifest travels (hashes, counts, graph statistics,
+# disjointness proof) but the split files themselves do not. They are 122 MB of
+# RAW RESPONSES from a public dataset, exactly reproducible from
+# build_saferlhf_splits.py at the recorded seed, and Section K keeps raw
+# responses out of the repository.
+!experiments/iclr2027_table1_v2/saferlhf_splits/
+experiments/iclr2027_table1_v2/saferlhf_splits/*
+!experiments/iclr2027_table1_v2/saferlhf_splits/split_manifest.json
+
+# v5 opaque-identifier factorial: reports and manifests only, not the raw
+# per-rendering judgment rows.
+!experiments/iclr2027_table1_v2/judge_protocol_v5/
+experiments/iclr2027_table1_v2/judge_protocol_v5/*
+!experiments/iclr2027_table1_v2/judge_protocol_v5/*.md
+!experiments/iclr2027_table1_v2/judge_protocol_v5/*.json

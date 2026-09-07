@@ -1,0 +1,180 @@
+{
+  "dataset": "PKU-Alignment/PKU-SafeRLHF",
+  "split": "train",
+  "seed": 20260908,
+  "fractions": [
+    0.8,
+    0.1,
+    0.1
+  ],
+  "assignment": "sha256(f'saferlhf-split-{seed}-{prompt_sha256}') -> [0,1)",
+  "objectives": {
+    "helpfulness": "better_response_id",
+    "harmlessness": "safer_response_id"
+  },
+  "duplicate_policy": "rows sharing a prompt are distinct comparisons and are all kept; they travel together into one split",
+  "tie_policy": "the released fields are binary ids with no tie encoding, so no tie is invented",
+  "total_rows": 73907,
+  "total_prompts": 38639,
+  "splits": {
+    "train": {
+      "path": "experiments/iclr2027_table1_v2/saferlhf_splits/saferlhf_train.jsonl",
+      "n_rows": 59624,
+      "n_prompts": 31052,
+      "prompt_set_sha256": "01251ff0ff1521914d43064c4686ba70d4f6bd9ca2fd5239291038c02b2dae46",
+      "file_sha256": "5341d8cd5d056de437f51902445b132b86880e4ac29fd2ba44e17d0d9bdc2c62",
+      "label_balance": {
+        "helpfulness": {
+          "response_0_preferred": 21438,
+          "response_1_preferred": 38186,
+          "fraction_response_1": 0.6404467999463304
+        },
+        "harmlessness": {
+          "response_0_preferred": 17300,
+          "response_1_preferred": 42324,
+          "fraction_response_1": 0.7098483832013954
+        },
+        "helpfulness_harmlessness_conflict_rate": 0.2407084395545418,
+        "n_conflicting_rows": 14352
+      },
+      "graph": {
+        "n_prompts": 31052,
+        "n_rows": 59624,
+        "unique_responses_per_prompt": {
+          "min": 2,
+          "max": 95,
+          "mean": 3.715058611361587,
+          "prompts_with_one_response_pair_only": 0
+        },
+        "prompts_with_at_least_three_responses": 19785,
+        "prompts_with_a_connected_comparison_graph": 11299,
+        "per_objective": {
+          "helpfulness": {
+            "observed_triples": 0,
+            "three_cycles": 0,
+            "prompts_with_a_cycle": 0,
+            "direct_disagreements": 1,
+            "distinct_ordered_pairs": 59624,
+            "three_cycle_rate_over_observed_triples": null
+          },
+          "harmlessness": {
+            "observed_triples": 0,
+            "three_cycles": 0,
+            "prompts_with_a_cycle": 0,
+            "direct_disagreements": 1,
+            "distinct_ordered_pairs": 59624,
+            "three_cycle_rate_over_observed_triples": null
+          }
+        }
+      }
+    },
+    "validation": {
+      "path": "experiments/iclr2027_table1_v2/saferlhf_splits/saferlhf_validation.jsonl",
+      "n_rows": 7328,
+      "n_prompts": 3833,
+      "prompt_set_sha256": "9f96ee3eaf0d3896e99cccdbb48c91aaebfd991afff3de76ee000766ff1597f8",
+      "file_sha256": "c05aae5c50ce6c828dc801103de4d1b7abf6167e95049f60f223295295b5c8cc",
+      "label_balance": {
+        "helpfulness": {
+          "response_0_preferred": 2668,
+          "response_1_preferred": 4660,
+          "fraction_response_1": 0.6359170305676856
+        },
+        "harmlessness": {
+          "response_0_preferred": 2120,
+          "response_1_preferred": 5208,
+          "fraction_response_1": 0.7106986899563319
+        },
+        "helpfulness_harmlessness_conflict_rate": 0.23935589519650655,
+        "n_conflicting_rows": 1754
+      },
+      "graph": {
+        "n_prompts": 3833,
+        "n_rows": 7328,
+        "unique_responses_per_prompt": {
+          "min": 2,
+          "max": 30,
+          "mean": 3.772241064440386,
+          "prompts_with_one_response_pair_only": 0
+        },
+        "prompts_with_at_least_three_responses": 2492,
+        "prompts_with_a_connected_comparison_graph": 1345,
+        "per_objective": {
+          "helpfulness": {
+            "observed_triples": 0,
+            "three_cycles": 0,
+            "prompts_with_a_cycle": 0,
+            "direct_disagreements": 0,
+            "distinct_ordered_pairs": 7328,
+            "three_cycle_rate_over_observed_triples": null
+          },
+          "harmlessness": {
+            "observed_triples": 0,
+            "three_cycles": 0,
+            "prompts_with_a_cycle": 0,
+            "direct_disagreements": 0,
+            "distinct_ordered_pairs": 7328,
+            "three_cycle_rate_over_observed_triples": null
+          }
+        }
+      }
+    },
+    "test": {
+      "path": "experiments/iclr2027_table1_v2/saferlhf_splits/saferlhf_test.jsonl",
+      "n_rows": 6955,
+      "n_prompts": 3754,
+      "prompt_set_sha256": "132a0551290c962ed3135135518130f3399944e1ac217cc3b4abf23438f09aca",
+      "file_sha256": "c5b4e0526070f75b5dc551da8c1999ff47f6203a4e70352cb5752fd9b1d427c4",
+      "label_balance": {
+        "helpfulness": {
+          "response_0_preferred": 2529,
+          "response_1_preferred": 4426,
+          "fraction_response_1": 0.6363767074047448
+        },
+        "harmlessness": {
+          "response_0_preferred": 2033,
+          "response_1_preferred": 4922,
+          "fraction_response_1": 0.7076923076923077
+        },
+        "helpfulness_harmlessness_conflict_rate": 0.2432782171099928,
+        "n_conflicting_rows": 1692
+      },
+      "graph": {
+        "n_prompts": 3754,
+        "n_rows": 6955,
+        "unique_responses_per_prompt": {
+          "min": 2,
+          "max": 17,
+          "mean": 3.6891315929675015,
+          "prompts_with_one_response_pair_only": 0
+        },
+        "prompts_with_at_least_three_responses": 2387,
+        "prompts_with_a_connected_comparison_graph": 1369,
+        "per_objective": {
+          "helpfulness": {
+            "observed_triples": 0,
+            "three_cycles": 0,
+            "prompts_with_a_cycle": 0,
+            "direct_disagreements": 0,
+            "distinct_ordered_pairs": 6955,
+            "three_cycle_rate_over_observed_triples": null
+          },
+          "harmlessness": {
+            "observed_triples": 0,
+            "three_cycles": 0,
+            "prompts_with_a_cycle": 0,
+            "direct_disagreements": 0,
+            "distinct_ordered_pairs": 6955,
+            "three_cycle_rate_over_observed_triples": null
+          }
+        }
+      }
+    }
+  },
+  "pairwise_prompt_overlap": {
+    "train|validation": 0,
+    "train|test": 0,
+    "validation|test": 0
+  },
+  "disjointness_verified_from_written_files": true
+}
