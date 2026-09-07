@@ -305,3 +305,49 @@ def test_undefined_ideal_point_raises_with_diagnostics():
     assert 0 in diag["nonpositive_objectives"]
     assert diag["u_ideal"][0] < 0
     assert "u_vertex" in diag and "ideal_point_definitions" in diag
+
+
+# --------------------------------------------------------------------------
+# The inner solver must reach Kalai--Smorodinsky's own sub-solves.
+# --------------------------------------------------------------------------
+
+def test_ks_threads_the_inner_solver_into_its_sub_solves():
+    """KS silently kept iterating the Eq. (21) map after the Nash branch was fixed.
+
+    `solve_finite_pool(..., inner_solver="exact")` repaired the Nash aggregation,
+    but Kalai--Smorodinsky solves its ideal point, its egalitarian stage and its
+    Pareto refinement through separate calls that did not receive the setting. On
+    the controlled benchmark the Game-KS row therefore inherited exactly the
+    divergence the repair removes: an inner residual of 1.000 and a solution that
+    violated individual rationality, which a bargaining solution cannot do.
+    """
+    import numpy as np
+    import torch
+    from mnpo_scripts.nbpo_core import uniform_policy
+    from mnpo_scripts.nbpo_generic import solve_finite_pool
+    from mnpo_scripts.nbpo_representations import AdaptiveGameRepresentation
+
+    # A feasibility-preserving instance, so that KS is defined and the test is
+    # about the solver rather than about the instance having an empty interior.
+    from scripts.experiments.iclr2027_table1_v2.nontransitivity_v2 import build_v2
+    fam, _ = build_v2(0, K=4, X=6, I=5, alphas=(1.0,), m=0.20, base_amp=0.08,
+                      cycle_amp=0.20)
+    A = fam[1.0]["A"]
+    K, X, I = A.shape[0], A.shape[1], A.shape[2]
+    At = torch.from_numpy(A)
+    mu = uniform_policy(X, I)
+    rep = AdaptiveGameRepresentation(At, At, mu,
+                                     torch.full((K,), 0.25, dtype=torch.float64))
+
+    exact = solve_finite_pool(rep, "kalai_smorodinsky", eta=1.0, R=3, weight_l1=30.0,
+                              inner_solver="exact",
+                              ks_kwargs=dict(stage1_iters=200, ideal_iters=30))
+    assert exact.config["inner_solver"] == "exact"
+    # the sub-solves actually used it: one more map application barely moves it
+    assert exact.extra_map_residual < 1e-4, exact.extra_map_residual
+
+    legacy = solve_finite_pool(rep, "kalai_smorodinsky", eta=1.0, R=3, weight_l1=30.0,
+                               ks_kwargs=dict(stage1_iters=200, ideal_iters=30))
+    assert legacy.config["inner_solver"] == "fixed_point"
+    # and the default path is genuinely a different computation, not a relabel
+    assert legacy.extra_map_residual > exact.extra_map_residual

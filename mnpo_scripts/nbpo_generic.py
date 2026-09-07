@@ -193,7 +193,7 @@ def solve_proximal(rep: ObjectiveRepresentation, pi_t: torch.Tensor,
 def solve_proximal_exact(rep: ObjectiveRepresentation, pi_t: torch.Tensor,
                          w: torch.Tensor, eta: float, *,
                          pi_init: Optional[torch.Tensor] = None,
-                         maxiter: int = 200, ftol: float = 1e-14) -> ProximalSolve:
+                         maxiter: int = 400, ftol: float = 1e-16) -> ProximalSolve:
     """Solve the Eq. (18) subproblem by maximization instead of iteration.
 
     ``solve_proximal`` applies the Eq. (21) map ``R`` times. That map contracts
@@ -356,18 +356,37 @@ class KSUndefinedError(ValueError):
         self.diagnostics = diagnostics
 
 
-def _proximal_vertices(rep, pi_t, eta, R, damping, weight_l1):
+def _proximal(rep, pi_t, w, eta, R, *, pi_init=None, damping=0.0,
+              inner_solver: str = "fixed_point"):
+    """One inner proximal solve, honouring the selected inner solver.
+
+    Every sub-solve inside Kalai--Smorodinsky routes through here. Before this
+    existed, `solve_finite_pool(..., inner_solver="exact")` repaired the Nash
+    branch while KS silently kept iterating the Eq. (21) map internally, so the
+    Game-KS row inherited exactly the divergence the repair removes: on the
+    controlled benchmark its inner residual reached 1.000 and its solution
+    violated individual rationality, which a bargaining solution must not do.
+    """
+    if inner_solver == "exact":
+        return solve_proximal_exact(rep, pi_t, w, eta, pi_init=pi_init)
+    return solve_proximal(rep, pi_t, w, eta, R, pi_init=pi_init, damping=damping)
+
+
+def _proximal_vertices(rep, pi_t, eta, R, damping, weight_l1,
+                       inner_solver="fixed_point"):
     """``s(pi)`` at each weight-simplex vertex ``weight_l1 * e_k``: the attainable ideal."""
     K = rep.K
     out = []
     for k in range(K):
         e_k = torch.zeros(K, dtype=torch.float64)
         e_k[k] = weight_l1
-        out.append(rep.surplus(solve_proximal(rep, pi_t, e_k, eta, R, damping=damping).pi))
+        out.append(rep.surplus(_proximal(rep, pi_t, e_k, eta, R, damping=damping,
+                                         inner_solver=inner_solver).pi))
     return out
 
 
 def _ir_constrained_max(rep, pi_t, eta, k: int, R: int, *, iters: int, step: float,
+                        inner_solver: str = "fixed_point",
                         damping: float, weight_l1: float, scale: float,
                         seed_points):
     """``max_pi s_k(pi)`` in the proximal family subject to ``s_j(pi) >= 0`` for all j.
@@ -399,7 +418,8 @@ def _ir_constrained_max(rep, pi_t, eta, k: int, R: int, *, iters: int, step: flo
     K = rep.K
     e_k = torch.zeros(K, dtype=torch.float64)
     e_k[k] = weight_l1
-    u_vertex = float(rep.surplus(solve_proximal(rep, pi_t, e_k, eta, R, damping=damping).pi)[k])
+    u_vertex = float(rep.surplus(_proximal(rep, pi_t, e_k, eta, R, damping=damping,
+                                           inner_solver=inner_solver).pi)[k])
 
     best_ir = None
     worst_violation = float("inf")
@@ -421,7 +441,8 @@ def _ir_constrained_max(rep, pi_t, eta, k: int, R: int, *, iters: int, step: flo
         w[k] = 1.0
         w = w + m
         w_eff = w * (weight_l1 / float(w.sum()))
-        sol = solve_proximal(rep, pi_t, w_eff, eta, R, pi_init=pi_warm, damping=damping)
+        sol = _proximal(rep, pi_t, w_eff, eta, R, pi_init=pi_warm, damping=damping,
+                        inner_solver=inner_solver)
         pi_warm = sol.pi
         s = rep.surplus(sol.pi)
         _scan(s)
@@ -447,6 +468,7 @@ def solve_kalai_smorodinsky(
     ks_degeneracy_rel: float = 1e-6,
     damping: float = 0.0,
     log_every: int = 0,
+    inner_solver: str = "fixed_point",
 ) -> KSResult:
     """The Kalai--Smorodinsky bargaining solution on the frozen finite pool.
 
@@ -459,10 +481,12 @@ def solve_kalai_smorodinsky(
     # ---- ideal point ------------------------------------------------------
     # Vertices first: they give both the unconstrained ideal and the scale the
     # IR dual step must be measured in.
-    vertex_surpluses = _proximal_vertices(rep, pi_t, eta, R, damping, weight_l1)
+    vertex_surpluses = _proximal_vertices(rep, pi_t, eta, R, damping, weight_l1,
+                                          inner_solver=inner_solver)
     uniform_w = torch.full((K,), weight_l1 / K, dtype=torch.float64)
     seed_points = list(vertex_surpluses) + [
-        rep.surplus(solve_proximal(rep, pi_t, uniform_w, eta, R, damping=damping).pi)]
+        rep.surplus(_proximal(rep, pi_t, uniform_w, eta, R, damping=damping,
+                              inner_solver=inner_solver).pi)]
     scale = max(float(vertex_surpluses[k][k].abs()) for k in range(K))
 
     u = torch.zeros(K, dtype=torch.float64)
@@ -473,7 +497,8 @@ def solve_kalai_smorodinsky(
         u_k, feas, definition, vertex_k, gap_k = _ir_constrained_max(
             rep, pi_t, eta, k, R, iters=ideal_iters, step=ideal_step,
             damping=damping, weight_l1=weight_l1, scale=scale,
-            seed_points=seed_points)
+            seed_points=seed_points,
+            inner_solver=inner_solver)
         u[k] = u_k
         u_vertex[k] = vertex_k
         ideal_definitions.append(definition)
@@ -520,7 +545,8 @@ def solve_kalai_smorodinsky(
     history: List[dict] = []
     for m_it in range(stage1_iters):
         w_eff = w * (weight_l1 / float(w.sum()))
-        sol = solve_proximal(rep, pi_t, w_eff, eta, R, pi_init=pi_warm, damping=damping)
+        sol = _proximal(rep, pi_t, w_eff, eta, R, pi_init=pi_warm, damping=damping,
+                        inner_solver=inner_solver)
         pi_warm = sol.pi
         s = rep.surplus(sol.pi)
         v = s / u
@@ -536,7 +562,8 @@ def solve_kalai_smorodinsky(
         w = torch.exp(log_w - torch.logsumexp(log_w, dim=0))
     w_bar = w_sum / stage1_iters
     w_bar = w_bar / w_bar.sum()
-    sol1 = solve_proximal(rep, pi_t, w_bar * weight_l1, eta, R, pi_init=pi_warm,
+    sol1 = _proximal(rep, pi_t, w_bar * weight_l1, eta, R, pi_init=pi_warm,
+                     inner_solver=inner_solver,
                           damping=damping)
     s1 = rep.surplus(sol1.pi)
     rho_star = float((s1 / u).min())
@@ -547,7 +574,8 @@ def solve_kalai_smorodinsky(
     # costs is measured and must stay within `tolerance`.
     w_tilt = w_bar + tau * (1.0 / u) / float((1.0 / u).sum())
     w_tilt = w_tilt / w_tilt.sum()
-    sol2 = solve_proximal(rep, pi_t, w_tilt * weight_l1, eta, R, pi_init=sol1.pi,
+    sol2 = _proximal(rep, pi_t, w_tilt * weight_l1, eta, R, pi_init=sol1.pi,
+                     inner_solver=inner_solver,
                           damping=damping)
     s2 = rep.surplus(sol2.pi)
     rho2 = float((s2 / u).min())
@@ -683,6 +711,9 @@ class FinitePoolSolution:
     kkt_residual: Optional[float] = None
     projected_kkt_residual: Optional[float] = None
     control_residual: Optional[float] = None
+    outer_iterations_used: Optional[int] = None
+    dual_converged: Optional[bool] = None
+    inner_iterations_last: Optional[int] = None
     gamma_ref: Optional[float] = None
     lambda_at_lower_bound: List[int] = field(default_factory=list)
     lambda_at_upper_bound: List[int] = field(default_factory=list)
@@ -707,6 +738,73 @@ class FinitePoolSolution:
         return float((diff - diff.mean(dim=-1, keepdim=True)).abs().max())
 
 
+def _solve_nash_dual_by_root(rep, pi_t, d, lam0, eta, R, inner, damping, lo, hi,
+                             *, tol, max_calls, history, log_every):
+    """Solve the Nash dual as a ROOT problem instead of a subgradient descent.
+
+    The dual stationarity condition of the Nash aggregation is exactly
+
+        s_k(pi(lambda)) = 1 / lambda_k      for every k strictly inside the box,
+
+    and ``pi(lambda)`` is a well-defined function once the inner subproblem is
+    solved rather than iterated. So this is a K-dimensional root problem -- four
+    dimensions here -- and a projected subgradient with a constant step is a poor
+    way to attack it: on the controlled benchmark it stalls near a residual of
+    1e-2 after 3000 outer iterations, nowhere near the 1e-6 gate.
+
+    Solved in log-lambda coordinates so positivity is structural rather than
+    enforced by clipping, warm-started across evaluations so the inner solves stay
+    cheap, and reported with the actual number of inner solves used.
+    """
+    import numpy as np
+    from scipy.optimize import root
+
+    state = {"pi": None, "calls": 0}
+
+    def residual(u):
+        lam = np.clip(np.exp(u), lo, hi)
+        sol = inner(rep, pi_t, torch.from_numpy(lam), eta, R,
+                    pi_init=state["pi"], damping_=damping)
+        state["pi"] = sol.pi
+        state["calls"] += 1
+        s = (rep.game_values(sol.pi) - d).numpy()
+        if log_every and state["calls"] % max(1, log_every) == 0:
+            history.append({"iteration": state["calls"], "lambda_raw": lam.tolist(),
+                            "surplus": s.tolist(), "min_surplus": float(s.min()),
+                            "kkt_residual": float(np.abs(s - 1.0 / lam).max())})
+        return s - 1.0 / lam
+
+    u0 = np.log(np.clip(as_float64(lam0).numpy(), lo, hi))
+    res = root(residual, u0, method="hybr",
+               options={"xtol": 1e-14, "maxfev": int(max_calls)})
+    lam = torch.from_numpy(np.clip(np.exp(res.x), lo, hi))
+    # Convergence is decided by a FRESHLY MEASURED residual at the returned
+    # multipliers, not by the optimizer's own success flag. `hybr` reports
+    # failure whenever it stops making progress, which it does as soon as the
+    # residual reaches the inner solve's own noise floor -- exactly where the
+    # answer is correct. Trusting `res.success` would mark good solves as failed
+    # and, worse, could mark a bad one as good if the flag ever disagreed.
+    final_res = float(np.abs(residual(np.log(lam.numpy()))).max())
+
+    # One deterministic restart when the first solve stops short. `lambda = 1/s`
+    # at the current point is the natural better start -- it is the stationarity
+    # condition itself -- and re-solving from there costs a few dozen inner
+    # solves against the tens of thousands a subgradient would need. If it still
+    # misses, the miss is reported; the tolerance is not moved to accommodate it.
+    if final_res >= tol:
+        s_here = (rep.game_values(state["pi"]) - d).numpy() if state["pi"] is not None else None
+        if s_here is not None and (s_here > 0).all():
+            res2 = root(residual, np.log(np.clip(1.0 / s_here, lo, hi)),
+                        method="hybr", options={"xtol": 1e-14, "maxfev": int(max_calls)})
+            lam2 = torch.from_numpy(np.clip(np.exp(res2.x), lo, hi))
+            r2 = float(np.abs(residual(np.log(lam2.numpy()))).max())
+            if r2 < final_res:
+                lam, final_res = lam2, r2
+    return lam, state["pi"], state["calls"], bool(final_res < tol), final_res
+
+
+
+
 def solve_finite_pool(
     rep: ObjectiveRepresentation,
     aggregation: str,
@@ -725,6 +823,8 @@ def solve_finite_pool(
     log_every: int = 0,
     ks_kwargs: Optional[dict] = None,
     inner_solver: str = "fixed_point",
+    dual_tol: Optional[float] = None,
+    dual_solver: str = "subgradient",
 ) -> FinitePoolSolution:
     """Solve one outer stage for any (representation, aggregation) pair.
 
@@ -740,6 +840,10 @@ def solve_finite_pool(
     """
     if inner_solver not in ("fixed_point", "exact"):
         raise ValueError("inner_solver must be 'fixed_point' or 'exact'")
+    if dual_tol is not None and not (dual_tol > 0):
+        raise ValueError("dual_tol must be strictly positive when given")
+    if dual_solver not in ("subgradient", "root"):
+        raise ValueError("dual_solver must be 'subgradient' or 'root'")
 
     def _inner(rep_, pi_t_, w_, eta_, R_, *, pi_init=None, damping_=0.0):
         if inner_solver == "exact":
@@ -759,6 +863,8 @@ def solve_finite_pool(
     history: List[dict] = []
     ks_block = None
     control_residual = None
+    outer_used = None
+    dual_converged = None
     kkt = proj_res = gamma_ref = None
     lower_active: List[int] = []
     upper_active: List[int] = []
@@ -769,6 +875,7 @@ def solve_finite_pool(
         kw.setdefault("damping", damping)
         kw.setdefault("adversary_step", adversary_step)
         kw.setdefault("log_every", log_every)
+        kw.setdefault("inner_solver", inner_solver)
         ks = solve_kalai_smorodinsky(rep, pi_t, eta, R, **kw)
         w = ks.weights
         final = ks.solve
@@ -796,25 +903,54 @@ def solve_finite_pool(
         if lam.shape != (K,) or bool((lam <= 0).any()):
             raise ValueError("lambda_init must be a strictly positive vector of length K")
         pi_warm = None
-        for m_it in range(M):
+        outer_used = 0
+        if dual_solver == "root":
+            lam, pi_warm, outer_used, dual_converged, _root_res = _solve_nash_dual_by_root(
+                rep, pi_t, d, lam, eta, R, _inner, damping, lo, hi,
+                tol=(dual_tol if dual_tol is not None else 1e-10), max_calls=M,
+                history=history, log_every=log_every)
+            w = lam
+            final = _inner(rep, pi_t, w, eta, R, pi_init=pi_warm, damping_=damping)
+            s_fin = rep.game_values(final.pi) - d
+            gamma_ref = float(gamma_sched[0])
+            kkt = float((s_fin - 1.0 / w).abs().max())
+            proj_res = projected_kkt_residual(w, s_fin, gamma_ref, lo, hi)
+            lower_active, upper_active = box_active_coordinates(w, lo, hi)
+            _nash_done = True
+        else:
+            _nash_done = False
+        for m_it in (range(M) if not _nash_done else range(0)):
             sol = _inner(rep, pi_t, lam, eta, R, pi_init=pi_warm, damping_=damping)
             if warm_start_policy:
                 pi_warm = sol.pi
             s = rep.game_values(sol.pi) - d
+            outer_used = m_it + 1
             if log_every and (m_it % log_every == 0):
                 history.append({"iteration": int(m_it),
                                 "lambda_raw": [float(v) for v in lam],
                                 "surplus": [float(v) for v in s],
                                 "min_surplus": float(s.min()),
                                 "kkt_residual": float((s - 1.0 / lam).abs().max())})
+            # Stop on the DUAL residual, not on an iteration count. The natural-map
+            # residual is the right test because it vanishes at a projected
+            # stationary point even when a box bound is active, where
+            # ||s - 1/lambda|| is not expected to.
+            if dual_tol is not None:
+                r_now = projected_kkt_residual(lam, s, float(gamma_sched[m_it]), lo, hi)
+                if r_now < dual_tol:
+                    dual_converged = True
+                    break
             lam = torch.clamp(lam - gamma_sched[m_it] * (s - 1.0 / lam), min=lo, max=hi)
-        w = lam
-        final = _inner(rep, pi_t, w, eta, R, pi_init=pi_warm, damping_=damping)
-        s_fin = rep.game_values(final.pi) - d
-        gamma_ref = float(gamma_sched[-1])
-        kkt = float((s_fin - 1.0 / w).abs().max())
-        proj_res = projected_kkt_residual(w, s_fin, gamma_ref, lo, hi)
-        lower_active, upper_active = box_active_coordinates(w, lo, hi)
+        if not _nash_done:
+            if dual_tol is not None and dual_converged is None:
+                dual_converged = False
+            w = lam
+            final = _inner(rep, pi_t, w, eta, R, pi_init=pi_warm, damping_=damping)
+            s_fin = rep.game_values(final.pi) - d
+            gamma_ref = float(gamma_sched[min(outer_used, M) - 1])
+            kkt = float((s_fin - 1.0 / w).abs().max())
+            proj_res = projected_kkt_residual(w, s_fin, gamma_ref, lo, hi)
+            lower_active, upper_active = box_active_coordinates(w, lo, hi)
     else:  # absolute_maxmin / surplus_maxmin
         l1 = 1.0 if weight_l1 is None else float(weight_l1)
         wv = torch.full((K,), 1.0 / K, dtype=torch.float64)
@@ -864,6 +1000,9 @@ def solve_finite_pool(
         kkt_residual=kkt,
         projected_kkt_residual=proj_res,
         control_residual=control_residual,
+        outer_iterations_used=outer_used,
+        dual_converged=dual_converged,
+        inner_iterations_last=getattr(final, "iterations", None),
         gamma_ref=gamma_ref,
         lambda_at_lower_bound=lower_active,
         lambda_at_upper_bound=upper_active,
@@ -879,6 +1018,8 @@ def solve_finite_pool(
             "representation": rep.info().__dict__,
             "aggregation": aggregation,
             "inner_solver": inner_solver,
+            "dual_tol": dual_tol,
+            "dual_solver": dual_solver,
             # Top-level `beta` is what the Eq. (26) pair builder reads. It is the
             # opponent temperature, so it exists only for a representation that
             # HAS an adaptive opponent; fixed_reference and bt_reward record None
