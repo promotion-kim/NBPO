@@ -11,6 +11,8 @@ experiments/*
 results/
 !nbpo_iclr/results/
 !nbpo_iclr/results/**
+!results/iclr2027_table1_v2/
+!results/iclr2027_table1_v2/**
 outputs/
 wandb/
 mlxp/
