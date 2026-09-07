@@ -110,6 +110,27 @@ templates:
 
     '
   extra_system: __PROCEDURE__
+- id: t2
+  user_template: 'Compare these two answers on the stated objective only.
+
+
+    USER ASKED:
+
+    {prompt}
+
+
+    CANDIDATE A:
+
+    {a}
+
+
+    CANDIDATE B:
+
+    {b}
+
+
+    Which is materially better on that objective? Verdict: '
+  extra_system: __PROCEDURE__
 max_tokens: 512
 decoding:
   temperature: 0.0
@@ -118,9 +139,11 @@ decoding:
 order_gap_threshold: 0.25
 entropy_threshold: 0.9
 max_templates_when_unstable: 3
-template_note: two of the frozen P2 templates, which differ in WORDING. Kept at two so P2-long and P2-balanced
-  cost the same four renderings per pair and the contrast is wording variation versus analysis-order variation,
-  not budget.
+template_note: the frozen P2's three templates, restored. An earlier version cut them to two so P2-long
+  and P2-balanced would cost the same; an ablation on the identical 800 controls showed that cost the
+  deterministic gate on truthfulness (0.960 with t0,t1,t2 -> 0.880 with t0,t1 -> 0.860 after the budget
+  repair), so the budget repair accounted for 0.02 of a 0.10 drop and the template cut for 0.08. Cost
+  is the LAST selection criterion; accuracy is not traded for it.
 stop_after_marker: true
 retry_max_tokens: 1024
 always_all_templates: true

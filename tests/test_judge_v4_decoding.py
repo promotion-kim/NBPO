@@ -84,10 +84,10 @@ def test_p2_long_changes_only_decoding_from_the_frozen_p2():
     """P2-long must be attributable to budget alone, so every semantic field is
     byte-identical to the frozen v3 protocol.
 
-    Its template LIST is a prefix subset of the frozen one -- two of three -- so
-    that P2-long and P2-balanced cost the same four renderings per pair. That is
-    a budget-parity decision, not a semantic one: each retained template is
-    byte-identical to the frozen version of itself, which is what this asserts.
+    Including the template list. An earlier version cut it to two for cost parity
+    with P2-balanced, and an ablation showed that cost the deterministic gate on
+    truthfulness; cost is the last selection criterion, so accuracy is not traded
+    for it.
     """
     import yaml
     frozen = yaml.safe_load(Path("experiments/iclr2027_table1_v2/judge_protocol_v3/protocol.yaml").read_text())
@@ -95,37 +95,47 @@ def test_p2_long_changes_only_decoding_from_the_frozen_p2():
     for k in ("common_system", "verdict_instruction", "labels", "rubric_file",
               "rubric_sha256", "objective_procedures", "kind"):
         assert lng[k] == frozen[k], k
-    assert len(lng["templates"]) == 2
-    assert lng["templates"] == frozen["templates"][:2]
+    assert lng["templates"] == frozen["templates"]
     assert lng["decoding"] == frozen["decoding"]
 
 
-def test_both_v4_candidates_cost_the_same_number_of_renderings():
-    """Otherwise the comparison would be confounded by budget."""
+def test_both_v4_candidates_share_the_decoding_repair():
+    """They may differ in template count -- cost is the last criterion -- but the
+    decoding repair under test must be identical, or the comparison is about
+    something else."""
     import yaml
     a = yaml.safe_load((V4 / "P2_long.yaml").read_text())
     b = yaml.safe_load((V4 / "P2_balanced.yaml").read_text())
-    assert len(a["templates"]) == len(b["templates"]) == 2
-    assert a["max_tokens"] == b["max_tokens"]
-    assert a["retry_max_tokens"] == b["retry_max_tokens"]
+    assert a["max_tokens"] == b["max_tokens"] == 512
+    assert a["retry_max_tokens"] == b["retry_max_tokens"] == 1024
+    assert a["stop_after_marker"] == b["stop_after_marker"] is True
 
 
-def test_p2_balanced_templates_differ_only_in_analysis_order():
+def test_p2_balanced_pairs_each_wording_with_both_analysis_orders():
     import yaml
     bal = yaml.safe_load((V4 / "P2_balanced.yaml").read_text())
-    t0, t1 = bal["templates"]
-    assert t0["user_template"] == t1["user_template"]   # wording not confounded
-    assert "first assess Response A" in t0["extra_system"]
-    assert "first assess Response B" in t1["extra_system"]
-    assert t0["extra_system"].startswith("__PROCEDURE__")
-    assert t1["extra_system"].startswith("__PROCEDURE__")
+    by_wording = {}
+    for t in bal["templates"]:
+        by_wording.setdefault(t["user_template"], []).append(t["extra_system"])
+    assert len(by_wording) == 2                      # two distinct wordings
+    for variants in by_wording.values():
+        assert len(variants) == 2                    # each seen in both orders
+        assert any("first assess Response A" in v for v in variants)
+        assert any("first assess Response B" in v for v in variants)
+        assert all(v.startswith("__PROCEDURE__") for v in variants)
 
 
-def test_p2_balanced_produces_four_renderings_per_pair():
-    """Two templates x two presentation orders, none of them adaptively skipped."""
-    p = load_protocol(V4 / "P2_balanced.yaml")
-    assert len(p.templates) == 2
-    assert p.always_all_templates is True
+def test_p2_balanced_is_balanced_across_wording_and_analysis_order():
+    """Two wordings x two analysis orders, none adaptively skipped, so analysis
+    order is balanced by construction and wording diversity is not sacrificed."""
+    import yaml
+    b = yaml.safe_load((V4 / "P2_balanced.yaml").read_text())
+    ids = [t["id"] for t in b["templates"]]
+    assert ids == ["w0o0", "w0o1", "w1o0", "w1o1"]
+    a_first = [t for t in b["templates"] if "first assess Response A" in t["extra_system"]]
+    b_first = [t for t in b["templates"] if "first assess Response B" in t["extra_system"]]
+    assert len(a_first) == len(b_first) == 2
+    assert load_protocol(V4 / "P2_balanced.yaml").always_all_templates is True
 
 
 # --- semantic mapping survives the retry ------------------------------------

@@ -271,6 +271,10 @@ def main() -> None:
     ap.add_argument("--batch-size", type=int, default=256)
     ap.add_argument("--gpu-memory-utilization", type=float, default=0.90)
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--keep-raw", action="store_true",
+                    help="store the judge's full completion per observation. Off by "
+                         "default because it multiplies artifact size; essential when "
+                         "diagnosing what the judge actually emitted.")
     ap.add_argument("--no-adjudication", action="store_true")
     ap.add_argument("--all-templates", action="store_true",
                     help="score EVERY template on every pair in one pass. Calibration "
@@ -347,10 +351,16 @@ def main() -> None:
             "n_invalid_renderings": len(invalid),
             "expected_verdict": r.get("expected_verdict"),
             "family": r.get("family"),
+            # The whitelist previously dropped verdict_token_position, finish_reason
+            # and first_pass_invalid, so the columns that were supposed to show
+            # whether the token budget was adequate came out empty. Keep them.
             "observations": [{k: v for k, v in o.items()
                               if k in ("presentation_order", "template_id", "probs",
                                        "semantic_score", "normalized_entropy",
-                                       "hard_argmax", "pre_normalization_label_mass")}
+                                       "hard_argmax", "pre_normalization_label_mass",
+                                       "verdict_token_position", "finish_reason",
+                                       "first_pass_invalid", "retried_at_max_tokens")
+                              or (args.keep_raw and k == "raw_judge_output")}
                              for o in got],
         })
 
