@@ -440,6 +440,12 @@ def solve_kalai_smorodinsky(
 
     ir_violation = float(torch.clamp(-final_s, min=0.0).max())
     stage3_kl = proximal_divergence(final_sol.pi, pi_t)
+    # How nearly the rule actually equalized the ideal-normalized surpluses. This
+    # is KS's defining property, and it is not the same quantity as the Stage-1
+    # residual: a solve can sit exactly on its own rho* estimate while the
+    # normalized surpluses are still spread out, if the saddle point was under-
+    # converged. Reported so the two cannot be confused.
+    normalized_spread = float((final_s / u).max() - (final_s / u).min())
     return KSResult(
         weights=final_w * weight_l1,
         u_ideal=u,
@@ -456,6 +462,13 @@ def solve_kalai_smorodinsky(
         tau=float(tau),
         history=history,
         diagnostics={
+            "normalized_surplus_spread": normalized_spread,
+            "stage1_residual_sign_note": (
+                "rho_star minus the achieved min normalized surplus. NEGATIVE means the "
+                "returned point beats the Stage-1 estimate, which happens when the "
+                "Stage-1 saddle-point average was conservative and the Stage-2 tilt "
+                "improved on it -- not a constraint violation. Positive values above "
+                "`tolerance` are the ones that matter."),
             "stage1_weights": [float(a) for a in w_bar],
             "stage2_weights": [float(a) for a in w_tilt],
             "stage2_applied": bool(stage2_gain > 0.0),

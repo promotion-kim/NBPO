@@ -79,6 +79,21 @@ def test_stage3_reports_the_achieved_proximal_divergence(ks):
     assert ks.stage3_kl > 0.0 and torch.isfinite(torch.tensor(ks.stage3_kl))
 
 
+def test_equalization_spread_is_reported_separately_from_the_stage1_residual(ks):
+    """Two different things that both look like "how well did KS do".
+
+    The Stage-1 residual can be zero -- or negative, when the Pareto tilt beats
+    the saddle-point average -- while the normalized surpluses are still spread
+    out from an under-converged solve. The artifact reports both so neither can
+    stand in for the other.
+    """
+    spread = ks.diagnostics["normalized_surplus_spread"]
+    v = ks.normalized_surplus
+    assert spread == pytest.approx(float(v.max() - v.min()), abs=1e-12)
+    assert spread >= 0.0
+    assert "NEGATIVE means" in ks.diagnostics["stage1_residual_sign_note"]
+
+
 # --- independent reference implementation -----------------------------------
 
 def _brute_force_rho(rep, pi_t, eta, R, u, l1, steps=24):
