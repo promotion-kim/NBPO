@@ -51,6 +51,10 @@ experiments/iclr2027_table1_v2/*
 !experiments/iclr2027_table1_v2/judge_audit_v2/
 !experiments/iclr2027_table1_v2/judge_audit_v3_holdout/
 !experiments/iclr2027_table1_v2/judge_protocol_v3/
+!experiments/iclr2027_table1_v2/v4_dev_analysis/
+!experiments/iclr2027_table1_v2/quarantine/
+!experiments/iclr2027_table1_v2/judge_protocol_v4/
+!experiments/iclr2027_table1_v2/splits_judge_v4/
 !experiments/iclr2027_table1_v2/calibration/
 # Calibration RUNS: keep the small reports and run manifests, leave the raw
 # per-pair judgment rows out (they are judgment artifacts, and Section K says

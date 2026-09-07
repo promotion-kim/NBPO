@@ -153,6 +153,12 @@ class Protocol:
     entropy_threshold: float = 0.90
     max_templates_when_unstable: int = 3
     max_tokens: int = 1
+    # Decoding robustness (v4). The v3 failure was purely a budget one: a
+    # deliberative rationale often ran past 96 tokens and the verdict marker was
+    # never emitted, so 4-21% of pairs had no verdict at all.
+    stop_after_marker: bool = False
+    retry_max_tokens: int = 0        # 0 = no deterministic retry
+    always_all_templates: bool = False
     rationale_tokens: int = 64
     verdict_cue: str = "\nVerdict: "
     decoding: dict = field(default_factory=dict)
@@ -171,6 +177,9 @@ class Protocol:
             "order_gap_threshold": self.order_gap_threshold,
             "entropy_threshold": self.entropy_threshold,
             "max_tokens": self.max_tokens, "decoding": self.decoding,
+            "stop_after_marker": self.stop_after_marker,
+            "retry_max_tokens": self.retry_max_tokens,
+            "always_all_templates": self.always_all_templates,
             "rationale_tokens": self.rationale_tokens, "verdict_cue": self.verdict_cue,
         }, sort_keys=True).encode()
         return hashlib.sha256(payload).hexdigest()
@@ -188,6 +197,10 @@ class Protocol:
                 "entropy_threshold": self.entropy_threshold,
                 "max_templates_when_unstable": self.max_templates_when_unstable,
                 "n_templates": len(self.templates),
+                "max_tokens": self.max_tokens,
+                "stop_after_marker": self.stop_after_marker,
+                "retry_max_tokens": self.retry_max_tokens,
+                "always_all_templates": self.always_all_templates,
                 "decoding": self.decoding}
 
 
@@ -224,6 +237,9 @@ def load_protocol(path: Path) -> Protocol:
         entropy_threshold=float(cfg.get("entropy_threshold", 0.90)),
         max_templates_when_unstable=int(cfg.get("max_templates_when_unstable", 3)),
         max_tokens=int(cfg.get("max_tokens", 1)),
+        stop_after_marker=bool(cfg.get("stop_after_marker", False)),
+        retry_max_tokens=int(cfg.get("retry_max_tokens", 0)),
+        always_all_templates=bool(cfg.get("always_all_templates", False)),
         rationale_tokens=int(cfg.get("rationale_tokens", 64)),
         verdict_cue=cfg.get("verdict_cue", "\nVerdict: "),
         decoding=cfg.get("decoding", {}))

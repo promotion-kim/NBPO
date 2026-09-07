@@ -81,10 +81,13 @@ def build_renderings(protocol, rubric_cfg, pairs, template_ids):
             if tpl["id"] not in template_ids:
                 continue
             t = dict(tpl)
-            if protocol.kind == "P2" and t.get("extra_system") == "__PROCEDURE__":
+            extra = t.get("extra_system") or ""
+            if protocol.kind == "P2" and "__PROCEDURE__" in extra:
                 procs = yaml.safe_load(protocol_path_cache["raw"]).get(
                     "objective_procedures") or {}
-                t["extra_system"] = procs.get(pair["objective"], "")
+                # substitute in place so an appended analysis-order clause is kept
+                t["extra_system"] = extra.replace(
+                    "__PROCEDURE__", procs.get(pair["objective"], ""))
             for order in (FORWARD, REVERSE):
                 a, b = ((pair["response_a"], pair["response_b"]) if order == FORWARD
                         else (pair["response_b"], pair["response_a"]))
@@ -172,20 +175,53 @@ class VllmRunner:
                 top_p=float(d.get("top_p", 1.0)), top_k=int(d.get("top_k", -1)),
                 logprobs=len(self.label_ids), allowed_token_ids=list(self.label_ids))
         else:
-            params = self.SamplingParams(
-                max_tokens=self.protocol.max_tokens,
-                temperature=float(d.get("temperature", 0.0)),
-                top_p=float(d.get("top_p", 1.0)), top_k=int(d.get("top_k", -1)))
+            params = self._marker_params(self.protocol.max_tokens)
         results = []
         for i in range(0, len(renderings), self.batch_size):
             chunk = renderings[i:i + self.batch_size]
             prompts = [self._chat(r["system"], r["user"]) for r in chunk]
             gen = self.llm.generate(prompts, params, use_tqdm=False)
-            for r, g in zip(chunk, gen):
-                results.append(self._to_observation(r, g))
+            batch = [self._to_observation(r, g) for r, g in zip(chunk, gen)]
+
+            # Deterministic single retry at a larger budget, for renderings whose
+            # rationale ran past the cap before the marker. Same rendering, same
+            # temperature -- the only change is headroom. A verdict is NEVER
+            # inferred from a truncated rationale and an invalid output is NEVER
+            # converted to TIE; it stays invalid and is counted.
+            if self.protocol.retry_max_tokens and self.protocol.kind != "P1":
+                need = [k for k, o in enumerate(batch) if not o.get("valid")]
+                if need:
+                    rp = self._marker_params(self.protocol.retry_max_tokens)
+                    regen = self.llm.generate([prompts[k] for k in need], rp,
+                                              use_tqdm=False)
+                    for k, g2 in zip(need, regen):
+                        o2 = self._to_observation(chunk[k], g2)
+                        o2["first_pass_invalid"] = True
+                        o2["retried_at_max_tokens"] = self.protocol.retry_max_tokens
+                        batch[k] = o2
+                    print(f"    retried {len(need)} unparsed renderings at "
+                          f"{self.protocol.retry_max_tokens} tokens", flush=True)
+            results.extend(batch)
             print(f"    scored {min(i + self.batch_size, len(renderings))}"
                   f"/{len(renderings)}", flush=True)
         return results
+
+    def _marker_params(self, max_tokens):
+        """Sampling params that stop at the first complete verdict marker.
+
+        `include_stop_str_in_output` keeps the marker in the text -- without it
+        the stop string is trimmed and the very thing being parsed disappears.
+        Stopping on the three FULL markers rather than on `]]` avoids halting on
+        a bracket that happens to occur inside the rationale.
+        """
+        d = self.protocol.decoding
+        kw = dict(max_tokens=int(max_tokens),
+                  temperature=float(d.get("temperature", 0.0)),
+                  top_p=float(d.get("top_p", 1.0)), top_k=int(d.get("top_k", -1)))
+        if self.protocol.stop_after_marker:
+            kw["stop"] = ["[[A]]", "[[B]]", "[[TIE]]"]
+            kw["include_stop_str_in_output"] = True
+        return self.SamplingParams(**kw)
 
     def _to_observation(self, rendering, gen, force_p1: bool = False):
         out = gen.outputs[0]
@@ -206,11 +242,17 @@ class VllmRunner:
         else:
             verdict = parse_marker(out.text)
             if verdict is None:
-                return {**rendering, "valid": False, "reason": "unparseable",
-                        "raw_judge_output": out.text}
+                # No marker: the rationale was cut off, or the model never
+                # committed. Either way this is invalid, not a tie.
+                return {**rendering, "valid": False, "reason": "no_verdict_marker",
+                        "raw_judge_output": out.text,
+                        "n_output_tokens": len(out.token_ids),
+                        "finish_reason": getattr(out, "finish_reason", None)}
             obs = build_observation(hard_probs_from_verdict(verdict),
                                     rendering["presentation_order"],
                                     rendering["template_id"], raw=out.text)
+            obs["verdict_token_position"] = len(out.token_ids)
+            obs["finish_reason"] = getattr(out, "finish_reason", None)
         obs.update({"pair_id": rendering["pair_id"], "objective": rendering["objective"],
                     "valid": True})
         return obs
@@ -256,7 +298,8 @@ def main() -> None:
     print("tokenization verified:", json.dumps(tok_report), flush=True)
 
     t0 = time.time()
-    base_templates = ({t["id"] for t in protocol.templates} if args.all_templates
+    force_all = args.all_templates or protocol.always_all_templates
+    base_templates = ({t["id"] for t in protocol.templates} if force_all
                       else {protocol.templates[0]["id"]})
     print(f"[pass 1] {len(rows)} pairs x 2 orders under template "
           f"{sorted(base_templates)}", flush=True)
@@ -267,7 +310,7 @@ def main() -> None:
         by_pair.setdefault(o["pair_id"], []).append(o)
 
     adjudicated = set()
-    if (not args.no_adjudication and not args.all_templates
+    if (not args.no_adjudication and not force_all
             and protocol.kind != "P0" and len(protocol.templates) > 1):
         unstable = []
         for r in rows:
@@ -323,8 +366,12 @@ def main() -> None:
         "n_adjudicated": len(adjudicated),
         "wall_clock_seconds": round(time.time() - t0, 1),
         "input": str(args.controls or args.pairs),
-        "adjudication_enabled": not args.no_adjudication and not args.all_templates,
-        "all_templates_mode": bool(args.all_templates),
+        "adjudication_enabled": not args.no_adjudication and not force_all,
+        "all_templates_mode": bool(force_all),
+        "first_pass_invalid_renderings": sum(
+            1 for v in by_pair.values() for o in v if o.get("first_pass_invalid")),
+        "final_unresolved_invalid_renderings": sum(
+            1 for v in by_pair.values() for o in v if not o.get("valid")),
         "templates_scored": sorted(base_templates),
     }, indent=2))
     print(f"\nwrote {args.out_dir / f'{tag}_results.jsonl'} "
