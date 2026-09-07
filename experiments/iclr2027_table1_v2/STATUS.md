@@ -17,8 +17,10 @@ their log path, and no number is quoted from them.
 | benchmark decontamination | **pass** — 8 exact + 2 approximate removed against all five benchmarks |
 | Game-KS properties | **pass** — 14 property tests incl. an independent grid-search check |
 | 50-prompt smoke: pools | **pass** — 8 response files, 2 fingerprint-bound manifests |
-| 50-prompt smoke: judging | **running** |
-| 200-prompt judge audit | not started (needs the smoke judgment bank) |
+| 50-prompt smoke: judging | **pass** — 8800 calls, 0 % invalid, 0 retries |
+| judge audit: parse rate | **pass** — 0.000 % invalid (gate < 0.2 %) |
+| judge audit: cell completeness | **pass** — every semantic pair judged in both orders |
+| judge audit: **swap consistency** | **FAIL** — 0.59–0.70 against a 0.85 gate. Diagnosed, not lowered. See below. |
 | regression-realization gate | not started (needs the pilot) |
 | final seeds 42/43/44 | not started |
 
@@ -56,9 +58,52 @@ policy and exit sentinels, so `status` stays honest after a crash.
 
 | run | where | log |
 |---|---|---|
-| 50-prompt smoke judging, Qwen3-32B TP=2, GPUs 0–1 | pod `nbpo-judge` | `/work/iclr27_table1_v2/logs/smoke_judge.log` |
+| rubric diagnostic (v1@16 tokens, v2@64 tokens), Qwen3-32B TP=2 | pod `nbpo-judge`, GPUs 0–1 | `/work/iclr27_table1_v2/logs/diag_judge.log` |
+| 70B cross-judge of the same pairs (chained behind it) | pod `nbpo-judge`, GPUs 0–1 | `/work/iclr27_table1_v2/logs/diag_70b.log` |
 
-Pool generation finished at 02:49:28 PDT (both pools, ~3 min on one GPU).
+Completed on the pod: both response pools (02:46–02:49 PDT, one GPU) and the
+50-prompt training judgment bank (02:51–02:57 PDT, Qwen3-32B TP=2) —
+8800 rows at `/work/iclr27_table1_v2/smoke/verdicts.jsonl`.
+
+## The swap-consistency gate fails, and what the diagnosis says
+
+On the 50-prompt smoke bank the swap-consistent winner rate — agreement over the
+pairs **both presentation orders decided** — is 0.696 / 0.663 / 0.645 / 0.592
+for instruction-following, truthfulness, helpfulness and honesty. The gate is
+0.85. It has not been lowered, and no result is being reported through it.
+
+What has been ruled out so far, each by measurement rather than by argument:
+
+* **Parsing.** 0 of 8800 calls failed to parse and none needed a retry. The
+  regex takes the last `[[A]]/[[B]]/[[TIE]]` marker, and `to_policy_win` maps
+  the shown order back to the learner's point of view; both were re-read.
+* **Position bias.** +0.145 for helpfulness and within ±0.04 for the other
+  three. A judge that simply favoured the first slot would show +1.
+* **Thinking mode / truncation.** `enable_thinking: false` is applied *and*
+  recorded, and every completion contains a verdict marker inside 16 tokens.
+* **The rubric.** Re-judging the identical pool with the **v1** rubric at the
+  same 16-token budget gives **86.5 % unparseable** — v1's phrasing makes the
+  judge write a preamble, and the published campaigns used a 512-token budget
+  with it. v2 is 0 % at 16 tokens. So v2 is strictly better on the axis it was
+  meant to fix, and the consistency number is not a v2 artifact.
+
+The live hypothesis is the **pool**, not the judge: eight samples from one 8B
+model on one prompt are frequently near-equal, and a judge asked which is
+*materially* better on a narrow criterion has little to latch onto. The tie
+rates say the same thing — 0.40 to 0.66 swap-averaged, and 580 of 1100 honesty
+pairs are ties in both orders. Under that reading the low consistency is the
+measurement being honest about indifference, and swap averaging is doing exactly
+the job it exists for.
+
+That hypothesis is being tested directly: the same pairs, same rubric, same
+decoding, judged by **Llama-3.3-70B** (`/work/models/xj_judges/llama70`, TP=2,
+`--judge-role monitoring` so it can never be mistaken for the training bank). If
+a far stronger judge lands near 0.65 the cause is the pool; if it reaches 0.85
+the cause is Qwen3-32B. **That run is in flight and no conclusion is drawn from
+it here.**
+
+Whichever way it resolves, the full labelling run stays blocked until the gate
+is met or the protocol's threshold is revised deliberately and on the record.
 
 ## Findings worth carrying forward
 
@@ -86,6 +131,18 @@ Pool generation finished at 02:49:28 PDT (both pools, ~3 min on one GPU).
    reported as-is.
 6. **UltraFeedback is more redundant than the pair-level split implied**: 552
    multi-prompt groups, the largest with 103 members.
+7. **A 16-token judge budget is only viable with the v2 rubric.** v1 at 16
+   tokens is 86.5 % unparseable; it was always run at 512. Anyone re-running a
+   published panel must keep v1's 512-token budget.
+8. **The bank now keeps the raw completion.** It did not, and the first question
+   a bad consistency number raises — what did the judge actually say? — was
+   unanswerable without re-running everything.
+9. **Objectives agree more than they conflict here**: pairwise correlations of
+   the swap-averaged margins run +0.56 to +0.73, and hard directed-cycle rates
+   are 0.000–0.0025 at the predeclared 0.1 margin. Consistent with the earlier
+   finding that these criterion judges are close to transitive, so any
+   bargaining effect has to come from magnitude disagreement rather than from
+   intransitivity.
 
 ## Blockers
 
