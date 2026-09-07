@@ -140,6 +140,42 @@ is empty and the Nash program is infeasible on the same pool. That writes
 `solution_blocked.json` with diagnostics and exits nonzero. It is a property of
 the stage, not a bug — do not work around it by clamping surpluses.
 
+## The judge audit
+
+```bash
+$K 'cd /work/iclr27_table1_v2/code && python3 judge_audit.py \
+      --verdicts /work/iclr27_table1_v2/smoke/verdicts.jsonl \
+      --out-dir  /work/iclr27_table1_v2/smoke/judge_audit'
+```
+
+Exits nonzero when a gate fails, and writes `report.json` + `report.md`. The
+gates live in `GATES` at the top of the file so that changing one is a visible
+diff rather than a flag someone passed once.
+
+Read `swap_consistent_winner_rate` and nothing else as *the* consistency number:
+it is agreement over the pairs **both presentation orders decided**. The two
+neighbours are there to stop the wrong one being quoted —
+`exact_agreement_rate` counts both-tie agreement and so flatters a judge that
+ties everything, and `one_order_tie_rate` is partial agreement rather than
+contradiction. `contradiction_rate` is the one that indicts a judge.
+
+Two diagnostics exist for when it fails, and both are on the pod:
+
+```bash
+# same pool, same judge, only the rubric changes
+$K 'cd /work/iclr27_table1_v2/code && CUDA_VISIBLE_DEVICES=0,1 bash diag_judge.sh'
+# same pool, same rubric, only the judge changes (Llama-3.3-70B, TP=2)
+$K 'cd /work/iclr27_table1_v2/code && CUDA_VISIBLE_DEVICES=0,1 bash diag_70b.sh'
+# compact per-objective swap-consistency table for any bank
+$K 'python3 /work/iclr27_table1_v2/code/swapdiag.py <verdicts.jsonl>'
+```
+
+**Do not run the v1 rubric at a 16-token judge budget.** It is 86.5 %
+unparseable on the first pass and leaves 6684 of 8800 cells invalid after two
+retries, at which point the judging CLI refuses to write a matrix with holes in
+it. v1 was always run at 512 tokens; v2 is what the 16-token budget was designed
+for.
+
 ## The launcher
 
 ```bash
