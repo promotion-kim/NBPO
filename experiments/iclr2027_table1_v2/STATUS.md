@@ -23,7 +23,11 @@ their log path, and no number is quoted from them.
 | judge audit: **swap consistency (v2)** | **FAIL** — 0.59–0.70 against a 0.85 gate. Diagnosed, not lowered; v2 is retired. |
 | v2 swap mapping correct | **pass** — six hand-constructed cases + exact skew symmetry |
 | v3 calibration controls built | **pass** — 800 controls, 800 distinct prompts, zero split/benchmark overlap |
-| v3 candidate protocols calibrated | **pass** — P0/P1/P2 on the adaptive pass; all-templates pass and P3 **running** |
+| v3 candidate protocols calibrated | **pass** — P0/P1/P2/P3, adaptive and all-templates passes |
+| v3 protocol frozen | **pass** — P2_deliberative, 2 gates recorded open at freeze |
+| **Section F holdout (200 prompts)** | **FAIL** — confident swap 0.70–0.77 against 0.85; position bias up to +0.19 |
+| Section G target stability | not run — F failed first, and it needs an all-templates holdout |
+| Section I pool-size pilot (4+4 vs 8+8) | **running** |
 | 50-prompt smoke: tensors | **pass** — measured `d`, exact skew-symmetric reference tensor |
 | 50-prompt smoke: solves | **pass** — 4 matched rows, identity residual ≤ 3.6e-15, matched ‖w‖₁ and KL |
 | regression-realization gate | not started (needs the pilot) |
@@ -129,6 +133,50 @@ A tokenization note that was not a formality: under the Qwen3 tokenizer `TIE` is
 candidates would have been silently wrong. The verified single-token sentinels
 are `A`=32, `B`=33, `T`=51, re-checked in context at load time and mapped back to
 A/B/TIE in every artifact.
+
+## Section F — the frozen protocol fails on real pairs
+
+17600 pairs over 200 held-out validation prompts (disjoint from train, test and
+the calibration controls), 56548 judge calls, 24 minutes. The gates fail, and
+the *shape* of the failure is the finding:
+
+| objective | confident swap: controls → real | position bias: controls → real |
+|---|---|---|
+| helpfulness | 0.973 → **0.727** | +0.013 → **+0.156** |
+| instruction following | 0.917 → **0.703** | +0.062 → **+0.193** |
+| honesty | 0.927 → 0.774 | +0.013 → +0.049 |
+| truthfulness | 0.891 → 0.772 | −0.009 → +0.040 |
+
+Same frozen protocol, same judge, same rubric — only the pairs differ. **The
+judge is reliable when a real difference exists and unstable when it does not.**
+That is Section I's branch, reached by measurement rather than assumption.
+
+Also failing: unresolved uncertainty 0.25–0.32 against a 0.25 ceiling, and
+split-half Spearman below 0.75 everywhere. The template split (0.42–0.44) is
+measured only on the adjudicated subset — by construction the unstable pairs —
+so it is biased low; the order split (0.54–0.62) is unbiased and still short.
+
+Cycles are low on reliable edges (0.000–0.016), BT deviance 0.07–0.09. So
+intransitivity is *not* what drives this, consistent with the earlier finding
+that these criterion judges are close to transitive.
+
+One number in the first run of this audit was a bug of mine, not a judge result:
+the order split-half came out negative, which is impossible. `semantic_score` is
+already learner-oriented in both orders and I had written the reverse estimate
+as `0.5 - score`, double-flipping it. Fixed and pinned with a test.
+
+## Section I — pool-size pilot, running
+
+The remedy under test is **more samples from the same frozen reference**, not a
+different comparator checkpoint (which the instruction rules out). 100 fresh
+validation prompts, disjoint from everything above:
+
+* 4+4 — 22 pairs per prompt per objective (current geometry)
+* 8+8 — 92 pairs per prompt per objective
+
+Seeds are *extended* rather than changed, so the 4+4 arm is a strict subset of
+the 8+8 one and the comparison is not confounded by different responses. **No
+result is quoted here; the run is in flight.**
 
 ## The solver leg, on the real judged bank
 
