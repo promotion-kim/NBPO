@@ -7,7 +7,7 @@ nhn/
 .conda_tex_default/
 .vllm051_pkgs/
 data/
-experiments/
+experiments/*
 results/
 !nbpo_iclr/results/
 !nbpo_iclr/results/**
@@ -27,3 +27,26 @@ hf_cache/
 *.blg
 *.out
 *.synctex.gz
+
+# --- ICLR-2027 Table-1 rebuild ---
+# `experiments/` above is a blanket exclusion for large artifacts, and it also
+# swallowed `scripts/experiments/` -- which is source, not output. Re-include the
+# source tree, and re-include the small records that ARE the scientific
+# account of a run (audit, status, runbook, split manifests, decontamination
+# report, frozen configs, run registry) while leaving decodes, judgments,
+# checkpoints, logs and PID files out.
+!scripts/experiments/
+!scripts/experiments/**
+scripts/experiments/**/__pycache__/
+!experiments/iclr2027_table1_v2/
+experiments/iclr2027_table1_v2/*
+!experiments/iclr2027_table1_v2/*.md
+!experiments/iclr2027_table1_v2/run_registry.jsonl
+!experiments/iclr2027_table1_v2/run_registry.csv
+!experiments/iclr2027_table1_v2/splits/
+!experiments/iclr2027_table1_v2/configs_frozen/
+!experiments/iclr2027_table1_v2/judge_audit/
+!experiments/iclr2027_table1_v2/plans/
+experiments/iclr2027_table1_v2/judge_audit/*
+!experiments/iclr2027_table1_v2/judge_audit/report.json
+!experiments/iclr2027_table1_v2/judge_audit/report.md
