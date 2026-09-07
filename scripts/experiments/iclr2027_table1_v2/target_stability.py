@@ -65,25 +65,34 @@ def spearman(x, y):
     return pearson(rank(x), rank(y))
 
 
-def half_delta(obs, mode, which):
-    """Delta from one half of the observations, both mapped to learner orientation."""
-    if mode == "order":
-        sel = [o for o in obs if o["presentation_order"] ==
-               (FORWARD if which == "a" else REVERSE)]
-    else:
-        tids = sorted({o["template_id"] for o in obs})
-        if len(tids) < 2:
-            return None
-        keep = {tids[0]} if which == "a" else set(tids[1:])
-        sel = [o for o in obs if o["template_id"] in keep]
+VIEWS = {
+    # forward/reverse average ACROSS templates; t0/t1 average ACROSS orders. Each
+    # view therefore marginalises the other factor rather than confounding it.
+    "forward": lambda o, t: o["presentation_order"] == FORWARD,
+    "reverse": lambda o, t: o["presentation_order"] == REVERSE,
+    "t0": lambda o, t: o["template_id"] == t[0],
+    "t1": lambda o, t: o["template_id"] == t[1] if len(t) > 1 else False,
+}
+
+
+def view_delta(obs, view, template_ids):
+    """Delta from one view, all observations mapped to learner orientation."""
+    keep = VIEWS[view]
+    sel = [o for o in obs if keep(o, template_ids)]
     if not sel:
         return None
     # semantic_score is already the learner's win probability in BOTH orders
     return sum(o["semantic_score"] for o in sel) / len(sel) - 0.5
 
 
-def build_tensors(rows, meta, mode, which, objectives):
-    """(A_policy, A_ref, prompt_ids) from one half, keeping only complete prompts."""
+def half_delta(obs, mode, which):
+    return view_delta(obs, {"order": ("forward", "reverse"),
+                            "template": ("t0", "t1")}[mode][0 if which == "a" else 1],
+                      sorted({o["template_id"] for o in obs}))
+
+
+def build_tensors(rows, meta, mode, which, objectives, view=None, template_ids=None):
+    """(A_policy, A_ref, prompt_ids) from one view, keeping only complete prompts."""
     cross, ref = defaultdict(dict), defaultdict(dict)
     for r in rows:
         if not r.get("valid"):
@@ -91,7 +100,10 @@ def build_tensors(rows, meta, mode, which, objectives):
         m = meta.get(r["pair_id"])
         if m is None:
             continue
-        d = half_delta(r.get("observations") or [], mode, which)
+        obs = r.get("observations") or []
+        tids = template_ids or sorted({o["template_id"] for o in obs})
+        d = (view_delta(obs, view, tids) if view is not None
+             else half_delta(obs, mode, which))
         if d is None:
             continue
         key = (m["objective"], m["prompt_id"])
@@ -192,28 +204,50 @@ def main() -> None:
     out = {"config": {"beta": args.beta, "eta": args.eta, "M": args.dual_iterations,
                       "R": args.fixed_point_iterations, "objectives": objectives},
            "splits": {}}
-    for mode in ("order", "template"):
-        Aa, Ra, pa, lids, cids = build_tensors(rows, meta, mode, "a", objectives)
-        Ab, Rb, pb, _, _ = build_tensors(rows, meta, mode, "b", objectives)
+    template_ids = sorted({o["template_id"] for r in rows if r.get("valid")
+                           for o in (r.get("observations") or [])})
+    out["template_ids"] = template_ids
+    n_attempted = len(rows)
+
+    built = {}
+    for view in ("forward", "reverse", "t0", "t1"):
+        A, R, pr, lids, cids = build_tensors(rows, meta, None, None, objectives,
+                                             view=view, template_ids=template_ids)
+        built[view] = (A, R, pr)
+        out.setdefault("views", {})[view] = {
+            "complete_prompts": 0 if A is None else len(pr),
+            "learner_ids": lids, "comparator_ids": cids}
+        print(f"[{view}] {0 if A is None else len(pr)} complete prompts", flush=True)
+
+    for label, (va, vb) in (("order", ("forward", "reverse")),
+                            ("template", ("t0", "t1"))):
+        Aa, Ra, pa = built[va]
+        Ab, Rb, pb = built[vb]
         if Aa is None or Ab is None:
-            out["splits"][mode] = {"status": "no complete prompt in both halves"}
+            out["splits"][label] = {"status": f"view {va} or {vb} has no complete prompt"}
             continue
         common = sorted(set(pa) & set(pb))
-        ia = [pa.index(p) for p in common]
-        ib = [pb.index(p) for p in common]
-        Aa, Ra = Aa[:, ia], Ra[:, ia]
-        Ab, Rb = Ab[:, ib], Rb[:, ib]
-        entry = {"n_prompts_complete_in_both_halves": len(common),
-                 "learner_ids": lids, "comparator_ids": cids}
-        for kind, label in (("adaptive_game", "NBPO"),
-                            ("fixed_reference", "Fixed-reference Nash")):
-            sa = solve(Aa, Ra, args.beta, args.eta, args.dual_iterations,
+        Aa2, Ra2 = Aa[:, [pa.index(p) for p in common]], Ra[:, [pa.index(p) for p in common]]
+        Ab2, Rb2 = Ab[:, [pb.index(p) for p in common]], Rb[:, [pb.index(p) for p in common]]
+        entry = {"views": [va, vb],
+                 "n_prompts_complete_in_both_views": len(common),
+                 "complete_tensor_prompt_coverage": len(common) / max(1, len(
+                     {meta[r["pair_id"]]["prompt_id"] for r in rows
+                      if r["pair_id"] in meta}))}
+        for kind, name in (("adaptive_game", "NBPO"),
+                           ("fixed_reference", "Fixed-reference Nash")):
+            sa = solve(Aa2, Ra2, args.beta, args.eta, args.dual_iterations,
                        args.fixed_point_iterations, kind)
-            sb = solve(Ab, Rb, args.beta, args.eta, args.dual_iterations,
+            sb = solve(Ab2, Rb2, args.beta, args.eta, args.dual_iterations,
                        args.fixed_point_iterations, kind)
-            entry[label] = compare(sa, sb, Aa, Ab, objectives)
-        out["splits"][mode] = entry
-        print(f"[{mode}] {len(common)} prompts complete in both halves", flush=True)
+            m = compare(sa, sb, Aa2, Ab2, objectives)
+            # an aggregate surplus that changes SIGN between views would flip the
+            # feasibility verdict of the whole stage, so it is called out
+            m["aggregate_surplus_sign_changes"] = [
+                o for k, o in enumerate(objectives)
+                if (float(sa.surplus[k]) > 0) != (float(sb.surplus[k]) > 0)]
+            entry[name] = m
+        out["splits"][label] = entry
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     (args.out_dir / "target_stability.json").write_text(json.dumps(out, indent=2))
@@ -221,13 +255,19 @@ def main() -> None:
     GATES = {"forward_vs_reverse_target_pearson_min": 0.90,
              "forward_vs_reverse_target_sign_agreement_min": 0.85,
              "template_split_half_target_pearson_min": 0.90,
-             "template_split_half_target_sign_agreement_min": 0.85}
+             "template_split_half_target_sign_agreement_min": 0.85,
+             "complete_tensor_prompt_coverage_min": 0.99}
     fails = []
     for mode, gp, gs in (("order", "forward_vs_reverse_target_pearson_min",
                           "forward_vs_reverse_target_sign_agreement_min"),
                          ("template", "template_split_half_target_pearson_min",
                           "template_split_half_target_sign_agreement_min")):
         e = out["splits"].get(mode, {})
+        cov = e.get("complete_tensor_prompt_coverage")
+        if cov is not None and cov < GATES["complete_tensor_prompt_coverage_min"]:
+            fails.append(f"{mode}: complete-tensor prompt coverage {cov:.3f} < "
+                         f"{GATES['complete_tensor_prompt_coverage_min']} -- the stability "
+                         "estimate would rest on the residue of a partly failed run")
         for label in ("NBPO", "Fixed-reference Nash"):
             m = e.get(label)
             if not m:
