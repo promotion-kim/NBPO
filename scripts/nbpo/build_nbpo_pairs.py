@@ -65,6 +65,31 @@ def flip_pair_row(row: dict) -> dict:
     return flipped
 
 
+def resolve_opponent_betas(solution: dict):
+    """The opponent temperatures to stamp on every pair row, or ``None``.
+
+    Only the adaptive-game representation has an opponent temperature: its
+    ``nu_update`` is the KL-regularized best response at ``beta`` (Eq. (7)). A
+    fixed-reference solve compares against ``mu`` and a scalar-reward solve has
+    no opponent at all, so those rows must carry ``opponent_beta: null`` rather
+    than a number the solve never used.
+
+    An adaptive-game artifact that does not record its beta is refused: the
+    opponent that produced ``nu_update`` would be unidentifiable, and every row
+    built from it would be unauditable.
+    """
+    raw = (solution.get("config") or {}).get("beta")
+    representation = solution.get("representation", "adaptive_game")
+    if raw is None:
+        if representation == "adaptive_game":
+            raise KeyError(
+                "solution.json declares representation 'adaptive_game' but records no "
+                "config.beta; the opponent temperature that produced nu_update cannot "
+                "be identified, so the Eq. (26) rows would be unauditable")
+        return None
+    return np.asarray(raw, dtype=np.float64)
+
+
 def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_seed_of,
                rng, target_mode, meta_ids, provenance):
     """One row per (prompt, unordered learner pair); deterministic given the RNG."""
@@ -110,7 +135,8 @@ def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_see
                 "nbpo_weighted_z": float(sum(lam[k] * z[obj] for k, obj in enumerate(objectives))),
                 "lambda_raw": {obj: float(lam[k]) for k, obj in enumerate(objectives)},
                 "opponent_response_id": opp,
-                "opponent_beta": {obj: float(betas[k]) for k, obj in enumerate(objectives)},
+                "opponent_beta": (None if betas is None else
+                                  {obj: float(betas[k]) for k, obj in enumerate(objectives)}),
                 "opponent_sampling_scope": "pair_objective",
                 "target_mode": target_mode,
                 **provenance,
@@ -304,7 +330,7 @@ def build_pairs_from_artifacts(tensor_dir: Path, solver_dir: Path, policy_file_s
     nu = np.load(solver_dir / "nu_update.npz")["nu"]
     objectives = meta["objectives"]
     lam = np.asarray(solution["lambda_raw"], dtype=np.float64)
-    betas = np.asarray(solution["config"]["beta"], dtype=np.float64)
+    betas = resolve_opponent_betas(solution)
     if nu.shape[:2] != (len(objectives), len(meta["prompt_ids"])):
         raise ValueError("solver nu does not match the tensor artifact's objectives/prompts")
 

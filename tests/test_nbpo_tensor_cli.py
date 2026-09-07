@@ -132,3 +132,54 @@ def test_the_solver_accepts_what_the_builder_wrote(built, tmp_path):
     sol = json.loads((out / "solution.json").read_text())
     assert sol["representation"] == "adaptive_game" and sol["aggregation"] == "nash"
     assert sol["target_log_ratio_identity_holds"] is True
+
+
+# --- the solve -> pair-target handoff --------------------------------------
+
+def test_opponent_temperature_travels_only_with_a_representation_that_has_one():
+    """`build_nbpo_pairs` reads `config.beta` to stamp `opponent_beta` on every
+    row. Only the adaptive game has an opponent temperature; a fixed-reference or
+    scalar-reward solve must record None rather than a number it never used, and
+    an adaptive-game artifact that lost its beta must be refused rather than
+    stamped with a guess.
+    """
+    import torch
+    from mnpo_scripts.nbpo_generic import solve_finite_pool
+    from mnpo_scripts.nbpo_representations import (AdaptiveGameRepresentation,
+                                                   FixedReferenceRepresentation)
+    from tests.test_nbpo_generic_solver import make_pool
+
+    A, A_ref, mu = make_pool(seed=3, K=3, X=24)
+    beta = torch.full((3,), 0.25, dtype=torch.float64)
+    adaptive = solve_finite_pool(AdaptiveGameRepresentation(A, A_ref, mu, beta),
+                                 "nash", eta=1.0, M=40, R=2, gamma=0.5)
+    fixed = solve_finite_pool(FixedReferenceRepresentation(A, A_ref, mu),
+                              "nash", eta=1.0, M=40, R=2, gamma=0.5)
+    assert adaptive.config["beta"] == [0.25, 0.25, 0.25]
+    assert fixed.config["beta"] is None
+
+
+@pytest.mark.parametrize("representation,beta,expected", [
+    ("adaptive_game", [0.25, 0.25], [0.25, 0.25]),
+    ("fixed_reference", None, None),
+    ("bt_reward", None, None),
+])
+def test_pair_builder_resolves_the_opponent_temperature_per_representation(
+        representation, beta, expected):
+    from scripts.nbpo.build_nbpo_pairs import resolve_opponent_betas
+    got = resolve_opponent_betas({"representation": representation,
+                                  "config": {"beta": beta}})
+    if expected is None:
+        assert got is None
+    else:
+        assert list(got) == expected
+
+
+def test_pair_builder_refuses_an_adaptive_artifact_that_lost_its_beta():
+    from scripts.nbpo.build_nbpo_pairs import resolve_opponent_betas
+    with pytest.raises(KeyError, match="cannot"):
+        resolve_opponent_betas({"representation": "adaptive_game", "config": {}})
+    # a legacy artifact with no representation field is treated as adaptive_game,
+    # which is what it was -- not waved through
+    with pytest.raises(KeyError):
+        resolve_opponent_betas({"config": {}})

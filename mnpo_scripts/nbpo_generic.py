@@ -736,6 +736,12 @@ def solve_finite_pool(
         config={
             "representation": rep.info().__dict__,
             "aggregation": aggregation,
+            # Top-level `beta` is what the Eq. (26) pair builder reads. It is the
+            # opponent temperature, so it exists only for a representation that
+            # HAS an adaptive opponent; fixed_reference and bt_reward record None
+            # rather than a number they do not have, and the pair rows then carry
+            # a null opponent_beta instead of a false one.
+            "beta": rep.info().beta,
             "eta": float(eta),
             "eta_applications": 1,
             "eta_applied_in": "exp_update (Eq. 21) exponent; the trainer applies it "
