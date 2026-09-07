@@ -200,7 +200,7 @@ class MockJudge:
             if self.invalid_rate > 0.0:
                 u = (stable_hash_int("invalid", task_key(t), str(attempt)) % 1_000_000) / 1_000_000.0
                 if u < self.invalid_rate:
-                    outs.append(None)
+                    outs.append((None, "<mock: deliberately unparseable>"))
                     continue
             gap = self._strength(t, t["learner_response_id"]) - self._strength(
                 t, t["comparator_response_id"]
@@ -216,7 +216,8 @@ class MockJudge:
                 win_learner = 0.5
             # report as P(A better): A is the first-presented response
             win_of_a = win_learner if t["presentation_order"] == "learner_first" else 1.0 - win_learner
-            outs.append(win_of_a)
+            token = {1.0: "[[A]]", 0.0: "[[B]]", 0.5: "[[TIE]]"}[win_of_a]
+            outs.append((win_of_a, token))
         return outs
 
 
@@ -421,7 +422,11 @@ class VllmJudge:
         for i in range(0, len(tasks), self.batch_size):
             batch = tasks[i:i + self.batch_size]
             gen = self.llm.generate([self._render(t) for t in batch], params, use_tqdm=False)
-            outs.extend(parse_verdict(o.outputs[0].text) for o in gen)
+            # The raw completion travels with the parse. Without it a bank cannot
+            # be re-parsed or audited after the fact -- and when swap consistency
+            # comes out low, the first question is always what the judge actually
+            # emitted, which a discarded string cannot answer.
+            outs.extend((parse_verdict(o.outputs[0].text), o.outputs[0].text) for o in gen)
         return outs
 
 
@@ -474,7 +479,8 @@ def run_judging(tasks, backend, output: Path, judge_model: str, rubric_version,
                 "silently drop cells)"
             )
         rows, still = [], []
-        for t_, win_of_a in zip(pending, wins):
+        for t_, verdict in zip(pending, wins):
+            win_of_a, raw_output = verdict
             pw = to_policy_win(win_of_a, t_["presentation_order"])
             rows.append({
                 "prompt_id": t_["prompt_id"],
@@ -487,6 +493,14 @@ def run_judging(tasks, backend, output: Path, judge_model: str, rubric_version,
                 "presentation_order": t_["presentation_order"],
                 "policy_win": pw,
                 "valid": pw is not None,
+                # The verdict the judge actually emitted, and how it was read.
+                # Kept so the bank can be re-parsed and audited without re-running
+                # the judge, which is the only way to answer "what did it say?"
+                # once a consistency number looks wrong.
+                "raw_judge_output": raw_output,
+                "parsed_verdict": (None if win_of_a is None else
+                                   {1.0: "A", 0.0: "B", 0.5: "TIE"}[win_of_a]),
+                "win_of_response_a": win_of_a,
                 "judge_model": judge_model,
                 "rubric_version": rubric_version,
                 "attempt": attempt,
