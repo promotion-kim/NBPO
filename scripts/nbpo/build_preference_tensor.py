@@ -38,6 +38,7 @@ from mnpo_scripts.nbpo_core import (
 from scripts.nbpo.nbpo_common import (
     sha256_text,
     SCHEMA_VERSION,
+    implementation_contract,
     load_response_files,
     read_jsonl,
     sha256_file,
