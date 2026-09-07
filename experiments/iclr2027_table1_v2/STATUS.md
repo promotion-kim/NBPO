@@ -9,7 +9,7 @@ their log path, and no number is quoted from them.
 
 | gate | state |
 |---|---|
-| baseline suite unchanged | **pass** — 219 → 305 passed, 2 documented skips, 0 failures |
+| baseline suite unchanged | **pass** — 219 → **328 passed**, 2 documented skips, 0 failures |
 | generic solver == audited solver on adaptive-game Nash | **pass** — bitwise on lambda, pi, surplus, d and every residual |
 | finite-pool target identity | **pass** — residual ≤ 1.8e-15 on all six matched rows |
 | eta applied exactly once | **pass** — pairwise target scales linearly in eta |
