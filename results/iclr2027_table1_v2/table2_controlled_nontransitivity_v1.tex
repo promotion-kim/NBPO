@@ -1,0 +1,51 @@
+\begin{tabular}{l r r r r r}
+\toprule
+$\alpha$ & BT deviance & $\rho^\star$ & min surplus & exploitability & solver residual \\
+\midrule
+\multicolumn{6}{l}{\textit{$\alpha=0.00$}} \\
+\quad \NBPO{} (exact global Nash) & 0.0048 & +0.1110 & +0.1007 & 0.3276 & -- \\
+\quad \NBPO{} (exact proximal) &  &  & +0.0971 & 0.3230 & -- \\
+\quad \NBPO{} (practical, exact inner solve) &  &  & +0.0904 & 0.3210 & $3\!\times\!10^{-8}$ \\
+\quad \NBPO{} (practical, $R$-step map) &  &  & +0.0971 & 0.3230 & $6\!\times\!10^{-8}$ \\
+\quad Fixed-reference Nash &  &  & +0.0941 & 0.3275 & $0$ \\
+\quad BT-RM--Nash &  &  & +0.0947 & 0.3260 & $0$ \\
+\quad Reference $\piref$ &  &  & +0.0000 & 0.2426 & -- \\
+\addlinespace
+\multicolumn{6}{l}{\textit{$\alpha=0.25$}} \\
+\quad \NBPO{} (exact global Nash) & 0.0683 & +0.0755 & +0.0682 & 0.2878 & -- \\
+\quad \NBPO{} (exact proximal) &  &  & +0.0659 & 0.2714 & -- \\
+\quad \NBPO{} (practical, exact inner solve) &  &  & +0.0587 & 0.2624 & $10\!\times\!10^{-8}$ \\
+\quad \NBPO{} (practical, $R$-step map) &  &  & +0.0567 & 0.2742 & $0.969$ \\
+\quad Fixed-reference Nash &  &  & +0.0644 & 0.2854 & $0$ \\
+\quad BT-RM--Nash &  &  & +0.0641 & 0.2852 & $0$ \\
+\quad Reference $\piref$ &  &  & +0.0000 & 0.1832 & -- \\
+\addlinespace
+\multicolumn{6}{l}{\textit{$\alpha=0.50$}} \\
+\quad \NBPO{} (exact global Nash) & 0.2113 & +0.0354 & +0.0313 & 0.2228 & -- \\
+\quad \NBPO{} (exact proximal) &  &  & +0.0312 & 0.2110 & -- \\
+\quad \NBPO{} (practical, exact inner solve) &  &  & +0.0259 & 0.1927 & $5\!\times\!10^{-7}$ \\
+\quad \NBPO{} (practical, $R$-step map) &  &  & -0.0603 & 0.2840 & $1.000$ \\
+\quad Fixed-reference Nash &  &  & +0.0171 & 0.2885 & $0$ \\
+\quad BT-RM--Nash &  &  & +0.0168 & 0.2881 & $0$ \\
+\quad Reference $\piref$ &  &  & +0.0000 & 0.1338 & -- \\
+\addlinespace
+\multicolumn{6}{l}{\textit{$\alpha=0.75$}} \\
+\quad \NBPO{} (exact global Nash) & 0.4453 & +0.0171 & +0.0153 & 0.1606 & -- \\
+\quad \NBPO{} (exact proximal) &  &  & +0.0153 & 0.1569 & -- \\
+\quad \NBPO{} (practical, exact inner solve) &  &  & +0.0121 & 0.1452 & $10^{-6}$ \\
+\quad \NBPO{} (practical, $R$-step map) &  &  & -0.1163 & 0.3619 & $1.000$ \\
+\quad Fixed-reference Nash &  &  & -0.0420 & 0.3241 & $0$ \\
+\quad BT-RM--Nash &  &  & -0.0429 & 0.3265 & $0$ \\
+\quad Reference $\piref$ &  &  & +0.0000 & 0.1165 & -- \\
+\addlinespace
+\multicolumn{6}{l}{\textit{$\alpha=1.00$}} \\
+\quad \NBPO{} (exact global Nash) & 0.8493 & +0.0169 & +0.0158 & 0.1696 & -- \\
+\quad \NBPO{} (exact proximal) &  &  & +0.0158 & 0.1678 & -- \\
+\quad \NBPO{} (practical, exact inner solve) &  &  & +0.0139 & 0.1612 & $2\!\times\!10^{-6}$ \\
+\quad \NBPO{} (practical, $R$-step map) &  &  & -0.1851 & 0.4471 & $1.000$ \\
+\quad Fixed-reference Nash &  &  & -0.0995 & 0.3942 & $0$ \\
+\quad BT-RM--Nash &  &  & -0.1001 & 0.3950 & $0$ \\
+\quad Reference $\piref$ &  &  & +0.0000 & 0.1125 & -- \\
+\addlinespace
+\bottomrule
+\end{tabular}

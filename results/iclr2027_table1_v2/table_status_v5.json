@@ -1,0 +1,51 @@
+{
+  "generated_from": {
+    "solver_comparison": "results/iclr2027_table1_v2/nontransitivity_audit/solver_comparison_v1.csv",
+    "feasibility": "results/iclr2027_table1_v2/nontransitivity_audit/feasibility_v1.csv"
+  },
+  "tables": {
+    "table2_controlled_nontransitivity": {
+      "state": "FILLABLE",
+      "path": "results/iclr2027_table1_v2/table2_controlled_nontransitivity_v1.tex",
+      "every_cell_measured": true
+    },
+    "table1_saferlhf_natural_alignment": {
+      "state": "BLOCKED",
+      "columns": [
+        "helpfulness",
+        "harmlessness",
+        "worst",
+        "average",
+        "HarmBench"
+      ],
+      "gate": "Section 4 go/no-go: controlled feasibility positive, exact NBPO correct, a practical solver at fixed-point residual < 1e-4 and close to the exact proximal policy, and the SafeRLHF GPM passing held-out validation. Then a one-seed reduced smoke, then seeds 42/43/44.",
+      "must_not_be_stubbed": true
+    },
+    "table3_general_capability": {
+      "state": "BLOCKED",
+      "rows": [
+        "Base",
+        "NBPO",
+        "Fixed-reference Nash",
+        "BT-RM-Nash",
+        "Game-KS"
+      ],
+      "gate": "same as Table 1",
+      "must_not_be_stubbed": true
+    }
+  },
+  "removed_rows": {
+    "rows": [
+      "TL;DR",
+      "RACO",
+      "Rewarded Soups",
+      "Panacea",
+      "PROSPER/MaxEntBW",
+      "MOPO",
+      "Game-utilitarian",
+      "BT-RM-utilitarian"
+    ],
+    "reason": "not completed and faithful under the current protocol. A row that cannot be produced end to end from this pipeline is dropped rather than carried as a placeholder."
+  },
+  "ultrafeedback_role": "retained ONLY as a transitive score-induced aggregation control. Its four aspects are per-completion ordinal ratings, so induced pairwise labels inherit a total order and are transitive by construction; it may not be cited as cyclicity evidence."
+}

@@ -20,7 +20,7 @@ benchmark now exists.
 
 ## 2. Exact NBPO behaves correctly — **PASS**
 
-Both exact solutions reach **88–94 % of `rho*`** at every alpha. The exact global
+Both exact solutions reach **87–94 % of `rho*`** at every alpha on v1, and **87–92 %** on the rho*-matched v2 benchmark where the margin is held constant — flat across the whole sweep (0.920, 0.919, 0.913, 0.914, 0.918). The exact global
 Nash point and the exact proximal Nash point track each other closely (TV 0.007
 at alpha = 1, 0.157 at alpha = 0, the proximal term biting harder where the
 attainable set is larger). The objective is not the problem.
@@ -98,8 +98,10 @@ Three things would change the answer, in order of how much they buy:
    fit -- verifying that the identity, provenance and regression gates
    (normalized MSE < 0.90, sign agreement > 0.65, positive target correlation)
    hold at production scale rather than on 40 synthetic prompts.
-3. **rho*-matched v2 results**, so the controlled table is not confounded by a
-   6.5x shrinking feasible margin.
+3. ~~rho*-matched v2 results~~ — **done**. Holding `rho*` at 0.030000 (std 6e-8)
+   while BT deviance rises 0.0003 -> 0.350, the exact solutions stay flat at
+   0.865-0.920 of `rho*` and only the practical solver collapses (0.822, 0.854,
+   0.135, -1.457, -3.391). The controlled table is no longer confounded.
 
 Until then: no policy training, no reward-model training, no judgment bank, and
 seeds 42/43/44 stay unlaunched.

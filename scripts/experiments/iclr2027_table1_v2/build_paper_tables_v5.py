@@ -54,11 +54,18 @@ def num(v, d=4, signed=True):
 
 
 def sci(v):
+    """A residual reads as an order of magnitude, except near 1 where it reads as 1."""
     if v in (None, ""):
         return "--"
     x = float(v)
-    return "$0$" if x == 0 else f"${x:.0e}$".replace("e-0", r"\mathrm{e}{-}").replace(
-        "e-", r"\mathrm{e}{-}").replace("e+0", r"\mathrm{e}{+}")
+    if x == 0:
+        return "$0$"
+    if x >= 1e-3:
+        return f"${x:.3f}$"
+    exp = int(f"{x:e}".split("e")[1])
+    mant = x / (10.0 ** exp)
+    return (f"$10^{{{exp}}}$" if abs(mant - 1.0) < 0.5
+            else f"${mant:.0f}\\!\\times\\!10^{{{exp}}}$")
 
 
 def table2(by_alpha, feas_csv, benchmark):

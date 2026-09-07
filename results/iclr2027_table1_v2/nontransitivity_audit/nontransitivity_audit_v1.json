@@ -1,6 +1,7 @@
 {
   "config": {
     "benchmark": "v1",
+    "v2_target_rho_star": 0.03,
     "out_dir": "results/iclr2027_table1_v2/nontransitivity_audit",
     "seeds": 5,
     "objectives": 4,
@@ -14,7 +15,8 @@
     "v2_base_amp": 0.06,
     "v2_cycle_amp": 0.28,
     "v2_responses": 5,
-    "skip_ks": false
+    "skip_ks": false,
+    "c2_outer_iterations": 120
   },
   "v2_config": null,
   "rows": [
@@ -188,6 +190,34 @@
           "weight_l1": 37.70859602780345,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.11844264260322297,
+            0.11083468740988908,
+            0.07963965382025248,
+            0.09319960454959889
+          ],
+          "min_surplus": 0.07963965382025248,
+          "avg_surplus": 0.10052914709574085,
+          "nash_welfare": -9.236296901581024,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9577336216749511,
+          "exploitability": 0.3202790559912378,
+          "implied_raw_lambda": [
+            8.44290517351889,
+            9.02244616165874,
+            12.556558850155355,
+            10.7296592601723
+          ],
+          "implied_raw_lambda_l1": 40.75156944550528,
+          "target_log_ratio_l2": 63.66730828281864,
+          "target_log_ratio_mean_abs": 3.6662774599892445,
+          "tv_to_exact_A": 0.19210282080982255,
+          "tv_to_exact_B": 0.08320384540367366,
+          "weight_l1": 6.430494203478945,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -207,6 +237,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.7414623466755124,
           "tv_to_exact_B": 0.598315291509486
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.11584198570904194,
+            0.11283854313632113,
+            0.07587347555796156,
+            0.08994142813871935
+          ],
+          "min_surplus": 0.07587347555796156,
+          "avg_surplus": 0.098623858135511,
+          "nash_welfare": -9.324610252747057,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.8313035368643167,
+          "exploitability": 0.3146979745533167,
+          "implied_raw_lambda": [
+            8.63244870915525,
+            8.862220055357255,
+            13.179836466514258,
+            11.118346914145839
+          ],
+          "implied_raw_lambda_l1": 41.7928521451726,
+          "target_log_ratio_l2": 45.35553182076644,
+          "target_log_ratio_mean_abs": 2.643814471234702,
+          "tv_to_exact_A": 0.20694088288027981,
+          "tv_to_exact_B": 0.052759613433225626,
+          "weight_l1": 30.385343611543163,
+          "weights": [
+            7.02416996727434,
+            7.0877848493262405,
+            8.39502269440129,
+            7.8783661005412915
+          ],
+          "fixed_point_residual": 3.244755042430825e-08,
+          "extra_map_residual": 1.4612306686867527e-07,
+          "kkt_residual": 0.04324472535731509,
+          "target_log_ratio_identity_residual": 1.7763568394002505e-15
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -430,6 +496,34 @@
           "weight_l1": 47.99638707403036,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.09634678975479204,
+            0.06928957733663108,
+            0.05544095136874065,
+            0.06420205033894447
+          ],
+          "min_surplus": 0.05544095136874065,
+          "avg_surplus": 0.07131984219977705,
+          "nash_welfare": -10.647418882506692,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9997511038155119,
+          "exploitability": 0.2890085743273021,
+          "implied_raw_lambda": [
+            10.379173011836262,
+            14.432185018847468,
+            18.03720851305289,
+            15.575826546358874
+          ],
+          "implied_raw_lambda_l1": 58.42439309009549,
+          "target_log_ratio_l2": 61.91936346603131,
+          "target_log_ratio_mean_abs": 3.640565898581216,
+          "tv_to_exact_A": 0.11138383674257861,
+          "tv_to_exact_B": 0.1205095494207096,
+          "weight_l1": 9.9234925956373,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -449,6 +543,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.666820925123758,
           "tv_to_exact_B": 0.5533830320791199
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.08954487914793577,
+            0.07016334145934536,
+            0.04976757157943741,
+            0.05895167915400555
+          ],
+          "min_surplus": 0.04976757157943741,
+          "avg_surplus": 0.06710686783518102,
+          "nash_welfare": -10.90137349035524,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.6711825320978348,
+          "exploitability": 0.2636674585995488,
+          "implied_raw_lambda": [
+            11.167584450562659,
+            14.252456898442166,
+            20.093405570409075,
+            16.963045232139986
+          ],
+          "implied_raw_lambda_l1": 62.476492151553884,
+          "target_log_ratio_l2": 33.83008013433455,
+          "target_log_ratio_mean_abs": 1.935260635984958,
+          "tv_to_exact_A": 0.19282312887567102,
+          "tv_to_exact_B": 0.08014580702305887,
+          "weight_l1": 34.61710839442331,
+          "weights": [
+            7.907552977820059,
+            8.542075545776687,
+            9.243344211288502,
+            8.92413565953807
+          ],
+          "fixed_point_residual": 9.755877228290188e-08,
+          "extra_map_residual": 2.6483748405414786e-07,
+          "kkt_residual": 0.05841838116034509,
+          "target_log_ratio_identity_residual": 1.3322676295501878e-15
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -662,6 +792,34 @@
           "weight_l1": 62.17346407385217,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.04401396075874363,
+            0.01673609371573946,
+            0.016237667297552622,
+            0.012777350075856389
+          ],
+          "min_surplus": 0.012777350075856389,
+          "avg_surplus": 0.022441267961973023,
+          "nash_welfare": -15.693938791602307,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9859951534171468,
+          "exploitability": 0.30097380505373217,
+          "implied_raw_lambda": [
+            22.720063878853352,
+            59.751099449183286,
+            61.585200735743754,
+            78.26348922610826
+          ],
+          "implied_raw_lambda_l1": 222.31985328988867,
+          "target_log_ratio_l2": 61.77523172226776,
+          "target_log_ratio_mean_abs": 3.6503937908329718,
+          "tv_to_exact_A": 0.27713343625764075,
+          "tv_to_exact_B": 0.30117944070022534,
+          "weight_l1": 14.126745470223376,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -681,6 +839,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.41979418457545625,
           "tv_to_exact_B": 0.38185049999288373
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.041318334295639005,
+            0.024610697103092986,
+            0.02899659945877025,
+            0.027975000467425036
+          ],
+          "min_surplus": 0.024610697103092986,
+          "avg_surplus": 0.030725157831231822,
+          "nash_welfare": -14.00804376080621,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.31212994522963544,
+          "exploitability": 0.1940100938884243,
+          "implied_raw_lambda": [
+            24.202330927593717,
+            40.632737699832305,
+            34.486802544618456,
+            35.74620136876963
+          ],
+          "implied_raw_lambda_l1": 135.06807254081411,
+          "target_log_ratio_l2": 16.734325787284092,
+          "target_log_ratio_mean_abs": 0.9033273104039587,
+          "tv_to_exact_A": 0.11247555528428148,
+          "tv_to_exact_B": 0.07401343494347108,
+          "weight_l1": 39.688546930322175,
+          "weights": [
+            9.549927116846874,
+            10.148227804038711,
+            9.974197451364866,
+            10.016194558071723
+          ],
+          "fixed_point_residual": 1.6318986395535973e-07,
+          "extra_map_residual": 9.515094173684346e-08,
+          "kkt_residual": 0.07392867541690779,
+          "target_log_ratio_identity_residual": 6.661338147750939e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -889,6 +1083,29 @@
           "weight_l1": 69.12085794485162,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            -0.038798435886897464,
+            -0.04633309730834842,
+            -0.04080249897011045,
+            -0.05088940976873893
+          ],
+          "min_surplus": -0.05088940976873893,
+          "avg_surplus": -0.04420586048352382,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.044820548926971,
+          "exploitability": 0.3435904890412286,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 58.948671803376484,
+          "target_log_ratio_mean_abs": 3.5968198442817196,
+          "tv_to_exact_A": 0.46859750444616355,
+          "tv_to_exact_B": 0.47497258599689074,
+          "weight_l1": 16.429217934976972,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -908,6 +1125,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.2474068098106899,
           "tv_to_exact_B": 0.23589076153964408
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.019291752162926418,
+            0.008590173426936314,
+            0.0171814879115352,
+            0.015704631779265794
+          ],
+          "min_surplus": 0.008590173426936314,
+          "avg_surplus": 0.015192011320165932,
+          "nash_welfare": -16.922936328608017,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.11776320994809505,
+          "exploitability": 0.14516594855860906,
+          "implied_raw_lambda": [
+            51.83562340810765,
+            116.4120850999687,
+            58.20217696795783,
+            63.6754821160634
+          ],
+          "implied_raw_lambda_l1": 290.1253675920976,
+          "target_log_ratio_l2": 8.934402431212357,
+          "target_log_ratio_mean_abs": 0.47239278169207194,
+          "tv_to_exact_A": 0.06207511755993576,
+          "tv_to_exact_B": 0.05008552741012153,
+          "weight_l1": 41.90286405584247,
+          "weights": [
+            10.321588185958117,
+            10.727927551659517,
+            10.399972933724738,
+            10.453375384500097
+          ],
+          "fixed_point_residual": 1.3600879201769445e-06,
+          "extra_map_residual": 2.398218513777195e-07,
+          "kkt_residual": 0.08462447545884114,
+          "target_log_ratio_identity_residual": 4.440892098500626e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -1116,6 +1369,29 @@
           "weight_l1": 65.07064114263999,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            -0.115200448281808,
+            -0.10059802025116232,
+            -0.11334005624070445,
+            -0.1026598582904554
+          ],
+          "min_surplus": -0.115200448281808,
+          "avg_surplus": -0.10794959576603255,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.0149688485816952,
+          "exploitability": 0.4031319492214056,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 62.55279393832593,
+          "target_log_ratio_mean_abs": 3.612221641699903,
+          "tv_to_exact_A": 0.5347071536706055,
+          "tv_to_exact_B": 0.5373141755940931,
+          "weight_l1": 15.470429701002084,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -1135,6 +1411,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.18150924949268182,
           "tv_to_exact_B": 0.1752435408052056
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.018708453660888483,
+            0.011462546059059303,
+            0.01240262533462894,
+            0.018445878055228907
+          ],
+          "min_surplus": 0.011462546059059303,
+          "avg_surplus": 0.015254875777451406,
+          "nash_welfare": -16.830211666357773,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.07782355466807776,
+          "exploitability": 0.160434686578555,
+          "implied_raw_lambda": [
+            53.451772023819366,
+            87.24065271778433,
+            80.62809066786326,
+            54.21265374334008
+          ],
+          "implied_raw_lambda_l1": 275.53316915280703,
+          "target_log_ratio_l2": 8.261004017688938,
+          "target_log_ratio_mean_abs": 0.37384349091731106,
+          "tv_to_exact_A": 0.03385917590926568,
+          "tv_to_exact_B": 0.027148551075402493,
+          "weight_l1": 41.84164269944614,
+          "weights": [
+            10.330073645399144,
+            10.604985850759078,
+            10.568195655301365,
+            10.338387547986548
+          ],
+          "fixed_point_residual": 8.171803560497182e-07,
+          "extra_map_residual": 1.0758718427261726e-07,
+          "kkt_residual": 0.08283272355022758,
+          "target_log_ratio_identity_residual": 4.440892098500626e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -1358,6 +1670,34 @@
           "weight_l1": 37.656087929077316,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.1142428321137397,
+            0.09879372518806014,
+            0.10444007709572707,
+            0.08969974884995494
+          ],
+          "min_surplus": 0.08969974884995494,
+          "avg_surplus": 0.10179409581187046,
+          "nash_welfare": -9.154579283053865,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.97330212265394,
+          "exploitability": 0.33164711587925705,
+          "implied_raw_lambda": [
+            8.7532843986606,
+            10.122100346924224,
+            9.574868458622698,
+            11.148303231849042
+          ],
+          "implied_raw_lambda_l1": 39.59855643605656,
+          "target_log_ratio_l2": 62.52223735404935,
+          "target_log_ratio_mean_abs": 3.6473685773690443,
+          "tv_to_exact_A": 0.13852108891945308,
+          "tv_to_exact_B": 0.08828421265850153,
+          "weight_l1": 6.198914129465922,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -1377,6 +1717,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.7274077929612595,
           "tv_to_exact_B": 0.5908546388985955
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.11574195700934375,
+            0.09631262066891928,
+            0.1055248063520358,
+            0.08109363734924588
+          ],
+          "min_surplus": 0.08109363734924588,
+          "avg_surplus": 0.09966825534488619,
+          "nash_welfare": -9.25750798505476,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.8246617264950169,
+          "exploitability": 0.3238581585499856,
+          "implied_raw_lambda": [
+            8.639909206989396,
+            10.382855258788599,
+            9.476444777012452,
+            12.331423681161336
+          ],
+          "implied_raw_lambda_l1": 40.83063292395178,
+          "target_log_ratio_l2": 45.9284306522406,
+          "target_log_ratio_mean_abs": 2.6791373368550646,
+          "tv_to_exact_A": 0.19647442029208695,
+          "tv_to_exact_B": 0.0477584616721358,
+          "weight_l1": 30.228474465267098,
+          "weights": [
+            7.007687745523422,
+            7.700955909120477,
+            7.348110831078973,
+            8.171719979544225
+          ],
+          "fixed_point_residual": 1.8941782808923335e-08,
+          "extra_map_residual": 1.0486035051382459e-07,
+          "kkt_residual": 0.04127962097375587,
+          "target_log_ratio_identity_residual": 1.1102230246251565e-15
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -1600,6 +1976,34 @@
           "weight_l1": 47.88636730041544,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.08075067698184937,
+            0.06923841364758085,
+            0.07588606263363813,
+            0.06653725025318302
+          ],
+          "min_surplus": 0.06653725025318302,
+          "avg_surplus": 0.07310310087906284,
+          "nash_welfare": -10.475103966522012,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9870049996698518,
+          "exploitability": 0.285478769016844,
+          "implied_raw_lambda": [
+            12.383797107048077,
+            14.442849674314273,
+            13.177650352315531,
+            15.029175329531473
+          ],
+          "implied_raw_lambda_l1": 55.03347246320935,
+          "target_log_ratio_l2": 61.581023336428096,
+          "target_log_ratio_mean_abs": 3.6470068768385273,
+          "tv_to_exact_A": 0.11997003812265641,
+          "tv_to_exact_B": 0.12263816541995272,
+          "weight_l1": 9.675219891808768,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -1619,6 +2023,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.6704793669211954,
           "tv_to_exact_B": 0.5565708467544418
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.08062387146099557,
+            0.06555434911102383,
+            0.07665800523543229,
+            0.05517674548856476
+          ],
+          "min_surplus": 0.05517674548856476,
+          "avg_surplus": 0.06950324282400411,
+          "nash_welfare": -10.708451156467913,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.6719305985326888,
+          "exploitability": 0.2592405480529719,
+          "implied_raw_lambda": [
+            12.403274388575877,
+            15.254518022997757,
+            13.044952016802382,
+            18.123577082074323
+          ],
+          "implied_raw_lambda_l1": 58.82632151045034,
+          "target_log_ratio_l2": 35.43633444472516,
+          "target_log_ratio_mean_abs": 2.0265805011587807,
+          "tv_to_exact_A": 0.19806513050873661,
+          "tv_to_exact_B": 0.07364649463686034,
+          "weight_l1": 34.261083983947486,
+          "weights": [
+            8.163517530480563,
+            8.721290390354238,
+            8.303206633632552,
+            9.073069429480135
+          ],
+          "fixed_point_residual": 9.97629561183544e-08,
+          "extra_map_residual": 2.6953188203560074e-07,
+          "kkt_residual": 0.05503953884304291,
+          "target_log_ratio_identity_residual": 1.7763568394002505e-15
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -1837,6 +2277,34 @@
           "weight_l1": 61.89396691542602,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.03062648972520683,
+            0.017703522976365904,
+            0.03016766294279993,
+            0.019125512370216174
+          ],
+          "min_surplus": 0.017703522976365904,
+          "avg_surplus": 0.02440579700364721,
+          "nash_welfare": -14.977598388997402,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9592878544115037,
+          "exploitability": 0.2875209914090268,
+          "implied_raw_lambda": [
+            32.65147292335497,
+            56.48593228223523,
+            33.148076531353205,
+            52.286180921211944
+          ],
+          "implied_raw_lambda_l1": 174.57166265815536,
+          "target_log_ratio_l2": 62.80969622861106,
+          "target_log_ratio_mean_abs": 3.6715821807725746,
+          "tv_to_exact_A": 0.25940407454104475,
+          "tv_to_exact_B": 0.29304387988414826,
+          "weight_l1": 13.786927563487744,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -1856,6 +2324,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.432557326570041,
           "tv_to_exact_B": 0.38607118730668766
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.03533694161866992,
+            0.03194683544996273,
+            0.04105113202522741,
+            0.02466297975640598
+          ],
+          "min_surplus": 0.02466297975640598,
+          "avg_surplus": 0.03324947221256651,
+          "nash_welfare": -13.681897329158007,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.3173336439485931,
+          "exploitability": 0.19248950271386595,
+          "implied_raw_lambda": [
+            28.298996862582474,
+            31.30200490644111,
+            24.359864166120044,
+            40.546601014026265
+          ],
+          "implied_raw_lambda_l1": 124.5074669491699,
+          "target_log_ratio_l2": 19.124616544004333,
+          "target_log_ratio_mean_abs": 0.9933142668251547,
+          "tv_to_exact_A": 0.1233363632456284,
+          "tv_to_exact_B": 0.07378214282981595,
+          "weight_l1": 39.2948602633613,
+          "weights": [
+            9.752292929634107,
+            9.864469883905278,
+            9.544165277051405,
+            10.133932172770507
+          ],
+          "fixed_point_residual": 2.4066789916510345e-07,
+          "extra_map_residual": 1.527105922827232e-07,
+          "kkt_residual": 0.0740153992727099,
+          "target_log_ratio_identity_residual": 8.881784197001252e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -2064,6 +2568,29 @@
           "weight_l1": 71.0490837386222,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            -0.03744208446988311,
+            -0.03234721928146637,
+            -0.027506293026134464,
+            -0.03652396778047597
+          ],
+          "min_surplus": -0.03744208446988311,
+          "avg_surplus": -0.03345489113948998,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.9446295227164349,
+          "exploitability": 0.3244783113908911,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 63.926475459864115,
+          "target_log_ratio_mean_abs": 3.6884183506261463,
+          "tv_to_exact_A": 0.4302991817974394,
+          "tv_to_exact_B": 0.4373619215505139,
+          "weight_l1": 16.916583527774062,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -2083,6 +2610,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.23621161107413907,
           "tv_to_exact_B": 0.22440884457430874
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.01415155046671206,
+            0.017987295576179552,
+            0.018917683762989936,
+            0.012565620143572624
+          ],
+          "min_surplus": 0.012565620143572624,
+          "avg_surplus": 0.015905537487363543,
+          "nash_welfare": -16.620469558772236,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.11470165315250662,
+          "exploitability": 0.14684428097657448,
+          "implied_raw_lambda": [
+            70.66363522161383,
+            55.59479443503963,
+            52.86059395687616,
+            79.58222424155524
+          ],
+          "implied_raw_lambda_l1": 258.7012478550849,
+          "target_log_ratio_l2": 10.40858684780709,
+          "target_log_ratio_mean_abs": 0.4763523601858072,
+          "tv_to_exact_A": 0.05562491186711218,
+          "tv_to_exact_B": 0.04313000933730353,
+          "weight_l1": 41.779421862775315,
+          "weights": [
+            10.513161153149099,
+            10.362956569414832,
+            10.334391572479525,
+            10.568912567731859
+          ],
+          "fixed_point_residual": 1.0529441523687844e-06,
+          "extra_map_residual": 1.733392403502343e-07,
+          "kkt_residual": 0.0820514933571217,
+          "target_log_ratio_identity_residual": 4.996003610813204e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -2291,6 +2854,29 @@
           "weight_l1": 66.4717923701636,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            -0.10037077722881861,
+            -0.10615591081012765,
+            -0.0923889624059637,
+            -0.09109717181400914
+          ],
+          "min_surplus": -0.10615591081012765,
+          "avg_surplus": -0.09750320556472977,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.9548713783882569,
+          "exploitability": 0.3911806939873487,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 64.73518534858354,
+          "target_log_ratio_mean_abs": 3.667812060196458,
+          "tv_to_exact_A": 0.49312723013637055,
+          "tv_to_exact_B": 0.4946475896475647,
+          "weight_l1": 15.772741883601139,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -2310,6 +2896,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.172365465107348,
           "tv_to_exact_B": 0.16647859325488734
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.01626840500940723,
+            0.015575988381599726,
+            0.0135800706957234,
+            0.01337869027068112
+          ],
+          "min_surplus": 0.01337869027068112,
+          "avg_surplus": 0.014700788589352871,
+          "nash_welfare": -16.89379921915964,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.0786478098401028,
+          "exploitability": 0.15250101264540802,
+          "implied_raw_lambda": [
+            61.468840947944706,
+            64.20138327666724,
+            73.63731915732349,
+            74.74573218810971
+          ],
+          "implied_raw_lambda_l1": 274.0532755700451,
+          "target_log_ratio_l2": 8.748082283525255,
+          "target_log_ratio_mean_abs": 0.3695283570326712,
+          "tv_to_exact_A": 0.032216608316475305,
+          "tv_to_exact_B": 0.026018293580597696,
+          "weight_l1": 41.93011092236691,
+          "weights": [
+            10.422831245660062,
+            10.447380202112928,
+            10.528615656450949,
+            10.531283818142969
+          ],
+          "fixed_point_residual": 1.9379452977918987e-06,
+          "extra_map_residual": 2.3477276378525147e-07,
+          "kkt_residual": 0.08157649442173322,
+          "target_log_ratio_identity_residual": 5.551115123125783e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -2533,6 +3155,34 @@
           "weight_l1": 34.36706522360673,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.12200905185237587,
+            0.10641520019322952,
+            0.11849893103415365,
+            0.10736454503527632
+          ],
+          "min_surplus": 0.10641520019322952,
+          "avg_surplus": 0.11357193202875884,
+          "nash_welfare": -8.708443506189045,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9877722380776983,
+          "exploitability": 0.3280417122927512,
+          "implied_raw_lambda": [
+            8.196113196666294,
+            9.397153772996644,
+            8.438894691056587,
+            9.314061729330053
+          ],
+          "implied_raw_lambda_l1": 35.34622339004957,
+          "target_log_ratio_l2": 62.20908294870241,
+          "target_log_ratio_mean_abs": 3.643998535618014,
+          "tv_to_exact_A": 0.15047859957297982,
+          "tv_to_exact_B": 0.07889884088317982,
+          "weight_l1": 5.741453691613065,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -2552,6 +3202,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.7225151959132938,
           "tv_to_exact_B": 0.6058895665107737
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.11991378128631142,
+            0.10632536010484644,
+            0.11839189304038164,
+            0.10487534770446014
+          ],
+          "min_surplus": 0.10487534770446014,
+          "avg_surplus": 0.11237659553399992,
+          "nash_welfare": -8.750971563336233,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.8996066315058456,
+          "exploitability": 0.32283064328069644,
+          "implied_raw_lambda": [
+            8.339325048989624,
+            9.405093940090204,
+            8.446524287426636,
+            9.535129292901233
+          ],
+          "implied_raw_lambda_l1": 35.72607256940769,
+          "target_log_ratio_l2": 47.24440203483904,
+          "target_log_ratio_mean_abs": 2.8324865694919965,
+          "tv_to_exact_A": 0.16322884282188171,
+          "tv_to_exact_B": 0.030636133953968515,
+          "weight_l1": 28.606528541062314,
+          "weights": [
+            6.900289872588937,
+            7.34845511906352,
+            6.960047236196686,
+            7.397736313213168
+          ],
+          "fixed_point_residual": 1.8349084807134375e-08,
+          "extra_map_residual": 1.1526703969089169e-07,
+          "kkt_residual": 0.030301138407094058,
+          "target_log_ratio_identity_residual": 1.7763568394002505e-15
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -2775,6 +3461,34 @@
           "weight_l1": 45.01275227827729,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.08186578251718035,
+            0.0679579670266944,
+            0.08003959576766276,
+            0.07980862030143857
+          ],
+          "min_surplus": 0.0679579670266944,
+          "avg_surplus": 0.07741799140324401,
+          "nash_welfare": -10.244897644387244,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.98324134572033,
+          "exploitability": 0.29240733573124134,
+          "implied_raw_lambda": [
+            12.215115635035188,
+            14.714978151232694,
+            12.493816221945684,
+            12.529974784966615
+          ],
+          "implied_raw_lambda_l1": 51.95388479318018,
+          "target_log_ratio_l2": 61.88082591711221,
+          "target_log_ratio_mean_abs": 3.641461027994248,
+          "tv_to_exact_A": 0.14431264631234667,
+          "tv_to_exact_B": 0.11097234587619961,
+          "weight_l1": 9.20434008560872,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -2794,6 +3508,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.6854410464575901,
           "tv_to_exact_B": 0.5607976789122665
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.08154089407630362,
+            0.06330535676914603,
+            0.07457947446437718,
+            0.0757603603146754
+          ],
+          "min_surplus": 0.06330535676914603,
+          "avg_surplus": 0.07379652140612555,
+          "nash_welfare": -10.442505970051805,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.7125360521938476,
+          "exploitability": 0.2709223646786262,
+          "implied_raw_lambda": [
+            12.26378507775778,
+            15.796451533267138,
+            13.408514972543138,
+            13.199514836603699
+          ],
+          "implied_raw_lambda_l1": 54.668266420171754,
+          "target_log_ratio_l2": 36.05449178599661,
+          "target_log_ratio_mean_abs": 2.0962790607782695,
+          "tv_to_exact_A": 0.19567616731922477,
+          "tv_to_exact_B": 0.061598085002309386,
+          "weight_l1": 33.66799544200868,
+          "weights": [
+            8.154857081252365,
+            8.747015582465947,
+            8.40681294345988,
+            8.35930983483049
+          ],
+          "fixed_point_residual": 8.51936765577932e-08,
+          "extra_map_residual": 2.1095735980303232e-07,
+          "kkt_residual": 0.051019350963692076,
+          "target_log_ratio_identity_residual": 8.881784197001252e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -3012,6 +3762,34 @@
           "weight_l1": 58.7947705891782,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.02167136075900939,
+            0.022998336975359687,
+            0.024370375004706155,
+            0.03770027741950363
+          ],
+          "min_surplus": 0.02167136075900939,
+          "avg_surplus": 0.026685087539644714,
+          "nash_welfare": -14.596571891336573,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9813872713749578,
+          "exploitability": 0.2961410216138546,
+          "implied_raw_lambda": [
+            46.14384906975775,
+            43.481404810765035,
+            41.03342684742809,
+            26.525003751899877
+          ],
+          "implied_raw_lambda_l1": 157.18368447985074,
+          "target_log_ratio_l2": 62.00545584521463,
+          "target_log_ratio_mean_abs": 3.655525377250845,
+          "tv_to_exact_A": 0.2447542970895344,
+          "tv_to_exact_B": 0.2744358366881512,
+          "weight_l1": 13.161358871742227,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -3031,6 +3809,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.451500350738541,
           "tv_to_exact_B": 0.4052033049883462
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.03790273588867482,
+            0.026959205606058315,
+            0.030403867478107558,
+            0.04077482829598472
+          ],
+          "min_surplus": 0.026959205606058315,
+          "avg_surplus": 0.03401015931720636,
+          "nash_welfare": -13.579038241968705,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.3380422388935117,
+          "exploitability": 0.20030263041668062,
+          "implied_raw_lambda": [
+            26.383319740747154,
+            37.093081102333315,
+            32.89055251671698,
+            24.52493466657895
+          ],
+          "implied_raw_lambda_l1": 120.89188802637639,
+          "target_log_ratio_l2": 17.493305069081103,
+          "target_log_ratio_mean_abs": 0.972034602142638,
+          "tv_to_exact_A": 0.12323552663210657,
+          "tv_to_exact_B": 0.07654548190799584,
+          "weight_l1": 39.208277320848694,
+          "weights": [
+            9.6556206919367,
+            10.044872986958755,
+            9.934246097163776,
+            9.573537544789465
+          ],
+          "fixed_point_residual": 4.932747006414218e-07,
+          "extra_map_residual": 1.6342327163743064e-07,
+          "kkt_residual": 0.0725940691141197,
+          "target_log_ratio_identity_residual": 8.881784197001252e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -3239,6 +4053,29 @@
           "weight_l1": 67.27046592112569,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            -0.039961455834508865,
+            -0.030427658825214508,
+            -0.0385046636245395,
+            -0.020955586469589393
+          ],
+          "min_surplus": -0.039961455834508865,
+          "avg_surplus": -0.03246234118846307,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.963001981603718,
+          "exploitability": 0.3212068424802433,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 63.56609517704787,
+          "target_log_ratio_mean_abs": 3.655527093175415,
+          "tv_to_exact_A": 0.4088692292700113,
+          "tv_to_exact_B": 0.4173936595772384,
+          "weight_l1": 15.98713015695424,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -3258,6 +4095,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.25434479272641664,
           "tv_to_exact_B": 0.23842860714810338
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.018830376590388557,
+            0.012190011409215398,
+            0.015601161824307238,
+            0.020181438064468062
+          ],
+          "min_surplus": 0.012190011409215398,
+          "avg_surplus": 0.016700746972094813,
+          "nash_welfare": -16.442824232875914,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.12513244432539916,
+          "exploitability": 0.15043071873009634,
+          "implied_raw_lambda": [
+            53.10568247001615,
+            82.0343776909036,
+            64.09779036084093,
+            49.55048281522736
+          ],
+          "implied_raw_lambda_l1": 248.78833333698802,
+          "target_log_ratio_l2": 8.710878680313675,
+          "target_log_ratio_mean_abs": 0.4681563218764766,
+          "tv_to_exact_A": 0.06682714208080502,
+          "tv_to_exact_B": 0.04969732306137663,
+          "weight_l1": 41.66769417823528,
+          "weights": [
+            10.33690212868843,
+            10.586880686482365,
+            10.454532315175749,
+            10.289379047888735
+          ],
+          "fixed_point_residual": 7.216063113713034e-07,
+          "extra_map_residual": 2.0916666876313883e-07,
+          "kkt_residual": 0.08226651734687315,
+          "target_log_ratio_identity_residual": 8.881784197001252e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -3466,6 +4339,29 @@
           "weight_l1": 55.41216859398712,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            -0.1025769530491576,
+            -0.10426606215517081,
+            -0.1048760563027489,
+            -0.09542285776799947
+          ],
+          "min_surplus": -0.1048760563027489,
+          "avg_surplus": -0.1017854823187692,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 1.0291594521161904,
+          "exploitability": 0.4084386548955662,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 59.919664148174654,
+          "target_log_ratio_mean_abs": 3.6185061996012102,
+          "tv_to_exact_A": 0.5099630685201773,
+          "tv_to_exact_B": 0.5132317104788562,
+          "weight_l1": 12.948897672964696,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -3485,6 +4381,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.19831797088437372,
           "tv_to_exact_B": 0.19137902602878887
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.017311900172462622,
+            0.01429402409738799,
+            0.01829128915354217,
+            0.018320876469335633
+          ],
+          "min_surplus": 0.01429402409738799,
+          "avg_surplus": 0.017054522473182107,
+          "nash_welfare": -16.305319280725698,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.09531350200884123,
+          "exploitability": 0.16920890359677365,
+          "implied_raw_lambda": [
+            57.76373419658818,
+            69.95930559419823,
+            54.67083219808739,
+            54.582541488871406
+          ],
+          "implied_raw_lambda_l1": 236.9764134777452,
+          "target_log_ratio_l2": 8.92397950297663,
+          "target_log_ratio_mean_abs": 0.42034752127090746,
+          "tv_to_exact_A": 0.03418177322497532,
+          "tv_to_exact_B": 0.026802691077904423,
+          "weight_l1": 41.57208613439524,
+          "weights": [
+            10.380560436085633,
+            10.499915556781563,
+            10.347905083945843,
+            10.343705057582204
+          ],
+          "fixed_point_residual": 1.2132475064596804e-06,
+          "extra_map_residual": 1.8037335497433915e-07,
+          "kkt_residual": 0.08094483707175082,
+          "target_log_ratio_identity_residual": 6.661338147750939e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -3708,6 +4640,34 @@
           "weight_l1": 33.581235964302614,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.11265297116444754,
+            0.12320867639102541,
+            0.11365790064913839,
+            0.11493828634397482
+          ],
+          "min_surplus": 0.11265297116444754,
+          "avg_surplus": 0.11611445863714653,
+          "nash_welfare": -8.615241191257173,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9634794337726872,
+          "exploitability": 0.3401325132559635,
+          "implied_raw_lambda": [
+            8.876818690740336,
+            8.116311523600139,
+            8.798332489766787,
+            8.700321118476646
+          ],
+          "implied_raw_lambda_l1": 34.491783822583905,
+          "target_log_ratio_l2": 62.93146113656776,
+          "target_log_ratio_mean_abs": 3.65310201852691,
+          "tv_to_exact_A": 0.15953456948413725,
+          "tv_to_exact_B": 0.05475330733002108,
+          "weight_l1": 5.476977364550708,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -3727,6 +4687,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.7339132672373138,
           "tv_to_exact_B": 0.5892774168273109
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.11067299117429422,
+            0.12573420760112056,
+            0.1066415349049345,
+            0.11354956804465904
+          ],
+          "min_surplus": 0.1066415349049345,
+          "avg_surplus": 0.11414957543125208,
+          "nash_welfare": -8.688558539186296,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.8720139500978966,
+          "exploitability": 0.33678029982461805,
+          "implied_raw_lambda": [
+            9.035628199703595,
+            7.953285100999737,
+            9.37720936679549,
+            8.806726588397941
+          ],
+          "implied_raw_lambda_l1": 35.172849255896764,
+          "target_log_ratio_l2": 48.99152460683745,
+          "target_log_ratio_mean_abs": 2.862513457841068,
+          "tv_to_exact_A": 0.19016175124807694,
+          "tv_to_exact_B": 0.029945002856142478,
+          "weight_l1": 28.35654061658134,
+          "weights": [
+            7.214014111388711,
+            6.6971321318957315,
+            7.342377669079949,
+            7.103016704216951
+          ],
+          "fixed_point_residual": 1.820165917987282e-08,
+          "extra_map_residual": 1.3989013536441774e-07,
+          "kkt_residual": 0.0295541288255185,
+          "target_log_ratio_identity_residual": 1.3322676295501878e-15
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -3950,6 +4946,34 @@
           "weight_l1": 45.94117588462955,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.0814947173565519,
+            0.08187739932843452,
+            0.07220330102837526,
+            0.07352994073191604
+          ],
+          "min_surplus": 0.07220330102837526,
+          "avg_surplus": 0.07727633961131943,
+          "nash_welfare": -10.248081471556144,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9413321357675475,
+          "exploitability": 0.2932737336574007,
+          "implied_raw_lambda": [
+            12.270734011197886,
+            12.213382547590497,
+            13.849782291906694,
+            13.599902162928643
+          ],
+          "implied_raw_lambda_l1": 51.93380101362372,
+          "target_log_ratio_l2": 63.908684010619574,
+          "target_log_ratio_mean_abs": 3.6722008102617556,
+          "tv_to_exact_A": 0.11432798203534981,
+          "tv_to_exact_B": 0.1063097331433414,
+          "weight_l1": 9.487137810055534,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -3969,6 +4993,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.6469888746730483,
           "tv_to_exact_B": 0.5265303652387499
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.07177383895912696,
+            0.08613307233268036,
+            0.06747892555840795,
+            0.07064220286958223
+          ],
+          "min_surplus": 0.06747892555840795,
+          "avg_surplus": 0.07400700992994938,
+          "nash_welfare": -10.432164537687884,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.6837466478747457,
+          "exploitability": 0.2711565748951855,
+          "implied_raw_lambda": [
+            13.932653101772496,
+            11.609942301112866,
+            14.819441651222302,
+            14.155843948498799
+          ],
+          "implied_raw_lambda_l1": 54.51788100260646,
+          "target_log_ratio_l2": 37.16874861028743,
+          "target_log_ratio_mean_abs": 2.104461917149861,
+          "tv_to_exact_A": 0.1860825264475669,
+          "tv_to_exact_B": 0.055195377820661085,
+          "weight_l1": 33.58685907685135,
+          "weights": [
+            8.493099717674925,
+            7.973681776913807,
+            8.624076385965262,
+            8.496001196297355
+          ],
+          "fixed_point_residual": 5.874331676647415e-08,
+          "extra_map_residual": 1.9164755760137098e-07,
+          "kkt_residual": 0.0484755204884047,
+          "target_log_ratio_identity_residual": 1.7763568394002505e-15
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -4187,6 +5247,34 @@
           "weight_l1": 64.19528811269961,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.034799407020780826,
+            0.028558785772946946,
+            0.015645023428721924,
+            0.022817961867391705
+          ],
+          "min_surplus": 0.015645023428721924,
+          "avg_surplus": 0.02545529452246035,
+          "nash_welfare": -14.85175524566087,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9439949733772899,
+          "exploitability": 0.2858224223503955,
+          "implied_raw_lambda": [
+            28.73612183687037,
+            35.015494284328994,
+            63.91808900484927,
+            43.8251236377541
+          ],
+          "implied_raw_lambda_l1": 171.49482876380273,
+          "target_log_ratio_l2": 64.21711109922701,
+          "target_log_ratio_mean_abs": 3.6836344076730043,
+          "tv_to_exact_A": 0.2408892179467122,
+          "tv_to_exact_B": 0.2733277256142794,
+          "weight_l1": 14.648173940058072,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -4206,6 +5294,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.45856830233969503,
           "tv_to_exact_B": 0.4039228242505251
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.03246655679648782,
+            0.04164543612082437,
+            0.024707253505913466,
+            0.03187079123872141
+          ],
+          "min_surplus": 0.024707253505913466,
+          "avg_surplus": 0.032672509415486765,
+          "nash_welfare": -13.752831972446636,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.3240429760617508,
+          "exploitability": 0.19268048041651306,
+          "implied_raw_lambda": [
+            30.800925588394342,
+            24.012235028557193,
+            40.47394421078242,
+            31.376691984510575
+          ],
+          "implied_raw_lambda_l1": 126.66379681224453,
+          "target_log_ratio_l2": 18.2129654600589,
+          "target_log_ratio_mean_abs": 0.9492470523838247,
+          "tv_to_exact_A": 0.14092034478903445,
+          "tv_to_exact_B": 0.0848417126967447,
+          "weight_l1": 39.402634453666714,
+          "weights": [
+            9.870899715680096,
+            9.52159588540706,
+            10.130398461701326,
+            9.879740390878233
+          ],
+          "fixed_point_residual": 3.021407725123382e-07,
+          "extra_map_residual": 2.4472431070510225e-07,
+          "kkt_residual": 0.07400554676354971,
+          "target_log_ratio_identity_residual": 8.881784197001252e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -4414,6 +5538,29 @@
           "weight_l1": 74.54325250332352,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            -0.03423202819030388,
+            -0.03881534599119311,
+            -0.04707011487654507,
+            -0.03849543918208942
+          ],
+          "min_surplus": -0.04707011487654507,
+          "avg_surplus": -0.039653232060032864,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.974858607028702,
+          "exploitability": 0.3295186593937048,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 63.480634233938346,
+          "target_log_ratio_mean_abs": 3.6527114690409888,
+          "tv_to_exact_A": 0.4544856731262866,
+          "tv_to_exact_B": 0.4599580311165156,
+          "weight_l1": 18.102506170760748,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -4433,6 +5580,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.21959468717764805,
           "tv_to_exact_B": 0.21020419390032932
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.01613305629325825,
+            0.019507557102157985,
+            0.010492190052293193,
+            0.01391642491524389
+          ],
+          "min_surplus": 0.010492190052293193,
+          "avg_surplus": 0.015012307090738329,
+          "nash_welfare": -16.895647861754266,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.10874489115253845,
+          "exploitability": 0.13555298313984296,
+          "implied_raw_lambda": [
+            61.984535466964445,
+            51.26218494520654,
+            95.30898649528733,
+            71.85753568825078
+          ],
+          "implied_raw_lambda_l1": 280.4132425957091,
+          "target_log_ratio_l2": 9.677685118241653,
+          "target_log_ratio_mean_abs": 0.44837254169772567,
+          "tv_to_exact_A": 0.0512556080254713,
+          "tv_to_exact_B": 0.04085719913199927,
+          "weight_l1": 41.91648502642266,
+          "weights": [
+            10.442484147697314,
+            10.311197109003341,
+            10.643981619988187,
+            10.518822149733824
+          ],
+          "fixed_point_residual": 8.234871937684574e-07,
+          "extra_map_residual": 1.7548180697435356e-07,
+          "kkt_residual": 0.08345761517116883,
+          "target_log_ratio_identity_residual": 4.440892098500626e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -4641,6 +5824,29 @@
           "weight_l1": 59.95021339811261,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            -0.08584411185663113,
+            -0.08801170875102292,
+            -0.10154134032928389,
+            -0.09472874271481704
+          ],
+          "min_surplus": -0.10154134032928389,
+          "avg_surplus": -0.09253147591293873,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.983027484119733,
+          "exploitability": 0.4068307221207388,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 61.41692702098185,
+          "target_log_ratio_mean_abs": 3.6805915105611433,
+          "tv_to_exact_A": 0.5046989692258501,
+          "tv_to_exact_B": 0.5074068930937329,
+          "weight_l1": 14.080618716674392,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -4660,6 +5866,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.17971976208000584,
           "tv_to_exact_B": 0.1752190387696805
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.0189348037501113,
+            0.01618269819060069,
+            0.013658323768624029,
+            0.01601974226367221
+          ],
+          "min_surplus": 0.013658323768624029,
+          "avg_surplus": 0.016198891993252057,
+          "nash_welfare": -16.51790577166834,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.08445706368606241,
+          "exploitability": 0.16027773779383747,
+          "implied_raw_lambda": [
+            52.81279981547852,
+            61.79439227142138,
+            73.21542650037372,
+            62.422976820775006
+          ],
+          "implied_raw_lambda_l1": 250.24559540804862,
+          "target_log_ratio_l2": 9.334892717438462,
+          "target_log_ratio_mean_abs": 0.3984400393554622,
+          "tv_to_exact_A": 0.028250551080188667,
+          "tv_to_exact_B": 0.02332140977883449,
+          "weight_l1": 41.697057507316615,
+          "weights": [
+            10.322994989036175,
+            10.422916215171247,
+            10.519242794398554,
+            10.431903508710636
+          ],
+          "fixed_point_residual": 1.406428028538631e-06,
+          "extra_map_residual": 2.711273197619768e-07,
+          "kkt_residual": 0.08140555293289056,
+          "target_log_ratio_identity_residual": 4.996003610813204e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -4883,6 +6125,34 @@
           "weight_l1": 39.776532930364404,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.10284353050084397,
+            0.12042168155020946,
+            0.08506994818134203,
+            0.08796964747539517
+          ],
+          "min_surplus": 0.08506994818134203,
+          "avg_surplus": 0.09907620192694766,
+          "nash_welfare": -9.28634713031465,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.9214729568504868,
+          "exploitability": 0.3100524350803764,
+          "implied_raw_lambda": [
+            9.723509054288968,
+            8.30415243440238,
+            11.755032433642942,
+            11.36755720522464
+          ],
+          "implied_raw_lambda_l1": 41.15025112755893,
+          "target_log_ratio_l2": 66.25030568218429,
+          "target_log_ratio_mean_abs": 3.694627419693216,
+          "tv_to_exact_A": 0.19125019860910872,
+          "tv_to_exact_B": 0.09474424081700371,
+          "weight_l1": 6.431686497521058,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -4902,6 +6172,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.7163773497765384,
           "tv_to_exact_B": 0.5761763299207049
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.10641222475666104,
+            0.11550904412032639,
+            0.08356268454330655,
+            0.08418275561436206
+          ],
+          "min_surplus": 0.08356268454330655,
+          "avg_surplus": 0.09741667725866401,
+          "nash_welfare": -9.355764659423258,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.8052464759337917,
+          "exploitability": 0.30683535629935005,
+          "implied_raw_lambda": [
+            9.397416530729975,
+            8.65733075375721,
+            11.967064072501737,
+            11.878917394685454
+          ],
+          "implied_raw_lambda_l1": 41.90072875167437,
+          "target_log_ratio_l2": 45.83792707854417,
+          "target_log_ratio_mean_abs": 2.6590229658506077,
+          "tv_to_exact_A": 0.2164245745339321,
+          "tv_to_exact_B": 0.045840539267274404,
+          "weight_l1": 30.501996221063216,
+          "weights": [
+            7.292171201535673,
+            7.019748846346753,
+            8.127788703910454,
+            8.062287469270336
+          ],
+          "fixed_point_residual": 1.795627374567843e-08,
+          "extra_map_residual": 1.807205539661183e-07,
+          "kkt_residual": 0.0398515217308122,
+          "target_log_ratio_identity_residual": 1.3322676295501878e-15
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -5125,6 +6431,34 @@
           "weight_l1": 51.652062207584144,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.06892348938450425,
+            0.09032287617003999,
+            0.05832688864881008,
+            0.06403807435780533
+          ],
+          "min_surplus": 0.05832688864881008,
+          "avg_surplus": 0.07040283214028992,
+          "nash_welfare": -10.669092295347914,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.8994257084483894,
+          "exploitability": 0.2658602707479124,
+          "implied_raw_lambda": [
+            14.508841745102147,
+            11.071392347132752,
+            17.14475130022902,
+            15.61571002920256
+          ],
+          "implied_raw_lambda_l1": 58.34069542166648,
+          "target_log_ratio_l2": 66.52430645575517,
+          "target_log_ratio_mean_abs": 3.715591603186889,
+          "tv_to_exact_A": 0.152788538137053,
+          "tv_to_exact_B": 0.11567668286974571,
+          "weight_l1": 10.48906811454243,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -5144,6 +6478,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.640228199745105,
           "tv_to_exact_B": 0.5388443451458815
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.07043240150212858,
+            0.08240346107617863,
+            0.05792001377041035,
+            0.059090689046716625
+          ],
+          "min_surplus": 0.05792001377041035,
+          "avg_surplus": 0.06746164134885854,
+          "nash_welfare": -10.82660391856587,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.6578294294347738,
+          "exploitability": 0.24721918047346267,
+          "implied_raw_lambda": [
+            14.198010839794783,
+            12.135412602093751,
+            17.265189265387757,
+            16.923139941885058
+          ],
+          "implied_raw_lambda_l1": 60.52175264916134,
+          "target_log_ratio_l2": 34.70185264449329,
+          "target_log_ratio_mean_abs": 1.98676543271907,
+          "tv_to_exact_A": 0.18740290544198715,
+          "tv_to_exact_B": 0.06884183072540306,
+          "weight_l1": 34.540295360774635,
+          "weights": [
+            8.513510109131053,
+            8.140582753256444,
+            8.948590793116677,
+            8.937611705270463
+          ],
+          "fixed_point_residual": 6.320280565574876e-08,
+          "extra_map_residual": 1.3467261095190253e-07,
+          "kkt_residual": 0.05382942512104141,
+          "target_log_ratio_identity_residual": 8.881784197001252e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -5362,6 +6732,34 @@
           "weight_l1": 66.25016836740438,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            0.016354855252397736,
+            0.04114147423219475,
+            0.023424920469114204,
+            0.02847144299213453
+          ],
+          "min_surplus": 0.016354855252397736,
+          "avg_surplus": 0.027348173236460303,
+          "nash_welfare": -14.616777569580453,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.899550030450602,
+          "exploitability": 0.27000204208599765,
+          "implied_raw_lambda": [
+            61.14392237457394,
+            24.306372551362355,
+            42.689579301603246,
+            35.12291246623005
+          ],
+          "implied_raw_lambda_l1": 163.26278669376958,
+          "target_log_ratio_l2": 66.86627400701344,
+          "target_log_ratio_mean_abs": 3.7212689752304136,
+          "tv_to_exact_A": 0.23449807408318382,
+          "tv_to_exact_B": 0.2610891714096066,
+          "weight_l1": 15.050208209964271,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -5381,6 +6779,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.449378115620987,
           "tv_to_exact_B": 0.40306134751788836
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.030347900348006624,
+            0.04046137756770349,
+            0.035483653873722584,
+            0.02855559570855568
+          ],
+          "min_surplus": 0.02855559570855568,
+          "avg_surplus": 0.03371213187449709,
+          "nash_welfare": -13.59702085342368,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.3218736545767832,
+          "exploitability": 0.1842064367130184,
+          "implied_raw_lambda": [
+            32.951208766760175,
+            24.71492717534674,
+            28.181990602172736,
+            35.0194060108641
+          ],
+          "implied_raw_lambda_l1": 120.86753255514375,
+          "target_log_ratio_l2": 18.951718813752105,
+          "target_log_ratio_mean_abs": 1.0175020397976897,
+          "tv_to_exact_A": 0.12268076914231356,
+          "tv_to_exact_B": 0.07510629766824302,
+          "weight_l1": 39.23102489655066,
+          "weights": [
+            9.927810313894778,
+            9.573380232222545,
+            9.732036031897485,
+            9.99779831853585
+          ],
+          "fixed_point_residual": 2.558291107845889e-07,
+          "extra_map_residual": 2.1428742963403025e-07,
+          "kkt_residual": 0.07146642595455457,
+          "target_log_ratio_identity_residual": 6.661338147750939e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -5589,6 +7023,29 @@
           "weight_l1": 74.51336238055941,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            -0.039365896197920434,
+            -0.022237983836706474,
+            -0.030563831819235703,
+            -0.0255250799446288
+          ],
+          "min_surplus": -0.039365896197920434,
+          "avg_surplus": -0.029423197949622854,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.8870458961141129,
+          "exploitability": 0.3137247327798174,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 67.40638842982995,
+          "target_log_ratio_mean_abs": 3.7259777103799507,
+          "tv_to_exact_A": 0.41596218152683856,
+          "tv_to_exact_B": 0.4211346299044102,
+          "weight_l1": 18.063152228673765,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -5608,6 +7065,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.26699910392033177,
           "tv_to_exact_B": 0.2529049650810885
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.016607953767729958,
+            0.01909189838905015,
+            0.021881738149780207,
+            0.018706807471681384
+          ],
+          "min_surplus": 0.016607953767729958,
+          "avg_surplus": 0.019072099444560425,
+          "nash_welfare": -15.857335407677768,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.1410873061684153,
+          "exploitability": 0.14792057506678613,
+          "implied_raw_lambda": [
+            60.21211366466154,
+            52.378238120811176,
+            45.700208692518544,
+            53.456475751611464
+          ],
+          "implied_raw_lambda_l1": 211.7470362296027,
+          "target_log_ratio_l2": 10.618052958544173,
+          "target_log_ratio_mean_abs": 0.544258816304118,
+          "tv_to_exact_A": 0.06106172499751859,
+          "tv_to_exact_B": 0.046817066964999834,
+          "weight_l1": 41.3086318735316,
+          "weights": [
+            10.416590064680888,
+            10.324349728534955,
+            10.225831563077255,
+            10.341860517238501
+          ],
+          "fixed_point_residual": 8.352221762542023e-07,
+          "extra_map_residual": 1.357938222978916e-07,
+          "kkt_residual": 0.07939275220136253,
+          "target_log_ratio_identity_residual": 4.440892098500626e-16
         },
         "A_exact_global_nash": {
           "surplus": [
@@ -5816,6 +7309,29 @@
           "weight_l1": 64.99215344635407,
           "fixed_point_residual": 0.0
         },
+        "bt_rm_nash": {
+          "surplus": [
+            -0.06928302428370331,
+            -0.07168919812458319,
+            -0.07285760041126518,
+            -0.07047413716679618
+          ],
+          "min_surplus": -0.07285760041126518,
+          "avg_surplus": -0.07107598999658696,
+          "nash_welfare": null,
+          "nash_welfare_defined": false,
+          "kl_from_reference": 0.8631166427085363,
+          "exploitability": 0.36565909855871814,
+          "implied_raw_lambda": null,
+          "implied_raw_lambda_l1": null,
+          "target_log_ratio_l2": 67.76274050764036,
+          "target_log_ratio_mean_abs": 3.736101588606391,
+          "tv_to_exact_A": 0.42046050588623646,
+          "tv_to_exact_B": 0.42317050605584194,
+          "weight_l1": 15.400237238821305,
+          "fixed_point_residual": 0.0,
+          "extra_map_residual": 0.0
+        },
         "reference": {
           "surplus": [
             0.0,
@@ -5835,6 +7351,42 @@
           "target_log_ratio_mean_abs": 0.0,
           "tv_to_exact_A": 0.2163931841122435,
           "tv_to_exact_B": 0.20670452911717999
+        },
+        "C2_exact_inner_solve": {
+          "surplus": [
+            0.0212273220576657,
+            0.016703398374495186,
+            0.017084112460603856,
+            0.023194750805411956
+          ],
+          "min_surplus": 0.016703398374495186,
+          "avg_surplus": 0.019552395924544174,
+          "nash_welfare": -15.778044863060913,
+          "nash_welfare_defined": true,
+          "kl_from_reference": 0.10566264428076141,
+          "exploitability": 0.163578523765752,
+          "implied_raw_lambda": [
+            47.109098231205095,
+            59.86805664210965,
+            58.53391578321734,
+            43.1132029996491
+          ],
+          "implied_raw_lambda_l1": 208.62427365618117,
+          "target_log_ratio_l2": 9.824731296200211,
+          "target_log_ratio_mean_abs": 0.4599157840828603,
+          "tv_to_exact_A": 0.04184168279681878,
+          "tv_to_exact_B": 0.03161477481638205,
+          "weight_l1": 41.18768006845135,
+          "weights": [
+            10.226308141172733,
+            10.406364989694728,
+            10.392580458966828,
+            10.162426478617064
+          ],
+          "fixed_point_residual": 1.9303620687471934e-06,
+          "extra_map_residual": 1.9660450983893796e-07,
+          "kkt_residual": 0.07939163586563433,
+          "target_log_ratio_identity_residual": 5.551115123125783e-16
         },
         "A_exact_global_nash": {
           "surplus": [
