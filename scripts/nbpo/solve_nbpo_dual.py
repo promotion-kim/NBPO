@@ -353,6 +353,14 @@ def main() -> None:
     ap.add_argument("--ks-unregularized-diagnostics", action="store_true",
                     help="additionally report the spec-literal KS quantities (ideal point, "
                          "rho*, IR violation) at a nearly unregularized step")
+    ap.add_argument("--inner-solver", choices=("fixed_point", "exact"),
+                    default="fixed_point",
+                    help="how the Eq. (18) subproblem is solved at fixed weights. "
+                         "'fixed_point' (default, and what every existing artifact "
+                         "used) applies the Eq. (21) map --R times; 'exact' maximizes "
+                         "the concave subproblem directly. Use 'exact' when raw Nash "
+                         "multipliers are large -- the R-step map stops contracting "
+                         "there and the audit measured a fixed-point residual of 1.000.")
     ap.add_argument("--legacy-solver", action="store_true",
                     help="route adaptive_game through the original solve_nbpo_dual code path "
                          "(bitwise identical; kept so a published artifact can be regenerated "
@@ -433,7 +441,8 @@ def main() -> None:
             raise SystemExit("pass either --weight-l1 or --match-weight-l1-to-nash, not both")
         nash = solve_finite_pool(rep, "nash", eta=args.eta, pi_t=None, R=args.R, M=args.M,
                                  gamma=gamma, lambda_box=(args.lambda_min, args.lambda_max),
-                                 lambda_init=lambda_init, damping=args.damping)
+                                 lambda_init=lambda_init, damping=args.damping,
+                                 inner_solver=args.inner_solver)
         weight_l1 = matched_weight_l1(nash)
         matched_note = {"source": "nash solve on these same tensors",
                         "lambda_raw": [float(v) for v in nash.weights],
@@ -449,7 +458,8 @@ def main() -> None:
             gamma=gamma, lambda_box=(args.lambda_min, args.lambda_max),
             lambda_init=lambda_init, damping=args.damping,
             adversary_step=args.adversary_step, weight_l1=weight_l1,
-            log_every=args.log_every, ks_kwargs=ks_kwargs)
+            log_every=args.log_every, ks_kwargs=ks_kwargs,
+            inner_solver=args.inner_solver)
     except KSUndefinedError as exc:
         # A bargaining set that does not dominate the disagreement point is a
         # property of the stage, not a solver failure: record it and stop, rather

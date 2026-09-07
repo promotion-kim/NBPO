@@ -30,7 +30,15 @@ their log path, and no number is quoted from them.
 | **Identical-pair confident-tie gate** | **pass** — 1.000 for every protocol and objective |
 | **Section F holdout (200 prompts)** | **FAIL** — confident swap 0.70–0.77 against 0.85; position bias up to +0.19 |
 | **Downstream target stability** | **FAIL** — target Pearson 0.869/0.870 < 0.90, sign agreement 0.736/0.771 < 0.85 |
-| Admissible judge protocol | **NONE** — every candidate fails a known-answer prerequisite |
+| Admissible judge protocol | **NONE**, and the route is now **closed**. See the v5 factorial below. |
+| **v5 opaque-identifier factorial** | **Decision B** — both identifier schemes fail; prompted-Qwen judging retired |
+| **Controlled-nontransitivity feasibility (rho\*)** | **pass** — rho\* > 0 on all 25 v1 instances, certified gap ≤ 3.1e-7 |
+| **Exact NBPO on the stress test** | **pass** — exact global and proximal Nash reach 88–94 % of rho\* at every alpha |
+| **Deployed alternating solver** | **FAIL** — fixed-point residual 1.000 at alpha ≥ 0.5; the stress-test negative was this |
+| **SafeRLHF splits** | **pass** — prompt-disjoint, overlap 0, hashes recorded |
+| **SafeRLHF observable cycles** | **ZERO, structurally** — the annotation graph is a near-perfect matching |
+| **GPM beats a constant predictor** | **pass** — NLL 0.56/0.52 vs 0.66/0.60, balanced accuracy 0.72/0.75 vs 0.50 |
+| **GPM beats BT** | **no** — ΔNLL −0.0039 [−0.0073, −0.0005] on helpfulness only; no accuracy gain on either |
 | Full 7,500-prompt bank | **NOT LAUNCHED**, and blocked |
 | Section I pool-size pilot (4+4 vs 8+8) | **QUARANTINED** — stopped mid-run, `exploratory_v3_invalid_protocol`; may not select pool geometry |
 | v4 decoding repair (512/1024, stop-on-marker) | **pass** — final unresolved invalid 0.0000 on every objective |
@@ -475,3 +483,79 @@ manifest and refuses to mix protocols; two tests pin it.
 Unchanged and still true: `judge_v4_holdout` unopened, backup holdout sealed, the
 7 500-prompt bank not launched, no RM and no policy trained from any v2/v3/v4
 prompted-Qwen label.
+
+---
+
+# Session 5 (2026-09-08): three bounded tracks
+
+## Track 1 — the prompted-judge route is closed
+
+Full record: `judge_protocol_v5/DECISION_V5_FINAL.md`.
+
+A single factorial on `judge_v4_dev` (24 000 renderings, 1 023 s, 600 per cell,
+balance re-derived from the written file) separates two things the ordinary
+rendering confounds perfectly. **The bias is lexical.** Under A/B the physical
+slot contributes +0.012 on helpfulness and +0.026 on instruction following while
+the letter "A" contributes **+0.237** and **+0.147**. It is strong enough to
+override a known answer: deterministic-degradation accuracy in the factorial's
+A/B condition is 0.480/0.680/0.980/0.640, and on the same controls under opaque
+identifiers it is 1.000/1.000/1.000/0.940.
+
+**Opaque identifiers relocate the bias, they do not remove it.** The total
+first-and-"A" advantage is conserved (0.249 → 0.236 helpfulness, 0.173 → 0.153
+instruction following); the mass simply moves into the physical channel (+0.168,
++0.158). Both schemes fail confident semantic swap (0.448–0.750 vs 0.85) and
+order split-half Spearman (0.008–0.465 vs 0.75).
+
+**Decision B.** Prompted-Qwen judging is permanently retired from the main
+experiment. No further prompt variants; no lowered thresholds; neither holdout
+opened; the bank stays unlaunched.
+
+## Track 2 — the stress-test negative was a solver failure
+
+Full record: `NONTRANSITIVITY_AUDIT.md`, artifacts in
+`results/iclr2027_table1_v2/nontransitivity_audit/`.
+
+`V_{k,beta}` is concave in `pi`, so `rho*`, the exact global Nash point and the
+exact proximal Nash point are convex programs. Solved directly in float64 with a
+tangent-plane certificate (gaps 6.6e-9 to 3.1e-7):
+
+* **every v1 instance is inside Assumption 1** — `rho* > 0` on all 25, and the
+  uniform reference is never the max-min optimum. But the margin shrinks 6.5x
+  across the sweep, 0.111 → 0.017;
+* the **exact** solutions reach 88–94 % of `rho*` at every alpha;
+* the **deployed** alternating solver reaches −0.185 at alpha = 1 with a
+  fixed-point residual of **1.000** and a weight norm of 608, sitting TV = 0.64
+  from the exact proximal policy. At alpha = 0 the same code converges (residual
+  6.3e-8) and lands on the exact policy to TV = 0.0000.
+
+So the implementation is right and the *iteration* diverges once raw
+`lambda = 1/s` explodes. The comparison the negative rested on is void as well:
+fixed-reference Nash has a fixed-point residual of exactly 0 at every alpha
+because its Eq. (21) map is constant, so a diverging iteration was being compared
+against one that cannot diverge.
+
+**"Roughly two thirds is step size" is retracted** with the arithmetic in
+`step_size_claim_audit.json`: the fraction is 2.2 %, 78.1 %, 82.8 %, 46.9 % and
+23.8 % at alpha 0 → 1.
+
+## Track 3 — SafeRLHF cannot carry a cyclicity claim, and does carry a conflict one
+
+Full records: `SAFERLHF_SUPERVISION.md`, `GPM_VS_BT.md`.
+
+The released comparison graph is a **near-perfect matching**: 73 906 distinct
+edges over 143 668 responses, only 1 369 of degree ≥ 2, and **zero triangles**
+anywhere — verified independently under two definitions of response identity. The
+directly observable three-cycle count is 0 by construction of the annotation
+protocol, so no nontransitivity claim can be evidenced from this source, and the
+pre-registered "observable nontransitive subset" test cannot be evaluated at all.
+
+What SafeRLHF does carry is a large, genuine, two-dimensional conflict:
+**24.33 % of held-out rows prefer different responses on helpfulness and on
+harmlessness**, from independent human judgements on the same pair.
+
+Matched-budget GPM vs BT (126.5M vs 126.4M parameters, 419 s vs 420 s): both beat
+a constant predictor decisively; GPM's advantage over BT is −0.0039 nats on
+helpfulness [−0.0073, −0.0005] and nothing on harmlessness, with no accuracy gain
+on either. That null is what a matching graph predicts, and it is **not** evidence
+that human preferences are transitive.

@@ -227,6 +227,8 @@ def audit_instance(inst, seed, alpha, eta, M, R, skip_ks=False, c2_outer=120):
     prac["C2_exact_inner_solve"] = {
         "weight_l1": c2["weight_l1"], "weights": c2["weights"],
         "fixed_point_residual": c2["stationarity_residual"],
+        "extra_map_residual": c2["extra_map_residual"],
+        "target_log_ratio_identity_residual": c2["target_log_ratio_identity_residual"],
         "kkt_residual": c2["kkt_residual"],
         "outer_iterations": c2["outer_iterations"]}
 
@@ -250,7 +252,7 @@ def audit_instance(inst, seed, alpha, eta, M, R, skip_ks=False, c2_outer=120):
                       refs={f"exact_{k[0]}": v for k, v in refs.items()})
         for key in ("weight_l1", "weights", "fixed_point_residual",
                     "extra_map_residual", "kkt_residual", "projected_kkt_residual",
-                    "common_weight_l1"):
+                    "common_weight_l1", "target_log_ratio_identity_residual"):
             if name in prac and key in prac[name]:
                 ev[key] = prac[name][key]
         row["policies"][name] = ev

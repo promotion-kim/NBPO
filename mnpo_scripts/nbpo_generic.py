@@ -190,6 +190,127 @@ def solve_proximal(rep: ObjectiveRepresentation, pi_t: torch.Tensor,
         update_source_kind=source_kind, update_source_iteration=source_iteration)
 
 
+def solve_proximal_exact(rep: ObjectiveRepresentation, pi_t: torch.Tensor,
+                         w: torch.Tensor, eta: float, *,
+                         pi_init: Optional[torch.Tensor] = None,
+                         maxiter: int = 200, ftol: float = 1e-14) -> ProximalSolve:
+    """Solve the Eq. (18) subproblem by maximization instead of iteration.
+
+    ``solve_proximal`` applies the Eq. (21) map ``R`` times. That map contracts
+    only while ``eta * sum_k w_k q_k`` stays small; once raw Nash multipliers
+    grow -- and they must, since ``lambda_k = 1/s_k`` diverges as a surplus
+    approaches zero -- the exponent saturates the per-prompt softmax and the
+    iteration bang-bangs between vertices instead of converging. The audit in
+    `scripts/experiments/iclr2027_table1_v2` measures exactly that: a fixed-point
+    residual of 1.000, the largest a simplex iterate can have, and a policy
+    ``TV = 0.64`` away from the true proximal solution.
+
+    The subproblem does not need iterating, and it does not need a large solver
+    either. ``V_{k,beta}(pi) = mean_x v_{k,x}(pi_x)`` and each ``v_{k,x}`` depends
+    on ``pi`` **only through that prompt's row**, while the proximal term is a sum
+    of per-prompt KLs. So
+
+        J_w(pi) = sum_x [ (1/X) sum_k w_k v_{k,x}(pi_x) - KL(pi_x||pi_t,x)/(eta X) ]
+
+    **separates completely across prompts**, and the whole thing is X independent
+    concave programs over the I-simplex rather than one program over X*I
+    variables. That is what makes this usable at 7000 prompts: cost is linear in
+    X, each subproblem has a handful of variables, and they are embarrassingly
+    parallel. ``logsumexp`` is convex and ``-beta * convex`` is concave, so each
+    piece is concave and its maximizer is unique.
+
+    The return is **the Eq. (21) map applied at the maximizer**, not the
+    maximizer, so that
+
+        [log pi*(y) - log pi_t(y)] - [log pi*(y') - log pi_t(y')]
+            == eta * sum_k w_k (q_k(y) - q_k(y'))
+
+    holds to float64 exactly -- the identity the Eq. (26) pair builder depends on
+    and the artifact writer refuses above 1e-9. An optimizer iterate satisfies it
+    only to its own tolerance and would be refused; the residual error instead
+    lands in ``extra_map_residual``, where the existing solver already reports it.
+
+    For a representation whose ``q`` does not depend on the policy
+    (``fixed_reference``, ``bt_reward``) one application of the map is already the
+    exact maximizer, so this delegates rather than invoking an optimizer that has
+    nothing to do.
+    """
+    import numpy as np
+    from scipy.optimize import minimize
+
+    pi_t = validate_distribution(pi_t, "pi_t", require_full_support=True)
+    w = as_float64(w)
+    if not (eta > 0):
+        raise ValueError("eta must be strictly positive")
+    if not rep.policy_adaptive:
+        return solve_proximal(rep, pi_t, w, eta, R=1, pi_init=pi_init)
+
+    X, I, K = rep.X, rep.I, rep.K
+    floor = 1e-12
+    A = rep.A.numpy()                       # (K, X, I, J)
+    beta = rep.beta.numpy()
+    mu = rep.mu.numpy()
+    w_np = w.numpy()
+    pi_t_np = pi_t.numpy()
+    log_pi_t = np.log(np.clip(pi_t_np, floor, None))
+    start = (pi_t_np if pi_init is None
+             else validate_distribution(pi_init, "pi_init").numpy())
+
+    ones = np.ones(I)
+    cons = [{"type": "eq", "fun": lambda v: np.array([v.sum() - 1.0]),
+             "jac": lambda v: ones[None, :]}]
+    bounds = [(floor, 1.0)] * I
+    out = np.empty((X, I))
+
+    for x in range(X):
+        Ax = A[:, x]                        # (K, I, J)
+        mux = mu[x]
+        lmu = np.log(mux)
+        lpt = log_pi_t[x]
+
+        def negx(v, Ax=Ax, lmu=lmu, lpt=lpt):
+            p = np.clip(v, floor, None)
+            p = p / p.sum()
+            r = np.einsum("i,kij->kj", p, Ax)
+            lw = lmu[None, :] - r / beta[:, None]
+            m = lw.max(axis=-1, keepdims=True)
+            v_k = -beta * (m[:, 0] + np.log(np.exp(lw - m).sum(axis=-1)))
+            kl = float((p * (np.log(p) - lpt)).sum())
+            return -(float(w_np @ v_k) / X - kl / (eta * X))
+
+        def negx_jac(v, Ax=Ax, lmu=lmu, lpt=lpt):
+            p = np.clip(v, floor, None)
+            p = p / p.sum()
+            r = np.einsum("i,kij->kj", p, Ax)
+            lw = lmu[None, :] - r / beta[:, None]
+            lw -= lw.max(axis=-1, keepdims=True)
+            nu = np.exp(lw)
+            nu /= nu.sum(axis=-1, keepdims=True)
+            q = np.einsum("kj,kij->ki", nu, Ax)          # (K, I)
+            g = (w_np @ q) / X
+            g -= (np.log(p) - lpt + 1.0) / (eta * X)
+            return -g
+
+        res = minimize(negx, start[x], jac=negx_jac, method="SLSQP",
+                       bounds=bounds, constraints=cons,
+                       options={"maxiter": int(maxiter), "ftol": float(ftol)})
+        v = np.clip(res.x, floor, None)
+        out[x] = v / v.sum()
+
+    pi_hat = torch.from_numpy(out)
+    nu, q = rep.opponent_and_gradient(pi_hat)
+    pi_star = exp_update(pi_t, q, w, eta)
+    nu_final, q_final = rep.opponent_and_gradient(pi_star)
+    pi_extra = exp_update(pi_t, q_final, w, eta)
+    return ProximalSolve(
+        pi=pi_star, nu_update=nu, q_update=q,
+        nu_final_policy=nu_final, q_final_policy=q_final,
+        fixed_point_residual=float((pi_star - pi_hat).abs().max()),
+        extra_map_residual=float((pi_extra - pi_star).abs().max()),
+        iterations=X, update_source_pi=pi_hat.clone(),
+        update_source_kind="exact_proximal_maximizer", update_source_iteration=0)
+
+
 def _converged_solve(rep, pi_t, w, eta, *, R=400, damping=0.5, tol=1e-12):
     """Inner solve run to (near) fixed-point convergence, for the KS sub-problems."""
     sol = solve_proximal(rep, pi_t, w, eta, R, damping=damping)
@@ -603,8 +724,29 @@ def solve_finite_pool(
     weight_l1: Optional[float] = None,
     log_every: int = 0,
     ks_kwargs: Optional[dict] = None,
+    inner_solver: str = "fixed_point",
 ) -> FinitePoolSolution:
-    """Solve one outer stage for any (representation, aggregation) pair."""
+    """Solve one outer stage for any (representation, aggregation) pair.
+
+    ``inner_solver`` selects how the Eq. (18) subproblem is solved at fixed
+    weights. ``"fixed_point"`` -- the default, and what every existing artifact
+    was produced with -- applies the Eq. (21) map ``R`` times. ``"exact"``
+    maximizes the concave subproblem directly, which the controlled-
+    nontransitivity audit showed is necessary once raw multipliers grow: at
+    ``alpha = 1`` the ``R``-step map has a fixed-point residual of 1.000 and
+    lands at min surplus -0.185, while the exact inner solve reaches +0.011
+    against an attainable ``rho* = +0.015``. The default is unchanged so no
+    existing result moves silently.
+    """
+    if inner_solver not in ("fixed_point", "exact"):
+        raise ValueError("inner_solver must be 'fixed_point' or 'exact'")
+
+    def _inner(rep_, pi_t_, w_, eta_, R_, *, pi_init=None, damping_=0.0):
+        if inner_solver == "exact":
+            return solve_proximal_exact(rep_, pi_t_, w_, eta_, pi_init=pi_init)
+        return solve_proximal(rep_, pi_t_, w_, eta_, R_, pi_init=pi_init,
+                              damping=damping_)
+
     if aggregation not in AGGREGATIONS:
         raise ValueError(f"aggregation must be one of {AGGREGATIONS}, got {aggregation!r}")
     K, X, I = rep.K, rep.X, rep.I
@@ -647,7 +789,7 @@ def solve_finite_pool(
         w = torch.full((K,), 1.0 / K, dtype=torch.float64)
         if weight_l1 is not None:
             w = w * (float(weight_l1) / float(w.sum()))
-        final = solve_proximal(rep, pi_t, w, eta, R, damping=damping)
+        final = _inner(rep, pi_t, w, eta, R, damping_=damping)
     elif aggregation == "nash":
         lam = (torch.ones(K, dtype=torch.float64) if lambda_init is None
                else as_float64(lambda_init).clone())
@@ -655,7 +797,7 @@ def solve_finite_pool(
             raise ValueError("lambda_init must be a strictly positive vector of length K")
         pi_warm = None
         for m_it in range(M):
-            sol = solve_proximal(rep, pi_t, lam, eta, R, pi_init=pi_warm, damping=damping)
+            sol = _inner(rep, pi_t, lam, eta, R, pi_init=pi_warm, damping_=damping)
             if warm_start_policy:
                 pi_warm = sol.pi
             s = rep.game_values(sol.pi) - d
@@ -667,7 +809,7 @@ def solve_finite_pool(
                                 "kkt_residual": float((s - 1.0 / lam).abs().max())})
             lam = torch.clamp(lam - gamma_sched[m_it] * (s - 1.0 / lam), min=lo, max=hi)
         w = lam
-        final = solve_proximal(rep, pi_t, w, eta, R, pi_init=pi_warm, damping=damping)
+        final = _inner(rep, pi_t, w, eta, R, pi_init=pi_warm, damping_=damping)
         s_fin = rep.game_values(final.pi) - d
         gamma_ref = float(gamma_sched[-1])
         kkt = float((s_fin - 1.0 / w).abs().max())
@@ -680,7 +822,7 @@ def solve_finite_pool(
         pi_sum = torch.zeros_like(pi_t)
         pi_warm = None
         for m_it in range(M):
-            sol = solve_proximal(rep, pi_t, wv * l1, eta, R, pi_init=pi_warm, damping=damping)
+            sol = _inner(rep, pi_t, wv * l1, eta, R, pi_init=pi_warm, damping_=damping)
             if warm_start_policy:
                 pi_warm = sol.pi
             V = rep.game_values(sol.pi)
@@ -695,7 +837,7 @@ def solve_finite_pool(
         pi_bar = pi_sum / M
         pi_bar = pi_bar / pi_bar.sum(dim=-1, keepdim=True)
         w = w_bar * l1
-        final = solve_proximal(rep, pi_t, w, eta, R, pi_init=pi_bar, damping=damping)
+        final = _inner(rep, pi_t, w, eta, R, pi_init=pi_bar, damping_=damping)
         V_bar = rep.game_values(pi_bar)
         v_bar = V_bar if aggregation == "absolute_maxmin" else V_bar - d
         V_br = rep.game_values(final.pi)
@@ -736,6 +878,7 @@ def solve_finite_pool(
         config={
             "representation": rep.info().__dict__,
             "aggregation": aggregation,
+            "inner_solver": inner_solver,
             # Top-level `beta` is what the Eq. (26) pair builder reads. It is the
             # opponent temperature, so it exists only for a representation that
             # HAS an adaptive opponent; fixed_reference and bt_reward record None

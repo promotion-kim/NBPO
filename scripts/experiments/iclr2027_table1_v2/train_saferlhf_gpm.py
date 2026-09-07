@@ -284,10 +284,13 @@ def train_one(kind, args, device, splits):
         res[f"_{name}_raw"] = {"p": {o: out[o]["p"] for o in OBJECTIVES},
                                "y": {o: out[o]["y"] for o in OBJECTIVES},
                                "prompts": prompts}
+    res["predicted_cycles_test"] = predicted_cycles(
+        model, splits["test"], tok, device, args.max_len, amp, seed=args.seed)
     if kind == "gpm":
         with torch.no_grad():
             h = torch.randn(8, hidden, device=device)
-            res["not_scalar_decomposable"] = assert_not_scalar_decomposable(model, h, 0)
+            res["not_scalar_decomposable_random_inputs"] = assert_not_scalar_decomposable(
+                model, h, 0)
         res["provenance"] = GPMProvenance(
             encoder_name=args.encoder, adaptation_mode="full_finetune",
             n_objectives=len(OBJECTIVES), hidden_size=hidden, head_width=args.width,
@@ -296,6 +299,69 @@ def train_one(kind, args, device, splits):
     del model
     torch.cuda.empty_cache()
     return res
+
+
+@torch.no_grad()
+def predicted_cycles(model, rows, tok, device, max_len, amp_dtype, max_prompts=400,
+                     max_responses=6, seed=0):
+    """Cycles the MODEL predicts, on held-out prompts -- never confused with observed ones.
+
+    SafeRLHF's annotation graph is a near-perfect matching, so the number of
+    three-cycles a human actually reported is 0 and no subset of it can be used
+    to test cyclic preference. A model, however, is defined on every pair, so it
+    can be asked about triples the annotators never compared. That is a
+    *prediction*, reported separately and never as evidence about people.
+    """
+    import collections
+    by_prompt = collections.defaultdict(dict)
+    for r in rows:
+        by_prompt[r["prompt_sha256"]].setdefault("prompt", r["prompt"])
+        for side in ("0", "1"):
+            by_prompt[r["prompt_sha256"]].setdefault("resp", {})[
+                r[f"response_{side}_sha256"]] = r[f"response_{side}"]
+    keys = sorted(k for k, v in by_prompt.items() if len(v["resp"]) >= 3)
+    rng = np.random.default_rng(seed)
+    if len(keys) > max_prompts:
+        keys = [keys[i] for i in sorted(rng.choice(len(keys), max_prompts, replace=False))]
+    model.eval()
+    out = {o: {"triples": 0, "cycles": 0, "prompts_with_a_cycle": 0}
+           for o in OBJECTIVES}
+    resid = 0.0
+    for key in keys:
+        blk = by_prompt[key]
+        ids = sorted(blk["resp"])[:max_responses]
+        texts = [blk["resp"][i] for i in ids]
+        enc = tok([blk["prompt"]] * len(texts), texts, padding=True,
+                  truncation="longest_first", max_length=max_len, return_tensors="pt")
+        enc = {k: v.to(device) for k, v in enc.items()}
+        with torch.autocast("cuda", dtype=amp_dtype, enabled=device.type == "cuda"):
+            h = model.encode(enc["input_ids"], enc["attention_mask"]).float()
+        n = len(ids)
+        for k, o in enumerate(OBJECTIVES):
+            L = np.zeros((n, n))
+            for i in range(n):
+                for j in range(n):
+                    if i != j:
+                        L[i, j] = float(model.logit(h[i:i + 1], h[j:j + 1], k))
+            found = False
+            for i in range(n):
+                for j in range(i + 1, n):
+                    for m in range(j + 1, n):
+                        out[o]["triples"] += 1
+                        resid = max(resid, abs(L[i, j] + L[j, m] + L[m, i]))
+                        s3 = [(L[i, j] > 0), (L[j, m] > 0), (L[m, i] > 0)]
+                        if all(s3) or not any(s3):
+                            out[o]["cycles"] += 1
+                            found = True
+            if found:
+                out[o]["prompts_with_a_cycle"] += 1
+    for o in OBJECTIVES:
+        t = out[o]["triples"]
+        out[o]["cycle_rate"] = (out[o]["cycles"] / t) if t else None
+    return {"per_objective": out, "n_prompts_scored": len(keys),
+            "max_cyclic_logit_residual_on_real_encodings": resid,
+            "note": ("PREDICTED, not observed. The human annotation graph contains "
+                     "zero triangles, so these triples were never compared by people.")}
 
 
 def main() -> None:

@@ -429,9 +429,31 @@ def solve_proximal_exact(A, mu, beta, d, w, pi_ref, eta, pi0=None):
     solves it directly and reports the stationarity residual, which is the
     quantity the R-step loop was implicitly trying to drive to zero.
     """
-    pi, res = solve_weighted(A, mu, beta, d, w, pi0=pi0, eta=eta, pi_ref=pi_ref)
+    pi_hat, res = solve_weighted(A, mu, beta, d, w, pi0=pi0, eta=eta, pi_ref=pi_ref)
+
+    # Return the Eq. (21) MAP APPLIED AT the maximizer, not the maximizer itself.
+    # The Eq. (26) pair builder depends on
+    #     [log pi*(y) - log pi_t(y)] - [log pi*(y') - log pi_t(y')]
+    #       == eta * sum_k w_k (q_k(y) - q_k(y'))
+    # and the artifact writer refuses above 1e-9. An SLSQP iterate satisfies that
+    # identity only to its own stationarity tolerance (~1e-7 here), so it would
+    # be refused. One map application makes the identity hold to float64 exactly
+    # BY CONSTRUCTION; the residual error then lives entirely in `extra_map`,
+    # which is where the existing solver already reports it and which downstream
+    # code already knows how to read.
+    q = value_gradient(A, pi_hat, mu, beta) * A.shape[1]
+    g = np.tensordot(np.asarray(w, dtype=np.float64), q, axes=(0, 0))
+    log_new = np.log(np.clip(pi_ref, FLOOR, None)) + eta * g
+    pi = np.exp(log_new - logsumexp(log_new, axis=-1, keepdims=True))
+
+    lr = np.log(np.clip(pi, FLOOR, None)) - np.log(np.clip(pi_ref, FLOOR, None))
+    pred = eta * g
+    centre = lambda M: M - M.mean(axis=-1, keepdims=True)
+    identity = float(np.abs(centre(lr) - centre(pred)).max())
     return pi, {
         "stationarity_residual": stationarity_residual(A, mu, beta, pi, pi_ref, w, eta),
+        "extra_map_residual": float(np.abs(pi - pi_hat).max()),
+        "target_log_ratio_identity_residual": identity,
         "slsqp_status": int(res.status), "slsqp_iterations": int(res.nit),
     }
 
@@ -467,5 +489,7 @@ def solve_nash_dual_exact_inner(A, mu, beta, d, pi_ref, eta, *, M=200, gamma=0.5
         "surplus": s.tolist(), "min_surplus": float(s.min()),
         "kkt_residual": float(np.abs(s - 1.0 / lam).max()),
         "stationarity_residual": info["stationarity_residual"],
+        "extra_map_residual": info["extra_map_residual"],
+        "target_log_ratio_identity_residual": info["target_log_ratio_identity_residual"],
         "outer_iterations": M, "history": history,
     }
