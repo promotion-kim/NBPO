@@ -1,0 +1,495 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    istio.io/rev: default
+    kubectl.kubernetes.io/default-container: main
+    kubectl.kubernetes.io/default-logs-container: main
+    mlx.navercorp.com/created-by: system:serviceaccount:a-82faea20-190c-11f1-bd90-0ad5d6f40000:default
+    mlx.navercorp.com/requested-by: system:serviceaccount:a-82faea20-190c-11f1-bd90-0ad5d6f40000:default
+    mlx.navercorp.com/updated-by: system:serviceaccount:a-82faea20-190c-11f1-bd90-0ad5d6f40000:default
+    mlx.navercorp.com/zone: private-h200-aipr-0
+    poddefault.admission.kubeflow.org/poddefault-pd-private-h200-aipr-0: "586486655"
+    prometheus.io/path: /stats/prometheus
+    prometheus.io/port: "15020"
+    prometheus.io/scrape: "true"
+    sidecar.istio.io/status: '{"initContainers":["istio-init","istio-proxy"],"containers":null,"volumes":["workload-socket","credential-socket","workload-certs","istio-envoy","istio-data","istio-podinfo","istio-token","istiod-ca-cert"],"imagePullSecrets":null,"revision":"default"}'
+  creationTimestamp: "2026-09-04T07:59:28Z"
+  generation: 1
+  labels:
+    management.mlx.navercorp.com/project: aipr
+    management.mlx.navercorp.com/workspace: aipr
+    mlx.navercorp.com/esm-code: ""
+    mlx.navercorp.com/is-gpu-requested: ""
+    mlx.navercorp.com/scheduled-by: admission-webhook
+    mlx.navercorp.com/top-owner-kind: v1.Pod
+    mlx.navercorp.com/top-owner-name: nbpo-judge
+    mlx.navercorp.com/zone: private-h200-aipr-0
+    private-h200-aipr-0-pod-default: "true"
+    security.istio.io/tlsMode: istio
+    service.istio.io/canonical-name: nbpo-judge
+    service.istio.io/canonical-revision: latest
+  name: nbpo-judge
+  namespace: p-aipr
+  resourceVersion: "1982846156"
+  uid: 6ff3a272-feb0-40c7-87df-6774f4850c0f
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: management.mlx.navercorp.com/project.aipr
+            operator: In
+            values:
+            - "true"
+  containers:
+  - command:
+    - /bin/bash
+    - -c
+    - sleep infinity
+    env:
+    - name: NCCL_IB_HCA
+      value: mlx5_0,mlx5_2,mlx5_3,mlx5_4,mlx5_5,mlx5_7,mlx5_8,mlx5_9
+    image: docker.io/vllm/vllm-openai:v0.10.1.1
+    imagePullPolicy: IfNotPresent
+    name: main
+    resources:
+      limits:
+        cpu: "64"
+        memory: 512Gi
+        nvidia.com/gpu: "3"
+      requests:
+        cpu: "32"
+        memory: 256Gi
+        nvidia.com/gpu: "3"
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /work
+      name: ws
+    - mountPath: /dev/shm
+      name: dshm
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-vlgkz
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  initContainers:
+  - args:
+    - istio-iptables
+    - -p
+    - "15001"
+    - -z
+    - "15006"
+    - -u
+    - "1337"
+    - -m
+    - REDIRECT
+    - -i
+    - '*'
+    - -x
+    - ""
+    - -b
+    - '*'
+    - -d
+    - 15090,15021,15020
+    - --log_output_level=default:info
+    image: mlx-public.kr.ncr.ntruss.com/mlx/proxyv2:1.28.3-alpine-r20260305.1
+    imagePullPolicy: IfNotPresent
+    name: istio-init
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        add:
+        - NET_ADMIN
+        - NET_RAW
+        drop:
+        - ALL
+      privileged: false
+      readOnlyRootFilesystem: false
+      runAsGroup: 0
+      runAsNonRoot: false
+      runAsUser: 0
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-vlgkz
+      readOnly: true
+  - args:
+    - proxy
+    - sidecar
+    - --domain
+    - $(POD_NAMESPACE).svc.cluster.local
+    - --proxyLogLevel=warning
+    - --proxyComponentLogLevel=misc:error
+    - --log_output_level=default:info
+    env:
+    - name: PILOT_CERT_PROVIDER
+      value: istiod
+    - name: CA_ADDR
+      value: istiod.istio-system.svc:15012
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.name
+    - name: POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    - name: INSTANCE_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
+    - name: SERVICE_ACCOUNT
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: spec.serviceAccountName
+    - name: HOST_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.hostIP
+    - name: ISTIO_CPU_LIMIT
+      valueFrom:
+        resourceFieldRef:
+          divisor: "0"
+          resource: limits.cpu
+    - name: PROXY_CONFIG
+      value: |
+        {"tracing":{},"gatewayTopology":{"numTrustedProxies":1}}
+    - name: ISTIO_META_POD_PORTS
+      value: |-
+        [
+        ]
+    - name: ISTIO_META_APP_CONTAINERS
+      value: main
+    - name: GOMEMLIMIT
+      valueFrom:
+        resourceFieldRef:
+          divisor: "0"
+          resource: limits.memory
+    - name: GOMAXPROCS
+      valueFrom:
+        resourceFieldRef:
+          divisor: "0"
+          resource: limits.cpu
+    - name: ISTIO_META_CLUSTER_ID
+      value: Kubernetes
+    - name: ISTIO_META_NODE_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: spec.nodeName
+    - name: ISTIO_META_INTERCEPTION_MODE
+      value: REDIRECT
+    - name: ISTIO_META_WORKLOAD_NAME
+      value: nbpo-judge
+    - name: ISTIO_META_OWNER
+      value: kubernetes://apis/v1/namespaces/p-aipr/pods/nbpo-judge
+    - name: ISTIO_META_MESH_ID
+      value: cluster.local
+    - name: TRUST_DOMAIN
+      value: cluster.local
+    image: mlx-public.kr.ncr.ntruss.com/mlx/proxyv2:1.28.3-alpine-r20260305.1
+    imagePullPolicy: IfNotPresent
+    lifecycle:
+      preStop:
+        exec:
+          command:
+          - pilot-agent
+          - request
+          - --debug-port=15020
+          - POST
+          - drain
+    name: istio-proxy
+    ports:
+    - containerPort: 15090
+      name: http-envoy-prom
+      protocol: TCP
+    readinessProbe:
+      failureThreshold: 30
+      httpGet:
+        path: /healthz/ready
+        port: 15021
+        scheme: HTTP
+      initialDelaySeconds: 1
+      periodSeconds: 2
+      successThreshold: 1
+      timeoutSeconds: 3
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    restartPolicy: Always
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      privileged: false
+      readOnlyRootFilesystem: true
+      runAsGroup: 1337
+      runAsNonRoot: true
+      runAsUser: 1337
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/workload-spiffe-uds
+      name: workload-socket
+    - mountPath: /var/run/secrets/credential-uds
+      name: credential-socket
+    - mountPath: /var/run/secrets/workload-spiffe-credentials
+      name: workload-certs
+    - mountPath: /var/run/secrets/istio
+      name: istiod-ca-cert
+    - mountPath: /var/lib/istio/data
+      name: istio-data
+    - mountPath: /etc/istio/proxy
+      name: istio-envoy
+    - mountPath: /var/run/secrets/tokens
+      name: istio-token
+    - mountPath: /etc/istio/pod
+      name: istio-podinfo
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-vlgkz
+      readOnly: true
+  nodeName: h200-03-w-aa21
+  nodeSelector:
+    mlx.navercorp.com/hardware-type: gpu
+    mlx.navercorp.com/zone: private-h200-aipr-0
+  preemptionPolicy: PreemptLowerPriority
+  priority: 25000
+  priorityClassName: private-zone
+  restartPolicy: Never
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoSchedule
+    key: nvidia.com/gpu
+    operator: Exists
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - emptyDir: {}
+    name: workload-socket
+  - emptyDir: {}
+    name: credential-socket
+  - emptyDir: {}
+    name: workload-certs
+  - emptyDir:
+      medium: Memory
+    name: istio-envoy
+  - emptyDir: {}
+    name: istio-data
+  - downwardAPI:
+      defaultMode: 420
+      items:
+      - fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.labels
+        path: labels
+      - fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.annotations
+        path: annotations
+    name: istio-podinfo
+  - name: istio-token
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          audience: istio-ca
+          expirationSeconds: 43200
+          path: istio-token
+  - configMap:
+      defaultMode: 420
+      name: istio-ca-root-cert
+    name: istiod-ca-cert
+  - name: ws
+    persistentVolumeClaim:
+      claimName: sjkim
+  - emptyDir:
+      medium: Memory
+      sizeLimit: 64Gi
+    name: dshm
+  - name: kube-api-access-vlgkz
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2026-09-04T07:59:30Z"
+    status: "True"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2026-09-04T07:59:31Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2026-09-04T07:59:32Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2026-09-04T07:59:32Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2026-09-04T07:59:28Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - allocatedResources:
+      cpu: "32"
+      memory: 256Gi
+      nvidia.com/gpu: "3"
+    containerID: containerd://03ab108841857d05b5653d2a4d1c3ed31e315a58cea2d48c4a409105583a5e2c
+    image: docker.io/vllm/vllm-openai:v0.10.1.1
+    imageID: docker.io/vllm/vllm-openai@sha256:d731ee65c044ae0977421eed3d93f931d4b7d79614394184c939db35b8f28fc2
+    lastState: {}
+    name: main
+    ready: true
+    resources:
+      limits:
+        cpu: "64"
+        memory: 512Gi
+        nvidia.com/gpu: "3"
+      requests:
+        cpu: "32"
+        memory: 256Gi
+        nvidia.com/gpu: "3"
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2026-09-04T07:59:32Z"
+    volumeMounts:
+    - mountPath: /work
+      name: ws
+    - mountPath: /dev/shm
+      name: dshm
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-vlgkz
+      readOnly: true
+      recursiveReadOnly: Disabled
+  hostIP: 10.0.32.62
+  hostIPs:
+  - ip: 10.0.32.62
+  initContainerStatuses:
+  - allocatedResources:
+      cpu: 100m
+      memory: 128Mi
+    containerID: containerd://6a303057a176933d23eaaf8ee76b13a28456cb7c65dbef1a085e11235c2b7a65
+    image: mlx-public.kr.ncr.ntruss.com/mlx/proxyv2:1.28.3-alpine-r20260305.1
+    imageID: mlx-public.kr.ncr.ntruss.com/mlx/proxyv2@sha256:c13ae9c3199eda0f9157fa3e41e54265eac74f302bb95fe878c811932c2c62d3
+    lastState: {}
+    name: istio-init
+    ready: true
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    restartCount: 0
+    started: false
+    state:
+      terminated:
+        containerID: containerd://6a303057a176933d23eaaf8ee76b13a28456cb7c65dbef1a085e11235c2b7a65
+        exitCode: 0
+        finishedAt: "2026-09-04T07:59:30Z"
+        reason: Completed
+        startedAt: "2026-09-04T07:59:30Z"
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-vlgkz
+      readOnly: true
+      recursiveReadOnly: Disabled
+  - allocatedResources:
+      cpu: 100m
+      memory: 128Mi
+    containerID: containerd://cd3cedf613227622a34ec7d6a9c99e4881ec7b0e28cfd9ddc5ee691df8a4163c
+    image: mlx-public.kr.ncr.ntruss.com/mlx/proxyv2:1.28.3-alpine-r20260305.1
+    imageID: mlx-public.kr.ncr.ntruss.com/mlx/proxyv2@sha256:c13ae9c3199eda0f9157fa3e41e54265eac74f302bb95fe878c811932c2c62d3
+    lastState: {}
+    name: istio-proxy
+    ready: true
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2026-09-04T07:59:31Z"
+    volumeMounts:
+    - mountPath: /var/run/secrets/workload-spiffe-uds
+      name: workload-socket
+    - mountPath: /var/run/secrets/credential-uds
+      name: credential-socket
+    - mountPath: /var/run/secrets/workload-spiffe-credentials
+      name: workload-certs
+    - mountPath: /var/run/secrets/istio
+      name: istiod-ca-cert
+    - mountPath: /var/lib/istio/data
+      name: istio-data
+    - mountPath: /etc/istio/proxy
+      name: istio-envoy
+    - mountPath: /var/run/secrets/tokens
+      name: istio-token
+    - mountPath: /etc/istio/pod
+      name: istio-podinfo
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-vlgkz
+      readOnly: true
+      recursiveReadOnly: Disabled
+  phase: Running
+  podIP: 198.18.73.34
+  podIPs:
+  - ip: 198.18.73.34
+  qosClass: Burstable
+  startTime: "2026-09-04T07:59:28Z"

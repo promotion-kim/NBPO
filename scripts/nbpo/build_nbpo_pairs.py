@@ -43,7 +43,14 @@ from scripts.nbpo.nbpo_common import (
     write_json,
 )
 
-TARGET_MODES = ("sampled", "rao_blackwell")
+TARGET_MODES = ("sampled", "rao_blackwell", "canonical")
+# "canonical" integrates BOTH sources of randomness -- the Bernoulli flips and the
+# comparator draw -- so the stored value is the exact finite-pool quantity
+#   z_k(a,b) = q_k(a) - q_k(b),   q_k(i) = sum_j nu*_k(j) P_k(i > z_j),
+# and sum_k lambda_k z_k equals the solver's own log-ratio target divided by eta.
+# It is NOT a new estimator to be compared on equal footing with the two sampled
+# ones: it is the thing they estimate, computable in closed form from the payoff
+# tensor already on disk, with no new generation or scoring.
 
 
 def _array_sha256(arr) -> str:
@@ -107,6 +114,12 @@ def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_see
                 # Eq. (26): draw (y, y') first, THEN one z_k ~ nu*_k for this pair and
                 # objective. The same z_k serves both y and y' of the row; other rows
                 # of the same prompt and other objectives draw independently.
+                if target_mode == "canonical":
+                    # no draw at all: the full expectation over the opponent
+                    z[obj] = float(
+                        (nu[k, x] * (A_policy[k, x, i1, :] - A_policy[k, x, i2, :])).sum())
+                    opp[obj] = "expectation:nu_star"
+                    continue
                 j = int(rng.choice(len(comparator_ids), p=nu[k, x]))
                 p1 = float(A_policy[k, x, i1, j]) + 0.5
                 p2 = float(A_policy[k, x, i2, j]) + 0.5

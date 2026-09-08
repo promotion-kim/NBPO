@@ -606,6 +606,15 @@ class MNPOTrainer(SimPOTrainer):
             nbpo_h = policy_logratios - (prev_chosen - prev_rejected)
             nbpo_scaled_target = self.eta * nbpo_target
             metrics[f"{prefix}nbpo/h"] = nbpo_h.detach().mean().cpu()
+            # The signed batch mean cancels; |h| and its RMS are what say whether
+            # the policy MOVED. They also make the zero-step identity checkable:
+            # with a zero learning rate the weights never change, so the online
+            # log-probabilities must reproduce the cached history and h must be
+            # exactly 0. Anything else is a mismatch between the two code paths,
+            # not learning, and it contaminates every regression metric.
+            metrics[f"{prefix}nbpo/h_abs"] = nbpo_h.detach().abs().mean().cpu()
+            metrics[f"{prefix}nbpo/h_rms"] = nbpo_h.detach().pow(2).mean().sqrt().cpu()
+            metrics[f"{prefix}nbpo/h_max_abs"] = nbpo_h.detach().abs().max().cpu()
             metrics[f"{prefix}nbpo/target"] = nbpo_scaled_target.detach().mean().cpu()
             metrics[f"{prefix}nbpo/target_abs"] = nbpo_scaled_target.detach().abs().mean().cpu()
             metrics[f"{prefix}nbpo/residual"] = (nbpo_h - nbpo_scaled_target).detach().mean().cpu()

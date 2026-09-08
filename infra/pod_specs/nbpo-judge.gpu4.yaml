@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubectl.kubernetes.io/default-container: main
+    kubectl.kubernetes.io/default-logs-container: main
+    mlx.navercorp.com/requested-by: system:serviceaccount:a-82faea20-190c-11f1-bd90-0ad5d6f40000:default
+    mlx.navercorp.com/zone: private-h200-aipr-0
+  generation: 1
+  labels:
+    management.mlx.navercorp.com/project: aipr
+    management.mlx.navercorp.com/workspace: aipr
+    mlx.navercorp.com/esm-code: ''
+    mlx.navercorp.com/is-gpu-requested: ''
+    mlx.navercorp.com/scheduled-by: admission-webhook
+    mlx.navercorp.com/top-owner-kind: v1.Pod
+    mlx.navercorp.com/top-owner-name: nbpo-judge
+    mlx.navercorp.com/zone: private-h200-aipr-0
+    private-h200-aipr-0-pod-default: 'true'
+  name: nbpo-judge
+  namespace: p-aipr
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: management.mlx.navercorp.com/project.aipr
+            operator: In
+            values:
+            - 'true'
+  containers:
+  - command:
+    - /bin/bash
+    - -c
+    - sleep infinity
+    env:
+    - name: NCCL_IB_HCA
+      value: mlx5_0,mlx5_2,mlx5_3,mlx5_4,mlx5_5,mlx5_7,mlx5_8,mlx5_9
+    image: docker.io/vllm/vllm-openai:v0.10.1.1
+    imagePullPolicy: IfNotPresent
+    name: main
+    resources:
+      limits:
+        cpu: '64'
+        memory: 512Gi
+        nvidia.com/gpu: '4'
+      requests:
+        cpu: '32'
+        memory: 256Gi
+        nvidia.com/gpu: '4'
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /work
+      name: ws
+    - mountPath: /dev/shm
+      name: dshm
+    - name: data
+      mountPath: /data
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeSelector:
+    mlx.navercorp.com/hardware-type: gpu
+    mlx.navercorp.com/zone: private-h200-aipr-0
+  preemptionPolicy: PreemptLowerPriority
+  priority: 25000
+  priorityClassName: private-zone
+  restartPolicy: Never
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoSchedule
+    key: nvidia.com/gpu
+    operator: Exists
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: ws
+    persistentVolumeClaim:
+      claimName: sjkim
+  - emptyDir:
+      medium: Memory
+      sizeLimit: 64Gi
+    name: dshm
+  - name: data
+    persistentVolumeClaim:
+      claimName: sjkim-data

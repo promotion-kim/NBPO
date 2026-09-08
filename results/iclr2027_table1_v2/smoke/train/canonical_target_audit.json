@@ -1,0 +1,92 @@
+{
+  "solver_artifacts_present": [
+    "nu_final_policy",
+    "nu_update",
+    "pi_star",
+    "pi_t",
+    "q_update",
+    "target_log_ratio",
+    "update_source_pi"
+  ],
+  "eta": 1.0,
+  "lambda_raw": [
+    6.966388395211773,
+    6.74798290479777
+  ],
+  "shapes": {
+    "A": [
+      2,
+      1000,
+      8,
+      8
+    ],
+    "pi_star": [
+      1000,
+      8
+    ],
+    "pi_t": [
+      1000,
+      8
+    ]
+  },
+  "opponent_source_note": "nu_update is the opponent used to BUILD the update; nu_final_policy is the opponent at the final policy. Eq. (27) is stated at the maximizer, so the KKT form is checked against BOTH and the residuals are reported.",
+  "kkt_identity_vs_nu_update": {
+    "max_abs_residual": 5.329070518200751e-15,
+    "rms_residual": 7.457115404531429e-16,
+    "rms_m": 2.5354791443529163,
+    "relative_rms": 2.9411069781978314e-16
+  },
+  "kkt_identity_vs_nu_final_policy": {
+    "max_abs_residual": 3.933742220851855e-12,
+    "rms_residual": 1.0455795431141165e-13,
+    "rms_m": 2.5354791443529163,
+    "relative_rms": 4.1237946896264475e-14
+  },
+  "randomness_budget_per_pair": {
+    "var_of_canonical_m": 6.427410473115948,
+    "mean_bernoulli_variance": 38.74067937801528,
+    "mean_comparator_variance": 0.10944989149236167,
+    "note": "the sampled estimator carries both terms; the shipped rao_blackwell mode integrates the BERNOULLI term only and still draws one comparator per (row, objective), so it is a PARTIAL Rao-Blackwellization, not the full finite-pool expectation",
+    "implied_max_r2_sampled": 0.14195582422658184,
+    "implied_max_r2_partial_rb": 0.9832565045927947,
+    "implied_max_r2_canonical": 1.0
+  },
+  "realized_pair_files": {
+    "sampled_train": {
+      "estimator": "sampled_train",
+      "n": 19600,
+      "mean_T": -0.02932761316102989,
+      "rms_T": 6.6853859375691265,
+      "var_T": 44.6935250253533,
+      "mean_difference": 0.013938458693815213,
+      "rms_difference": 6.1906513709127875,
+      "max_abs_difference": 20.30539431085581,
+      "pearson_with_m": 0.3775349003697519,
+      "spearman_with_m": 0.33674261628766444,
+      "var_of_residual_over_var_m": 5.889336208103154,
+      "fraction_of_var_T_explained_by_m": 0.1425162796218561,
+      "orientation_note": "pair columns are stored for a<b; a row whose chosen index exceeds its rejected index is compared against the sign-flipped canonical value"
+    },
+    "rb_train": {
+      "estimator": "rb_train",
+      "n": 19600,
+      "mean_T": -0.04380407299718862,
+      "rms_T": 2.5766154402232115,
+      "var_T": 6.637028329985511,
+      "mean_difference": -0.0005380011423435416,
+      "rms_difference": 0.32596917526157354,
+      "max_abs_difference": 3.7619913828430933,
+      "pearson_with_m": 0.9919645454266671,
+      "spearman_with_m": 0.9967667952071191,
+      "var_of_residual_over_var_m": 0.016328554469574593,
+      "fraction_of_var_T_explained_by_m": 0.9839904836181838,
+      "orientation_note": "pair columns are stored for a<b; a row whose chosen index exceeds its rejected index is compared against the sign-flipped canonical value"
+    }
+  },
+  "realizability_of_canonical_m": {
+    "max_abs_pairwise_residual": 8.881784197001252e-15,
+    "rms_pairwise_residual": 9.56027685061875e-16,
+    "rms_m": 2.5354791443529163,
+    "note": "any policy log-ratio difference is v_a - v_b, so a nonzero residual here would mean the canonical target is not exactly realizable by ANY policy on this pool. It should be at numerical-error level."
+  }
+}
