@@ -199,12 +199,22 @@ def verify_solver_input_chain(tensor_dir: Path, solver_dir: Path, solution: dict
     kinds = solution.get("opponent_artifacts") or {}
     if kinds:
         # The Eq. (26) opponent may come from the proximal centre, a warm-start
-        # iterate or a later fixed-point iterate -- the released R=1 dual solve
+        # iterate, a later fixed-point iterate, or -- under the direct inner
+        # solver -- the concave maximizer itself. The released R=1 dual solve
         # warm-starts, so proximal_centre is NOT the only valid answer. What is
         # checked is that the declared source is a real one, that the named
         # policy artifact hashes to the declared value, and that the two
         # opponents have not traded roles.
-        valid_sources = {"proximal_centre", "warm_start_iterate", "fixed_point_iterate"}
+        #
+        # `exact_proximal_maximizer` is the direct finite-pool concave inner
+        # solve's source: nu is built at the maximizer of the Eq. (18)
+        # subproblem, and that policy is written to update_source_pi.npz and
+        # hash-verified like any other. It is admitted here rather than the check
+        # being relaxed -- an UNRECOGNISED source must still fail, because the
+        # point of this guard is that every target is traceable to a named
+        # policy.
+        valid_sources = {"proximal_centre", "warm_start_iterate", "fixed_point_iterate",
+                         "exact_proximal_maximizer"}
         expected_use = {"nu_update.npz": "eq26_target",
                         "nu_final_policy.npz": "diagnostics"}
         for fname, want_use in expected_use.items():

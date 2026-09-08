@@ -1,0 +1,12 @@
+\begin{tabular}{llrrrrrrrrr}
+\toprule
+model & objective & \multicolumn{3}{c}{per-seed (mean of 3)} & $T$ & \multicolumn{4}{c}{calibrated 3-seed ensemble} \\
+\cmidrule(lr){3-5}\cmidrule(lr){7-10}
+ & & NLL & bal.\ acc & AUC & & NLL & bal.\ acc & AUC & ECE & ens.\ sd\\
+\midrule
+Anti-symmetric GPM & helpfulness & $0.5543$ & $0.7218$ & $0.7999$ & $1.282$ & $0.5512$ & $0.7257$ & $0.8034$ & $0.1228$ & $0.0293$\\
+Anti-symmetric GPM & harmless. & $0.5180$ & $0.7556$ & $0.8464$ & $1.297$ & $0.5131$ & $0.7573$ & $0.8512$ & $0.1782$ & $0.0357$\\
+Scalar BT & helpfulness & $0.5560$ & $0.7214$ & $0.7974$ & $1.270$ & $0.5527$ & $0.7250$ & $0.8009$ & $0.1220$ & $0.0300$\\
+Scalar BT & harmless. & $0.5212$ & $0.7507$ & $0.8431$ & $1.265$ & $0.5163$ & $0.7544$ & $0.8484$ & $0.1779$ & $0.0357$\\
+\bottomrule
+\end{tabular}

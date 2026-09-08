@@ -94,3 +94,9 @@ experiments/iclr2027_table1_v2/judge_protocol_v5/*
 # generate_saferlhf_pools.py at the recorded seeds).
 !results/iclr2027_table1_v2/pool_pilot/
 results/iclr2027_table1_v2/pool_pilot/pool_responses.jsonl
+
+# Progress PDF snapshots are deliverables and are kept.
+!nbpo_iclr/progress_snapshots/
+!nbpo_iclr/progress_snapshots/**
+!nbpo_iclr/generated/
+!nbpo_iclr/generated/**

@@ -1,0 +1,162 @@
+{
+  "generated_by": "scripts/experiments/iclr2027_table1_v2/export_paper_tables.py",
+  "fragments": {
+    "controlled_compact": {
+      "fragment": "nbpo_iclr/generated/controlled_compact.tex",
+      "status": "completed",
+      "note": "mean over 5 independent controlled seeds of min_k s_k / rho*",
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "aggregation": "mean over seeds",
+      "sources": [
+        {
+          "path": "results/iclr2027_table1_v2/controlled_v2/controlled_v2_raw.json",
+          "sha256_16": "710a73dd9bb44438"
+        }
+      ]
+    },
+    "controlled_full": {
+      "fragment": "nbpo_iclr/generated/controlled_full.tex",
+      "status": "completed",
+      "note": "every method at every alpha; mean and sd over the 5 controlled seeds",
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "aggregation": "mean +/- sd over seeds",
+      "sources": [
+        {
+          "path": "results/iclr2027_table1_v2/controlled_v2/controlled_v2_raw.json",
+          "sha256_16": "710a73dd9bb44438"
+        }
+      ]
+    },
+    "solver_audit": {
+      "fragment": "nbpo_iclr/generated/solver_audit.tex",
+      "status": "completed",
+      "note": "ORIGINAL v1 controlled family at alpha=1, 5 seeds -- a different construction from controlled-v2; TV is to that family's exact proximal solution, not to a global Nash point",
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "aggregation": "mean over seeds",
+      "sources": [
+        {
+          "path": "results/iclr2027_table1_v2/nontransitivity_audit/solver_comparison_v1.csv",
+          "sha256_16": "c27baa7e2c986f5f"
+        }
+      ]
+    },
+    "controlled_robustness": {
+      "fragment": "nbpo_iclr/generated/controlled_robustness.tex",
+      "status": "completed",
+      "note": "NBPO minus control at alpha=1, paired per seed, exact Student-t 95% interval (NOT a bootstrap interval). Convergence counts exclude the legacy R-step ablation.",
+      "seeds": null,
+      "aggregation": "paired per-seed gap at alpha=1, Student-t interval",
+      "sources": [
+        {
+          "path": "results/iclr2027_table1_v2/controlled_v2/controlled_v2_raw.json",
+          "sha256_16": "710a73dd9bb44438"
+        },
+        {
+          "path": "results/iclr2027_table1_v2/controlled_v2/controlled_v2_raw_projected.json",
+          "sha256_16": "a70e7dabe59e2e17"
+        },
+        {
+          "path": "results/iclr2027_table1_v2/controlled_v2/controlled_v2_raw_projected_beta0.1.json",
+          "sha256_16": "d83765cc8fba1424"
+        },
+        {
+          "path": "results/iclr2027_table1_v2/controlled_v2/controlled_v2_raw_projected_beta0.5.json",
+          "sha256_16": "b45c71aec5b2d483"
+        }
+      ]
+    },
+    "data_audit": {
+      "fragment": "nbpo_iclr/generated/data_audit.tex",
+      "status": "completed",
+      "note": "observed HUMAN triangles across all three splits and both objectives; conflict is the released human-label disagreement rate on the test split",
+      "seeds": null,
+      "aggregation": "counts from the split manifest",
+      "sources": [
+        {
+          "path": "experiments/iclr2027_table1_v2/saferlhf_splits/split_manifest.json",
+          "sha256_16": "fb997ad19e5304e1"
+        }
+      ]
+    },
+    "gpm_bt": {
+      "fragment": "nbpo_iclr/generated/gpm_bt.tex",
+      "status": "completed",
+      "note": "per-seed columns are the mean over the three CHECKPOINTED seeds 41/42/43 (the run whose weights are on disk and used downstream); ensemble columns are the calibrated three-seed mean",
+      "seeds": [
+        41,
+        42,
+        43
+      ],
+      "aggregation": "per-seed mean; calibrated ensemble mean",
+      "sources": [
+        {
+          "path": "results/iclr2027_table1_v2/saferlhf_ensemble_ckpt/saferlhf_ensemble.json",
+          "sha256_16": "a554f29042b7d1e6"
+        }
+      ]
+    },
+    "pool_pilot": {
+      "fragment": "nbpo_iclr/generated/pool_pilot.tex",
+      "status": "completed",
+      "note": "200 SafeRLHF validation prompts; conflict is the PREFERENCE-MODEL disagreement rate on GENERATED responses, not the human-label rate; cycles are model-predicted on the comparator tournament",
+      "seeds": [
+        41,
+        42,
+        43
+      ],
+      "aggregation": "calibrated ensemble mean over oracle seeds",
+      "sources": [
+        {
+          "path": "results/iclr2027_table1_v2/pool_pilot/pool_geometry.json",
+          "sha256_16": "8397ce98e34a0a01"
+        }
+      ]
+    },
+    "solver_scaling": {
+      "fragment": "nbpo_iclr/generated/solver_scaling.tex",
+      "status": "completed",
+      "note": "measured, not extrapolated; best worker count at each size; all 24 configurations converged",
+      "seeds": null,
+      "aggregation": "single measurement per configuration",
+      "sources": [
+        {
+          "path": "results/iclr2027_table1_v2/solver_scaling/direct_solver_scaling.csv",
+          "sha256_16": "e0570b6521f46cf1"
+        }
+      ]
+    },
+    "neural_realization": {
+      "fragment": "nbpo_iclr/generated/neural_realization.tex",
+      "status": "partial",
+      "note": "solver-side columns are measured on the 1000-prompt smoke pool; the regression columns are pending until policy training completes",
+      "seeds": [
+        11
+      ],
+      "aggregation": "single smoke instance (not a 3-seed mean)",
+      "sources": [
+        {
+          "path": "results/iclr2027_table1_v2/smoke/train/solutions/smoke_solutions.json",
+          "sha256_16": "4bf3b852cc82339a"
+        }
+      ]
+    }
+  }
+}

@@ -114,3 +114,24 @@ def test_the_validator_never_calls_the_whole_algorithm_exact():
     report = validate_final_config(_final())
     assert report["inner_solver_meaning"] == "direct finite-pool concave inner solve"
     assert "approximate" in report["algorithm_is_not_exact"]
+
+
+def test_the_pair_builder_admits_the_direct_solver_source_and_no_other():
+    """The Eq. (26) provenance guard must know the direct solver's source kind.
+
+    `exact_proximal_maximizer` is where nu comes from under the direct inner
+    solve: the maximizer of the Eq. (18) subproblem, written to
+    update_source_pi.npz and hash-verified like any other source. It was not in
+    the whitelist, so a final-path solve produced an artifact the pair builder
+    refused. Admitting it must not turn the guard off -- an unrecognised source
+    still has to fail.
+    """
+    import re
+    src = Path("scripts/nbpo/build_nbpo_pairs.py").read_text()
+    m = re.search(r"valid_sources = \{([^}]*)\}", src, re.S)
+    assert m, "the source whitelist has moved"
+    allowed = {t.strip().strip('"\'') for t in m.group(1).split(",") if t.strip()}
+    assert "exact_proximal_maximizer" in allowed
+    assert "proximal_centre" in allowed and "fixed_point_iterate" in allowed
+    # the guard is still a whitelist, not a pass-through
+    assert "anything" not in allowed and len(allowed) <= 6
