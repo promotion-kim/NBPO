@@ -162,3 +162,37 @@ Two decisions are for the user, not for me:
 2. whether `max_grad_norm` should scale with the target RMS, since a target whose
    scale is set by `\|lambda\|_1` (13.7 here) makes a fixed clip threshold
    equivalent to normalized SGD.
+
+## Algorithm 1's own acceptance rule, measured separately
+
+The regression gate is a means. Algorithm 1 promotes a candidate on a different
+condition: held-out empirical surplus positive for **every** objective. A policy
+could in principle move the game values correctly while regressing badly, so the
+two are measured independently. No new generation or judging is required -- the
+candidate's log-probabilities over the frozen pool are already in the scored
+precompute, and the frozen payoff tensor turns them into game values.
+
+Worst-objective mean surplus on held-out prompts, with the starting policy
+included because "negative" means nothing without it:
+
+| policy | validation | test | Algorithm 1 accepts |
+|---|---|---|---|
+| `pi_t` (uniform on the pool) | −0.01264 | −0.00350 | no |
+| eta = 1.0, sampled | −0.03125 | −0.01972 | no |
+| lr = 2e-7, sampled | −0.03126 | −0.02080 | no |
+| Rao-Blackwell, 300 steps | −0.03163 | −0.02002 | no |
+| Rao-Blackwell, 1200 steps | −0.03093 | −0.01847 | no |
+
+Every arm sits **below its own starting point**: training moves the held-out game
+values away from where they began. The ordering matches the regression metric --
+the 1200-step arm is least bad on both -- so two independent criteria agree.
+
+For scale, the finite-pool solver's own optimum reaches +0.1435 worst-objective
+surplus on the pool it was solved on. The target is attainable within the pool;
+what fails is carrying it to unseen prompts through the neural policy.
+
+Two things this does not say. `pi_t` starts slightly negative on held-out
+prompts, which is a property of how the learner and comparator pools were drawn,
+not a defect. And a negative surplus here is measured on the frozen pool under
+the frozen preference models -- it is not a downstream capability or safety
+measurement.
