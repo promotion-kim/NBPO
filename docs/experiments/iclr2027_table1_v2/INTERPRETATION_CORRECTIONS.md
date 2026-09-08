@@ -101,3 +101,24 @@ cause is not dtype.
 agreement, Pearson and Spearman value for their arms. A negative result rests on
 its checkpoints as much as a positive one does. They are retained with their
 hashes, configs and metrics, and released with their diagnostic status stated.
+
+## 8. "Sampled Eq. (24)" was the wrong name for it
+
+**Was:** the sampled construction was repeatedly called "the sampled Eq. (24)
+target".
+
+**Is:** Eq. (24) (`eq:finite-target-logratio`) is the **deterministic** finite-pool
+target
+
+    h*_t(x,i,i') = log(p*_x(i)/p_{t,x}(i)) - log(p*_x(i')/p_{t,x}(i'))
+
+The Bernoulli-and-opponent construction the pair builder ships is an *estimator*
+of that quantity, not the quantity itself, and calling it "Eq. (24)" attributed
+a sampling scheme to an equation that has none. Verified against the compiled
+labels: (22) `finite-pool-value`, (23) `direct-inner`, (24)
+`finite-target-logratio`, (25) `log-ratio-change`, (26) `regression-loss`,
+(27) `finite-target-identity`, (29) `dual-update`.
+
+The `canonical` target mode added in this round computes Eq. (24) exactly --
+matching the solver's own optimizer output to 3.6e-15 -- so the manuscript's
+equation and the code now denote the same object under the same name.

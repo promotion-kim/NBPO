@@ -22,8 +22,8 @@ exactly once, in the trainer (`mnpo_scripts/mnpo_trainer.py`,
 
 ## The attainable floor (measured first, not after)
 
-`h_t` is a function of `(prompt, learner pair)` only. The sampled Eq. (24)
-target also depends on the drawn opponent and on two Bernoulli flips, which no
+`h_t` is a function of `(prompt, learner pair)` only. The sampled ESTIMATOR of
+the Eq. (24) target also depends on the drawn opponent and on two Bernoulli flips, which no
 policy can see. From `target_noise_floor.py` on this pool:
 
 | quantity | value |
@@ -117,14 +117,14 @@ neural projection can fit an Eq. (26) target *at all*, or whether the sampled
 estimator's noise makes the regression untrainable at this budget.
 
 The pair builder already offers `--target-mode rao_blackwell`, described there as
-a labeled variant of the manuscript's Eq. (24) sampled construction. It replaces
+a labeled variant of the sampled estimator the pair builder uses for Eq. (24). It replaces
 the two Bernoulli draws with their conditional probabilities and keeps everything
 else -- same solver artifact, same lambda, same opponent draw, same prompts,
 same responses, same split salts. Measured on this pool:
 
 | target estimator | corr with the conditional mean | max attainable $r^2$ | variance |
 |---|---|---|---|
-| sampled (Eq. 24) | +0.3775 | 0.1425 | 44.69 |
+| sampled estimator of Eq. (24) | +0.3775 | 0.1425 | 44.69 |
 | Rao-Blackwell | +0.9920 | 0.9840 | 6.64 |
 
 So a policy could in principle explain 98% of the Rao-Blackwell target and only

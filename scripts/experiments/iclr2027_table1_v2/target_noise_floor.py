@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """The attainable floor on the Section-7 regression gate, computed before training.
 
-``h_t`` is a function of ``(prompt, learner pair)`` alone. The sampled Eq. (24)
-target additionally depends on the drawn opponent ``j ~ nu*_k`` and on two
+``h_t`` is a function of ``(prompt, learner pair)`` alone. Eq. (24) itself is
+DETERMINISTIC; the estimator the pair builder samples for it additionally depends on the drawn opponent ``j ~ nu*_k`` and on two
 Bernoulli flips, and no policy can see either. So the best predictor available
 to ANY policy is the conditional mean
 

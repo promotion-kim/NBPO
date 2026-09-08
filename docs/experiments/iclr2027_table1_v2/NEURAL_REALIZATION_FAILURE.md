@@ -51,7 +51,7 @@ direction.
 
 ## What the direction is competing against
 
-`h_t` is a function of `(prompt, learner pair)`. The sampled Eq. (24) target also
+`h_t` is a function of `(prompt, learner pair)`. The sampled estimator of the Eq. (24) target also
 depends on the drawn opponent and on two Bernoulli flips, which the policy cannot
 see. Measured on this pool:
 
@@ -85,13 +85,13 @@ independently predicted `sqrt(0.1425) = 0.3775`.
 ## The estimator, not the method, sets the difficulty
 
 The pair builder offers `--target-mode rao_blackwell` alongside the manuscript's
-sampled Eq. (24) construction. It replaces the two Bernoulli draws with their
+sampled estimator of Eq. (24). It replaces the two Bernoulli draws with their
 probabilities and changes nothing else -- same solver artifact, same lambda, same
 opponent draw, same prompts, same responses, same split salts:
 
 | target estimator | corr with conditional mean | max attainable $r^2$ | variance |
 |---|---|---|---|
-| sampled (Eq. 24) | +0.3775 | 0.1425 | 44.69 |
+| sampled estimator of Eq. (24) | +0.3775 | 0.1425 | 44.69 |
 | Rao-Blackwell | +0.9920 | 0.9840 | 6.64 |
 
 Both are unbiased for the same quantity. One is 14% predictable and the other
