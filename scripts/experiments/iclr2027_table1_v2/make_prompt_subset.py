@@ -39,10 +39,9 @@ def main() -> None:
     args.out.mkdir(parents=True, exist_ok=True)
     dd.save_to_disk(str(args.out))
 
-    for name in ("precompute_meta.json", "precompute_manifest.json"):
-        src = args.parent / name
-        if src.exists():
-            shutil.copy2(src, args.out / name)
+    src = args.parent / "precompute_meta.json"
+    if src.exists():
+        shutil.copy2(src, args.out / "precompute_meta.json")
     (args.out / "subset_provenance.json").write_text(json.dumps({
         "parent_precomputed": str(args.parent),
         "n_prompts_kept": len(ids),
@@ -53,7 +52,28 @@ def main() -> None:
                  "precompute; this is a row filter, not a new precompute, and the "
                  "parent's sidecar is what the trainer's provenance check binds to"),
     }, indent=2) + "\n")
-    print(f"{args.n_prompts:>4} prompts -> {sub.num_rows:>6} rows  ({args.out})")
+
+    # The parent's manifest describes the parent's shards, so copying it would
+    # make the trainer's integrity check fail -- correctly. Re-hash the subset
+    # instead and point its meta at the new manifest, so the check still has
+    # something true to verify rather than something disabled.
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+    from mnpo_scripts.precompute_provenance import write_precompute_manifest
+
+    _, manifest_sha = write_precompute_manifest(str(args.out), splits=list(dd.keys()))
+    meta_path = args.out / "precompute_meta.json"
+    if meta_path.exists():
+        meta = json.loads(meta_path.read_text())
+        meta["precompute_manifest_sha256"] = manifest_sha
+        meta["split_sizes"] = {k: v.num_rows for k, v in dd.items()}
+        meta["derived_from"] = {
+            "parent_precomputed": str(args.parent),
+            "operation": f"prompt-wise row filter to {len(ids)} prompts",
+        }
+        meta_path.write_text(json.dumps(meta, indent=2) + "\n")
+    print(f"{args.n_prompts:>4} prompts -> {sub.num_rows:>6} rows  "
+          f"manifest {manifest_sha[:12]}  ({args.out})")
 
 
 if __name__ == "__main__":
