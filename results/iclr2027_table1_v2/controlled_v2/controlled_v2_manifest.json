@@ -1,0 +1,180 @@
+{
+  "artifact": "controlled_nontransitivity_v2_final",
+  "frozen": true,
+  "source_commit": "dfbead01917fac1ecc4ce719c93cf32d32362230",
+  "source_tree_dirty_for_these_files": true,
+  "generator_hashes": {
+    "scripts/experiments/iclr2027_table1_v2/controlled_v2_final.py": "953df739b90330f541c124d974700f155a1ffe95904d437ec981889839434389",
+    "scripts/experiments/iclr2027_table1_v2/render_controlled_v2.py": "194d6108aac89163c8b1d61af1945a826cbc975fe24b8a28c1dda2af8c884a41",
+    "scripts/experiments/iclr2027_table1_v2/verify_controlled_v2.py": "3fdfdf320f8fd42c3aa426310094f1f4694c0189b1d6fdce6b0a6847aae87362",
+    "scripts/experiments/iclr2027_table1_v2/nontransitivity_v2.py": "c3c8e2cdb0dc6e519970d1817f9ffc36b0efc761bb3654716407a29ae249c8f3",
+    "scripts/experiments/iclr2027_table1_v2/nontransitivity_feasibility.py": "80b767442d5058d7a0bcbc129b1ffe5c613dd5b993ac0b22b7625f929d01113b"
+  },
+  "solver_hashes": {
+    "mnpo_scripts/nbpo_generic.py": "1e45de6430b68e2739063f23c46826ddb98a36130bc822ce3b8cdd69faa08c19",
+    "mnpo_scripts/nbpo_representations.py": "908ee6e9163f9e60a390c2971bc6c2f16ed42a12e2ab7513f87b02877b04c9f0",
+    "mnpo_scripts/nbpo_core.py": "5d028303aa533f03805dbee2e895f8c9d1e459ed4f87c93ee4a4f9b850d2a944"
+  },
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "alphas": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "beta": 0.25,
+  "eta": 1.0,
+  "objectives_K": 4,
+  "prompts_X": 40,
+  "responses_I": 5,
+  "construction_family": {
+    "name": "shared-transitive-direction plus alpha-scaled circulant tournament",
+    "formula": "A_k(alpha) = T + base_k + alpha * C_k",
+    "clipping": "none; amplitudes chosen so |A| <= 1/2 holds outright",
+    "disagreement_point": "measured, and provably alpha-invariant: a circulant tournament on an odd number of responses has exactly zero row sums",
+    "skew_symmetry": "exact, asserted per instance",
+    "zero_diagonal": "exact, asserted per instance",
+    "base_amp": 0.05,
+    "cycle_amp": 0.28
+  },
+  "rho_star_calibration": {
+    "target": 0.03,
+    "achieved": {
+      "0.00": {
+        "mean": 0.030000020449492154,
+        "stdev": 7.243088804423382e-08,
+        "min": 0.02999991146199538,
+        "max": 0.030000109778966836,
+        "per_seed": [
+          0.030000003697083454,
+          0.03000002907865046,
+          0.030000109778966836,
+          0.030000048230764645,
+          0.02999991146199538
+        ],
+        "hit_amplitude_cap": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "0.25": {
+        "mean": 0.030000032685262933,
+        "stdev": 6.408313288650539e-08,
+        "min": 0.029999943509449765,
+        "max": 0.030000101962284677,
+        "per_seed": [
+          0.029999943509449765,
+          0.030000035712048956,
+          0.030000083094272254,
+          0.030000101962284677,
+          0.029999999148259012
+        ],
+        "hit_amplitude_cap": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "0.50": {
+        "mean": 0.029999984097096956,
+        "stdev": 6.72038212976959e-08,
+        "min": 0.029999915827647473,
+        "max": 0.03000007987987397,
+        "per_seed": [
+          0.029999988559054305,
+          0.029999915827647473,
+          0.03000007987987397,
+          0.029999925102258615,
+          0.0300000111166504
+        ],
+        "hit_amplitude_cap": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "0.75": {
+        "mean": 0.03000000477649638,
+        "stdev": 6.31783358051263e-08,
+        "min": 0.029999925423539724,
+        "max": 0.030000069035229206,
+        "per_seed": [
+          0.03000004710753279,
+          0.02999995006616045,
+          0.030000069035229206,
+          0.029999925423539724,
+          0.030000032250019723
+        ],
+        "hit_amplitude_cap": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "1.00": {
+        "mean": 0.02833399255289874,
+        "stdev": 0.0024076505639229182,
+        "min": 0.024746225215820976,
+        "max": 0.030000013386463097,
+        "per_seed": [
+          0.024746225215820976,
+          0.030000013386463097,
+          0.026923820627650592,
+          0.029999985251182165,
+          0.029999918283376868
+        ],
+        "hit_amplitude_cap": [
+          true,
+          false,
+          true,
+          false,
+          false
+        ]
+      }
+    },
+    "statement": "rho* is 0.030000 (sd <= 7.3e-08) for alpha <= 0.75 and 0.028334 (sd 2.4e-03, min 0.024746) at alpha = 1.00, where the no-clipping amplitude cap binds for 2 of 5 seeds. It is NOT exactly 0.03 everywhere. The reported metric is min surplus / rho*, which absorbs the remaining difference."
+  },
+  "solver_settings": {
+    "inner_solver": "exact (direct finite-pool concave inner solve)",
+    "dual_solver": "root",
+    "dual_tol": 1e-06,
+    "max_dual_calls": 800,
+    "legacy_arm": {
+      "inner_solver": "fixed_point",
+      "dual_solver": "subgradient",
+      "M": 1500,
+      "R": 3,
+      "role": "failure ablation only, never a performance arm"
+    }
+  },
+  "result_file_hashes": {
+    "controlled_v2_raw.json": "710a73dd9bb444381df31bf41d29fd590f52991554a7d15df32bc54cc1a8cb37",
+    "controlled_v2_per_seed.csv": "38d43836175d9be77c02ace4e4bb1b388b49a85bd9d6e69cbad9f1b6e249f11f",
+    "controlled_v2_summary.csv": "1b90eab6f1b906c5a27c45311234e5a42684a7659f1e179b534e2af7d3b05b1b",
+    "controlled_v2_runtime.csv": "a1d84503f3cd8d6595248bc7e599fa579adeebe7c11fd8395f23aae8edf39be2",
+    "controlled_v2_gaps.json": "ed22a1165a6778ed249a912a484dd90a21bce5c78dd21650cf52994d4a977583",
+    "controlled_v2_generated.tex": "aee221f30d24e991f1eed669fe15fb596ce48255e4e049724703c9a1b933c97a",
+    "controlled_v2_gap_figure.pdf": "cbd2a3b6b4d5df45597f11aeb7809cd7b545a4f0784fb96b9a402aee270de6dc",
+    "controlled_v2_gap_figure.png": "6fb928ada9de01c53f5bad1cc4dc092e9999c03e453e0cd46b89c85320370203",
+    "controlled_v2_applicability.json": "395aef2a312d4fea4fe5a12ebf94469bf7a183034123df1795266e6c4de6d777",
+    "controlled_v2_verification.json": "d25c4ed5fe8873f9a4df62c3737bfcc6bde98d53276adcfa5fd0c69c7ea2f06e",
+    "v2_margins.json": "2f89fbbdfc7d0739f109968489c4fbe9affa58958fda1ec970cb20aae565b368"
+  },
+  "missing_artifacts": []
+}

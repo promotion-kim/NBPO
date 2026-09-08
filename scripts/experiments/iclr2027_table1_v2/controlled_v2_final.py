@@ -102,6 +102,48 @@ TOL = {"projected_kkt": 1e-6, "inverse_surplus": 1e-6, "inner_fixed_point": 1e-4
        "ir": -1e-9}
 
 
+# Which columns are mathematically DEFINED for which method. A blank cell is not
+# a failed convergence -- for most of these rows the quantity does not exist:
+#
+#   * `reference` is not solved at all, so no solver diagnostic applies;
+#   * the two `exact_*` rows are solved by direct concave maximization, so they
+#     have no Eq. (21) map residual and no dual multipliers;
+#   * `utilitarian` and `kalai_smorodinsky` carry no Nash dual, so the
+#     inverse-surplus and projected-KKT residuals do not exist for them.
+#
+# `nash_welfare` is different again: it is APPLICABLE everywhere and simply
+# UNDEFINED where some surplus is nonpositive, which is a result about the
+# policy rather than a gap in the record. The three states are written as a
+# number, `NA`, and `undefined`, and never as a bare blank.
+SOLVER_DIAGNOSTIC_COLUMNS = (
+    "fixed_point_residual", "extra_map_residual", "target_identity_residual",
+    "raw_multiplier_l1", "proximal_kl")
+DUAL_ONLY_COLUMNS = ("inverse_surplus_residual", "projected_kkt_residual",
+                     "outer_iterations_used")
+NO_SOLVER_METHODS = {"reference", "exact_global_nash", "exact_proximal_nash"}
+NO_DUAL_METHODS = NO_SOLVER_METHODS | {"game_utilitarian", "game_ks",
+                                       "bt_rm_utilitarian"}
+
+
+def applicability(method: str, column: str) -> bool:
+    """Is ``column`` a quantity that EXISTS for ``method``?"""
+    if column in SOLVER_DIAGNOSTIC_COLUMNS:
+        return method not in NO_SOLVER_METHODS
+    if column in DUAL_ONLY_COLUMNS:
+        return method not in NO_DUAL_METHODS
+    return True
+
+
+def cell(row: dict, column: str):
+    """One CSV cell, distinguishing NA from undefined from a value."""
+    if not applicability(row["method"], column):
+        return "NA"
+    v = row.get(column)
+    if v is None or v == "":
+        return "undefined" if column == "nash_welfare" else "NA"
+    return v
+
+
 def peak_rss_mb() -> float:
     return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0
 
@@ -389,8 +431,21 @@ def write_outputs(rows, out_dir: Path):
         w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
         w.writeheader()
         for r in rows:
-            w.writerow({**r, "non_converged_reasons": "; ".join(
-                r.get("non_converged_reasons") or [])})
+            out = {c: cell(r, c) for c in cols}
+            out["non_converged_reasons"] = "; ".join(r.get("non_converged_reasons") or [])
+            w.writerow(out)
+    (per_seed.parent / "controlled_v2_applicability.json").write_text(json.dumps({
+        "note": ("A blank was previously ambiguous between 'this quantity does not "
+                 "exist for this method' and 'the solve failed'. Cells now read NA, "
+                 "undefined, or a number."),
+        "NA_means": "the quantity is mathematically inapplicable to this method",
+        "undefined_means": ("the quantity applies but is undefined on this instance; "
+                            "only nash_welfare, where some surplus is nonpositive"),
+        "methods_without_a_solver": sorted(NO_SOLVER_METHODS),
+        "methods_without_a_nash_dual": sorted(NO_DUAL_METHODS),
+        "solver_diagnostic_columns": list(SOLVER_DIAGNOSTIC_COLUMNS),
+        "dual_only_columns": list(DUAL_ONLY_COLUMNS),
+    }, indent=2))
 
     agg = {}
     for r in rows:

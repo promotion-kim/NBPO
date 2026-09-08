@@ -1,0 +1,30 @@
+{
+  "note": "A blank was previously ambiguous between 'this quantity does not exist for this method' and 'the solve failed'. Cells now read NA, undefined, or a number.",
+  "NA_means": "the quantity is mathematically inapplicable to this method",
+  "undefined_means": "the quantity applies but is undefined on this instance; only nash_welfare, where some surplus is nonpositive",
+  "methods_without_a_solver": [
+    "exact_global_nash",
+    "exact_proximal_nash",
+    "reference"
+  ],
+  "methods_without_a_nash_dual": [
+    "bt_rm_utilitarian",
+    "exact_global_nash",
+    "exact_proximal_nash",
+    "game_ks",
+    "game_utilitarian",
+    "reference"
+  ],
+  "solver_diagnostic_columns": [
+    "fixed_point_residual",
+    "extra_map_residual",
+    "target_identity_residual",
+    "raw_multiplier_l1",
+    "proximal_kl"
+  ],
+  "dual_only_columns": [
+    "inverse_surplus_residual",
+    "projected_kkt_residual",
+    "outer_iterations_used"
+  ]
+}
