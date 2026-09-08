@@ -1,0 +1,100 @@
+{
+  "method": "nbpo",
+  "seed": 42,
+  "eta": 1.0,
+  "label": "OLDREF_N700_2400",
+  "candidate_precomputed": "/work/iclr27_table1_v2/smoke/reffix/scored/OLDREF_N700_2400/precomputed",
+  "heldout_split": "/work/iclr27_table1_v2/smoke/canon/pairs_nbpo/heldout_split.json",
+  "definition": {
+    "h": "(cand_chosen - cand_rejected) - (pi_t_chosen - pi_t_rejected), sequence-sum log-probabilities over response tokens",
+    "target": "eta * nbpo_weighted_z; eta is applied exactly once, here, matching the trainer -- the pair artifact stores it unscaled",
+    "gate_metric": "normalized_mse_var = MSE / Var(target)"
+  },
+  "splits": {
+    "validation": {
+      "metrics": {
+        "n": 4200,
+        "target_rms": 2.576799879748028,
+        "target_mean": -0.031237673833129153,
+        "prediction_rms": 0.9691729141344501,
+        "mse": 7.27003740199885,
+        "normalized_mse_var": 1.0950629620812615,
+        "normalized_mse_ms": 1.0949020327972807,
+        "sign_agreement": 0.5399480819152005,
+        "n_sign_comparable": 3467,
+        "pearson": 0.06132526856444781,
+        "spearman": 0.0720282672837534
+      },
+      "gate": {
+        "normalized_mse_var": {
+          "value": 1.0950629620812615,
+          "threshold": 0.9,
+          "operator": "<",
+          "passes": false
+        },
+        "sign_agreement": {
+          "value": 0.5399480819152005,
+          "threshold": 0.65,
+          "operator": ">",
+          "passes": false
+        },
+        "pearson": {
+          "value": 0.06132526856444781,
+          "threshold": 0.0,
+          "operator": ">",
+          "passes": true
+        },
+        "spearman": {
+          "value": 0.0720282672837534,
+          "threshold": 0.0,
+          "operator": ">",
+          "passes": true
+        },
+        "all_pass": false
+      }
+    },
+    "test": {
+      "metrics": {
+        "n": 4200,
+        "target_rms": 2.416905324577517,
+        "target_mean": -0.0019916179335811262,
+        "prediction_rms": 1.0435424563535618,
+        "mse": 6.421499485934474,
+        "normalized_mse_var": 1.0993031440139882,
+        "normalized_mse_ms": 1.099302397547613,
+        "sign_agreement": 0.561038961038961,
+        "n_sign_comparable": 3465,
+        "pearson": 0.10091015540209997,
+        "spearman": 0.1252148535512146
+      },
+      "gate": {
+        "normalized_mse_var": {
+          "value": 1.0993031440139882,
+          "threshold": 0.9,
+          "operator": "<",
+          "passes": false
+        },
+        "sign_agreement": {
+          "value": 0.561038961038961,
+          "threshold": 0.65,
+          "operator": ">",
+          "passes": false
+        },
+        "pearson": {
+          "value": 0.10091015540209997,
+          "threshold": 0.0,
+          "operator": ">",
+          "passes": true
+        },
+        "spearman": {
+          "value": 0.1252148535512146,
+          "threshold": 0.0,
+          "operator": ">",
+          "passes": true
+        },
+        "all_pass": false
+      }
+    }
+  },
+  "selection_protocol": "validation selects eta, learning rate and steps; the test half is reported for the gate and never used for selection"
+}

@@ -1,0 +1,126 @@
+{
+  "old": "canonN700_oldref",
+  "new": "NEWREF_N700_1200",
+  "eta": 1.0,
+  "n_rows": 8400,
+  "rows_identical": true,
+  "targets_identical": true,
+  "resampling_unit": "prompt",
+  "resamples": 1000,
+  "halves": {
+    "validation": {
+      "n_prompts": 150,
+      "old": {
+        "nMSE_var": 1.0879127615209745,
+        "nMSE_zero": 1.0877528830228356,
+        "sign_agreement": 0.5300028710881424,
+        "h_rms": 0.9177909608100342,
+        "pearson": 0.054432756030066094,
+        "spearman": 0.0636379203552433
+      },
+      "new": {
+        "nMSE_var": 1.0629172164934069,
+        "nMSE_zero": 1.0627610113138837,
+        "sign_agreement": 0.5477983777520278,
+        "h_rms": 0.9393208616119083,
+        "pearson": 0.09575171603293652,
+        "spearman": 0.10056387758298624
+      },
+      "paired_difference": {
+        "nMSE_var": {
+          "new_minus_old": -0.024995545027567623,
+          "ci95_low": -0.05536193730935657,
+          "ci95_high": 0.006460713335645574,
+          "fraction_of_resamples_favouring_new": 0.942
+        },
+        "nMSE_zero": {
+          "new_minus_old": -0.024991871708951896,
+          "ci95_low": -0.05532681542775131,
+          "ci95_high": 0.006460616863614765,
+          "fraction_of_resamples_favouring_new": 0.942
+        },
+        "sign_agreement": {
+          "new_minus_old": 0.017795506663885408,
+          "ci95_low": 0.0017701513521753975,
+          "ci95_high": 0.03415231421771958,
+          "fraction_of_resamples_favouring_new": 0.984
+        },
+        "h_rms": {
+          "new_minus_old": 0.021529900801874113,
+          "ci95_low": -0.0441888744665192,
+          "ci95_high": 0.08243736849856775,
+          "fraction_of_resamples_favouring_new": 0.254
+        },
+        "pearson": {
+          "new_minus_old": 0.04131896000287042,
+          "ci95_low": 0.00576917884330061,
+          "ci95_high": 0.07583267569933141,
+          "fraction_of_resamples_favouring_new": 0.983
+        },
+        "spearman": {
+          "new_minus_old": 0.036925957227742945,
+          "ci95_low": 0.0038999051449573677,
+          "ci95_high": 0.0695736500406183,
+          "fraction_of_resamples_favouring_new": 0.982
+        }
+      }
+    },
+    "test": {
+      "n_prompts": 150,
+      "old": {
+        "nMSE_var": 1.0900732018238681,
+        "nMSE_zero": 1.0900724616249557,
+        "sign_agreement": 0.5695652173913044,
+        "h_rms": 0.9826408860774003,
+        "pearson": 0.09258328120384317,
+        "spearman": 0.12978744418944047
+      },
+      "new": {
+        "nMSE_var": 1.0789383185238195,
+        "nMSE_zero": 1.0789375858858932,
+        "sign_agreement": 0.5606682297772567,
+        "h_rms": 0.9278959837311233,
+        "pearson": 0.08918051379964773,
+        "spearman": 0.11742652236787866
+      },
+      "paired_difference": {
+        "nMSE_var": {
+          "new_minus_old": -0.011134883300048637,
+          "ci95_low": -0.05896734548164906,
+          "ci95_high": 0.038820673734965894,
+          "fraction_of_resamples_favouring_new": 0.678
+        },
+        "nMSE_zero": {
+          "new_minus_old": -0.011134875739062577,
+          "ci95_low": -0.058961800978598156,
+          "ci95_high": 0.038818716354424465,
+          "fraction_of_resamples_favouring_new": 0.678
+        },
+        "sign_agreement": {
+          "new_minus_old": -0.008896987614047669,
+          "ci95_low": -0.028734720977326322,
+          "ci95_high": 0.009916727665161273,
+          "fraction_of_resamples_favouring_new": 0.179
+        },
+        "h_rms": {
+          "new_minus_old": -0.05474490234627705,
+          "ci95_low": -0.12008451520141195,
+          "ci95_high": 0.010681961085146296,
+          "fraction_of_resamples_favouring_new": 0.946
+        },
+        "pearson": {
+          "new_minus_old": -0.003402767404195442,
+          "ci95_low": -0.06245974561866048,
+          "ci95_high": 0.04753082942783743,
+          "fraction_of_resamples_favouring_new": 0.456
+        },
+        "spearman": {
+          "new_minus_old": -0.012360921821561802,
+          "ci95_low": -0.05491389119207353,
+          "ci95_high": 0.029411594313906386,
+          "fraction_of_resamples_favouring_new": 0.292
+        }
+      }
+    }
+  }
+}
