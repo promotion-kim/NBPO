@@ -101,6 +101,22 @@ draws one comparator per (row, objective). The residual 1.6% is that draw, not
 "inevitable neural noise", and it is removable in closed form from the payoff
 tensor already on disk -- which is what `--target-mode canonical` now does.
 
+## 4b. The surplus code checks out against the solver
+
+The held-out surplus numbers are a headline result, so the implementation is
+validated against a value the solver already reported rather than trusted. Fed
+the solver's own optimizer output `pi_star`, it reproduces both quantities
+exactly:
+
+| quantity | solver's record | recomputed here | difference |
+|---|---|---|---|
+| surplus, helpfulness | 0.14354640 | 0.14354640 | 0 |
+| surplus, harmlessness | 0.14819243 | 0.14819243 | 0 |
+| disagreement `d`, helpfulness | −0.03228067 | −0.03228067 | 0 |
+| disagreement `d`, harmlessness | −0.03386381 | −0.03386381 | 0 |
+
+Same soft-min game value, same disagreement construction, same pool weighting.
+
 ## 5. Actual optimizer update comparison
 
 `clip100` changed `max_grad_norm` from 1.0 to 100 with everything else fixed and
