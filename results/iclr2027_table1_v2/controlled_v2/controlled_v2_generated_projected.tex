@@ -1,0 +1,66 @@
+\begin{tabular}{l r r r r r r}
+\toprule
+$\alpha$ & BT dev. & $\rho^\star$ & min surplus & $\min s/\rho^\star$ & exploitability & solver resid. \\
+\midrule
+\multicolumn{7}{l}{\textit{$\alpha=0.00$}} \\
+\quad Reference $\piref$ & 0.0001 & +0.0350 & +0.0000 & +0.000 & 0.0394 & -- \\
+\quad Exact global Nash &  &  & +0.0338 & +0.965 & 0.0754 & -- \\
+\quad Exact proximal Nash &  &  & +0.0323 & +0.923 & 0.0732 & -- \\
+\quad \NBPO{} (direct inner solve) &  &  & +0.0323 & +0.923 & 0.0732 & 1e-12 \\
+\quad \NBPO{} ($R$-step map)$^{\dagger}$ &  &  & +0.0314 & +0.899 & 0.0722 & 1e-11 \\
+\quad Fixed-reference Nash &  &  & +0.0323 & +0.923 & 0.0732 & 0e+00 \\
+\quad BT-RM--Nash &  &  & +0.0323 & +0.923 & 0.0732 & 0e+00 \\
+\quad Game-utilitarian &  &  & +0.0322 & +0.921 & 0.0732 & 1e-10 \\
+\quad Game-KS &  &  & +0.0322 & +0.921 & 0.0732 & 2e-10 \\
+\quad BT-RM--utilitarian &  &  & +0.0322 & +0.921 & 0.0732 & 0e+00 \\
+\addlinespace
+\multicolumn{7}{l}{\textit{$\alpha=0.25$}} \\
+\quad Reference $\piref$ & 0.0100 & +0.0343 & +0.0000 & +0.000 & 0.0394 & -- \\
+\quad Exact global Nash &  &  & +0.0332 & +0.967 & 0.0797 & -- \\
+\quad Exact proximal Nash &  &  & +0.0321 & +0.934 & 0.0748 & -- \\
+\quad \NBPO{} (direct inner solve) &  &  & +0.0321 & +0.934 & 0.0748 & 1e-08 \\
+\quad \NBPO{} ($R$-step map)$^{\dagger}$ &  &  & +0.0313 & +0.910 & 0.0738 & 1e-05 \\
+\quad Fixed-reference Nash &  &  & +0.0320 & +0.932 & 0.0771 & 0e+00 \\
+\quad BT-RM--Nash &  &  & +0.0320 & +0.932 & 0.0771 & 0e+00 \\
+\quad Game-utilitarian &  &  & +0.0320 & +0.933 & 0.0748 & 2e-08 \\
+\quad Game-KS &  &  & +0.0319 & +0.929 & 0.0750 & 2e-08 \\
+\quad BT-RM--utilitarian &  &  & +0.0319 & +0.930 & 0.0772 & 0e+00 \\
+\addlinespace
+\multicolumn{7}{l}{\textit{$\alpha=0.50$}} \\
+\quad Reference $\piref$ & 0.0403 & +0.0337 & +0.0000 & +0.000 & 0.0394 & -- \\
+\quad Exact global Nash &  &  & +0.0329 & +0.976 & 0.0781 & -- \\
+\quad Exact proximal Nash &  &  & +0.0319 & +0.944 & 0.0747 & -- \\
+\quad \NBPO{} (direct inner solve) &  &  & +0.0319 & +0.944 & 0.0747 & 2e-06 \\
+\quad \NBPO{} ($R$-step map)$^{\dagger}$ &  &  & +0.0282 & +0.837 & 0.0940 & 1e+00 \\
+\quad Fixed-reference Nash &  &  & +0.0312 & +0.925 & 0.0846 & 0e+00 \\
+\quad BT-RM--Nash &  &  & +0.0312 & +0.925 & 0.0846 & 0e+00 \\
+\quad Game-utilitarian &  &  & +0.0318 & +0.944 & 0.0747 & 1e-07 \\
+\quad Game-KS &  &  & +0.0317 & +0.940 & 0.0748 & 2e-07 \\
+\quad BT-RM--utilitarian &  &  & +0.0311 & +0.923 & 0.0848 & 0e+00 \\
+\addlinespace
+\multicolumn{7}{l}{\textit{$\alpha=0.75$}} \\
+\quad Reference $\piref$ & 0.0931 & +0.0334 & +0.0000 & +0.000 & 0.0394 & -- \\
+\quad Exact global Nash &  &  & +0.0327 & +0.981 & 0.0772 & -- \\
+\quad Exact proximal Nash &  &  & +0.0318 & +0.951 & 0.0739 & -- \\
+\quad \NBPO{} (direct inner solve) &  &  & +0.0318 & +0.951 & 0.0739 & 2e-06 \\
+\quad \NBPO{} ($R$-step map)$^{\dagger}$ &  &  & +0.0167 & +0.499 & 0.1303 & 1e+00 \\
+\quad Fixed-reference Nash &  &  & +0.0299 & +0.896 & 0.0931 & 0e+00 \\
+\quad BT-RM--Nash &  &  & +0.0299 & +0.896 & 0.0931 & 0e+00 \\
+\quad Game-utilitarian &  &  & +0.0317 & +0.951 & 0.0740 & 2e-07 \\
+\quad Game-KS &  &  & +0.0317 & +0.948 & 0.0740 & 4e-07 \\
+\quad BT-RM--utilitarian &  &  & +0.0298 & +0.894 & 0.0933 & 0e+00 \\
+\addlinespace
+\multicolumn{7}{l}{\textit{$\alpha=1.00$}} \\
+\quad Reference $\piref$ & 0.1737 & +0.0332 & +0.0000 & +0.000 & 0.0394 & -- \\
+\quad Exact global Nash &  &  & +0.0326 & +0.984 & 0.0764 & -- \\
+\quad Exact proximal Nash &  &  & +0.0317 & +0.956 & 0.0733 & -- \\
+\quad \NBPO{} (direct inner solve) &  &  & +0.0317 & +0.956 & 0.0733 & 9e-06 \\
+\quad \NBPO{} ($R$-step map)$^{\dagger}$ &  &  & -0.0226 & -0.688 & 0.2172 & 1e+00 \\
+\quad Fixed-reference Nash &  &  & +0.0280 & +0.845 & 0.1021 & 0e+00 \\
+\quad BT-RM--Nash &  &  & +0.0280 & +0.845 & 0.1021 & 0e+00 \\
+\quad Game-utilitarian &  &  & +0.0317 & +0.956 & 0.0733 & 6e-07 \\
+\quad Game-KS &  &  & +0.0316 & +0.954 & 0.0733 & 4e-07 \\
+\quad BT-RM--utilitarian &  &  & +0.0280 & +0.843 & 0.1023 & 0e+00 \\
+\addlinespace
+\bottomrule
+\end{tabular}

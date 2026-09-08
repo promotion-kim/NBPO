@@ -94,8 +94,12 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dir", type=Path,
                     default=Path("results/iclr2027_table1_v2/controlled_v2"))
+    ap.add_argument("--tag", default="",
+                    help="suffix selecting one construction family or beta value; "
+                         "empty means the primary circulant family")
     args = ap.parse_args()
-    raw, cells = load(args.dir / "controlled_v2_raw.json")
+    sfx = f"_{args.tag}" if args.tag else ""
+    raw, cells = load(args.dir / f"controlled_v2_raw{sfx}.json")
     alphas = sorted({a for a, _ in cells})
 
     # ---------------- gap analysis ----------------
@@ -120,7 +124,7 @@ def main() -> None:
         "relative to converged practical NBPO as intransitivity rises; it is "
         "checked as a strictly positive bootstrap lower bound on the paired gap "
         "at the largest alpha, for BOTH matched controls")
-    (args.dir / "controlled_v2_gaps.json").write_text(
+    (args.dir / f"controlled_v2_gaps{sfx}.json").write_text(
         json.dumps(analysis, indent=2))
 
     # ---------------- LaTeX ----------------
@@ -155,7 +159,7 @@ def main() -> None:
     tex = "\n".join(L)
     if r"\pending" in tex:
         raise SystemExit("refusing to emit a table containing \\pending")
-    (args.dir / "controlled_v2_generated.tex").write_text(tex + "\n")
+    (args.dir / f"controlled_v2_generated{sfx}.tex").write_text(tex + "\n")
 
     # ---------------- figure ----------------
     import matplotlib
@@ -187,12 +191,18 @@ def main() -> None:
     ax.set_xlabel("Bradley-Terry deviance per edge  (payoff a scalar representation cannot express)")
     ax.set_ylabel(r"min surplus / $\rho^\star$")
     ax.set_title(r"Feasibility-preserving controlled nontransitivity ($\rho^\star$ held fixed)")
-    ax.set_ylim(-4.0, 1.15)
+    lo = min(min(ms) for ms in [[boot_ci([r.get("normalized_min_surplus")
+                                          for r in cells[(al, m)]])[0] or 0
+                                for al in alphas] for m in PLOT])
+    finite = [v for m in PLOT for v in
+              [boot_ci([r.get("normalized_min_surplus") for r in cells[(al, m)]])[0]
+               for al in alphas] if v is not None]
+    ax.set_ylim(min(-0.05, min(finite) - 0.05), max(1.02, max(finite) + 0.05))
     ax.legend(fontsize=7.5, loc="lower left", framealpha=0.9)
     ax.grid(alpha=0.25)
     fig.tight_layout()
-    fig.savefig(args.dir / "controlled_v2_gap_figure.pdf")
-    fig.savefig(args.dir / "controlled_v2_gap_figure.png", dpi=170)
+    fig.savefig(args.dir / f"controlled_v2_gap_figure{sfx}.pdf")
+    fig.savefig(args.dir / f"controlled_v2_gap_figure{sfx}.png", dpi=170)
 
     print(json.dumps({k: (v if not isinstance(v, dict) else
                           {"slope_vs_bt_deviance": v.get("slope_vs_bt_deviance"),

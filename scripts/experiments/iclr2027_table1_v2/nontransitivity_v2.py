@@ -140,3 +140,120 @@ def match_rho_star(seed, target, alphas, *, K=4, X=40, I=5, base_amp=0.05,
     return out, {"target_rho_star": target, "base_amp": base_amp,
                  "cycle_amp": cycle_amp, "margin_cap": m_cap, "I": I, "K": K,
                  "X": X, "seed": seed, "bisection_iterations": iters}
+
+
+# --------------------------------------------------------------------------
+# A SECOND cycle family, structurally unlike the circulant tournament.
+# --------------------------------------------------------------------------
+
+def projected_skew_cycle(rng, K, X, I, amp, mu, pi_bar):
+    """Random skew perturbation projected to annihilate ``mu`` and ``pi_bar``.
+
+        C = N (R - R^T) N,     N = I - U (U^T U)^+ U^T,   U = [mu_x, pi_bar_x]
+
+    ``R - R^T`` is skew, and conjugating a skew matrix by a symmetric projector
+    keeps it skew, so ``C^T = -C`` and ``diag(C) = 0`` hold exactly rather than by
+    construction-specific argument. The projection then gives ``C mu = 0`` and
+    ``C pi_bar = 0``, which is what makes this usable:
+
+    * ``mu^T C = -(C mu)^T = 0``, so the payoff rows at the uniform reference are
+      untouched and the **disagreement point does not move with alpha** -- the
+      same invariance the circulant family gets from odd-order zero row sums, but
+      obtained a completely different way;
+    * ``C pi_bar = 0``, so a designated witness policy keeps its surplus, which is
+      what keeps the problem feasible as the cyclic component grows.
+
+    This matters because the first family's alpha-invariance comes from a number-
+    theoretic property of circulant tournaments. If the controlled result only
+    replicates there, it is a property of that construction and not of the method.
+    """
+    C = np.zeros((K, X, I, I))
+    for k in range(K):
+        for x in range(X):
+            U = np.stack([mu[x], pi_bar[x]], axis=1)          # (I, 2)
+            N = np.eye(I) - U @ np.linalg.pinv(U.T @ U) @ U.T  # symmetric projector
+            R = rng.normal(size=(I, I))
+            M = N @ (R - R.T) @ N
+            m = np.abs(M).max()
+            C[k, x] = (amp / m) * M if m > 0 else M
+    return skew(C)
+
+
+def build_v2_projected(seed, K=4, X=40, I=5, alphas=(0.0, 0.25, 0.5, 0.75, 1.0),
+                       m=0.16, base_amp=0.06, cycle_amp=0.28, beta=0.25,
+                       witness_concentration=6.0):
+    """The v2 construction with the projected-skew cycle family in place of the
+    circulant one. Everything else -- shared transitive direction, fixed
+    per-objective base, no clipping, measured disagreement point -- is identical,
+    so the two families differ in exactly one component.
+    """
+    rng = np.random.default_rng(770000 + seed)
+    mu = np.full((X, I), 1.0 / I)
+    T, c = shared_direction(rng, K, X, I, m)
+    base = base_tensor(rng, K, X, I)[0] * (base_amp / 0.45)
+    # the witness the cycle is required to leave alone: a policy tilted toward the
+    # shared transitive direction, which is where a feasible improvement lives
+    logits = witness_concentration * c
+    pi_bar = np.exp(logits - logits.max(axis=-1, keepdims=True))
+    pi_bar /= pi_bar.sum(axis=-1, keepdims=True)
+    C = projected_skew_cycle(rng, K, X, I, cycle_amp, mu, pi_bar)
+
+    for name, M, ref in (("mu", C, mu), ("pi_bar", C, pi_bar)):
+        r = np.abs(np.einsum("kxij,xj->kxi", M, ref)).max()
+        if r > 1e-10:
+            raise AssertionError(f"C does not annihilate {name}: residual {r:.3e}")
+
+    b = np.full(K, float(beta))
+    out, d_ref = {}, None
+    for alpha in alphas:
+        A = skew(T + base + alpha * C)
+        if np.abs(A).max() > 0.5 + 1e-12:
+            raise AssertionError(
+                f"|A| reaches {np.abs(A).max():.4f} at alpha={alpha}; this family "
+                "refuses to clip, so lower the amplitudes instead")
+        d = nf.game_values(A, mu, mu, b)
+        if d_ref is None:
+            d_ref = d
+        elif np.abs(d - d_ref).max() > 1e-12:
+            raise AssertionError(
+                f"disagreement point moved by {np.abs(d - d_ref).max():.3e} at "
+                f"alpha={alpha}; the projection argument is wrong")
+        out[alpha] = {"A": A, "mu": mu, "beta": b, "d": d, "pi_bar": pi_bar}
+    return out, {"family": "projected_skew", "m": m, "base_amp": base_amp,
+                 "cycle_amp": cycle_amp, "I": I, "K": K, "X": X, "seed": seed,
+                 "witness_concentration": witness_concentration}
+
+
+def match_rho_star_projected(seed, target, alphas, *, K=4, X=40, I=5,
+                             base_amp=0.05, cycle_amp=0.28, beta=0.25,
+                             iters=18, m_lo=0.02):
+    """Hold ``rho*`` fixed across alpha for the projected-skew family."""
+    m_cap = 0.5 - base_amp - cycle_amp
+    out = {}
+    for alpha in alphas:
+        lo, hi = m_lo, m_cap
+
+        def rho(mm):
+            fam, _ = build_v2_projected(seed, K=K, X=X, I=I, alphas=(alpha,), m=mm,
+                                        base_amp=base_amp, cycle_amp=cycle_amp,
+                                        beta=beta)
+            inst = fam[alpha]
+            return nf.solve_max_min(inst["A"], inst["mu"], inst["beta"],
+                                    inst["d"])["rho_star"], inst
+
+        for _ in range(iters):
+            mid = 0.5 * (lo + hi)
+            r, _ = rho(mid)
+            if r < target:
+                lo = mid
+            else:
+                hi = mid
+        mm = 0.5 * (lo + hi)
+        r, inst = rho(mm)
+        inst["margin"] = mm
+        inst["rho_star"] = r
+        inst["margin_at_cap"] = bool(mm >= m_cap - 1e-6)
+        out[alpha] = inst
+    return out, {"family": "projected_skew", "target_rho_star": target,
+                 "base_amp": base_amp, "cycle_amp": cycle_amp,
+                 "margin_cap": m_cap, "I": I, "K": K, "X": X, "seed": seed}

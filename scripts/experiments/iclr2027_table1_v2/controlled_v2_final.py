@@ -56,7 +56,7 @@ from mnpo_scripts.nbpo_representations import (
 from scripts.experiments.iclr2027_table1_v2 import nontransitivity_feasibility as nf
 from scripts.experiments.iclr2027_table1_v2.controlled_nontransitivity import bt_fit
 from scripts.experiments.iclr2027_table1_v2.nontransitivity_v2 import (
-    build_v2, match_rho_star,
+    build_v2, build_v2_projected, match_rho_star,
 )
 
 ALPHAS = (0.00, 0.25, 0.50, 0.75, 1.00)
@@ -341,6 +341,19 @@ def run_instance(inst, seed, alpha, args):
     return rows
 
 
+def _report(got, seed, alpha, elapsed, args):
+    nc = [r["method"] for r in got
+          if not r.get("converged") and not r.get("expected_non_convergent")]
+    best = {r["method"]: r.get("normalized_min_surplus") for r in got}
+    f = lambda k: ("  n/a" if best.get(k) is None else f"{best[k]:+.3f}")
+    print(f"  [{args.family[:4]} b={args.beta}] seed {seed} alpha {alpha:.2f} "
+          f"rho*={got[0]['rho_star']:+.6f} BTdev={got[0]['bt_deviance_per_edge']:.4f} "
+          f"nbpo={f('nbpo_direct')} ks={f('game_ks')} gutil={f('game_utilitarian')} "
+          f"fixref={f('fixed_reference_nash')} btrm={f('bt_rm_nash')} "
+          f"btutil={f('bt_rm_utilitarian')} "
+          f"non-conv={nc or 'none'} ({elapsed:.0f}s)", flush=True)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -354,11 +367,27 @@ def main() -> None:
     ap.add_argument("--target-rho-star", type=float, default=0.030)
     ap.add_argument("--base-amp", type=float, default=0.05)
     ap.add_argument("--cycle-amp", type=float, default=0.28)
+    ap.add_argument("--margin", type=float, default=0.16,
+                    help="shared-direction weight for the projected family "
+                         "(the circulant family bisects it instead)")
     ap.add_argument("--dual-tol", type=float, default=1e-6)
     ap.add_argument("--max-dual-calls", type=int, default=800)
     ap.add_argument("--rstep-dual-iterations", type=int, default=1500)
     ap.add_argument("--rstep-fixed-point-iterations", type=int, default=3)
     ap.add_argument("--margin-cache", type=Path, default=None)
+    ap.add_argument("--family", choices=("circulant", "projected"),
+                    default="circulant",
+                    help="which cycle family. `projected` is the independent "
+                         "robustness construction: a random skew perturbation "
+                         "projected to annihilate both mu and a witness policy, so "
+                         "its alpha-invariance comes from a projection rather than "
+                         "from a number-theoretic property of circulant "
+                         "tournaments. It needs no margin bisection because rho* is "
+                         "already near-constant, so the measured value is reported "
+                         "as-is and the normalized metric absorbs the drift.")
+    ap.add_argument("--label", default=None,
+                    help="suffix for the output files, so families and beta values "
+                         "do not overwrite each other")
     args = ap.parse_args()
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -375,6 +404,19 @@ def main() -> None:
 
     rows = []
     for seed in args.seeds:
+        if args.family == "projected":
+            fam, _ = build_v2_projected(
+                seed, K=args.objectives, X=args.prompts, I=args.responses,
+                alphas=ALPHAS, m=args.margin, base_amp=args.base_amp,
+                cycle_amp=args.cycle_amp, beta=args.beta)
+            print(f"[seed {seed}] projected-skew family, no margin bisection",
+                  flush=True)
+            for alpha in ALPHAS:
+                t0 = time.time()
+                got = run_instance(fam[alpha], seed, alpha, args)
+                rows.extend(got)
+                _report(got, seed, alpha, time.time() - t0, args)
+            continue
         key = f"{geom}|seed{seed}"
         if key in cache:
             margins = {float(a): m for a, m in cache[key].items()}
@@ -400,23 +442,19 @@ def main() -> None:
             t0 = time.time()
             got = run_instance(fam[alpha], seed, alpha, args)
             rows.extend(got)
-            nc = [r["method"] for r in got if not r.get("converged")]
-            best = {r["method"]: r.get("normalized_min_surplus") for r in got}
-            print(f"  [v2f] seed {seed} alpha {alpha:.2f} "
-                  f"rho*={got[0]['rho_star']:+.6f} BTdev={got[0]['bt_deviance_per_edge']:.4f} "
-                  f"nbpo={best.get('nbpo_direct'):+.3f} fixref={best.get('fixed_reference_nash'):+.3f} "
-                  f"btrm={best.get('bt_rm_nash'):+.3f} legacy={best.get('nbpo_rstep_legacy'):+.3f} "
-                  f"non-converged={nc or 'none'} ({time.time()-t0:.0f}s)", flush=True)
+            _report(got, seed, alpha, time.time() - t0, args)
 
-    (args.out_dir / "controlled_v2_raw.json").write_text(
+    tag = args.label or (args.family if args.family != "circulant" else "")
+    (args.out_dir / (f"controlled_v2_raw{'_' + tag if tag else ''}.json")).write_text(
         json.dumps({"config": {k: str(v) for k, v in vars(args).items()},
                     "alphas": list(ALPHAS), "rows": rows}, indent=2, default=str))
-    write_outputs(rows, args.out_dir)
+    write_outputs(rows, args.out_dir, tag=tag)
 
 
-def write_outputs(rows, out_dir: Path):
+def write_outputs(rows, out_dir: Path, tag: str = ""):
     import csv
-    per_seed = out_dir / "controlled_v2_per_seed.csv"
+    sfx = f"_{tag}" if tag else ""
+    per_seed = out_dir / f"controlled_v2_per_seed{sfx}.csv"
     cols = ["seed", "alpha", "method", "status", "converged", "bt_deviance_per_edge",
             "rho_star", "rho_star_gap", "min_surplus", "avg_surplus",
             "normalized_min_surplus", "nash_welfare", "nash_welfare_defined",
@@ -482,7 +520,7 @@ def write_outputs(rows, out_dir: Path):
             f(m(g("tv_to_exact_global"))),
             f(max(g("projected_kkt_residual"), default=None)),
             f(max(g("fixed_point_residual"), default=None))])))
-    (out_dir / "controlled_v2_summary.csv").write_text("\n".join(lines) + "\n")
+    (out_dir / f"controlled_v2_summary{sfx}.csv").write_text("\n".join(lines) + "\n")
 
     rt = ["alpha,method,n,wall_clock_mean_s,wall_clock_max_s,peak_rss_mb_max,"
           "outer_iterations_mean"]
@@ -495,8 +533,8 @@ def write_outputs(rows, out_dir: Path):
                                      (sum(w)/len(w)) if w else "",
                                      max(w) if w else "", max(p) if p else "",
                                      (sum(it)/len(it)) if it else ""])))
-    (out_dir / "controlled_v2_runtime.csv").write_text("\n".join(rt) + "\n")
-    print(f"\nwrote {out_dir}/controlled_v2_{{per_seed,summary,runtime}}.csv")
+    (out_dir / f"controlled_v2_runtime{sfx}.csv").write_text("\n".join(rt) + "\n")
+    print(f"\nwrote {out_dir}/controlled_v2_{{per_seed,summary,runtime}}{sfx}.csv")
 
 
 def regenerate() -> None:

@@ -386,6 +386,10 @@ def main() -> None:
     ap.add_argument("--log-every", type=int, default=200)
     ap.add_argument("--limit-train", type=int, default=None)
     ap.add_argument("--models", nargs="+", default=["gpm", "bt"])
+    ap.add_argument("--save-predictions", action="store_true",
+                    help="write per-example probabilities for validation and test so "
+                         "an ensemble can be calibrated and combined afterwards "
+                         "WITHOUT retraining. Calibration must see validation only.")
     args = ap.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -423,7 +427,22 @@ def main() -> None:
                 cmp_block[split][o]["constant_predictor"] = constant_predictor(
                     tr_y, g["y"][o])
         report["gpm_vs_bt"] = cmp_block
-    (args.out_dir / "gpm_vs_bt.json").write_text(json.dumps(report, indent=2, default=str))
+    if args.save_predictions:
+        import numpy as _np
+        for kind, r in results.items():
+            for split in ("validation", "test"):
+                raw = r[f"_{split}_raw"]
+                _np.savez_compressed(
+                    args.out_dir / f"pred_{kind}_seed{args.seed}_{split}.npz",
+                    prompts=_np.array(raw["prompts"]),
+                    **{f"p_{o}": _np.asarray(raw["p"][o], dtype=_np.float64)
+                       for o in OBJECTIVES},
+                    **{f"y_{o}": _np.asarray(raw["y"][o], dtype=_np.float64)
+                       for o in OBJECTIVES})
+        print(f"wrote per-seed predictions for seed {args.seed}", flush=True)
+
+    (args.out_dir / f"gpm_vs_bt_seed{args.seed}.json").write_text(
+        json.dumps(report, indent=2, default=str))
     print(json.dumps(report["models"], indent=2, default=str)[:4000])
     if "gpm_vs_bt" in report:
         print(json.dumps(report["gpm_vs_bt"], indent=2)[:3000])
