@@ -94,7 +94,9 @@ def write_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashes: dict,
         # What actually ran (audit section 0): the dual below is a frozen finite-pool
         # optimization; the neural policy is realized once, afterwards.
         **implementation_contract(dual_iterations=res.config.get("M"),
-                                  fixed_point_steps=res.config.get("R")),
+                                  fixed_point_steps=res.config.get("R"),
+                                  inner_solver=res.config.get("inner_solver"),
+                                  dual_solver=res.config.get("dual_solver")),
         "aggregation": res.aggregation,
         "stage": int(stage),
         "objectives": tensor_meta.get("objectives"),
@@ -216,7 +218,9 @@ def write_generic_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashe
     identity = res.target_log_ratio_check()
     solution = {
         **implementation_contract(dual_iterations=res.config.get("M"),
-                                  fixed_point_steps=res.config.get("R")),
+                                  fixed_point_steps=res.config.get("R"),
+                                  inner_solver=res.config.get("inner_solver"),
+                                  dual_solver=res.config.get("dual_solver")),
         "solver_path": "generic_solve_finite_pool",
         "representation": res.representation,
         "aggregation": res.aggregation,

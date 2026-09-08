@@ -1,0 +1,95 @@
+% =====================================================================
+% PATCH: replaces \subsection{Sampled policy fitting and dual update}
+%        and the algorithm environment alg:nbpo in main_v5.tex.
+%
+% Why: the alternating fixed-opponent map that the current text presents as
+% THE practical inner solve is non-convergent in exactly the regime the method
+% is for. Measured on the feasibility-preserving controlled benchmark, it
+% converged on 0 of 25 cells and reached a normalized min surplus of -3.373 at
+% the highest intransitivity, against +0.931 for the direct solve. It therefore
+% moves to the appendix as an approximation and failure ablation, and the
+% direct prompt-separable concave solve becomes the reported practical method.
+%
+% What is NOT changed: the population theorem, and every statement about the
+% exact population proximal update.
+% =====================================================================
+
+\subsection{Finite-pool inner solve and dual update}
+\label{sec:finite-pool-inner}
+Fix outer stage $t$ and a dual vector $\lambda$. On the frozen finite response
+pool, \eqref{eq:weighted-policy} has structure that makes it solvable rather
+than merely approximable. Writing $V_{k,\beta_k}(\pi)=\E_x[v_{k,x}(\pi(\cdot\mid x))]$,
+each $v_{k,x}$ is a soft-min of terms linear in $\pi(\cdot\mid x)$ and therefore
+\emph{concave}, and it depends on $\pi$ only through that prompt's row. The
+stage objective
+\[
+J_\lambda(\pi)
+=
+\sum_{k=1}^K \lambda_k s_k(\pi)-\tfrac{1}{\eta_t}D(\pi\,\|\,\pi_t)
+\]
+is thus concave and \emph{separates completely across prompts}: it is $|\mathcal{X}|$
+independent concave programs over the response simplex, not one program over
+their product. We solve them directly, in double precision, to a declared
+stationarity tolerance of $10^{-4}$.
+
+We return the update \eqref{eq:fixed-opponent-update} evaluated \emph{at} that
+maximizer rather than the maximizer itself. This is not cosmetic: it makes the
+log-ratio identity that \eqref{eq:binary-target} depends on hold to machine
+precision by construction (measured residual $\le 1.3\times10^{-15}$), whereas an
+optimizer iterate satisfies it only to its own tolerance.
+
+The dual is likewise solved rather than descended. Stationarity of
+\eqref{eq:prox-dual} is $s_k(\pi(\lambda))=1/\lambda_k$, and $\pi(\lambda)$ is
+a well-defined map once the inner problem is solved, so this is a $K$-dimensional
+root problem, which we solve in $\log\lambda$ coordinates and stop on the
+projected KKT residual at $10^{-6}$ rather than after a fixed iteration count.
+
+Both choices matter numerically. The raw multipliers satisfy $\lambda_k=1/s_k$
+and therefore diverge as a surplus approaches zero, which is precisely the regime
+a bargaining solution occupies; a projected subgradient stalls near a residual of
+$10^{-2}$ there, and the alternating inner map ceases to contract entirely
+(Appendix~\ref{app:rstep-ablation}).
+
+\paragraph{Cost.} The separability is what makes this practical at scale: the
+per-prompt programs are independent, so the solve is linear in the number of
+prompts and embarrassingly parallel. At $7000$ prompts with a $4{+}4$ pool, one
+complete dual solve takes $10.6$\,s over $28$ dual evaluations at a peak resident
+size of $534$\,MB; at $16{+}16$ it takes $15.3$\,s. All $24$ measured
+configurations converged, with projected KKT residuals between $1.8\times10^{-15}$
+and $7.3\times10^{-10}$.
+
+\paragraph{What is and is not exact.} Three levels should not be conflated. The
+population proximal update of \eqref{eq:prox-subproblem} is exact by
+Theorem~\ref{thm:last-iterate}. The finite-pool inner problem is \emph{solved
+numerically to a declared tolerance}. The projection of the finite-pool
+log-ratio target into the neural policy by pairwise regression remains
+\emph{approximate}, and is the approximation the method carries. We therefore
+describe the middle step as a \emph{direct finite-pool concave inner solve}, and
+never describe the algorithm as a whole as exact.
+
+% ---------------------------------------------------------------------
+\begin{algorithm}[t]
+\caption{Nash Bargaining Preference Optimization}
+\label{alg:nbpo}
+\begin{algorithmic}[1]
+\REQUIRE Reference $\piref$, preference models $P_{1:K}$, temperatures $\beta_{1:K}$, outer stages $T$, step $\eta_t$, dual tolerance $\epsilon_{\mathrm{dual}}$, inner tolerance $\epsilon_{\mathrm{in}}$.
+\STATE Estimate $d_k=V_{k,\beta_k}(\piref)$ and set $\pi_0\leftarrow\piref$.
+\FOR{$t=0,\ldots,T-1$}
+    \STATE Sample the response pool at $\pi_t$ and build the centered tensors $A_k$. \hfill\COMMENT{Eq.~\eqref{eq:centered}}
+    \STATE Initialize $\lambda^{(0)}>0$ (warm-start from the previous stage when available).
+    \STATE \textbf{Solve} $s_k(\pi(\lambda))=1/\lambda_k$ for $\lambda^\star$, stopping at projected KKT residual $\le\epsilon_{\mathrm{dual}}$, where for each trial $\lambda$:
+    \STATE \quad for every prompt $x$ \textbf{in parallel}: $\;\widehat\pi_x\leftarrow\arg\max_{p\in\Delta}\;\eta_t\sum_k\lambda_k v_{k,x}(p)-\mathrm{KL}(p\,\|\,\pi_t(\cdot\mid x))$, to $\epsilon_{\mathrm{in}}$
+    \STATE \quad $\pi(\lambda)\leftarrow$ \eqref{eq:fixed-opponent-update} evaluated at $\widehat\pi$; \; $s\leftarrow V(\pi(\lambda))-d$
+    \STATE Form the finite-pool target $\log\pi^\star-\log\pi_t$ from $\lambda^\star$ and its opponent.
+    \STATE $\widetilde\pi_{t+1}\leftarrow$ one pairwise regression fit of \eqref{eq:regression-loss} onto that target. \hfill\COMMENT{the approximate step}
+    \STATE Set $\pi_{t+1}\leftarrow\widetilde\pi_{t+1}$ if all held-out empirical surpluses are positive; otherwise retain $\pi_t$.
+\ENDFOR
+\STATE \textbf{return} $\pi_T$.
+\end{algorithmic}
+\end{algorithm}
+% ---------------------------------------------------------------------
+The held-out check is an implementation safeguard rather than a finite-sample
+guarantee. The convergence result below concerns exact population solutions of
+\eqref{eq:prox-subproblem} and is unaffected by how the finite-pool inner problem
+is solved. Exactly one neural fit is performed per outer stage, after the dual
+has converged; the dual loop itself touches no network.

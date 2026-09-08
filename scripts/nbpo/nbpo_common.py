@@ -51,14 +51,28 @@ DUAL_POLICY_REPRESENTATION = "finite_response_distribution"
 NEURAL_FITS_PER_OUTER_STAGE = 1
 
 
-def implementation_contract(dual_iterations=None, fixed_point_steps=None) -> dict:
-    """The mandatory contract block embedded in every NBPO artifact."""
+def implementation_contract(dual_iterations=None, fixed_point_steps=None,
+                            inner_solver=None, dual_solver=None) -> dict:
+    """The mandatory contract block embedded in every NBPO artifact.
+
+    ``inner_solver`` and ``dual_solver`` are part of the contract because the two
+    paths are not interchangeable: the legacy ``R``-step alternating map converged
+    on 0 of 25 controlled-v2 cells, so an artifact that does not say which solver
+    produced it cannot be defended.
+    """
     return {
         "implementation_type": IMPLEMENTATION_TYPE,
         "dual_policy_representation": DUAL_POLICY_REPRESENTATION,
         "neural_fits_per_outer_stage": NEURAL_FITS_PER_OUTER_STAGE,
         "fixed_point_steps": (None if fixed_point_steps is None else int(fixed_point_steps)),
         "dual_iterations": (None if dual_iterations is None else int(dual_iterations)),
+        "inner_solver": (None if inner_solver is None else str(inner_solver)),
+        "dual_solver": (None if dual_solver is None else str(dual_solver)),
+        "exactness_scope": (
+            "'exact' names ONE subproblem: the direct finite-pool concave inner "
+            "solve, to a declared tolerance. The population proximal update is "
+            "exact by theorem; the neural projection is approximate. The "
+            "algorithm as a whole is NOT exact."),
         # Deliberately NOT "note": artifacts carry their own notes (the pair
         # summary's says the target is unscaled), and a generic key would clobber
         # them when this block is spread into one.
