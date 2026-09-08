@@ -95,9 +95,49 @@ opponent draw, same prompts, same responses, same split salts:
 | Rao-Blackwell | +0.9920 | 0.9840 | 6.64 |
 
 Both are unbiased for the same quantity. One is 14% predictable and the other
-98%. A diagnostic arm on the Rao-Blackwell target is running; it isolates
-"the neural projection cannot fit an Eq. (26) target" from "the sampled
-estimator is too noisy to fit at this budget".
+98%.
+
+**The Rao-Blackwell arm answers it, and rules the estimator out.** Same
+optimizer, same clipping, same learning rate, same eta, same step count; only
+the target differs:
+
+| arm | val nMSE | test nMSE | test sign | test Pearson | test Spearman | h RMS |
+|---|---|---|---|---|---|---|
+| sampled, eta=1.0 | 1.020 | 1.026 | 0.505 | −0.026 | +0.001 | 0.918 |
+| Rao-Blackwell | 1.070 | **1.126** | 0.535 | +0.025 | +0.055 | 0.924 |
+
+The floor for the Rao-Blackwell target is `normalized_mse_var = 0.016`, and the
+policy scores 1.126. Given a target that is 98% predictable, the projection
+captures essentially none of it. The correlations are the best of any arm and
+are the first that are positive on both halves, so a little signal is there --
+but the estimator's noise was not what was blocking it.
+
+The test-half MSE decomposes exactly:
+
+```
+MSE = Var(target) + h^2 - 2*cov = 5.916 + 0.854 - 0.110 = 6.661
+```
+
+The policy contributes 0.854 of variance and recovers 0.110 through correlation.
+87% of the movement is noise, and since `h = 0` gives `nMSE = 1.0` by
+construction, training is a net loss on held-out prompts.
+
+Train and held-out split the same way: the training loss does fall below its
+`h = 0` baseline (6.24 against 6.64, a 6% reduction) while the held-out MSE sits
+above it. The fit is finding train-specific structure that does not transfer.
+
+## Two hypotheses remain, and both are being probed
+
+With the estimator ruled out, what is left is the optimization path itself.
+Both probes hold the Rao-Blackwell target and everything else fixed:
+
+| probe | hypothesis | change |
+|---|---|---|
+| `DIAGrb_clip100` | gradient clipping is the binding constraint | `max_grad_norm` 1.0 -> 100, pre-clip norms are ~9.4e3 |
+| `DIAGrb_steps1200` | it is simply under-trained | 300 -> 1200 steps, i.e. 0.24 -> 0.98 epoch |
+
+Both are diagnostics outside the pre-declared grid and neither is a selection
+candidate.
 
 ## What was not done, deliberately
 
