@@ -1,0 +1,27 @@
+{
+  "n_prompts": 1000,
+  "n_learner_responses": 8,
+  "n_comparators": 8,
+  "n_pairs_per_prompt": 28,
+  "lambda_raw": [
+    6.966388395211773,
+    6.74798290479777
+  ],
+  "conditional_mean_rms": 2.535479144352916,
+  "conditional_mean_variance": 6.427410473115948,
+  "mean_conditional_variance": 38.85012926950765,
+  "total_target_variance_analytic": 45.277539742623595,
+  "target_rms_analytic": 6.728951163513988,
+  "max_attainable_r2": 0.14195582422658182,
+  "normalized_mse_var_floor": 0.8580441757734182,
+  "gate_threshold": 0.9,
+  "gate_reachable": true,
+  "interpretation": "normalized_mse_var cannot go below this floor for ANY policy, because the sampled target carries opponent-draw and Bernoulli noise that h_t is not a function of. A floor above the threshold means the gate is unreachable by construction, not that the policy failed.",
+  "empirical": {
+    "n_rows": 19600,
+    "variance": 44.6935250253533,
+    "rms": 6.6853859375691265,
+    "fraction_zero": 0.3118877551020408,
+    "analytic_vs_empirical_variance_ratio": 1.0130670990247244
+  }
+}
