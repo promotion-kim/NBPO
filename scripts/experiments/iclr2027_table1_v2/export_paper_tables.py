@@ -86,6 +86,9 @@ HEADERS.update({
  "solver_scaling": ("rrrrrrrrrr",
    r"prompts & pool & workers & solve (s) & dual evals & s/eval & proj.\ KKT & "
    r"inner resid. & peak RSS (MB) & artifact (s)\\"),
+ "neural_arms": ("llrrrrrr",
+   r"arm & target & val nMSE & test nMSE & sign agr. & Pearson & Spearman & "
+   r"worst surplus\\"),
  "neural_realization": ("lrrrrrrrrrr",
    r"row & target RMS & $p_{10}$ & $p_{90}$ & $\|\lambda\|_1$ & proj.\ KKT & "
    r"inner resid. & identity & norm.\ MSE & sign agr. & Pearson\\"),
@@ -463,6 +466,58 @@ def residual_macros():
           "  ".join(f"{k}={v:.3e}" for k, v in macros.items()))
 
 
+def neural_arms():
+    """Every trained policy arm, with both criteria side by side.
+
+    The regression gate and Algorithm 1's acceptance rule measure different
+    things -- whether the policy reproduces the Eq. (26) target, and whether it
+    improves the game values out of sample -- so both appear here rather than one
+    standing in for the other. `pi_t` is a row, because a negative surplus is not
+    interpretable without the number the policy started from.
+    """
+    man = RES / "policy_release_manifest.json"
+    sur = RES / "smoke" / "heldout_surplus.json"
+    if not man.exists():
+        emit("neural_arms", [r"\multicolumn{8}{l}{\textit{pending: no trained arm}}\\"],
+             [], "pending", "no policy arm has been trained")
+        return
+    arms = json.loads(man.read_text())["arms"]
+    surplus = json.loads(sur.read_text())["arms"] if sur.exists() else {}
+
+    rows = []
+    base = surplus.get("pi_t_uniform_BASELINE", {}).get("test", {})
+    if base:
+        rows.append(" & ".join([
+            r"$\pi_t$ (start)", "--", "--", "--", "--", "--", "--",
+            f"${base['worst_objective_mean_surplus']:+.4f}$"]) + r"\\")
+    order = ["eta0p1", "eta0p3", "eta1p0", "lr2em7", "lr1em6", "DIAGlr1em5",
+             "DIAGrb", "DIAGrb_clip100", "DIAGrb_steps1200"]
+    label = {"eta0p1": r"$\eta{=}0.1$", "eta0p3": r"$\eta{=}0.3$",
+             "eta1p0": r"$\eta{=}1$", "lr2em7": "lr $2$e-$7$",
+             "lr1em6": "lr $1$e-$6$", "DIAGlr1em5": r"lr $1$e-$5^{\dagger}$",
+             "DIAGrb": r"RB, $300^{\dagger}$",
+             "DIAGrb_clip100": r"RB, clip $100^{\dagger}$",
+             "DIAGrb_steps1200": r"RB, $1200^{\dagger}$"}
+    for k in order:
+        a = arms.get(k)
+        if not a:
+            continue
+        t, v = a["test"], a["validation"]
+        s = surplus.get(k, {}).get("test", {}).get("worst_objective_mean_surplus")
+        rows.append(" & ".join([
+            label.get(k, k),
+            {"sampled": "sampled", "rao_blackwell": "RB"}.get(a["estimator"], a["estimator"]),
+            f"${v['normalized_mse_var']:.3f}$", f"${t['normalized_mse_var']:.3f}$",
+            f"${t['sign_agreement']:.3f}$", f"${t['pearson']:+.3f}$",
+            f"${t['spearman']:+.3f}$",
+            (f"${s:+.4f}$" if s is not None else "--")]) + r"\\")
+    emit("neural_arms", rows, [man] + ([sur] if sur.exists() else []), "completed",
+         "no arm meets the gate (nMSE < 0.90, sign > 0.65, both correlations > 0); "
+         "daggered arms are diagnostics outside the pre-declared grid; worst surplus "
+         "is Algorithm 1's acceptance quantity, and every arm is below pi_t",
+         aggregation="single run per arm (not a multi-seed mean)")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -471,7 +526,8 @@ def main():
     print("regenerating paper table fragments")
     for fn in (controlled_compact, controlled_full, solver_audit,
                controlled_robustness, data_audit, gpm_bt, pool_pilot,
-               solver_scaling, neural_realization, residual_macros):
+               solver_scaling, neural_realization, neural_arms,
+               residual_macros):
         try:
             fn()
         except Exception as exc:

@@ -1261,6 +1261,15 @@ The direct inner solve is exact only for the declared finite response pool and n
 
 \begin{table*}[t]
 \centering\scriptsize
+\setlength{\tabcolsep}{3.4pt}
+\caption{Every trained policy arm, under both acceptance criteria. \emph{nMSE} is the Eq.~(26) regression gate (requirement $<0.90$); \emph{worst surplus} is Algorithm~\ref{alg:nbpo}'s own acceptance quantity, the held-out worst-objective surplus, which must be positive. No arm meets either. $\pi_t$ is listed because a negative surplus is not readable without the value training started from, and every arm sits below it. Daggered arms are diagnostics outside the pre-declared grid and were never selection candidates.}
+\label{tab:neural-arms}
+\input{generated/neural_arms}
+\end{table*}
+
+
+\begin{table*}[t]
+\centering\scriptsize
 \setlength{\tabcolsep}{2.8pt}
 \caption{Direct finite-pool solver scaling. The $7{,}000$-prompt row must be measured rather than extrapolated.}
 \label{tab:solver-scaling}

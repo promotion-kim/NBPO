@@ -157,6 +157,23 @@
           "sha256_16": "6c4b0b6985d614af"
         }
       ]
+    },
+    "neural_arms": {
+      "fragment": "nbpo_iclr/generated/neural_arms.tex",
+      "status": "completed",
+      "note": "no arm meets the gate (nMSE < 0.90, sign > 0.65, both correlations > 0); daggered arms are diagnostics outside the pre-declared grid; worst surplus is Algorithm 1's acceptance quantity, and every arm is below pi_t",
+      "seeds": null,
+      "aggregation": "single run per arm (not a multi-seed mean)",
+      "sources": [
+        {
+          "path": "results/iclr2027_table1_v2/policy_release_manifest.json",
+          "sha256_16": "82e73a3f1473074d"
+        },
+        {
+          "path": "results/iclr2027_table1_v2/smoke/heldout_surplus.json",
+          "sha256_16": "b9f7d4af60f2254d"
+        }
+      ]
     }
   }
 }
