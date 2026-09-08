@@ -1,0 +1,459 @@
+{
+  "repo_id": "promotion/nbpo-policy-diagnostics",
+  "revision": "2a6b832280f2e6413d444b296a17eaf1642c0c6a",
+  "public": true,
+  "method": "Hub LFS sha256 compared with the local file sha256: byte identity, checked anonymously so public access is proven too",
+  "arms": {
+    "eta0p1": {
+      "model.safetensors": {
+        "published": true,
+        "size": 16060556616,
+        "remote_sha256": "4fe26b83bf101690992c8561e0ae5cf8358f835be033c45b68987034155a9dbe",
+        "local_sha256": "4fe26b83bf101690992c8561e0ae5cf8358f835be033c45b68987034155a9dbe",
+        "byte_identical": true,
+        "note": null
+      },
+      "config.json": {
+        "published": true,
+        "size": 865,
+        "remote_sha256": null,
+        "local_sha256": "1847f9f7577ad2a1a154c7ea0cfe7fe20f7891e1d9e34b5cc684334a30b78a38",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "tokenizer.json": {
+        "published": true,
+        "size": 17209920,
+        "remote_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "local_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "byte_identical": true,
+        "note": null
+      },
+      "tokenizer_config.json": {
+        "published": true,
+        "size": 351,
+        "remote_sha256": null,
+        "local_sha256": "61e3439f7d63312d8df43973f94b8d4f754cb024624b52eb840a010f74faf04e",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "gate.json": {
+        "published": true,
+        "size": 3128,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "run_config.yaml": {
+        "published": true,
+        "size": 1279,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      }
+    },
+    "eta0p3": {
+      "model.safetensors": {
+        "published": true,
+        "size": 16060556616,
+        "remote_sha256": "14000f95e0a76538f2b5bc80964186ebe1226c8942aaa24c5770dfb32243b6cd",
+        "local_sha256": "14000f95e0a76538f2b5bc80964186ebe1226c8942aaa24c5770dfb32243b6cd",
+        "byte_identical": true,
+        "note": null
+      },
+      "config.json": {
+        "published": true,
+        "size": 865,
+        "remote_sha256": null,
+        "local_sha256": "1847f9f7577ad2a1a154c7ea0cfe7fe20f7891e1d9e34b5cc684334a30b78a38",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "tokenizer.json": {
+        "published": true,
+        "size": 17209920,
+        "remote_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "local_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "byte_identical": true,
+        "note": null
+      },
+      "tokenizer_config.json": {
+        "published": true,
+        "size": 351,
+        "remote_sha256": null,
+        "local_sha256": "61e3439f7d63312d8df43973f94b8d4f754cb024624b52eb840a010f74faf04e",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "gate.json": {
+        "published": true,
+        "size": 3118,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "run_config.yaml": {
+        "published": true,
+        "size": 1279,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      }
+    },
+    "eta1p0": {
+      "model.safetensors": {
+        "published": true,
+        "size": 16060556616,
+        "remote_sha256": "8103503e27b4e26f40ae491c1f71cf12272d02bd6e5ce28b21f58fd2f6fedeb3",
+        "local_sha256": "8103503e27b4e26f40ae491c1f71cf12272d02bd6e5ce28b21f58fd2f6fedeb3",
+        "byte_identical": true,
+        "note": null
+      },
+      "config.json": {
+        "published": true,
+        "size": 865,
+        "remote_sha256": null,
+        "local_sha256": "1847f9f7577ad2a1a154c7ea0cfe7fe20f7891e1d9e34b5cc684334a30b78a38",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "tokenizer.json": {
+        "published": true,
+        "size": 17209920,
+        "remote_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "local_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "byte_identical": true,
+        "note": null
+      },
+      "tokenizer_config.json": {
+        "published": true,
+        "size": 351,
+        "remote_sha256": null,
+        "local_sha256": "61e3439f7d63312d8df43973f94b8d4f754cb024624b52eb840a010f74faf04e",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "gate.json": {
+        "published": true,
+        "size": 3124,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "run_config.yaml": {
+        "published": true,
+        "size": 1279,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      }
+    },
+    "lr2em7": {
+      "model.safetensors": {
+        "published": true,
+        "size": 16060556616,
+        "remote_sha256": "66bcce1022709bbc842d419b02b608fc2afc992e7982b4e6da95ad637b3a822c",
+        "local_sha256": "66bcce1022709bbc842d419b02b608fc2afc992e7982b4e6da95ad637b3a822c",
+        "byte_identical": true,
+        "note": null
+      },
+      "config.json": {
+        "published": true,
+        "size": 865,
+        "remote_sha256": null,
+        "local_sha256": "1847f9f7577ad2a1a154c7ea0cfe7fe20f7891e1d9e34b5cc684334a30b78a38",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "tokenizer.json": {
+        "published": true,
+        "size": 17209920,
+        "remote_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "local_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "byte_identical": true,
+        "note": null
+      },
+      "tokenizer_config.json": {
+        "published": true,
+        "size": 351,
+        "remote_sha256": null,
+        "local_sha256": "61e3439f7d63312d8df43973f94b8d4f754cb024624b52eb840a010f74faf04e",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "gate.json": {
+        "published": true,
+        "size": 3123,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "run_config.yaml": {
+        "published": true,
+        "size": 1279,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      }
+    },
+    "lr1em6": {
+      "model.safetensors": {
+        "published": true,
+        "size": 16060556616,
+        "remote_sha256": "d420e2846112283db474790f4bda0590e54743684d51c9a56c3c59bed52bda9e",
+        "local_sha256": "d420e2846112283db474790f4bda0590e54743684d51c9a56c3c59bed52bda9e",
+        "byte_identical": true,
+        "note": null
+      },
+      "config.json": {
+        "published": true,
+        "size": 865,
+        "remote_sha256": null,
+        "local_sha256": "1847f9f7577ad2a1a154c7ea0cfe7fe20f7891e1d9e34b5cc684334a30b78a38",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "tokenizer.json": {
+        "published": true,
+        "size": 17209920,
+        "remote_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "local_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "byte_identical": true,
+        "note": null
+      },
+      "tokenizer_config.json": {
+        "published": true,
+        "size": 351,
+        "remote_sha256": null,
+        "local_sha256": "61e3439f7d63312d8df43973f94b8d4f754cb024624b52eb840a010f74faf04e",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "gate.json": {
+        "published": true,
+        "size": 3114,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "run_config.yaml": {
+        "published": true,
+        "size": 1279,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      }
+    },
+    "DIAGlr1em5": {
+      "model.safetensors": {
+        "published": true,
+        "size": 16060556616,
+        "remote_sha256": "2edf4057275cd9d14754ef1119b591ad0c59be8788da26eb5c84098faa76d92b",
+        "local_sha256": "2edf4057275cd9d14754ef1119b591ad0c59be8788da26eb5c84098faa76d92b",
+        "byte_identical": true,
+        "note": null
+      },
+      "config.json": {
+        "published": true,
+        "size": 865,
+        "remote_sha256": null,
+        "local_sha256": "1847f9f7577ad2a1a154c7ea0cfe7fe20f7891e1d9e34b5cc684334a30b78a38",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "tokenizer.json": {
+        "published": true,
+        "size": 17209920,
+        "remote_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "local_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "byte_identical": true,
+        "note": null
+      },
+      "tokenizer_config.json": {
+        "published": true,
+        "size": 351,
+        "remote_sha256": null,
+        "local_sha256": "61e3439f7d63312d8df43973f94b8d4f754cb024624b52eb840a010f74faf04e",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "gate.json": {
+        "published": true,
+        "size": 3127,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "run_config.yaml": {
+        "published": true,
+        "size": 1287,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      }
+    },
+    "DIAGrb": {
+      "model.safetensors": {
+        "published": true,
+        "size": 16060556616,
+        "remote_sha256": "a920bd4e113362fb87a62a9d5fe6ac7fad4583267e3977092376627c2bca9486",
+        "local_sha256": "a920bd4e113362fb87a62a9d5fe6ac7fad4583267e3977092376627c2bca9486",
+        "byte_identical": true,
+        "note": null
+      },
+      "config.json": {
+        "published": true,
+        "size": 865,
+        "remote_sha256": null,
+        "local_sha256": "1847f9f7577ad2a1a154c7ea0cfe7fe20f7891e1d9e34b5cc684334a30b78a38",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "tokenizer.json": {
+        "published": true,
+        "size": 17209920,
+        "remote_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "local_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "byte_identical": true,
+        "note": null
+      },
+      "tokenizer_config.json": {
+        "published": true,
+        "size": 351,
+        "remote_sha256": null,
+        "local_sha256": "61e3439f7d63312d8df43973f94b8d4f754cb024624b52eb840a010f74faf04e",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "gate.json": {
+        "published": true,
+        "size": 3108,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "run_config.yaml": {
+        "published": true,
+        "size": 1279,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      }
+    },
+    "DIAGrb_clip100": {
+      "model.safetensors": {
+        "published": true,
+        "size": 16060556616,
+        "remote_sha256": "6d5fadf08cc6eda9b2c60a2622bcc6e39fc7006713f8e695af0da375991cf16c",
+        "local_sha256": "6d5fadf08cc6eda9b2c60a2622bcc6e39fc7006713f8e695af0da375991cf16c",
+        "byte_identical": true,
+        "note": null
+      },
+      "config.json": {
+        "published": true,
+        "size": 865,
+        "remote_sha256": null,
+        "local_sha256": "1847f9f7577ad2a1a154c7ea0cfe7fe20f7891e1d9e34b5cc684334a30b78a38",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "tokenizer.json": {
+        "published": true,
+        "size": 17209920,
+        "remote_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "local_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "byte_identical": true,
+        "note": null
+      },
+      "tokenizer_config.json": {
+        "published": true,
+        "size": 351,
+        "remote_sha256": null,
+        "local_sha256": "61e3439f7d63312d8df43973f94b8d4f754cb024624b52eb840a010f74faf04e",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "gate.json": {
+        "published": true,
+        "size": 3130,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "run_config.yaml": {
+        "published": true,
+        "size": 1297,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      }
+    },
+    "DIAGrb_steps1200": {
+      "model.safetensors": {
+        "published": true,
+        "size": 16060556616,
+        "remote_sha256": "0ad1dac08014a1410a8e57b981c6ff170f0f7af1bb9f81eff6e32ec729d9d91a",
+        "local_sha256": "0ad1dac08014a1410a8e57b981c6ff170f0f7af1bb9f81eff6e32ec729d9d91a",
+        "byte_identical": true,
+        "note": null
+      },
+      "config.json": {
+        "published": true,
+        "size": 865,
+        "remote_sha256": null,
+        "local_sha256": "1847f9f7577ad2a1a154c7ea0cfe7fe20f7891e1d9e34b5cc684334a30b78a38",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "tokenizer.json": {
+        "published": true,
+        "size": 17209920,
+        "remote_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "local_sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+        "byte_identical": true,
+        "note": null
+      },
+      "tokenizer_config.json": {
+        "published": true,
+        "size": 351,
+        "remote_sha256": null,
+        "local_sha256": "61e3439f7d63312d8df43973f94b8d4f754cb024624b52eb840a010f74faf04e",
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "gate.json": {
+        "published": true,
+        "size": 3123,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      },
+      "run_config.yaml": {
+        "published": true,
+        "size": 1301,
+        "remote_sha256": null,
+        "local_sha256": null,
+        "byte_identical": null,
+        "note": "not LFS-tracked; size compared only"
+      }
+    }
+  },
+  "all_weights_byte_identical": true
+}
