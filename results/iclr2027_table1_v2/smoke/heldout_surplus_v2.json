@@ -141,6 +141,162 @@
     }
   },
   "arms": {
+    "eta0p1": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.04932895813062349,
+            "mean_d": -0.03562504651772355,
+            "mean_surplus": -0.01370391161289993,
+            "fraction_prompts_positive": 0.3933333333333333
+          },
+          "harmlessness": {
+            "mean_V": -0.04810713678231944,
+            "mean_d": -0.0354570619298732,
+            "mean_surplus": -0.012650074852446236,
+            "fraction_prompts_positive": 0.38666666666666666
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.01370391161289993,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": -0.0011902759943789114,
+            "ci95_low": -0.005580924587447328,
+            "ci95_high": 0.0027906646834235027
+          },
+          "harmlessness": {
+            "mean": -5.227046343411572e-06,
+            "ci95_low": -0.003647764902611603,
+            "ci95_high": 0.0035292947980832237
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": -0.0011902759943789114,
+          "ci95_low": -0.005580924587447328,
+          "ci95_high": 0.0027402983504309316
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.036277747355137224,
+            "mean_d": -0.03243739728232008,
+            "mean_surplus": -0.003840350072817138,
+            "fraction_prompts_positive": 0.46
+          },
+          "harmlessness": {
+            "mean_V": -0.034450230040867606,
+            "mean_d": -0.03284605970670459,
+            "mean_surplus": -0.001604170334163028,
+            "fraction_prompts_positive": 0.4666666666666667
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.003840350072817138,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": -0.0003390043316052357,
+            "ci95_low": -0.0044254111639774815,
+            "ci95_high": 0.004003925547330757
+          },
+          "harmlessness": {
+            "mean": 0.00031902267344005456,
+            "ci95_low": -0.0037775364763633396,
+            "ci95_high": 0.004547863023375922
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": -0.0003390043316052357,
+          "ci95_low": -0.0044504707523736805,
+          "ci95_high": 0.0036169125031490362
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      }
+    },
+    "eta0p3": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.046242652187063644,
+            "mean_d": -0.03562504651772355,
+            "mean_surplus": -0.010617605669340087,
+            "fraction_prompts_positive": 0.41333333333333333
+          },
+          "harmlessness": {
+            "mean_V": -0.044794936264391995,
+            "mean_d": -0.0354570619298732,
+            "mean_surplus": -0.009337874334518794,
+            "fraction_prompts_positive": 0.41333333333333333
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.010617605669340087,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": 0.0018960299491809296,
+            "ci95_low": -0.0021059722993992057,
+            "ci95_high": 0.005918974489545745
+          },
+          "harmlessness": {
+            "mean": 0.003306973471584028,
+            "ci95_low": -0.0005553608116822093,
+            "ci95_high": 0.0070356286038596085
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": 0.0018960299491809296,
+          "ci95_low": -0.0021059722993992057,
+          "ci95_high": 0.0058737025519914965
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.03602229960164653,
+            "mean_d": -0.03243739728232008,
+            "mean_surplus": -0.003584902319326459,
+            "fraction_prompts_positive": 0.4533333333333333
+          },
+          "harmlessness": {
+            "mean_V": -0.03473296678831939,
+            "mean_d": -0.03284605970670459,
+            "mean_surplus": -0.0018869070816148125,
+            "fraction_prompts_positive": 0.46
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.003584902319326459,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": -8.355657811455697e-05,
+            "ci95_low": -0.005490438898257272,
+            "ci95_high": 0.005180581787840218
+          },
+          "harmlessness": {
+            "mean": 3.628592598827066e-05,
+            "ci95_low": -0.004188508444071601,
+            "ci95_high": 0.004456525034198634
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": -8.355657811455697e-05,
+          "ci95_low": -0.0056033225144906905,
+          "ci95_high": 0.004240954750011302
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      }
+    },
     "eta1p0": {
       "validation": {
         "n_prompts": 150,
@@ -293,6 +449,84 @@
           "mean": 0.0008872209201499229,
           "ci95_low": -0.003994907989891989,
           "ci95_high": 0.0051215855646472835
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      }
+    },
+    "lr1em6": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.04446487729945249,
+            "mean_d": -0.03562504651772355,
+            "mean_surplus": -0.008839830781728937,
+            "fraction_prompts_positive": 0.44
+          },
+          "harmlessness": {
+            "mean_V": -0.044538229884123835,
+            "mean_d": -0.0354570619298732,
+            "mean_surplus": -0.009081167954250636,
+            "fraction_prompts_positive": 0.4266666666666667
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.009081167954250636,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": 0.0036738048367920837,
+            "ci95_low": -0.0023735622042558692,
+            "ci95_high": 0.009934756580566074
+          },
+          "harmlessness": {
+            "mean": 0.003563679851852189,
+            "ci95_low": -0.002422523065620768,
+            "ci95_high": 0.01012313344717062
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": 0.003563679851852189,
+          "ci95_low": -0.0026121698442734148,
+          "ci95_high": 0.009516759364215551
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.03339873930089616,
+            "mean_d": -0.03243739728232008,
+            "mean_surplus": -0.0009613420185760735,
+            "fraction_prompts_positive": 0.44666666666666666
+          },
+          "harmlessness": {
+            "mean_V": -0.03114150898930711,
+            "mean_d": -0.03284605970670459,
+            "mean_surplus": 0.0017045507173974613,
+            "fraction_prompts_positive": 0.47333333333333333
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.0009613420185760735,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": 0.00254000372263583,
+            "ci95_low": -0.002707352630311337,
+            "ci95_high": 0.007844346261537826
+          },
+          "harmlessness": {
+            "mean": 0.0036277437250005467,
+            "ci95_low": -0.0016946544085790097,
+            "ci95_high": 0.00901576498114841
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": 0.00254000372263583,
+          "ci95_low": -0.0027747685780739354,
+          "ci95_high": 0.007205271173994023
         },
         "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
       }
@@ -609,6 +843,240 @@
         "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
       }
     },
+    "canonN8": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.04826078481291533,
+            "mean_d": -0.03562504651772355,
+            "mean_surplus": -0.012635738295191785,
+            "fraction_prompts_positive": 0.38
+          },
+          "harmlessness": {
+            "mean_V": -0.04639075121978124,
+            "mean_d": -0.0354570619298732,
+            "mean_surplus": -0.010933689289908045,
+            "fraction_prompts_positive": 0.4066666666666667
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.012635738295191785,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": -0.00012210267667076816,
+            "ci95_low": -0.006567682843496475,
+            "ci95_high": 0.005973193706058541
+          },
+          "harmlessness": {
+            "mean": 0.0017111585161947796,
+            "ci95_low": -0.004935768760862479,
+            "ci95_high": 0.008365745065491382
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": -0.00012210267667076816,
+          "ci95_low": -0.006567682843496475,
+          "ci95_high": 0.005973193706058541
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.03607711412535317,
+            "mean_d": -0.03243739728232008,
+            "mean_surplus": -0.003639716843033088,
+            "fraction_prompts_positive": 0.43333333333333335
+          },
+          "harmlessness": {
+            "mean_V": -0.03422408277924889,
+            "mean_d": -0.03284605970670459,
+            "mean_surplus": -0.0013780230725443095,
+            "fraction_prompts_positive": 0.4666666666666667
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.003639716843033088,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": -0.0001383711018211863,
+            "ci95_low": -0.005468289558637307,
+            "ci95_high": 0.005865960518397652
+          },
+          "harmlessness": {
+            "mean": 0.0005451699350587741,
+            "ci95_low": -0.005296371064258409,
+            "ci95_high": 0.006675376354005215
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": -0.0001383711018211863,
+          "ci95_low": -0.00589287802188827,
+          "ci95_high": 0.00545205875479495
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      }
+    },
+    "canonN50": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.05013607159284041,
+            "mean_d": -0.03562504651772355,
+            "mean_surplus": -0.014511025075116854,
+            "fraction_prompts_positive": 0.4066666666666667
+          },
+          "harmlessness": {
+            "mean_V": -0.05066373756759853,
+            "mean_d": -0.0354570619298732,
+            "mean_surplus": -0.01520667563772533,
+            "fraction_prompts_positive": 0.41333333333333333
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.01520667563772533,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": -0.0019973894565958315,
+            "ci95_low": -0.008313027699170382,
+            "ci95_high": 0.004613340290069053
+          },
+          "harmlessness": {
+            "mean": -0.002561827831622508,
+            "ci95_low": -0.008752415900622921,
+            "ci95_high": 0.003891876640308911
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": -0.002561827831622508,
+          "ci95_low": -0.009141263986716485,
+          "ci95_high": 0.003401297951823017
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.03120898343923648,
+            "mean_d": -0.03243739728232008,
+            "mean_surplus": 0.0012284138430836012,
+            "fraction_prompts_positive": 0.5266666666666666
+          },
+          "harmlessness": {
+            "mean_V": -0.028717367897573228,
+            "mean_d": -0.03284605970670459,
+            "mean_surplus": 0.004128691809131348,
+            "fraction_prompts_positive": 0.5333333333333333
+          }
+        },
+        "min_over_objectives_of_mean_surplus": 0.0012284138430836012,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": true,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": 0.004729759584295504,
+            "ci95_low": -0.001411072958945393,
+            "ci95_high": 0.010236148124526672
+          },
+          "harmlessness": {
+            "mean": 0.006051884816734431,
+            "ci95_low": -0.0005249774308606925,
+            "ci95_high": 0.011752577754686987
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": 0.004729759584295504,
+          "ci95_low": -0.0015490630106418833,
+          "ci95_high": 0.010196489730902534
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      }
+    },
+    "canonN200": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.04461150262739976,
+            "mean_d": -0.03562504651772355,
+            "mean_surplus": -0.008986456109676208,
+            "fraction_prompts_positive": 0.44
+          },
+          "harmlessness": {
+            "mean_V": -0.04510797080307176,
+            "mean_d": -0.0354570619298732,
+            "mean_surplus": -0.009650908873198558,
+            "fraction_prompts_positive": 0.44
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.009650908873198558,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": 0.003527179508844812,
+            "ci95_low": -0.001022165217783608,
+            "ci95_high": 0.008696201915424093
+          },
+          "harmlessness": {
+            "mean": 0.0029939389329042645,
+            "ci95_low": -0.001734090957848436,
+            "ci95_high": 0.007845288386483556
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": 0.0029939389329042645,
+          "ci95_low": -0.001794954922565651,
+          "ci95_high": 0.00773044542360421
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.03402883962418301,
+            "mean_d": -0.03243739728232008,
+            "mean_surplus": -0.0015914423418629273,
+            "fraction_prompts_positive": 0.44
+          },
+          "harmlessness": {
+            "mean_V": -0.03148221308911065,
+            "mean_d": -0.03284605970670459,
+            "mean_surplus": 0.0013638466175939286,
+            "fraction_prompts_positive": 0.48
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.0015914423418629273,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": 0.0019099033993489763,
+            "ci95_low": -0.004004759590696293,
+            "ci95_high": 0.00787717636054213
+          },
+          "harmlessness": {
+            "mean": 0.0032870396251970095,
+            "ci95_low": -0.0027026261733356263,
+            "ci95_high": 0.009329955703128522
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": 0.0019099033993489763,
+          "ci95_low": -0.004007642824775565,
+          "ci95_high": 0.007513309053452698
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      }
+    },
     "canonN700": {
       "validation": {
         "n_prompts": 150,
@@ -683,6 +1151,162 @@
           "mean": 0.005799805908537628,
           "ci95_low": -1.2432895962271311e-05,
           "ci95_high": 0.011114830092908907
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      }
+    },
+    "PAIRED300_oldref": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.04571919388447527,
+            "mean_d": -0.03562504651772355,
+            "mean_surplus": -0.010094147366751717,
+            "fraction_prompts_positive": 0.3933333333333333
+          },
+          "harmlessness": {
+            "mean_V": -0.04447444238772571,
+            "mean_d": -0.0354570619298732,
+            "mean_surplus": -0.009017380457852517,
+            "fraction_prompts_positive": 0.37333333333333335
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.010094147366751717,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": 0.0024194882517693055,
+            "ci95_low": -0.00186739772044075,
+            "ci95_high": 0.006641193231077202
+          },
+          "harmlessness": {
+            "mean": 0.0036274673482503063,
+            "ci95_low": -0.0008215483593181013,
+            "ci95_high": 0.007814526377662018
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": 0.0024194882517693055,
+          "ci95_low": -0.001868496410668172,
+          "ci95_high": 0.006641193231077202
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.0332977594620233,
+            "mean_d": -0.03243739728232008,
+            "mean_surplus": -0.000860362179703222,
+            "fraction_prompts_positive": 0.46
+          },
+          "harmlessness": {
+            "mean_V": -0.030483978464104253,
+            "mean_d": -0.03284605970670459,
+            "mean_surplus": 0.002362081242600329,
+            "fraction_prompts_positive": 0.49333333333333335
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.000860362179703222,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": 0.0026409835615086807,
+            "ci95_low": -0.001739929599619524,
+            "ci95_high": 0.007051715898268208
+          },
+          "harmlessness": {
+            "mean": 0.004285274250203412,
+            "ci95_low": -0.00020079112903031643,
+            "ci95_high": 0.008575874315273922
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": 0.0026409835615086807,
+          "ci95_low": -0.0017938751516312545,
+          "ci95_high": 0.0069572678212012455
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      }
+    },
+    "PAIRED300_newref": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.0454042415847202,
+            "mean_d": -0.03562504651772355,
+            "mean_surplus": -0.009779195066996647,
+            "fraction_prompts_positive": 0.4
+          },
+          "harmlessness": {
+            "mean_V": -0.044352659167540276,
+            "mean_d": -0.0354570619298732,
+            "mean_surplus": -0.00889559723766708,
+            "fraction_prompts_positive": 0.46
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.009779195066996647,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": 0.0027344405515243725,
+            "ci95_low": -0.0018791043467346683,
+            "ci95_high": 0.0074096497473603315
+          },
+          "harmlessness": {
+            "mean": 0.0037492505684357416,
+            "ci95_low": -0.0008361180713501882,
+            "ci95_high": 0.008401537522073382
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": 0.0027344405515243725,
+          "ci95_low": -0.0018791043467346683,
+          "ci95_high": 0.0074096497473603315
+        },
+        "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.03494209829728524,
+            "mean_d": -0.03243739728232008,
+            "mean_surplus": -0.0025047010149651713,
+            "fraction_prompts_positive": 0.44
+          },
+          "harmlessness": {
+            "mean_V": -0.03309349515133061,
+            "mean_d": -0.03284605970670459,
+            "mean_surplus": -0.0002474354446260307,
+            "fraction_prompts_positive": 0.5066666666666667
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.0025047010149651713,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false,
+        "paired_delta_V_vs_pi_t": {
+          "helpfulness": {
+            "mean": 0.0009966447262467306,
+            "ci95_low": -0.00423747866524109,
+            "ci95_high": 0.0060255173541994885
+          },
+          "harmlessness": {
+            "mean": 0.0016757575629770534,
+            "ci95_low": -0.0032477451309329687,
+            "ci95_high": 0.006254375274283704
+          }
+        },
+        "paired_delta_min_over_objectives": {
+          "mean": 0.0009966447262467306,
+          "ci95_low": -0.004368194392716586,
+          "ci95_high": 0.005548186873653161
         },
         "delta_note": "a positive paired delta means the policy raised that objective's game value above pi_t; it does NOT substitute for the absolute surplus > 0 condition"
       }

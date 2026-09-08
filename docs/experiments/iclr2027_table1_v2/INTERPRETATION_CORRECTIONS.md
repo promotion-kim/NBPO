@@ -246,3 +246,19 @@ Three things follow, and none of them is "the arms pass".
 `pi_t` scoring slightly negative everywhere is expected rather than a defect: the
 disagreement point is estimated from an independently constructed
 reference-reference tensor, not from `pi_t` itself.
+
+
+## 16. The two criteria do not agree on ranking
+
+**Was:** "the ordering matches the regression metric, so two criteria give the
+same answer."
+
+**Is:** with every arm now measured under the corrected pool mapping, they do
+not. On the test half, `canonN50` accepts (min surplus +0.00123) while sitting
+near the bottom on regression (nMSE 1.2294); `canonN700` is best on both (nMSE
+1.0901, surplus +0.00230); `PAIRED300_oldref` is mid-table on regression and does
+not accept. Three arms accept on the test half and none accepts on validation.
+
+The paired improvements over `pi_t` also mostly include zero -- the largest,
+`canonN700` at +0.00580, has an interval of [−0.00001, +0.01111] -- so the
+surplus column separates arms less than its point estimates suggest.
