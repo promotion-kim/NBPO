@@ -117,6 +117,39 @@ exactly:
 
 Same soft-min game value, same disagreement construction, same pool weighting.
 
+## 4c. The prompt-count curve
+
+Equal update budget (1200), one shared solver artifact (`b9170ba8a262`, so
+lambda, `p*` and `nu*` are identical across arms), nested subsets
+(8 ⊂ 50 ⊂ 200 ⊂ 700, verified), one held-out set. Only the number of training
+prompts varies.
+
+| N prompts | pairs | epochs | tokens | GPU h | test nMSE | sign | Pearson | Spearman |
+|---|---|---|---|---|---|---|---|---|
+| 8 | 224 | 85.71 | 11.2M | 2.41 | 1.2935 | 0.4906 | −0.0251 | −0.0220 |
+| 50 | 1400 | 13.71 | 5.6M | 2.10 | 1.2294 | 0.5216 | +0.0457 | +0.0472 |
+| 200 | 5600 | 3.43 | 3.9M | 1.93 | 1.1579 | 0.5439 | +0.0498 | +0.0709 |
+| 700 | 19600 | 0.98 | 9.8M | 1.96 | 1.0901 | 0.5696 | +0.0926 | +0.1298 |
+
+Monotone in N on every metric. The arm that saw its prompts 85 times is the worst
+out of sample and below chance on sign agreement; the arm that did not complete a
+single pass is the best.
+
+Three caveats that keep this a diagnostic rather than a scaling law:
+
+- **Effective batch is 16**, not 32: per-device 2 with 8 accumulation steps, one
+  process. The epochs above are the realized ones.
+- **The arms are not equal compute.** Response lengths differ between subsets, so
+  token budgets run 11.2M / 5.6M / 3.9M / 9.8M. The ordering is not explained by
+  tokens either -- N=200 used the fewest and still beat N=50 -- but "equal
+  budget" is true of updates, not of compute.
+- The subsets are nested prefixes of the sorted prompt ids, so they differ in
+  response-length distribution as well as in count.
+
+It does change the reading of the earlier result. "Under-training" suggested more
+updates would help; on the same prompts, more updates make held-out worse. What
+helps is more distinct prompts, and this pool has 700 to give.
+
 ## 5. Actual optimizer update comparison
 
 `clip100` changed `max_grad_norm` from 1.0 to 100 with everything else fixed and
