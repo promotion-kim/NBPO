@@ -190,10 +190,81 @@ def solve_proximal(rep: ObjectiveRepresentation, pi_t: torch.Tensor,
         update_source_kind=source_kind, update_source_iteration=source_iteration)
 
 
+def _solve_one_prompt(args):
+    """One prompt's I-dimensional concave program. Module level so it pickles."""
+    import numpy as np
+    from scipy.optimize import minimize
+    Ax, mux, lpt, start_x, beta, w_np, eta, X, I, floor, maxiter, ftol = args
+    lmu = np.log(mux)
+    ones = np.ones(I)
+
+    def negx(v):
+        p = np.clip(v, floor, None)
+        p = p / p.sum()
+        r = np.einsum("i,kij->kj", p, Ax)
+        lw = lmu[None, :] - r / beta[:, None]
+        m = lw.max(axis=-1, keepdims=True)
+        v_k = -beta * (m[:, 0] + np.log(np.exp(lw - m).sum(axis=-1)))
+        kl = float((p * (np.log(p) - lpt)).sum())
+        return -(float(w_np @ v_k) / X - kl / (eta * X))
+
+    def negx_jac(v):
+        p = np.clip(v, floor, None)
+        p = p / p.sum()
+        r = np.einsum("i,kij->kj", p, Ax)
+        lw = lmu[None, :] - r / beta[:, None]
+        lw -= lw.max(axis=-1, keepdims=True)
+        nu = np.exp(lw)
+        nu /= nu.sum(axis=-1, keepdims=True)
+        q = np.einsum("kj,kij->ki", nu, Ax)
+        g = (w_np @ q) / X
+        g -= (np.log(p) - lpt + 1.0) / (eta * X)
+        return -g
+
+    res = minimize(negx, start_x, jac=negx_jac, method="SLSQP",
+                   bounds=[(floor, 1.0)] * I,
+                   constraints=[{"type": "eq",
+                                 "fun": lambda v: np.array([v.sum() - 1.0]),
+                                 "jac": lambda v: ones[None, :]}],
+                   options={"maxiter": int(maxiter), "ftol": float(ftol)})
+    v = np.clip(res.x, floor, None)
+    return v / v.sum()
+
+
+_EXECUTORS: dict = {}
+
+
+def _executor(workers: int):
+    """A process pool reused across dual evaluations.
+
+    A fresh pool per inner solve would cost more in startup than the solve
+    itself: the root dual makes 60-100 inner calls, so the pool is cached.
+    """
+    import atexit
+    from concurrent.futures import ProcessPoolExecutor
+    ex = _EXECUTORS.get(workers)
+    if ex is None:
+        ex = ProcessPoolExecutor(max_workers=workers)
+        _EXECUTORS[workers] = ex
+        atexit.register(ex.shutdown, wait=False)
+    return ex
+
+
+def _solve_prompts_parallel(A, mu, log_pi_t, start, beta, w_np, eta, X, I,
+                            floor, maxiter, ftol, workers):
+    import numpy as np
+    ex = _executor(int(workers))
+    payload = [(A[:, x], mu[x], log_pi_t[x], start[x], beta, w_np, eta, X, I,
+                floor, maxiter, ftol) for x in range(X)]
+    chunk = max(1, X // (int(workers) * 4))
+    return np.asarray(list(ex.map(_solve_one_prompt, payload, chunksize=chunk)))
+
+
 def solve_proximal_exact(rep: ObjectiveRepresentation, pi_t: torch.Tensor,
                          w: torch.Tensor, eta: float, *,
                          pi_init: Optional[torch.Tensor] = None,
-                         maxiter: int = 400, ftol: float = 1e-16) -> ProximalSolve:
+                         maxiter: int = 400, ftol: float = 1e-16,
+                         workers: int = 1) -> ProximalSolve:
     """Solve the Eq. (18) subproblem by maximization instead of iteration.
 
     ``solve_proximal`` applies the Eq. (21) map ``R`` times. That map contracts
@@ -261,6 +332,25 @@ def solve_proximal_exact(rep: ObjectiveRepresentation, pi_t: torch.Tensor,
              "jac": lambda v: ones[None, :]}]
     bounds = [(floor, 1.0)] * I
     out = np.empty((X, I))
+
+    if workers and workers > 1 and X >= 2 * workers:
+        # Infrastructure-level parallelism only: the same per-prompt program, the
+        # same tolerance, evaluated on more cores. The prompts are independent by
+        # construction, which is the whole reason this solve scales.
+        out = _solve_prompts_parallel(A, mu, log_pi_t, start, beta, w_np, eta, X, I,
+                                      floor, maxiter, ftol, workers)
+        pi_hat = torch.from_numpy(out)
+        nu, q = rep.opponent_and_gradient(pi_hat)
+        pi_star = exp_update(pi_t, q, w, eta)
+        nu_final, q_final = rep.opponent_and_gradient(pi_star)
+        pi_extra = exp_update(pi_t, q_final, w, eta)
+        return ProximalSolve(
+            pi=pi_star, nu_update=nu, q_update=q,
+            nu_final_policy=nu_final, q_final_policy=q_final,
+            fixed_point_residual=float((pi_star - pi_hat).abs().max()),
+            extra_map_residual=float((pi_extra - pi_star).abs().max()),
+            iterations=X, update_source_pi=pi_hat.clone(),
+            update_source_kind="exact_proximal_maximizer", update_source_iteration=0)
 
     for x in range(X):
         Ax = A[:, x]                        # (K, I, J)

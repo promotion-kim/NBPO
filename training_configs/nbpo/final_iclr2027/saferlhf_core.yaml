@@ -1,0 +1,194 @@
+# ICLR-2027 FINAL configuration -- SafeRLHF / Llama-3.1-8B-Instruct.
+#
+# This file is validated by mnpo_scripts/final_run_validator.py BEFORE any model
+# is loaded. It differs from ../saferlhf_llama.yaml in exactly three ways:
+#
+#   1. `final_experiment: iclr2027` -- the marker the validator keys on. Without
+#      it a config cannot acquire final status by accident.
+#   2. the solver block names the direct finite-pool concave inner solve and the
+#      root dual, with the frozen tolerances. The library default remains
+#      `fixed_point` for backward compatibility and is never inherited here.
+#   3. the training judge is a frozen SafeRLHF preference-model ensemble, not a
+#      prompted LLM. Prompted-Qwen judging is permanently retired.
+#
+# "exact" describes ONE subproblem. The Eq. (18) inner problem is concave and
+# separates across prompts, so it is solved directly to a declared tolerance
+# instead of iterated. The neural algorithm as a whole is NOT exact: it still
+# projects a finite-pool target into a policy by regression.
+final_experiment: iclr2027
+
+allow_legacy_flat_judge_config: false
+allow_partial_prompt_intersection: false   # diagnostic only; never in reproduction
+stage: 0
+dataset: saferlhf_llama
+objectives:
+  config: ../../training_configs/nbpo/objectives/saferlhf.yaml
+  names: [helpfulness, harmlessness]
+judge:
+  # Three roles, recorded separately in every artifact/gate record. The
+  # manuscript's held-out evaluator is Llama-3.3-70B-Instruct; the training
+  # judge (Qwen3-32B) is never silently reused for monitoring or final reporting.
+  training:
+    backend: vllm
+    model_path: Qwen/Qwen3-32B
+    max_retries: 2
+    tensor_parallel_size: 4
+    max_model_len: 8192
+    decoding: {temperature: 0.0, top_p: 1.0, top_k: -1, max_tokens: 512, retry_temperature: 0.3}
+    chat_template_kwargs: {enable_thinking: false}   # applied AND recorded
+  monitoring:
+    backend: vllm
+    model_path: meta-llama/Llama-3.3-70B-Instruct
+    max_retries: 2
+    tensor_parallel_size: 4
+    max_model_len: 8192
+    decoding: {temperature: 0.0, top_p: 1.0, top_k: -1, max_tokens: 512, retry_temperature: 0.3}
+  final_eval:
+    backend: vllm
+    model_path: meta-llama/Llama-3.3-70B-Instruct
+    max_retries: 2
+    tensor_parallel_size: 4
+    max_model_len: 8192
+    decoding: {temperature: 0.0, top_p: 1.0, top_k: -1, max_tokens: 512, retry_temperature: 0.3}
+generation:
+  # Llama has no thinking mode: empty, but declared so the manifests record it and
+  # a pool decoded under different kwargs is rejected rather than silently mixed.
+  chat_template_kwargs: {}
+sampling:
+  policy_responses_per_prompt: 4     # response files below must carry 4 seeds each
+  reference_comparators_per_prompt: 4
+  pair_proposal: all_six_unordered_pairs
+  generation_temperature: 0.9
+  generation_top_p: 0.95
+  max_response_tokens: 512
+response_manifests:
+  # Bare response paths cannot express WHICH checkpoint produced a pool. Each
+  # manifest (scripts/nbpo/response_manifest.py) carries the generating
+  # checkpoint's content fingerprint, the prompt file sha256 and per-prompt text
+  # hashes, the decode parameters, and every response file's sha256. The stage
+  # runner requires learner == pi_t and comparator == mu, and at t=0 that those
+  # two are the same weights.
+  learner_pool: PLACEHOLDER_LEARNER_POOL_MANIFEST.json
+  reference_comparator_pool: PLACEHOLDER_REFERENCE_POOL_MANIFEST.json
+responses:
+  # Fallback for reproduction_mode: false only; ignored when manifests are given.
+  policy_files:
+    s0: PLACEHOLDER_POLICY_S0.json
+    s1: PLACEHOLDER_POLICY_S1.json
+    s2: PLACEHOLDER_POLICY_S2.json
+    s3: PLACEHOLDER_POLICY_S3.json
+  reference_files:
+    r0: PLACEHOLDER_REF_R0.json
+    r1: PLACEHOLDER_REF_R1.json
+    r2: PLACEHOLDER_REF_R2.json
+    r3: PLACEHOLDER_REF_R3.json
+monitoring:
+  # Held-out monitoring batch for the Algorithm-1 gate (manuscript cell blank ->
+  # required, no default). A jsonl of {prompt_id, prompt}; must be disjoint from
+  # training and final-eval prompts (enforced). Candidate responses are decoded
+  # by commands.decode_candidate and taken ONLY from its fingerprint-bound
+  # manifest -- there is no static candidate_policy_files entry in real mode.
+  prompts_file: PLACEHOLDER_MONITORING_PROMPTS.jsonl
+  # STAGE-ACCEPTANCE MONITORING GENERATION -- a protocol of its own, deliberately
+  # NOT the manuscript's final-evaluation row (temperature 0.7, top_p 0.9,
+  # max_new_tokens 1024). The gate is an inner-loop accept/reject on held-out
+  # prompts, not the reported evaluation, and the existing results were produced
+  # under these settings; changing them here would silently alter them.
+  # generation_protocol is recorded verbatim in every gate record.
+  generation_protocol: stage_acceptance_monitoring
+  decode: {seeds: [42, 43, 44, 45], temperature: 0.9, top_p: 0.95, max_new_tokens: 512}
+  # Passed to tokenizer.apply_chat_template and recorded in the manifest;
+  # Qwen3 needs enable_thinking: false or the monitored 'responses' are
+  # reasoning traces and the gate scores the wrong text.
+  chat_template_kwargs: {}
+  # Bound to mu exactly like the training comparators: without this the
+  # Algorithm-1 gate can score the candidate against stale comparators, or
+  # ones decoded from a different checkpoint.
+  reference_manifest: PLACEHOLDER_MONITORING_REFERENCE_MANIFEST.json
+  reference_manifest_seeds: [r0, r1, r2, r3]
+  reference_decode_params: {temperature: 0.9, top_p: 0.95, max_new_tokens: 512}
+final_eval:
+  prompts_file: PLACEHOLDER_FINAL_EVAL_PROMPTS.jsonl   # judged by judge.final_eval
+# EXTERNAL validation (optional). These prompts define pairs_test.jsonl
+# entirely: they get their own manifest-bound learner and comparator pools,
+# their own judged tensor and their own Eq. (26) targets. lambda is NOT
+# re-solved -- the dual weights are a property of the training problem -- only
+# the opponent nu is recomputed on these prompts.
+#
+# The alternative, targets.test_prompts, is a prompt-wise holdout WITHIN the
+# pre-generated training response pool: a split after generation, not an
+# independently generated held-out set. The two are mutually exclusive.
+# validation:
+#   prompts_file: PLACEHOLDER_VALIDATION_PROMPTS.jsonl
+#   learner_manifest: PLACEHOLDER_VALIDATION_LEARNER_MANIFEST.json
+#   reference_manifest: PLACEHOLDER_VALIDATION_REFERENCE_MANIFEST.json
+solver:
+  eta: 1.0
+  opponent_betas: [0.25, 0.25]
+  aggregation: nash
+  # --- the frozen final solver path -----------------------------------------
+  inner_solver: exact          # direct finite-pool concave inner solve
+  dual_solver: root            # dual stationarity solved as a root problem
+  dual_tol: 1.0e-6             # projected-KKT stopping tolerance
+  max_inner_residual: 1.0e-4   # declared inner stationarity requirement
+  max_dual_calls: 800          # a CAP, not a schedule: stopping is by residual
+  lambda_box: [1.0e-3, 1.0e3]
+  gamma: 0.5                   # only used if dual_solver falls back
+  M: 800
+  R: 1                         # unused by the direct inner solve; kept for schema
+  provenance:
+    record_solver_mode: true
+    reject_legacy_artifacts: true
+targets:
+  mode: sampled                       # manuscript Eq. (24); rao_blackwell is a labeled variant
+  seed: 42
+trainer:
+  # run_mnpo settings for the candidate fit (tab:policy-training-hparams; full
+  # fine-tuning, single device, seed 42). run_nbpo_stage.materialize_run_config
+  # writes {workdir}/run_config.yaml from these plus the forced NBPO invariants
+  # (loss_type=nbpo, logp_reduction=sum, max_history_t=1, no auxiliary losses)
+  # and parses it with run_mnpo's own dataclasses before anything loads.
+  eta: 1.0                            # applied to the target exactly once, in the trainer
+  optim: adafactor
+  learning_rate: 5.0e-7
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.1
+  weight_decay: 0.0
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  max_steps: 300
+  max_length: 2048
+  max_prompt_length: 1024
+  max_grad_norm: 1.0
+  bf16: true
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs: {use_reentrant: false}
+  attn_implementation: sdpa
+  beta: 10.0                          # metrics-only display multiplier (NOT the opponent temperature)
+  seed: 42
+gate:
+  parent_model: PLACEHOLDER_PI_T_CHECKPOINT
+  promote_to: PLACEHOLDER_PI_NEXT_CHECKPOINT
+commands:
+  # Real-mode step templates. Variables substituted by run_nbpo_stage:
+  # {workdir} {pairs_dir} {precomputed} {solver_dir} {parent} {candidate}
+  # {run_config} {monitoring_prompts} {seeds} {temperature} {top_p}
+  # {max_new_tokens} {decode_out} {decode_manifest}.
+  # precompute MUST use --logp_reduction sum and history0 = the parent pi_t; the
+  # sidecar's history fingerprint is verified against the parent before training.
+  precompute: >-
+    python -m mnpo_scripts.precompute --model_name_or_path {parent}
+    --ref_model meta-llama/Llama-3.1-8B-Instruct --history_paths {parent}
+    --train_dir {pairs_dir}/pairs_train.jsonl {test_dir_flag}
+    --output_dir {precomputed} --solver_artifact_path {solver_dir}/solution.json
+    --logp_reduction sum --truncation_mode keep_end
+    --ronpo_target_mode none --apply_chat_template true
+    --max_length 2048 --max_prompt_length 1024 --per_device_train_batch_size 2
+  train: >-
+    python -m accelerate.commands.launch --num_processes 1 -m mnpo_scripts.run_mnpo {run_config}
+  decode_candidate: >-
+    python -m scripts.nbpo.decode_candidate --model-checkpoint {candidate}
+    --prompts-file {monitoring_prompts} --seeds {seeds} --temperature {temperature}
+    --top-p {top_p} --max-new-tokens {max_new_tokens} --output-dir {decode_out}
+    --manifest {decode_manifest} --backend vllm
+    --chat-template-kwargs '{chat_template_kwargs}'

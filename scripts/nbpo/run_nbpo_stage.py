@@ -707,6 +707,16 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
     stage = int(cfg.get("stage", 0))
     objectives = list(cfg["objectives"]["names"])
     objectives_config = _resolve(base, cfg["objectives"]["config"])
+    # Before rubrics, before pools, before any model: a final-experiment config
+    # that could reach the legacy solver must not start at all.
+    from mnpo_scripts.final_run_validator import (
+        FinalConfigError, is_final_config, validate_final_config,
+    )
+    final_validation = None
+    if is_final_config(cfg):
+        final_validation = validate_final_config(cfg, source=str(config_path))
+        _step("final_config", json.dumps(final_validation))
+
     reproduction_mode = bool(cfg.get("reproduction_mode", True))
     allow_flat_judge = bool(cfg.get("allow_legacy_flat_judge_config", False))
     allow_partial = bool(cfg.get("allow_partial_prompt_intersection", False))
@@ -854,21 +864,64 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
     if warm:
         prev = json.loads(_resolve(base, warm).read_text())
         lambda_init = torch.tensor(prev["lambda_raw"], dtype=torch.float64)
-    res = solve_nbpo_dual(
-        A_policy, A_ref, mu, beta,
-        eta=float(scfg["eta"]), gamma=scfg["gamma"], M=int(scfg["M"]), R=int(scfg["R"]),
-        lambda_box=tuple(scfg.get("lambda_box", (1e-3, 1e3))),
-        lambda_init=lambda_init, aggregation=scfg.get("aggregation", "nash"),
-        reference_construction=tensor_meta_construction,
-        damping=float(scfg.get("damping", 0.0)),
-    )
-    from scripts.nbpo.solve_nbpo_dual import write_solution_artifact
     tensor_meta = json.loads((tensor_dir / "meta.json").read_text())
     hashes = {name: sha256_file(tensor_dir / name)
               for name in ("tensor_policy.npz", "tensor_ref.npz", "meta.json")}
     solver_dir = workdir / "solver"
-    solution = write_solution_artifact(solver_dir, res, tensor_meta, hashes, tensor_dir,
-                                       stage, lambda_warm_started=lambda_init is not None)
+    inner_solver = scfg.get("inner_solver")
+
+    if inner_solver is None:
+        # The legacy alternating path, unchanged, for every existing config.
+        res = solve_nbpo_dual(
+            A_policy, A_ref, mu, beta,
+            eta=float(scfg["eta"]), gamma=scfg["gamma"], M=int(scfg["M"]), R=int(scfg["R"]),
+            lambda_box=tuple(scfg.get("lambda_box", (1e-3, 1e3))),
+            lambda_init=lambda_init, aggregation=scfg.get("aggregation", "nash"),
+            reference_construction=tensor_meta_construction,
+            damping=float(scfg.get("damping", 0.0)),
+        )
+        from scripts.nbpo.solve_nbpo_dual import write_solution_artifact
+        solution = write_solution_artifact(solver_dir, res, tensor_meta, hashes, tensor_dir,
+                                           stage, lambda_warm_started=lambda_init is not None)
+    else:
+        # A config that ASKS for a solver must get it or stop. Silently falling
+        # back would produce a result that claims a solver it never used.
+        from mnpo_scripts.nbpo_generic import solve_finite_pool
+        from mnpo_scripts.nbpo_representations import build_representation
+        from scripts.nbpo.solve_nbpo_dual import write_generic_solution_artifact
+        rep = build_representation(
+            scfg.get("representation", "adaptive_game"),
+            A_policy=A_policy, A_ref=A_ref, mu=mu, beta=beta,
+            reference_construction=tensor_meta_construction)
+        res = solve_finite_pool(
+            rep, scfg.get("aggregation", "nash"), eta=float(scfg["eta"]),
+            R=int(scfg.get("R", 1)), M=int(scfg.get("max_dual_calls", scfg.get("M", 800))),
+            gamma=scfg.get("gamma", 0.5),
+            lambda_box=tuple(scfg.get("lambda_box", (1e-3, 1e3))),
+            lambda_init=lambda_init,
+            inner_solver=str(inner_solver),
+            dual_solver=str(scfg.get("dual_solver", "subgradient")),
+            dual_tol=(float(scfg["dual_tol"]) if scfg.get("dual_tol") else None),
+        )
+        max_inner = float(scfg.get("max_inner_residual", 1e-4))
+        if res.extra_map_residual is not None and res.extra_map_residual > max_inner:
+            raise RuntimeError(
+                f"inner stationarity residual {res.extra_map_residual:.3e} exceeds the "
+                f"declared {max_inner:.1e}; refusing to write a target from a solve "
+                "that did not converge")
+        if res.dual_converged is False:
+            raise RuntimeError(
+                "the dual solve hit its evaluation cap without reaching dual_tol; "
+                "refusing to write a target from a non-converged solve")
+        solution = write_generic_solution_artifact(
+            solver_dir, res, tensor_meta, hashes, tensor_dir, stage,
+            lambda_warm_started=lambda_init is not None,
+            extra={"final_config_validation": final_validation,
+                   "solver_mode": {"inner_solver": str(inner_solver),
+                                   "dual_solver": str(scfg.get("dual_solver")),
+                                   "dual_tol": scfg.get("dual_tol"),
+                                   "outer_iterations_used": res.outer_iterations_used,
+                                   "dual_converged": res.dual_converged}})
     _step("solve_dual", f"lambda={solution['lambda_raw']} "
                         f"inv_surplus_res={solution['inverse_surplus_residual']} "
                         f"projected_kkt={solution['projected_kkt_residual']} R={scfg['R']}"
