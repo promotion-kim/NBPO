@@ -75,6 +75,26 @@ correlation of 0.089 is a long way from a normalized MSE below 0.90.
 
 This is a reporting interval, not a new gate.
 
+## 2c. The evaluation path, verified rather than assumed
+
+Earlier notes said the gate was "internally consistent, which is not the same as
+correct". It is now checked directly: `pi_t` itself was scored through the
+scoring pipeline, where `h` must be identically zero and the normalized MSE must
+equal its algebraic value.
+
+| half | `h` RMS | `nMSE_zero` | `nMSE_var` | expected `E[T^2]/Var(T)` | difference |
+|---|---|---|---|---|---|
+| validation | 0.000000000000 | 1.000000000000 | 1.0001469805 | 1.0001469805 | 0.00e+00 |
+| test | 0.000000000000 | 1.000000000000 | 1.0000006790 | 1.0000006790 | 0.00e+00 |
+
+Pearson and Spearman come back as `None` rather than 0, because they are
+undefined when `h` has no variance -- reported as undefined, not as a pass.
+
+Two things this pins down. The evaluator is correct end to end, so the arm
+numbers are not an artifact of the ruler. And it gives the exact `h = 0` baseline
+for each half: `nMSE_var` at zero prediction is 1.00015 on validation and
+1.0000007 on test, not exactly 1, because `mean(T)` is not zero.
+
 ## 3. Target identity and noise audit
 
 The three quantities the manuscript's Eq. (24)-(27) relate, checked against the
