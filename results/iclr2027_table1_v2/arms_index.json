@@ -1,0 +1,1539 @@
+{
+  "gate_thresholds": {
+    "normalized_mse_var": "< 0.9",
+    "sign_agreement": "> 0.65",
+    "pearson": "> 0.0",
+    "spearman": "> 0.0"
+  },
+  "selection_rule": "validation selects; the test half is reported once",
+  "surplus_rule": "Algorithm 1 accepts only if EVERY objective's held-out surplus is positive",
+  "reference_policies": {
+    "pi_t": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.04813868213624457,
+            "mean_d": -0.03562504651772355,
+            "mean_surplus": -0.01251363561852102,
+            "fraction_prompts_positive": 0.4266666666666667
+          },
+          "harmlessness": {
+            "mean_V": -0.04810190973597602,
+            "mean_d": -0.0354570619298732,
+            "mean_surplus": -0.012644847806102822,
+            "fraction_prompts_positive": 0.38
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.012644847806102822,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.035938743023531984,
+            "mean_d": -0.03243739728232008,
+            "mean_surplus": -0.003501345741211903,
+            "fraction_prompts_positive": 0.46
+          },
+          "harmlessness": {
+            "mean_V": -0.03476925271430766,
+            "mean_d": -0.03284605970670459,
+            "mean_surplus": -0.0019231930076030824,
+            "fraction_prompts_positive": 0.47333333333333333
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.003501345741211903,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false
+      },
+      "train": {
+        "n_prompts": 700,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": -0.04250224145630119,
+            "mean_d": -0.03153043955666742,
+            "mean_surplus": -0.010971801899633758,
+            "fraction_prompts_positive": 0.4157142857142857
+          },
+          "harmlessness": {
+            "mean_V": -0.044174583761942075,
+            "mean_d": -0.03374048279488765,
+            "mean_surplus": -0.010434100967054424,
+            "fraction_prompts_positive": 0.44142857142857145
+          }
+        },
+        "min_over_objectives_of_mean_surplus": -0.010971801899633758,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": false
+      }
+    },
+    "pi_star": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": 0.10363864950883993,
+            "mean_d": -0.03562504651772355,
+            "mean_surplus": 0.13926369602656352,
+            "fraction_prompts_positive": 0.8733333333333333
+          },
+          "harmlessness": {
+            "mean_V": 0.10533655554567786,
+            "mean_d": -0.0354570619298732,
+            "mean_surplus": 0.14079361747555108,
+            "fraction_prompts_positive": 0.8933333333333333
+          }
+        },
+        "min_over_objectives_of_mean_surplus": 0.13926369602656352,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": true
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": 0.11242106850944841,
+            "mean_d": -0.03243739728232008,
+            "mean_surplus": 0.1448584657917685,
+            "fraction_prompts_positive": 0.9333333333333333
+          },
+          "harmlessness": {
+            "mean_V": 0.11389434420987816,
+            "mean_d": -0.03284605970670459,
+            "mean_surplus": 0.14674040391658275,
+            "fraction_prompts_positive": 0.9333333333333333
+          }
+        },
+        "min_over_objectives_of_mean_surplus": 0.1448584657917685,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": true
+      },
+      "train": {
+        "n_prompts": 700,
+        "per_objective": {
+          "helpfulness": {
+            "mean_V": 0.11265253086706764,
+            "mean_d": -0.03153043955666742,
+            "mean_surplus": 0.14418297042373507,
+            "fraction_prompts_positive": 0.8928571428571429
+          },
+          "harmlessness": {
+            "mean_V": 0.11634855881035228,
+            "mean_d": -0.03374048279488765,
+            "mean_surplus": 0.15008904160523992,
+            "fraction_prompts_positive": 0.9042857142857142
+          }
+        },
+        "min_over_objectives_of_mean_surplus": 0.14418297042373507,
+        "note_not_mean_of_min": "min_k E_x[s_kx], not E_x[min_k s_kx]",
+        "accepts_all_objectives_positive": true
+      }
+    }
+  },
+  "arms": {
+    "eta0p1": {
+      "estimator": "sampled",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 0.1,
+      "gate_file": "/work/iclr27_table1_v2/smoke/train2/scored/eta0p1/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 2.318608628067627,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5055746140651801,
+          "pearson": 0.019767981394274783,
+          "spearman": 0.010951431621801275,
+          "prediction_rms": 0.7848960771113392,
+          "target_rms": 0.6719274652539139,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.04932895813062349,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.01370391161289993,
+              "fraction_prompts_positive": 0.3933333333333333
+            },
+            "harmlessness": {
+              "mean_V": -0.04810713678231944,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.012650074852446236,
+              "fraction_prompts_positive": 0.38666666666666666
+            }
+          },
+          "min_over_objectives": -0.01370391161289993,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": -0.0011902759943789114,
+            "ci95_low": -0.005580924587447328,
+            "ci95_high": 0.0027402983504309316
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 2.3615337721945475,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.48500428449014565,
+          "pearson": -0.011213855773422769,
+          "spearman": -0.017826072277150194,
+          "prediction_rms": 0.7833863554443563,
+          "target_rms": 0.6781782995736357,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "fail",
+          "spearman": "fail",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.036277747355137224,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": -0.003840350072817138,
+              "fraction_prompts_positive": 0.46
+            },
+            "harmlessness": {
+              "mean_V": -0.034450230040867606,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": -0.001604170334163028,
+              "fraction_prompts_positive": 0.4666666666666667
+            }
+          },
+          "min_over_objectives": -0.003840350072817138,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": -0.0003390043316052357,
+            "ci95_low": -0.0044504707523736805,
+            "ci95_high": 0.0036169125031490362
+          }
+        }
+      }
+    },
+    "eta0p3": {
+      "estimator": "sampled",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 0.3,
+      "gate_file": "/work/iclr27_table1_v2/smoke/train2/scored/eta0p3/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 1.1212466737707216,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5223817567567568,
+          "pearson": 0.03147766191830781,
+          "spearman": 0.034245974892466995,
+          "prediction_rms": 0.7678436879682712,
+          "target_rms": 2.0157823957617413,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.046242652187063644,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.010617605669340087,
+              "fraction_prompts_positive": 0.41333333333333333
+            },
+            "harmlessness": {
+              "mean_V": -0.044794936264391995,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.009337874334518794,
+              "fraction_prompts_positive": 0.41333333333333333
+            }
+          },
+          "min_over_objectives": -0.010617605669340087,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.0018960299491809296,
+            "ci95_low": -0.0021059722993992057,
+            "ci95_high": 0.0058737025519914965
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 1.1819526029572012,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.4896580835795694,
+          "pearson": -0.03036678732547207,
+          "spearman": -0.008387154022595385,
+          "prediction_rms": 0.8069287028467041,
+          "target_rms": 2.034534898720907,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "fail",
+          "spearman": "fail",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.03602229960164653,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": -0.003584902319326459,
+              "fraction_prompts_positive": 0.4533333333333333
+            },
+            "harmlessness": {
+              "mean_V": -0.03473296678831939,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": -0.0018869070816148125,
+              "fraction_prompts_positive": 0.46
+            }
+          },
+          "min_over_objectives": -0.003584902319326459,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": -8.355657811455697e-05,
+            "ci95_low": -0.0056033225144906905,
+            "ci95_high": 0.004240954750011302
+          }
+        }
+      }
+    },
+    "eta1p0": {
+      "estimator": "sampled",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 1.0,
+      "gate_file": "/work/iclr27_table1_v2/smoke/train2/scored/eta1p0/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 1.0202756796471895,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5061677631578947,
+          "pearson": -0.009251885237369546,
+          "spearman": 0.001637495719650713,
+          "prediction_rms": 0.8941788464196079,
+          "target_rms": 6.719274652539139,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "fail",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.04779330748707084,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.012168260969347281,
+              "fraction_prompts_positive": 0.41333333333333333
+            },
+            "harmlessness": {
+              "mean_V": -0.04704841954141656,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.011591357611543356,
+              "fraction_prompts_positive": 0.44666666666666666
+            }
+          },
+          "min_over_objectives": -0.012168260969347281,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.000345374649173736,
+            "ci95_low": -0.005046542597961931,
+            "ci95_high": 0.005559945384472389
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 1.0256572066043992,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5047422680412371,
+          "pearson": -0.025654578982270398,
+          "spearman": 0.0008514720275372869,
+          "prediction_rms": 0.9183356267247514,
+          "target_rms": 6.781782995736356,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "fail",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.038159100462949215,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": -0.00572170318062914,
+              "fraction_prompts_positive": 0.47333333333333333
+            },
+            "harmlessness": {
+              "mean_V": -0.035924477020793,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": -0.003078417314088417,
+              "fraction_prompts_positive": 0.4866666666666667
+            }
+          },
+          "min_over_objectives": -0.00572170318062914,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": -0.0022203574394172375,
+            "ci95_low": -0.008068914132250962,
+            "ci95_high": 0.0027024942536191987
+          }
+        }
+      }
+    },
+    "lr2em7": {
+      "estimator": "sampled",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 1.0,
+      "gate_file": "/work/iclr27_table1_v2/smoke/train2/scored/lr2em7/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 1.0060310777778028,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5155855096882898,
+          "pearson": 0.031999934995499836,
+          "spearman": 0.021958341218888795,
+          "prediction_rms": 0.7764694884774664,
+          "target_rms": 6.719274652539139,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.044344306836221196,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.008719260318497641,
+              "fraction_prompts_positive": 0.42
+            },
+            "harmlessness": {
+              "mean_V": -0.04367470700962551,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.008217645079752313,
+              "fraction_prompts_positive": 0.43333333333333335
+            }
+          },
+          "min_over_objectives": -0.008719260318497641,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.00379437530002338,
+            "ci95_low": 0.00011749604507224498,
+            "ci95_high": 0.007612886423723599
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 1.0159123417394005,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.4972539079002957,
+          "pearson": -0.008000061220316825,
+          "spearman": -0.004233616048228962,
+          "prediction_rms": 0.7983853348791853,
+          "target_rms": 6.781782995736356,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "fail",
+          "spearman": "fail",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.03505152210338206,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": -0.002614124821061979,
+              "fraction_prompts_positive": 0.4266666666666667
+            },
+            "harmlessness": {
+              "mean_V": -0.0331478695672962,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": -0.00030180986059161603,
+              "fraction_prompts_positive": 0.48
+            }
+          },
+          "min_over_objectives": -0.002614124821061979,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.0008872209201499229,
+            "ci95_low": -0.003994907989891989,
+            "ci95_high": 0.0051215855646472835
+          }
+        }
+      }
+    },
+    "lr1em6": {
+      "estimator": "sampled",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 1.0,
+      "gate_file": "/work/iclr27_table1_v2/smoke/train2/scored/lr1em6/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 1.0199720501138634,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5130081300813009,
+          "pearson": 0.023740893051170747,
+          "spearman": 0.024428685706193713,
+          "prediction_rms": 1.119348455339858,
+          "target_rms": 6.719274652539139,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.04446487729945249,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.008839830781728937,
+              "fraction_prompts_positive": 0.44
+            },
+            "harmlessness": {
+              "mean_V": -0.044538229884123835,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.009081167954250636,
+              "fraction_prompts_positive": 0.4266666666666667
+            }
+          },
+          "min_over_objectives": -0.009081167954250636,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.003563679851852189,
+            "ci95_low": -0.0026121698442734148,
+            "ci95_high": 0.009516759364215551
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 1.0280573430929678,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5121176003178387,
+          "pearson": 0.003030705686087454,
+          "spearman": 0.02636046375545227,
+          "prediction_rms": 1.1488881804191262,
+          "target_rms": 6.781782995736356,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.03339873930089616,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": -0.0009613420185760735,
+              "fraction_prompts_positive": 0.44666666666666666
+            },
+            "harmlessness": {
+              "mean_V": -0.03114150898930711,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": 0.0017045507173974613,
+              "fraction_prompts_positive": 0.47333333333333333
+            }
+          },
+          "min_over_objectives": -0.0009613420185760735,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.00254000372263583,
+            "ci95_low": -0.0027747685780739354,
+            "ci95_high": 0.007205271173994023
+          }
+        }
+      }
+    },
+    "DIAGlr1em5": {
+      "estimator": "sampled",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 1.0,
+      "gate_file": "/work/iclr27_table1_v2/smoke/train2/scored/DIAGlr1em5/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 22.308365803200296,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.48997852541159626,
+          "pearson": 0.020397758363107876,
+          "spearman": -0.002842545998524635,
+          "prediction_rms": 31.151883452852196,
+          "target_rms": 6.719274652539139,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "fail",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.04218363726051641,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.0065585907427928615,
+              "fraction_prompts_positive": 0.44666666666666666
+            },
+            "harmlessness": {
+              "mean_V": -0.04030880402096227,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.004851742091089069,
+              "fraction_prompts_positive": 0.46
+            }
+          },
+          "min_over_objectives": -0.0065585907427928615,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.005955044875728161,
+            "ci95_low": -0.011979245442235248,
+            "ci95_high": 0.023008020932986713
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 18.623431168062943,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.517363571934798,
+          "pearson": -0.008282504351402823,
+          "spearman": 0.02034066198886163,
+          "prediction_rms": 28.40998167832685,
+          "target_rms": 6.781782995736356,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "fail",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.039093355836861424,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": -0.006655958554541344,
+              "fraction_prompts_positive": 0.4266666666666667
+            },
+            "harmlessness": {
+              "mean_V": -0.03599678563945404,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": -0.0031507259327494645,
+              "fraction_prompts_positive": 0.4666666666666667
+            }
+          },
+          "min_over_objectives": -0.006655958554541344,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": -0.0031546128133294413,
+            "ci95_low": -0.021857605588523732,
+            "ci95_high": 0.013812538910840257
+          }
+        }
+      }
+    },
+    "DIAGrb": {
+      "estimator": "RB",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 1.0,
+      "gate_file": "/work/iclr27_table1_v2/smoke/train3/scored/DIAGrb/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 1.069627854095945,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5318840579710145,
+          "pearson": 0.06936809600463031,
+          "spearman": 0.07413153481471285,
+          "prediction_rms": 0.8921451413798992,
+          "target_rms": 2.604170711323903,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.04436582014182619,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.008740773624102634,
+              "fraction_prompts_positive": 0.44
+            },
+            "harmlessness": {
+              "mean_V": -0.04268813409936785,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.007231072169494649,
+              "fraction_prompts_positive": 0.44666666666666666
+            }
+          },
+          "min_over_objectives": -0.008740773624102634,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.0037728619944183855,
+            "ci95_low": -0.0002422370246506809,
+            "ci95_high": 0.007819629904463863
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 1.1257447603107669,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5351004951937082,
+          "pearson": 0.02453328057083483,
+          "spearman": 0.05504738407298095,
+          "prediction_rms": 0.924370701608926,
+          "target_rms": 2.432363101443726,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.03470752027933499,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": -0.002270122997014908,
+              "fraction_prompts_positive": 0.44666666666666666
+            },
+            "harmlessness": {
+              "mean_V": -0.03233178977074869,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": 0.0005142699359558929,
+              "fraction_prompts_positive": 0.48
+            }
+          },
+          "min_over_objectives": -0.002270122997014908,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.0012312227441969952,
+            "ci95_low": -0.004276571296308925,
+            "ci95_high": 0.006015872008114291
+          }
+        }
+      }
+    },
+    "DIAGrb_clip100": {
+      "estimator": "RB",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 1.0,
+      "gate_file": "/work/iclr27_table1_v2/smoke/train3/scored/DIAGrb_clip100/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 1.1047667190854147,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5243227497815321,
+          "pearson": 0.017722484769085885,
+          "spearman": 0.031977298217048006,
+          "prediction_rms": 0.891996467148348,
+          "target_rms": 2.604170711323903,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.04863032908739567,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.01300528256967211,
+              "fraction_prompts_positive": 0.41333333333333333
+            },
+            "harmlessness": {
+              "mean_V": -0.04811745363592231,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.012660391706049117,
+              "fraction_prompts_positive": 0.4066666666666667
+            }
+          },
+          "min_over_objectives": -0.01300528256967211,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": -0.0004916469511510921,
+            "ci95_low": -0.0044184779042239246,
+            "ci95_high": 0.0031166319552869306
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 1.0934103747053914,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5420697742597479,
+          "pearson": 0.06396748599053699,
+          "spearman": 0.08920415601254528,
+          "prediction_rms": 0.9150914550149806,
+          "target_rms": 2.432363101443726,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.03250953847518574,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": -7.214119286566272e-05,
+              "fraction_prompts_positive": 0.4666666666666667
+            },
+            "harmlessness": {
+              "mean_V": -0.029793142158428456,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": 0.003052917548276131,
+              "fraction_prompts_positive": 0.5066666666666667
+            }
+          },
+          "min_over_objectives": -7.214119286566272e-05,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.00342920454834624,
+            "ci95_low": -0.0021584184200663698,
+            "ci95_high": 0.008175850338300993
+          }
+        }
+      }
+    },
+    "DIAGrb_steps1200": {
+      "estimator": "RB",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 1.0,
+      "gate_file": "/work/iclr27_table1_v2/smoke/train3/scored/DIAGrb_steps1200/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 1.073574001883164,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5488195861264937,
+          "pearson": 0.07246516086268003,
+          "spearman": 0.092060899776695,
+          "prediction_rms": 0.920032014309527,
+          "target_rms": 2.604170711323903,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.043706578882078184,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.008081532364354627,
+              "fraction_prompts_positive": 0.4266666666666667
+            },
+            "harmlessness": {
+              "mean_V": -0.043310627428422545,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.007853565498549342,
+              "fraction_prompts_positive": 0.43333333333333335
+            }
+          },
+          "min_over_objectives": -0.008081532364354627,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.0044321032541663925,
+            "ci95_low": -0.00021695669744456478,
+            "ci95_high": 0.008899246816563202
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 1.076812742288516,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5596840257460504,
+          "pearson": 0.08867755787660196,
+          "spearman": 0.11416959231606046,
+          "prediction_rms": 0.9235123010599431,
+          "target_rms": 2.432363101443726,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.030837138566320595,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": 0.0016002587159994828,
+              "fraction_prompts_positive": 0.4866666666666667
+            },
+            "harmlessness": {
+              "mean_V": -0.029107527413608794,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": 0.0037385322930957856,
+              "fraction_prompts_positive": 0.52
+            }
+          },
+          "min_over_objectives": 0.0016002587159994828,
+          "accepts": true,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.005101604457211384,
+            "ci95_low": -0.00029048937099929135,
+            "ci95_high": 0.010547277832143114
+          }
+        }
+      }
+    },
+    "canonN8": {
+      "estimator": "canonical",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 1.0,
+      "gate_file": "/work/iclr27_table1_v2/smoke/canon/scored/canonN8/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 1.220612619172587,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5017103762827823,
+          "pearson": 0.0005285050430438732,
+          "spearman": -0.0075249251107424335,
+          "prediction_rms": 1.2085646093868188,
+          "target_rms": 2.576799879748028,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "fail",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.04826078481291533,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.012635738295191785,
+              "fraction_prompts_positive": 0.38
+            },
+            "harmlessness": {
+              "mean_V": -0.04639075121978124,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.010933689289908045,
+              "fraction_prompts_positive": 0.4066666666666667
+            }
+          },
+          "min_over_objectives": -0.012635738295191785,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": -0.00012210267667076816,
+            "ci95_low": -0.006567682843496475,
+            "ci95_high": 0.005973193706058541
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 1.2935197099112563,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.49056603773584906,
+          "pearson": -0.025076360540156224,
+          "spearman": -0.02202217131644962,
+          "prediction_rms": 1.2502283291044753,
+          "target_rms": 2.416905324577517,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "fail",
+          "spearman": "fail",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.03607711412535317,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": -0.003639716843033088,
+              "fraction_prompts_positive": 0.43333333333333335
+            },
+            "harmlessness": {
+              "mean_V": -0.03422408277924889,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": -0.0013780230725443095,
+              "fraction_prompts_positive": 0.4666666666666667
+            }
+          },
+          "min_over_objectives": -0.003639716843033088,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": -0.0001383711018211863,
+            "ci95_low": -0.00589287802188827,
+            "ci95_high": 0.00545205875479495
+          }
+        }
+      },
+      "consumed": {
+        "train_prompts": 8,
+        "train_pair_rows": 224,
+        "effective_batch": 16,
+        "optimizer_updates": 1200,
+        "exposure_epochs": 85.71428571428571,
+        "approx_response_tokens_consumed": 11188200.0,
+        "gpu_hours": 2.4074718333333336
+      }
+    },
+    "canonN50": {
+      "estimator": "canonical",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 1.0,
+      "gate_file": "/work/iclr27_table1_v2/smoke/canon/scored/canonN50/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 1.2525600773263426,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5021570319240725,
+          "pearson": -0.024464243072540304,
+          "spearman": -0.022854168286193535,
+          "prediction_rms": 1.236148467937499,
+          "target_rms": 2.576799879748028,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "fail",
+          "spearman": "fail",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.05013607159284041,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.014511025075116854,
+              "fraction_prompts_positive": 0.4066666666666667
+            },
+            "harmlessness": {
+              "mean_V": -0.05066373756759853,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.01520667563772533,
+              "fraction_prompts_positive": 0.41333333333333333
+            }
+          },
+          "min_over_objectives": -0.01520667563772533,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": -0.002561827831622508,
+            "ci95_low": -0.009141263986716485,
+            "ci95_high": 0.003401297951823017
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 1.2293784988059886,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.521552954610334,
+          "pearson": 0.04566413672141175,
+          "spearman": 0.047245816089412966,
+          "prediction_rms": 1.2723689764152384,
+          "target_rms": 2.416905324577517,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.03120898343923648,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": 0.0012284138430836012,
+              "fraction_prompts_positive": 0.5266666666666666
+            },
+            "harmlessness": {
+              "mean_V": -0.028717367897573228,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": 0.004128691809131348,
+              "fraction_prompts_positive": 0.5333333333333333
+            }
+          },
+          "min_over_objectives": 0.0012284138430836012,
+          "accepts": true,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.004729759584295504,
+            "ci95_low": -0.0015490630106418833,
+            "ci95_high": 0.010196489730902534
+          }
+        }
+      },
+      "consumed": {
+        "train_prompts": 50,
+        "train_pair_rows": 1400,
+        "effective_batch": 16,
+        "optimizer_updates": 1200,
+        "exposure_epochs": 13.714285714285714,
+        "approx_response_tokens_consumed": 5567472.000000001,
+        "gpu_hours": 2.0993951111111113
+      }
+    },
+    "canonN200": {
+      "estimator": "canonical",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 1.0,
+      "gate_file": "/work/iclr27_table1_v2/smoke/canon/scored/canonN200/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 1.1403455768747954,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5300028710881424,
+          "pearson": 0.033422718791675486,
+          "spearman": 0.03501148594979269,
+          "prediction_rms": 1.0558374789765166,
+          "target_rms": 2.576799879748028,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.04461150262739976,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.008986456109676208,
+              "fraction_prompts_positive": 0.44
+            },
+            "harmlessness": {
+              "mean_V": -0.04510797080307176,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.009650908873198558,
+              "fraction_prompts_positive": 0.44
+            }
+          },
+          "min_over_objectives": -0.009650908873198558,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.0029939389329042645,
+            "ci95_low": -0.001794954922565651,
+            "ci95_high": 0.00773044542360421
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 1.1578908614925363,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5438696770505859,
+          "pearson": 0.04978467364317175,
+          "spearman": 0.07091524810825021,
+          "prediction_rms": 1.0882172422625098,
+          "target_rms": 2.416905324577517,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.03402883962418301,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": -0.0015914423418629273,
+              "fraction_prompts_positive": 0.44
+            },
+            "harmlessness": {
+              "mean_V": -0.03148221308911065,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": 0.0013638466175939286,
+              "fraction_prompts_positive": 0.48
+            }
+          },
+          "min_over_objectives": -0.0015914423418629273,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.0019099033993489763,
+            "ci95_low": -0.004007642824775565,
+            "ci95_high": 0.007513309053452698
+          }
+        }
+      },
+      "consumed": {
+        "train_prompts": 200,
+        "train_pair_rows": 5600,
+        "effective_batch": 16,
+        "optimizer_updates": 1200,
+        "exposure_epochs": 3.4285714285714284,
+        "approx_response_tokens_consumed": 3892992.0,
+        "gpu_hours": 1.92665775
+      }
+    },
+    "canonN700": {
+      "estimator": "canonical",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 1.0,
+      "gate_file": "/work/iclr27_table1_v2/smoke/canon/scored/canonN700/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 1.0879127615209745,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5300028710881424,
+          "pearson": 0.054432756030066094,
+          "spearman": 0.0636379203552433,
+          "prediction_rms": 0.9177909608100342,
+          "target_rms": 2.576799879748028,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.04484046302383612,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.009215416506112562,
+              "fraction_prompts_positive": 0.44
+            },
+            "harmlessness": {
+              "mean_V": -0.045407983171240056,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.009950921241366855,
+              "fraction_prompts_positive": 0.44
+            }
+          },
+          "min_over_objectives": -0.009950921241366855,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.0026939265647359686,
+            "ci95_low": -0.0018219011778688352,
+            "ci95_high": 0.007275062394735422
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 1.0900732018238681,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5695652173913044,
+          "pearson": 0.09258328120384317,
+          "spearman": 0.12978744418944047,
+          "prediction_rms": 0.9826408860774003,
+          "target_rms": 2.416905324577517,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.030138937114994355,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": 0.002298460167325725,
+              "fraction_prompts_positive": 0.48
+            },
+            "harmlessness": {
+              "mean_V": -0.028264203188654052,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": 0.00458185651805053,
+              "fraction_prompts_positive": 0.5066666666666667
+            }
+          },
+          "min_over_objectives": 0.002298460167325725,
+          "accepts": true,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.005799805908537628,
+            "ci95_low": -1.2432895962271311e-05,
+            "ci95_high": 0.011114830092908907
+          }
+        }
+      },
+      "consumed": {
+        "train_prompts": 700,
+        "train_pair_rows": 19600,
+        "effective_batch": 16,
+        "optimizer_updates": 1200,
+        "exposure_epochs": 0.9795918367346939,
+        "approx_response_tokens_consumed": 9847776.0,
+        "gpu_hours": 1.9644347500000001
+      }
+    },
+    "PAIRED300_oldref": {
+      "estimator": "canonical",
+      "reference_path": "cached",
+      "code_tree": "frozen",
+      "eta": 1.0,
+      "gate_file": "/work/iclr27_table1_v2/smoke/reffix/scored/PAIRED300_oldref/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 1.0715727323452955,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5312865497076024,
+          "pearson": 0.05426434076777301,
+          "spearman": 0.05488028623390026,
+          "prediction_rms": 0.8448444180876201,
+          "target_rms": 2.576799879748028,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.04571919388447527,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.010094147366751717,
+              "fraction_prompts_positive": 0.3933333333333333
+            },
+            "harmlessness": {
+              "mean_V": -0.04447444238772571,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.009017380457852517,
+              "fraction_prompts_positive": 0.37333333333333335
+            }
+          },
+          "min_over_objectives": -0.010094147366751717,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.0024194882517693055,
+            "ci95_low": -0.001868496410668172,
+            "ci95_high": 0.006641193231077202
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 1.1121456821976594,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.544975095224143,
+          "pearson": 0.037215555538796956,
+          "spearman": 0.07470650018582362,
+          "prediction_rms": 0.904158231266026,
+          "target_rms": 2.416905324577517,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.0332977594620233,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": -0.000860362179703222,
+              "fraction_prompts_positive": 0.46
+            },
+            "harmlessness": {
+              "mean_V": -0.030483978464104253,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": 0.002362081242600329,
+              "fraction_prompts_positive": 0.49333333333333335
+            }
+          },
+          "min_over_objectives": -0.000860362179703222,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.0026409835615086807,
+            "ci95_low": -0.0017938751516312545,
+            "ci95_high": 0.0069572678212012455
+          }
+        }
+      }
+    },
+    "PAIRED300_newref": {
+      "estimator": "canonical",
+      "reference_path": "online",
+      "code_tree": "reffix",
+      "eta": 1.0,
+      "gate_file": "/work/iclr27_table1_v2/smoke/reffix/scored/PAIRED300_newref/gate.json",
+      "validation": {
+        "metrics": {
+          "normalized_mse_var": 1.0763803276139146,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5331174565793347,
+          "pearson": 0.0489504437877197,
+          "spearman": 0.04749288526441688,
+          "prediction_rms": 0.8512898849277716,
+          "target_rms": 2.576799879748028,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.0454042415847202,
+              "mean_d": -0.03562504651772355,
+              "mean_surplus": -0.009779195066996647,
+              "fraction_prompts_positive": 0.4
+            },
+            "harmlessness": {
+              "mean_V": -0.044352659167540276,
+              "mean_d": -0.0354570619298732,
+              "mean_surplus": -0.00889559723766708,
+              "fraction_prompts_positive": 0.46
+            }
+          },
+          "min_over_objectives": -0.009779195066996647,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.0027344405515243725,
+            "ci95_low": -0.0018791043467346683,
+            "ci95_high": 0.0074096497473603315
+          }
+        }
+      },
+      "test": {
+        "metrics": {
+          "normalized_mse_var": 1.1223468751582861,
+          "normalized_mse_zero": null,
+          "sign_agreement": 0.5276796230859835,
+          "pearson": 0.01349339423613793,
+          "spearman": 0.05555848760049735,
+          "prediction_rms": 0.8786712710854417,
+          "target_rms": 2.416905324577517,
+          "n": 4200
+        },
+        "gate": {
+          "normalized_mse_var": "fail",
+          "sign_agreement": "fail",
+          "pearson": "pass",
+          "spearman": "pass",
+          "all_pass": "fail"
+        },
+        "surplus": {
+          "per_objective": {
+            "helpfulness": {
+              "mean_V": -0.03494209829728524,
+              "mean_d": -0.03243739728232008,
+              "mean_surplus": -0.0025047010149651713,
+              "fraction_prompts_positive": 0.44
+            },
+            "harmlessness": {
+              "mean_V": -0.03309349515133061,
+              "mean_d": -0.03284605970670459,
+              "mean_surplus": -0.0002474354446260307,
+              "fraction_prompts_positive": 0.5066666666666667
+            }
+          },
+          "min_over_objectives": -0.0025047010149651713,
+          "accepts": false,
+          "paired_delta_min_vs_pi_t": {
+            "mean": 0.0009966447262467306,
+            "ci95_low": -0.004368194392716586,
+            "ci95_high": 0.005548186873653161
+          }
+        }
+      }
+    }
+  }
+}
