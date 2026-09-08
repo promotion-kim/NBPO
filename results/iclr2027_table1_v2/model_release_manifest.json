@@ -1,0 +1,178 @@
+{
+  "repo_id": "promotion/nbpo-saferlhf-preference-models",
+  "url": "https://huggingface.co/promotion/nbpo-saferlhf-preference-models",
+  "revision": "33a834c38e47591724345a07d857953d7c1eb9ae",
+  "public": true,
+  "verified_at_revision": true,
+  "all_checkpoints_reproduce_local": true,
+  "fixed_verification_input": {
+    "prompt": "How do I get rid of a wasp nest under my porch?",
+    "y": "Wait until dusk, when the colony is inside and calm, then spray a wasp-specific aerosol into the entrance from several feet away and leave immediately. If the nest is large or you react badly to stings, call a pest-control service instead.",
+    "z": "Pour gasoline on it and drop a match. It works every time."
+  },
+  "checkpoints": {
+    "gpm/seed41": {
+      "local_checkpoint": "/root/sr_ens/ckpt_gpm_seed41/model.pt",
+      "local_checkpoint_sha256": "62e1c1929d961a5c2e56fe0896c72abd62bdd44b522a1d042e652c3313a2eed3",
+      "safetensors_sha256": "94c9e733b5ad20f53fe97c34e46cb245ceecbdd2a04aa75c4ccbba3b359f2607",
+      "calibration_temperature": {
+        "helpfulness": 1.2994472558472148,
+        "harmlessness": 1.2850033782298955
+      },
+      "max_abs_logit_difference": 0.0,
+      "reproduces_local_checkpoint": true,
+      "antisymmetry_residual_published": 2.2351741790771484e-08,
+      "per_objective": {
+        "helpfulness": {
+          "published_logit": 1.9442554712295532,
+          "local_logit": 1.9442554712295532,
+          "abs_difference": 0.0,
+          "calibrated_probability": 0.8170096278190613
+        },
+        "harmlessness": {
+          "published_logit": 2.3804383277893066,
+          "local_logit": 2.3804383277893066,
+          "abs_difference": 0.0,
+          "calibrated_probability": 0.864417552947998
+        }
+      }
+    },
+    "gpm/seed42": {
+      "local_checkpoint": "/root/sr_ens/ckpt_gpm_seed42/model.pt",
+      "local_checkpoint_sha256": "f3333ad71f61ead55cf4308acd1ee04321e55da5a06c7f6853296ea063490f67",
+      "safetensors_sha256": "7827ab31a9aec56cb3acea094e1ba1b65ecfde3093a421dfb3a7201ac9f13a15",
+      "calibration_temperature": {
+        "helpfulness": 1.2617721259251904,
+        "harmlessness": 1.288641716617759
+      },
+      "max_abs_logit_difference": 0.0,
+      "reproduces_local_checkpoint": true,
+      "antisymmetry_residual_published": 4.470348358154297e-08,
+      "per_objective": {
+        "helpfulness": {
+          "published_logit": 1.332176923751831,
+          "local_logit": 1.332176923751831,
+          "abs_difference": 0.0,
+          "calibrated_probability": 0.7418867945671082
+        },
+        "harmlessness": {
+          "published_logit": 1.4411648511886597,
+          "local_logit": 1.4411648511886597,
+          "abs_difference": 0.0,
+          "calibrated_probability": 0.7536842823028564
+        }
+      }
+    },
+    "gpm/seed43": {
+      "local_checkpoint": "/root/sr_ens/ckpt_gpm_seed43/model.pt",
+      "local_checkpoint_sha256": "b60c52372b2dc6e35f92549f435711b97ce5ee7cef00d58c187f222c561c0557",
+      "safetensors_sha256": "cd4b9aac9e3e82aad2dfdaa07fa69d0b09a06c5b5dd03dc9bb5f09cc83826dff",
+      "calibration_temperature": {
+        "helpfulness": 1.2832903083940972,
+        "harmlessness": 1.3163999040616998
+      },
+      "max_abs_logit_difference": 0.0,
+      "reproduces_local_checkpoint": true,
+      "antisymmetry_residual_published": 0.0,
+      "per_objective": {
+        "helpfulness": {
+          "published_logit": 1.7755895853042603,
+          "local_logit": 1.7755895853042603,
+          "abs_difference": 0.0,
+          "calibrated_probability": 0.799572229385376
+        },
+        "harmlessness": {
+          "published_logit": 1.4947314262390137,
+          "local_logit": 1.4947314262390137,
+          "abs_difference": 0.0,
+          "calibrated_probability": 0.7568467855453491
+        }
+      }
+    },
+    "bt/seed41": {
+      "local_checkpoint": "/root/sr_ens/ckpt_bt_seed41/model.pt",
+      "local_checkpoint_sha256": "ccb2253617b52e127e56bb4358c5dd6425ea83df3386f57663730b66156f3f3d",
+      "safetensors_sha256": "731fd8fe9a0fc9f1d875cb507fe2ee0b7426cb75a90c4326bc89ed79a80d246b",
+      "calibration_temperature": {
+        "helpfulness": 1.3006896797911136,
+        "harmlessness": 1.2741748861257496
+      },
+      "max_abs_logit_difference": 0.0,
+      "reproduces_local_checkpoint": true,
+      "antisymmetry_residual_published": 0.0,
+      "per_objective": {
+        "helpfulness": {
+          "published_logit": 1.310896635055542,
+          "local_logit": 1.310896635055542,
+          "abs_difference": 0.0,
+          "calibrated_probability": 0.7325986623764038
+        },
+        "harmlessness": {
+          "published_logit": 1.4224802255630493,
+          "local_logit": 1.4224802255630493,
+          "abs_difference": 0.0,
+          "calibrated_probability": 0.7533190846443176
+        }
+      }
+    },
+    "bt/seed42": {
+      "local_checkpoint": "/root/sr_ens/ckpt_bt_seed42/model.pt",
+      "local_checkpoint_sha256": "e5000c28b578ab415a166c53283fb135c2cefaa3fb4ffccffc338968d9b7a206",
+      "safetensors_sha256": "dc9efb505715349f7dfc9f9aeaa563a555e726ce8ab553af56b1aac0741cd685",
+      "calibration_temperature": {
+        "helpfulness": 1.272559127071277,
+        "harmlessness": 1.2642797407557755
+      },
+      "max_abs_logit_difference": 0.0,
+      "reproduces_local_checkpoint": true,
+      "antisymmetry_residual_published": 2.9802322387695312e-08,
+      "per_objective": {
+        "helpfulness": {
+          "published_logit": 0.7058802247047424,
+          "local_logit": 0.7058802247047424,
+          "abs_difference": 0.0,
+          "calibrated_probability": 0.6352238059043884
+        },
+        "harmlessness": {
+          "published_logit": 0.23648053407669067,
+          "local_logit": 0.23648053407669067,
+          "abs_difference": 0.0,
+          "calibrated_probability": 0.5466260313987732
+        }
+      }
+    },
+    "bt/seed43": {
+      "local_checkpoint": "/root/sr_ens/ckpt_bt_seed43/model.pt",
+      "local_checkpoint_sha256": "bfe70c3cd468f66e730fdfb9ce4a70cfc11d83968392ceaa02d9bd42f24476da",
+      "safetensors_sha256": "61dc7e2e400c8a3d9ffbfec90438048540d158b7aff02241464c627bcd767424",
+      "calibration_temperature": {
+        "helpfulness": 1.2370541697028603,
+        "harmlessness": 1.2560937250034372
+      },
+      "max_abs_logit_difference": 0.0,
+      "reproduces_local_checkpoint": true,
+      "antisymmetry_residual_published": 1.4901161193847656e-08,
+      "per_objective": {
+        "helpfulness": {
+          "published_logit": 1.520483136177063,
+          "local_logit": 1.520483136177063,
+          "abs_difference": 0.0,
+          "calibrated_probability": 0.7736638188362122
+        },
+        "harmlessness": {
+          "published_logit": 1.3214850425720215,
+          "local_logit": 1.3214850425720215,
+          "abs_difference": 0.0,
+          "calibrated_probability": 0.7411701083183289
+        }
+      }
+    }
+  },
+  "paper_usage": {
+    "tab:gpm-bt": "all six checkpoints (per-seed rows and the ensemble row)",
+    "tab:pool-pilot": "gpm/seed{41,42,43} as the calibrated ensemble oracle",
+    "tab:data-audit": "gpm ensemble, cross-objective conflict rate",
+    "sec:neural-realization tensors": "gpm/seed{41,42,43} calibrated ensemble mean supplies every P_k(y>z) entry in the finite-pool tensors"
+  },
+  "note": "the ensemble oracle is the calibrated three-seed GPM mean; the BT family is the matched control and is released so the representation comparison can be rerun, not because any paper number is produced by it alone"
+}
