@@ -1,0 +1,38 @@
+{
+  "model": "/work/models/bases/Llama-3.1-8B-Instruct",
+  "n_rows": 24,
+  "hypothesis": "left padding without position_ids makes a response's score depend on its batch neighbours",
+  "left_padding_confirmed": true,
+  "results": {
+    "production_no_position_ids": {
+      "response_logp_alone_vs_batched": {
+        "rms": 0.8322703893915383,
+        "median": 0.109375,
+        "p95": 2.0,
+        "max": 2.0
+      },
+      "pair_difference_alone_vs_batched": {
+        "rms": 1.4316153114235486,
+        "median": 0.171875,
+        "p95": 3.0,
+        "max": 4.0
+      }
+    },
+    "with_position_ids": {
+      "response_logp_alone_vs_batched": {
+        "rms": 0.8322703893915383,
+        "median": 0.109375,
+        "p95": 2.0,
+        "max": 2.0
+      },
+      "pair_difference_alone_vs_batched": {
+        "rms": 1.4316153114235486,
+        "median": 0.171875,
+        "p95": 3.0,
+        "max": 4.0
+      }
+    }
+  },
+  "batch_sensitivity_reduction_factor": 1.0,
+  "verdict": "position ids do NOT explain it; look elsewhere"
+}

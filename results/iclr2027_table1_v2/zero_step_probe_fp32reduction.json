@@ -1,0 +1,156 @@
+{
+  "model": "/work/models/bases/Llama-3.1-8B-Instruct",
+  "n_probe_rows": 24,
+  "pad_token_id": 128009,
+  "eos_token_id": 128009,
+  "response_char_lengths": [
+    56,
+    56,
+    56,
+    60,
+    60,
+    60,
+    63,
+    63,
+    63,
+    65,
+    66,
+    67,
+    5899,
+    5901,
+    5909,
+    5920,
+    5921,
+    5923,
+    5933,
+    5942,
+    5953,
+    5955,
+    5966,
+    5970
+  ],
+  "torch": "2.7.1+cu128",
+  "attn_impl": "sdpa",
+  "conditions": {
+    "repeat": {
+      "note": "same model, same batching, run twice",
+      "response_logp_error": {
+        "rms": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "max": 0.0,
+        "n": 48
+      },
+      "pair_difference_error": {
+        "rms": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "max": 0.0,
+        "n": 24
+      }
+    },
+    "train_mode": {
+      "note": "model.train(): stochastic layers",
+      "response_logp_error": {
+        "rms": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "max": 0.0,
+        "n": 48
+      },
+      "pair_difference_error": {
+        "rms": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "max": 0.0,
+        "n": 24
+      }
+    },
+    "alone": {
+      "note": "batch size 1: no padding neighbours",
+      "response_logp_error": {
+        "rms": 0.29192331629930424,
+        "median": 0.05819129943847656,
+        "p95": 0.7483978271484373,
+        "max": 1.17578125,
+        "n": 48
+      },
+      "pair_difference_error": {
+        "rms": 0.3652339447182968,
+        "median": 0.03167694807052612,
+        "p95": 0.6520355224609371,
+        "max": 1.4560546875,
+        "n": 24
+      }
+    },
+    "chunk8": {
+      "note": "batch size 8: longer padding",
+      "response_logp_error": {
+        "rms": 0.4734951388584517,
+        "median": 0.1936635971069336,
+        "p95": 0.8625076293945313,
+        "max": 1.1757965087890625,
+        "n": 48
+      },
+      "pair_difference_error": {
+        "rms": 0.6212841443263002,
+        "median": 2.288818359375e-05,
+        "p95": 1.5196334838867187,
+        "max": 1.8358917236328125,
+        "n": 24
+      }
+    },
+    "chunk_all": {
+      "note": "one batch: padded to the longest probe row",
+      "response_logp_error": {
+        "rms": 0.4734970985157407,
+        "median": 0.1936635971069336,
+        "p95": 0.862518310546875,
+        "max": 1.1757965087890625,
+        "n": 48
+      },
+      "pair_difference_error": {
+        "rms": 0.6212886034440194,
+        "median": 2.288818359375e-05,
+        "p95": 1.5196640014648437,
+        "max": 1.8358917236328125,
+        "n": 24
+      }
+    },
+    "fp32": {
+      "note": "float32 weights, same inputs and batching",
+      "response_logp_error": {
+        "rms": 0.3258041918754181,
+        "median": 0.1674652099609375,
+        "p95": 0.6248413085937499,
+        "max": 0.963775634765625,
+        "n": 48
+      },
+      "pair_difference_error": {
+        "rms": 0.4512689812660535,
+        "median": 0.1607224941253662,
+        "p95": 0.8324211120605468,
+        "max": 1.33172607421875,
+        "n": 24
+      }
+    },
+    "cache": {
+      "note": "production path here vs the value precompute stored for the same row",
+      "response_logp_error": {
+        "rms": 0.48761272189021565,
+        "median": 0.19304609298706055,
+        "p95": 1.0461242675781246,
+        "max": 1.506378173828125,
+        "n": 48
+      },
+      "pair_difference_error": {
+        "rms": 0.7571877019753905,
+        "median": 0.1099017858505249,
+        "p95": 1.9166839599609367,
+        "max": 1.987945556640625,
+        "n": 24
+      }
+    }
+  },
+  "cache_error_vs_response_length_pearson": 0.643370488854311
+}

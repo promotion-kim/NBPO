@@ -75,7 +75,24 @@ def get_batch_logps(
     loss_mask = labels != label_pad_token_id
 
     labels[labels == label_pad_token_id] = 0
-    per_token_logps = torch.gather(logits.log_softmax(-1), dim=2, index=labels.unsqueeze(2)).squeeze(2)
+    # The sequence log-probability is a SUM over hundreds of response tokens and
+    # reaches magnitudes of 250-300 nats. bfloat16 has an 8-bit mantissa, so its
+    # spacing at |x| in [256, 512) is 2 and in [128, 256) is 1: accumulating this
+    # sum in bf16 quantizes the answer to +/- 1-2 nats. Measured directly -- the
+    # same response scored in two different batches differed by exactly one ulp
+    # of the stored value (2.0000 at |logp| = 270, 1.0000 at 248, 0.0625 at 11.5),
+    # which is what made h nonzero at a zero learning rate.
+    #
+    # log_softmax with an explicit dtype computes and returns float32 WITHOUT
+    # materializing a float32 copy of the (batch, seq, vocab) logits, so the
+    # gather and the reduction both run in float32 at no memory cost. This does
+    # not remove the bf16 error in the forward that produced the logits; it
+    # removes the quantization of the accumulation, which is the term that
+    # dominated the measurement.
+    per_token_logps = torch.gather(
+        logits.log_softmax(-1, dtype=torch.float32), dim=2,
+        index=labels.unsqueeze(2)).squeeze(2)
+    loss_mask = loss_mask.to(per_token_logps.dtype)
 
     if average_log_prob:
         return (per_token_logps * loss_mask).sum(-1) / loss_mask.sum(-1)
@@ -296,6 +313,25 @@ def main():
         tokenizer=tokenizer,
         peft_config=get_peft_config(model_args),
     )
+
+    # The frozen proximal centre, loaded AFTER the trainer so it shares the
+    # accelerator's device placement. It is a separate copy of pi_t held in eval
+    # mode with gradients off: it is never the learner detached, and it is never
+    # re-synced to the learner during training. Its only job is to be forwarded
+    # through the same collated batch as the policy, so that h is a difference of
+    # two log-probabilities computed on the identical kernel path.
+    if getattr(training_args, "nbpo_online_reference", False):
+        ref_path = getattr(training_args, "nbpo_reference_model_path", "") or \
+            model_args.model_name_or_path
+        logger.info(f"*** Loading frozen NBPO reference (pi_t) from {ref_path} ***")
+        ref = AutoModelForCausalLM.from_pretrained(
+            ref_path, dtype=getattr(model, "dtype", None), use_cache=False)
+        ref.eval()
+        for prm in ref.parameters():
+            prm.requires_grad_(False)
+        trainer.nbpo_reference_model = ref.to(trainer.accelerator.device)
+        logger.info("*** NBPO online reference active: pi_t forwarded per batch ***")
+
     # =====================================================================================
 
     if os.environ.get("MNPO_EVAL_ONLY", "").lower() in {"1", "true", "yes"}:

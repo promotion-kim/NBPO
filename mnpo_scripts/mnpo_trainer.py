@@ -225,6 +225,22 @@ class MNPOTrainer(SimPOTrainer):
             raise ValueError(f"logp_reduction must be 'mean' or 'sum', got {self.logp_reduction!r}")
         validate_nbpo_args(args)  # config-level invariants; run_mnpo re-validates with the dataset
 
+        # --- online frozen reference for h ------------------------------------
+        # h = [log pi(a) - log pi_t(a)] - [log pi(b) - log pi_t(b)] is identically
+        # zero at pi = pi_t. It was not: a cached pi_t log-probability and an
+        # online one are computed under different batch groupings, and in bfloat16
+        # the same response scores differently depending on who it is batched
+        # with -- measured at RMS 0.3-0.5 nats, comparable to changing the entire
+        # weight precision. Caching one side of a difference is what breaks it.
+        #
+        # With a frozen reference forwarded through the SAME collated batch, both
+        # sides take the identical kernel path, so at pi = pi_t they are bitwise
+        # equal and h is exactly 0. The reference is a separate frozen copy of
+        # pi_t: never the learner detached, never re-synced to the learner.
+        self.nbpo_online_reference = bool(getattr(args, "nbpo_online_reference", False))
+        self.nbpo_reference_model = None
+        self._nbpo_ref_vs_cache = None
+
         # Accept both the Qwen runner name (`history_weights`) and the released
         # Gemma config name (`weights`) so opponent mixtures are actually used.
         hw = getattr(args, "history_weights", None)
@@ -454,7 +470,25 @@ class MNPOTrainer(SimPOTrainer):
         reference_chosen_logps = batch['reference_chosen_logps'].to(self.accelerator.device)
         reference_rejected_logps = batch['reference_rejected_logps'].to(self.accelerator.device)
 
-        history_logps_list = self.pack_history_logps_from_dataset(batch)
+        # 2b. The proximal centre pi_t. The cached columns and an online forward
+        #     disagree in bf16 whenever the batch grouping differs, so when the
+        #     online path is enabled the reference is forwarded through THIS
+        #     batch and the cached values are kept only as a diagnostic.
+        if self.nbpo_online_reference and self.nbpo_reference_model is not None:
+            with torch.no_grad():
+                ref_c, ref_r, _, _, _ = self.concatenated_forward(
+                    self.nbpo_reference_model, batch)
+            ref_c = ref_c.detach().to(self.accelerator.device, dtype=torch.float32)
+            ref_r = ref_r.detach().to(self.accelerator.device, dtype=torch.float32)
+            cached = self.pack_history_logps_from_dataset(batch)
+            if cached:
+                cc, cr = cached[0]
+                self._nbpo_ref_vs_cache = (
+                    (ref_c - cc.to(ref_c.device)) - (ref_r - cr.to(ref_r.device))
+                ).detach()
+            history_logps_list = [(ref_c, ref_r)]
+        else:
+            history_logps_list = self.pack_history_logps_from_dataset(batch)
         history_logps_list = [
             (c.to(self.accelerator.device), r.to(self.accelerator.device))
             for c, r in history_logps_list
@@ -615,6 +649,11 @@ class MNPOTrainer(SimPOTrainer):
             metrics[f"{prefix}nbpo/h_abs"] = nbpo_h.detach().abs().mean().cpu()
             metrics[f"{prefix}nbpo/h_rms"] = nbpo_h.detach().pow(2).mean().sqrt().cpu()
             metrics[f"{prefix}nbpo/h_max_abs"] = nbpo_h.detach().abs().max().cpu()
+            if self._nbpo_ref_vs_cache is not None:
+                # how far the cached pi_t sits from an online forward of the same
+                # weights on the same batch: the quantity that made h nonzero
+                metrics[f"{prefix}nbpo/ref_online_minus_cache_rms"] = (
+                    self._nbpo_ref_vs_cache.pow(2).mean().sqrt().cpu())
             metrics[f"{prefix}nbpo/target"] = nbpo_scaled_target.detach().mean().cpu()
             metrics[f"{prefix}nbpo/target_abs"] = nbpo_scaled_target.detach().abs().mean().cpu()
             metrics[f"{prefix}nbpo/residual"] = (nbpo_h - nbpo_scaled_target).detach().mean().cpu()

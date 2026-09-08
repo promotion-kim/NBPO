@@ -648,7 +648,24 @@ class SimPOTrainer(Trainer):
         # dummy token; we'll ignore the losses on these tokens later
         labels[labels == label_pad_token_id] = 0
 
-        per_token_logps = torch.gather(logits.log_softmax(-1), dim=2, index=labels.unsqueeze(2)).squeeze(2)
+        # The sequence log-probability is a SUM over hundreds of response tokens and
+        # reaches magnitudes of 250-300 nats. bfloat16 has an 8-bit mantissa, so its
+        # spacing at |x| in [256, 512) is 2 and in [128, 256) is 1: accumulating this
+        # sum in bf16 quantizes the answer to +/- 1-2 nats. Measured directly -- the
+        # same response scored in two different batches differed by exactly one ulp
+        # of the stored value (2.0000 at |logp| = 270, 1.0000 at 248, 0.0625 at 11.5),
+        # which is what made h nonzero at a zero learning rate.
+        #
+        # log_softmax with an explicit dtype computes and returns float32 WITHOUT
+        # materializing a float32 copy of the (batch, seq, vocab) logits, so the
+        # gather and the reduction both run in float32 at no memory cost. This does
+        # not remove the bf16 error in the forward that produced the logits; it
+        # removes the quantization of the accumulation, which is the term that
+        # dominated the measurement.
+        per_token_logps = torch.gather(
+            logits.log_softmax(-1, dtype=torch.float32), dim=2,
+            index=labels.unsqueeze(2)).squeeze(2)
+        loss_mask = loss_mask.to(per_token_logps.dtype)
 
         if average_log_prob:
             return (per_token_logps * loss_mask).sum(-1) / loss_mask.sum(-1)

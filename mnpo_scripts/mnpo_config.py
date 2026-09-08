@@ -98,6 +98,15 @@ class MNPOConfig(SimPOConfig):
     # (raw lambda from the dual solve; the trainer multiplies by eta exactly once).
     nbpo_target_column: str = "nbpo_weighted_z"
 
+    # Compute the proximal centre pi_t with a frozen reference model forwarded
+    # through the SAME collated batch, instead of reading the cached columns.
+    # h is a difference of two log-probabilities; caching one side and computing
+    # the other online makes them disagree by 0.3-0.5 nats in bf16, because the
+    # same response scores differently depending on its batch neighbours. Off by
+    # default so existing runs stay reproducible; every new run should set it.
+    nbpo_online_reference: bool = False
+    nbpo_reference_model_path: str = ""
+
     # Expected-artifact hashes, written into run_config.yaml by
     # scripts/nbpo/run_nbpo_stage.py. They bind THIS training run to the exact
     # pair file, solver solution, proximal centre and precomputed dataset the
