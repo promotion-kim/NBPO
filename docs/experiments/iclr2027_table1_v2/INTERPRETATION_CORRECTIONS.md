@@ -122,3 +122,78 @@ labels: (22) `finite-pool-value`, (23) `direct-inner`, (24)
 The `canonical` target mode added in this round computes Eq. (24) exactly --
 matching the solver's own optimizer output to 3.6e-15 -- so the manuscript's
 equation and the code now denote the same object under the same name.
+
+## 9. "Only the 1200-step arm is significant" was wrong
+
+**Was:** of the bootstrap intervals, only `RB, 1200` was said to exclude zero.
+
+**Is:** by the table's own numbers, two do -- `clip100` at [+0.007, +0.123] and
+`RB 1200` at [+0.039, +0.144]. `RB 300` at [−0.031, +0.084] does not. The claim
+misread the table it was standing on.
+
+Two further things that sentence conflated:
+
+- These are **nominal** intervals for individual correlations, computed after
+  looking at several arms. Nothing here corrects for having explored nine arms,
+  so "excludes zero" is a description of one interval, not a multiplicity-adjusted
+  finding.
+- An interval on arm A excluding zero and an interval on arm B including zero
+  does **not** establish that A and B differ. Testing a paired difference is a
+  different computation, on the paired quantity, and it was not done.
+
+## 10. A significant correlation is not a passing gate
+
+Pearson +0.089 is weak alignment. Even the best affine recalibration of `h` on
+the same sample leaves a variance-normalized MSE of at least
+`1 − r² = 1 − 0.089² ≈ 0.9921`, against a gate of 0.90. So no amount of
+significance on that correlation implies the gate is reachable at that alignment,
+and it says nothing about whether the policy is useful.
+
+This is arithmetic for interpreting the number, not an instruction to fit a
+calibration on the test half.
+
+## 11. Regression and frozen-pool surplus are complementary, not independent
+
+**Was:** "two independent criteria give the same answer."
+
+**Is:** both are computed on the same held-out prompts, the same frozen response
+pool and the same frozen preference models. They answer different questions --
+does `h` track the target, and does the induced pool distribution raise the game
+values -- but they share nearly all of their inputs. Agreement between them is
+weaker evidence than the phrase "two independent criteria" suggests, and neither
+is a measurement of generation quality: nothing here decodes a new response or
+consults an independent judge.
+
+## 12. The surplus table was partial, and "both objectives worse" needs the values
+
+`min_k s_k < 0` means at least one objective fails the acceptance condition. The
+per-objective numbers are what license a statement about both, and the surplus
+table covered four arms while the regression table covered nine. Claims of rank
+agreement across arms need the same arms in both tables; `clip100`'s surplus and
+the full regression columns were missing when that comparison was drawn.
+
+## 13. Stop saying dtype, clipping and the estimator are "rejected"
+
+Each was a single change in one setting, and that is all any of them showed:
+
+| change | setting | result |
+|---|---|---|
+| `max_grad_norm` 1.0 -> 100 | RB target, 300 updates | test nMSE 1.126 -> 1.093 |
+| target estimator sampled -> RB | eta 1, 300 updates | test nMSE 1.026 -> 1.126 |
+| explicit `torch_dtype: bfloat16` | zero-step probe | identical to six decimals (already bf16) |
+
+"Rejected as the cause" overstates all three. What the zero-step work later
+established is separate and specific: the bf16 **accumulation** of the sequence
+sum, and the bf16 forward's dependence on batch shape, together account for the
+zero-step error exactly.
+
+## 14. "Evaluation unaffected" was asserted, not verified
+
+**Was:** "this contaminates the training signal only; the gate computes both
+terms through the cache, so evaluation is unaffected."
+
+**Is:** the gate's two terms being drawn from the same cached path makes it
+internally consistent, which is not the same as correct, and it was never
+separately verified. Two things follow. The evaluation path needs its own check.
+And a training signal that was wrong can still have determined where the final
+policies ended up -- consistency of the ruler does not undo a mis-measured build.
