@@ -107,3 +107,36 @@ treated as one. `nbpo_weighted_z` takes values in
 Bernoulli draws against a sampled opponent -- with RMS 6.69, while its own
 conditional mean has RMS 2.54. The name says "target"; the quantity is a
 high-variance unbiased draw whose predictable part is 14% of its variance.
+
+## Declared BEFORE running it: the Rao-Blackwell diagnostic
+
+The eta stage failed the gate on all three arms, and the conditional-mean check
+showed the policy learned nothing -- not even the predictable part
+(`corr(h, m) <= +0.005` on every test half). The open question is whether the
+neural projection can fit an Eq. (26) target *at all*, or whether the sampled
+estimator's noise makes the regression untrainable at this budget.
+
+The pair builder already offers `--target-mode rao_blackwell`, described there as
+a labeled variant of the manuscript's Eq. (24) sampled construction. It replaces
+the two Bernoulli draws with their conditional probabilities and keeps everything
+else -- same solver artifact, same lambda, same opponent draw, same prompts,
+same responses, same split salts. Measured on this pool:
+
+| target estimator | corr with the conditional mean | max attainable $r^2$ | variance |
+|---|---|---|---|
+| sampled (Eq. 24) | +0.3775 | 0.1425 | 44.69 |
+| Rao-Blackwell | +0.9920 | 0.9840 | 6.64 |
+
+So a policy could in principle explain 98% of the Rao-Blackwell target and only
+14% of the sampled one. Running one arm on it isolates "the projection cannot
+fit" from "the target is too noisy to fit at this budget".
+
+**Status of this arm: diagnostic, not a selection candidate.** It trains on a
+different target and therefore is not comparable to the pre-registered arms under
+the pre-registered gate; it does not enter the eta/LR/steps selection, and it
+does not change the gate thresholds or the evaluation set. Its only job is to
+answer the structural question the failure diagnostic has to answer.
+
+The `lr1e-5` arm is diagnostic on the same footing and for the same reason: it
+sits outside the pre-declared `{2e-7, 5e-7, 1e-6}` grid and answers whether the
+failure is an optimization-budget failure.
