@@ -88,3 +88,9 @@ experiments/iclr2027_table1_v2/saferlhf_splits/*
 experiments/iclr2027_table1_v2/judge_protocol_v5/*
 !experiments/iclr2027_table1_v2/judge_protocol_v5/*.md
 !experiments/iclr2027_table1_v2/judge_protocol_v5/*.json
+
+# Pool pilot: keep the manifests, probability tensors and the analysis; leave the
+# raw generated responses out (4 MB of model output, reproducible from
+# generate_saferlhf_pools.py at the recorded seeds).
+!results/iclr2027_table1_v2/pool_pilot/
+results/iclr2027_table1_v2/pool_pilot/pool_responses.jsonl

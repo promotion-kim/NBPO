@@ -296,6 +296,17 @@ def train_one(kind, args, device, splits):
             n_objectives=len(OBJECTIVES), hidden_size=hidden, head_width=args.width,
             label_source="PKU-SafeRLHF released better_response_id/safer_response_id",
         ).to_dict()
+    if args.save_checkpoint:
+        ck = args.out_dir / f"ckpt_{kind}_seed{args.seed}"
+        ck.mkdir(parents=True, exist_ok=True)
+        torch.save({"state_dict": model.state_dict(),
+                    "kind": kind, "seed": args.seed,
+                    "encoder": args.encoder, "hidden": hidden,
+                    "width": args.width, "bt_width": args.bt_width,
+                    "dropout": args.dropout, "objectives": list(OBJECTIVES)},
+                   ck / "model.pt")
+        tok.save_pretrained(ck)
+        res["checkpoint"] = str(ck)
     del model
     torch.cuda.empty_cache()
     return res
@@ -386,6 +397,11 @@ def main() -> None:
     ap.add_argument("--log-every", type=int, default=200)
     ap.add_argument("--limit-train", type=int, default=None)
     ap.add_argument("--models", nargs="+", default=["gpm", "bt"])
+    ap.add_argument("--save-checkpoint", action="store_true",
+                    help="persist the trained weights. Required for anything that "
+                         "must SCORE with the frozen oracle later: without it the "
+                         "reported ensemble and the used ensemble are different "
+                         "models, because GPU training is not bit-reproducible.")
     ap.add_argument("--save-predictions", action="store_true",
                     help="write per-example probabilities for validation and test so "
                          "an ensemble can be calibrated and combined afterwards "

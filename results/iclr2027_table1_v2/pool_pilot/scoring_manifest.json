@@ -1,0 +1,24 @@
+{
+  "n_prompts": 200,
+  "n_max_pool": 8,
+  "seeds": [
+    41,
+    42,
+    43
+  ],
+  "models": [
+    "gpm",
+    "bt"
+  ],
+  "calibration_source": "/root/sr_ens/saferlhf_ensemble.json",
+  "calibration_applied_before_averaging": true,
+  "encoding_note": "each response is encoded once per (model, seed); all pair scores are head evaluations on cached encodings",
+  "timings_seconds": {
+    "gpm_seed41_seconds": 8.687260627746582,
+    "gpm_seed42_seconds": 5.74676251411438,
+    "gpm_seed43_seconds": 5.651045322418213,
+    "bt_seed41_seconds": 5.333624601364136,
+    "bt_seed42_seconds": 5.528810501098633,
+    "bt_seed43_seconds": 5.3182902336120605
+  }
+}

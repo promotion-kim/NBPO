@@ -9,6 +9,15 @@ splits were **rebuilt on the pod from the deterministic builder rather than
 copied**, and all six hashes — three file SHA-256 and three prompt-set SHA-256 —
 match the local manifest exactly.
 
+**The numbers below come from the checkpointed run** (`saferlhf_ensemble_ckpt/`),
+which is the one whose weights are on disk and therefore the one everything
+downstream actually scores with. An earlier run without checkpointing was
+measured first; because GPU training is not bit-reproducible, reporting that one
+while scoring with another would have been reporting a different model. The two
+runs agree to within **±0.003 on every metric** (largest deviations: balanced
+accuracy +0.0032 for BT helpfulness, NLL ±0.0013), which is itself the
+reproducibility evidence.
+
 ## Calibration: validation only
 
 One temperature per (model, seed, objective), fitted by golden-section search on
@@ -18,8 +27,8 @@ split is never seen by anything that chooses a parameter.**
 
 | model | seed | helpfulness | harmlessness |
 |---|---|---|---|
-| GPM | 41 / 42 / 43 | 1.290 / 1.288 / 1.275 | 1.266 / 1.294 / 1.305 |
-| BT | 41 / 42 / 43 | 1.275 / 1.320 / 1.253 | 1.230 / 1.292 / 1.289 |
+| GPM | 41 / 42 / 43 | 1.299 / 1.262 / 1.283 | 1.285 / 1.289 / 1.316 |
+| BT | 41 / 42 / 43 | 1.301 / 1.273 / 1.237 | 1.274 / 1.264 / 1.256 |
 
 Every temperature is above 1: both architectures are **consistently
 overconfident**, by a similar amount, and the amount is stable across seeds.
@@ -28,10 +37,10 @@ overconfident**, by a similar amount, and the amount is stable across seeds.
 
 | model | objective | NLL | balanced acc | ROC-AUC | Brier | ECE | ensemble disagreement (sd) |
 |---|---|---|---|---|---|---|---|
-| **GPM** | helpfulness | **0.5503** | **0.7238** | **0.8033** | **0.1859** | 0.1228 | 0.0297 |
-| **GPM** | harmlessness | **0.5143** | **0.7570** | **0.8503** | **0.1733** | 0.1779 | 0.0351 |
-| BT | helpfulness | 0.5531 | 0.7219 | 0.8004 | 0.1869 | 0.1226 | 0.0296 |
-| BT | harmlessness | 0.5150 | 0.7567 | 0.8495 | 0.1736 | 0.1780 | 0.0349 |
+| **GPM** | helpfulness | **0.5512** | **0.7257** | **0.8034** | **0.1861** | 0.1228 | 0.0293 |
+| **GPM** | harmlessness | **0.5131** | **0.7573** | **0.8512** | **0.1729** | 0.1782 | 0.0357 |
+| BT | helpfulness | 0.5527 | 0.7250 | 0.8009 | 0.1867 | 0.1220 | 0.0300 |
+| BT | harmlessness | 0.5163 | 0.7544 | 0.8484 | 0.1740 | 0.1779 | 0.0357 |
 
 Mean pairwise seed correlation 0.960–0.968 for both architectures; ensemble
 disagreement (per-example sd across seeds) 0.030–0.035.
@@ -68,8 +77,8 @@ explains nothing in either direction.
 
 | objective | ΔNLL | Δbalanced acc | ΔROC-AUC |
 |---|---|---|---|
-| helpfulness | −0.00275 | +0.00198 | +0.00297 |
-| harmlessness | −0.00069 | +0.00028 | +0.00076 |
+| helpfulness | −0.00154 | +0.00071 | +0.00249 |
+| harmlessness | −0.00326 | +0.00295 | +0.00284 |
 
 The GPM is very slightly ahead on all six comparisons after calibration and
 ensembling — a more consistent sign than the single-seed runs gave, where the
