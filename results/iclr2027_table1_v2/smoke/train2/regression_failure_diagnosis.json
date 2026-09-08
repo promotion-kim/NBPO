@@ -1,0 +1,87 @@
+{
+  "definition": {
+    "m": "conditional mean of the sampled target given (prompt, learner pair): sum_k lambda_k (E_j P(i beats j) - E_j P(i' beats j))",
+    "z": "the sampled target the trainer actually regresses on",
+    "why": "h is a function of (prompt, pair) only, so m is the largest part of z that any policy could reproduce"
+  },
+  "arms": {
+    "h_eta0p1": {
+      "validation": {
+        "n": 4200,
+        "corr_h_vs_sampled_target": 0.01976798139427475,
+        "corr_h_vs_conditional_mean": -0.00577181997185756,
+        "spearman_h_vs_conditional_mean": 0.004237222138488459,
+        "corr_sampled_target_vs_conditional_mean": 0.3840332936957434,
+        "sign_agreement_h_vs_conditional_mean": 0.4173573866406631,
+        "normalized_mse_h_vs_conditional_mean": 1.0963616505331597,
+        "h_rms": 0.7848960771113392,
+        "m_rms": 2.576799879748028,
+        "z_rms": 6.719274652539139
+      },
+      "test": {
+        "n": 4200,
+        "corr_h_vs_sampled_target": -0.011213855773422746,
+        "corr_h_vs_conditional_mean": -0.0034196082732087622,
+        "spearman_h_vs_conditional_mean": 0.015357222120995747,
+        "corr_sampled_target_vs_conditional_mean": 0.3695458960455063,
+        "sign_agreement_h_vs_conditional_mean": 0.41154970760233917,
+        "normalized_mse_h_vs_conditional_mean": 1.107259716221314,
+        "h_rms": 0.7833863554443563,
+        "m_rms": 2.416905324577517,
+        "z_rms": 6.781782995736356
+      }
+    },
+    "h_eta0p3": {
+      "validation": {
+        "n": 4200,
+        "corr_h_vs_sampled_target": 0.03147766191830781,
+        "corr_h_vs_conditional_mean": 0.06747908622755101,
+        "spearman_h_vs_conditional_mean": 0.07951683508760808,
+        "corr_sampled_target_vs_conditional_mean": 0.3840332936957434,
+        "sign_agreement_h_vs_conditional_mean": 0.4500243783520234,
+        "normalized_mse_h_vs_conditional_mean": 1.0486082275426645,
+        "h_rms": 0.7678436879682712,
+        "m_rms": 2.576799879748028,
+        "z_rms": 6.719274652539139
+      },
+      "test": {
+        "n": 4200,
+        "corr_h_vs_sampled_target": -0.03036678732547216,
+        "corr_h_vs_conditional_mean": 0.004219407307637926,
+        "spearman_h_vs_conditional_mean": 0.04302085666622932,
+        "corr_sampled_target_vs_conditional_mean": 0.3695458960455063,
+        "sign_agreement_h_vs_conditional_mean": 0.4346978557504873,
+        "normalized_mse_h_vs_conditional_mean": 1.108633704477971,
+        "h_rms": 0.8069287028467041,
+        "m_rms": 2.416905324577517,
+        "z_rms": 6.781782995736356
+      }
+    },
+    "h_eta1p0": {
+      "validation": {
+        "n": 4200,
+        "corr_h_vs_sampled_target": -0.009251885237369542,
+        "corr_h_vs_conditional_mean": 0.01762892949575608,
+        "spearman_h_vs_conditional_mean": 0.0409721610528436,
+        "corr_sampled_target_vs_conditional_mean": 0.3840332936957434,
+        "sign_agreement_h_vs_conditional_mean": 0.4422233057045344,
+        "normalized_mse_h_vs_conditional_mean": 1.1079922691588298,
+        "h_rms": 0.8941788464196079,
+        "m_rms": 2.576799879748028,
+        "z_rms": 6.719274652539139
+      },
+      "test": {
+        "n": 4200,
+        "corr_h_vs_sampled_target": -0.02565457898227042,
+        "corr_h_vs_conditional_mean": 0.002596857485276882,
+        "spearman_h_vs_conditional_mean": 0.04815653560978093,
+        "corr_sampled_target_vs_conditional_mean": 0.3695458960455063,
+        "sign_agreement_h_vs_conditional_mean": 0.4480994152046784,
+        "normalized_mse_h_vs_conditional_mean": 1.1423665983063023,
+        "h_rms": 0.9183356267247514,
+        "m_rms": 2.416905324577517,
+        "z_rms": 6.781782995736356
+      }
+    }
+  }
+}

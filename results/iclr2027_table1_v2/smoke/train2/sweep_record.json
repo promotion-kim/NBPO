@@ -74,6 +74,81 @@
           "spearman": 0.0008514720275372869
         }
       }
+    },
+    {
+      "stage": "learning_rate",
+      "selection_metric": "validation normalized_mse_var (lower is better)",
+      "selected": "lr2em7",
+      "arms": [
+        {
+          "label": "lr2em7",
+          "validation_normalized_mse_var": 1.0060310777778028,
+          "validation_sign_agreement": 0.5155855096882898,
+          "validation_pearson": 0.031999934995499836,
+          "validation_spearman": 0.021958341218888795,
+          "validation_prediction_rms": 0.7764694884774664,
+          "validation_target_rms": 6.719274652539139
+        },
+        {
+          "label": "eta1p0",
+          "validation_normalized_mse_var": 1.0202756796471895,
+          "validation_sign_agreement": 0.5061677631578947,
+          "validation_pearson": -0.009251885237369546,
+          "validation_spearman": 0.001637495719650713,
+          "validation_prediction_rms": 0.8941788464196079,
+          "validation_target_rms": 6.719274652539139
+        },
+        {
+          "label": "lr1em6",
+          "validation_normalized_mse_var": 1.0199720501138634,
+          "validation_sign_agreement": 0.5130081300813009,
+          "validation_pearson": 0.023740893051170747,
+          "validation_spearman": 0.024428685706193713,
+          "validation_prediction_rms": 1.119348455339858,
+          "validation_target_rms": 6.719274652539139
+        }
+      ],
+      "test_metrics_carried_but_not_used_for_selection": {
+        "lr2em7": {
+          "n": 4200,
+          "target_rms": 6.781782995736356,
+          "target_mean": 0.08941722480195954,
+          "prediction_rms": 0.7983853348791853,
+          "mse": 46.716307594996564,
+          "normalized_mse_var": 1.0159123417394005,
+          "normalized_mse_ms": 1.0157357335525976,
+          "sign_agreement": 0.4972539079002957,
+          "n_sign_comparable": 2367,
+          "pearson": -0.008000061220316825,
+          "spearman": -0.004233616048228962
+        },
+        "eta1p0": {
+          "n": 4200,
+          "target_rms": 6.781782995736356,
+          "target_mean": 0.08941722480195954,
+          "prediction_rms": 0.9183356267247514,
+          "mse": 47.16442116326517,
+          "normalized_mse_var": 1.0256572066043992,
+          "normalized_mse_ms": 1.0254789043512447,
+          "sign_agreement": 0.5047422680412371,
+          "n_sign_comparable": 2425,
+          "pearson": -0.025654578982270398,
+          "spearman": 0.0008514720275372869
+        },
+        "lr1em6": {
+          "n": 4200,
+          "target_rms": 6.781782995736356,
+          "target_mean": 0.08941722480195954,
+          "prediction_rms": 1.1488881804191262,
+          "mse": 47.27479044402217,
+          "normalized_mse_var": 1.0280573430929678,
+          "normalized_mse_ms": 1.0278786235953956,
+          "sign_agreement": 0.5121176003178387,
+          "n_sign_comparable": 2517,
+          "pearson": 0.003030705686087454,
+          "spearman": 0.02636046375545227
+        }
+      }
     }
   ]
 }
