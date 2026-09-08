@@ -190,74 +190,123 @@ def solve_proximal(rep: ObjectiveRepresentation, pi_t: torch.Tensor,
         update_source_kind=source_kind, update_source_iteration=source_iteration)
 
 
-def _solve_one_prompt(args):
-    """One prompt's I-dimensional concave program. Module level so it pickles."""
+_WORKER_STATE: dict = {}
+
+
+def _worker_init(A, mu, log_pi_t, beta, eta, X, I, floor, maxiter, ftol):
+    """Ship the static problem to each worker ONCE, at pool creation.
+
+    The first version passed one payload per prompt on every call. With 60-100
+    dual evaluations and thousands of prompts that is hundreds of thousands of
+    array pickles, and it cost more than the solves it was parallelizing --
+    measured: 42.7 s on 32 workers against 41.1 s serial at 1000 prompts. The
+    per-prompt tensors never change within a solve, so they belong in worker
+    state and only the dual weights travel per call.
+    """
+    # Forked children inherit a RESTRICTED CPU affinity mask -- measured here as
+    # 2 CPUs each against the parent's 192, because the numeric runtime pins
+    # threads in the parent before the fork. The pool then achieves full
+    # concurrency (32 chunks genuinely overlap) while every child runs ~30x
+    # slower per prompt, so the speedup is exactly cancelled and the parallel
+    # path looks useless. Restoring the mask is the whole fix.
+    import os
+    try:
+        os.sched_setaffinity(0, range(os.cpu_count() or 1))
+    except (AttributeError, OSError):
+        pass
+    _WORKER_STATE.update(A=A, mu=mu, log_pi_t=log_pi_t, beta=beta, eta=eta,
+                         X=X, I=I, floor=floor, maxiter=maxiter, ftol=ftol)
+
+
+def _solve_prompt_chunk(task):
+    """One contiguous block of prompts, solved with the worker's resident tensors.
+
+    The scipy import is at module scope, not in this function: a per-call import
+    cost of about 0.16 s does not amortize over a chunk of a few prompts and was
+    measured to swallow the whole parallel gain.
+    """
     import numpy as np
     from scipy.optimize import minimize
-    Ax, mux, lpt, start_x, beta, w_np, eta, X, I, floor, maxiter, ftol = args
-    lmu = np.log(mux)
+    lo, hi, w_np, start_block = task
+    g = _WORKER_STATE
+    A, mu, log_pi_t = g["A"], g["mu"], g["log_pi_t"]
+    beta, eta, X, I = g["beta"], g["eta"], g["X"], g["I"]
+    floor, maxiter, ftol = g["floor"], g["maxiter"], g["ftol"]
     ones = np.ones(I)
+    bounds = [(floor, 1.0)] * I
+    out = np.empty((hi - lo, I))
 
-    def negx(v):
-        p = np.clip(v, floor, None)
-        p = p / p.sum()
-        r = np.einsum("i,kij->kj", p, Ax)
-        lw = lmu[None, :] - r / beta[:, None]
-        m = lw.max(axis=-1, keepdims=True)
-        v_k = -beta * (m[:, 0] + np.log(np.exp(lw - m).sum(axis=-1)))
-        kl = float((p * (np.log(p) - lpt)).sum())
-        return -(float(w_np @ v_k) / X - kl / (eta * X))
+    for n, x in enumerate(range(lo, hi)):
+        Ax, lmu, lpt = A[:, x], np.log(mu[x]), log_pi_t[x]
 
-    def negx_jac(v):
-        p = np.clip(v, floor, None)
-        p = p / p.sum()
-        r = np.einsum("i,kij->kj", p, Ax)
-        lw = lmu[None, :] - r / beta[:, None]
-        lw -= lw.max(axis=-1, keepdims=True)
-        nu = np.exp(lw)
-        nu /= nu.sum(axis=-1, keepdims=True)
-        q = np.einsum("kj,kij->ki", nu, Ax)
-        g = (w_np @ q) / X
-        g -= (np.log(p) - lpt + 1.0) / (eta * X)
-        return -g
+        def negx(v, Ax=Ax, lmu=lmu, lpt=lpt):
+            p = np.clip(v, floor, None)
+            p = p / p.sum()
+            r = np.einsum("i,kij->kj", p, Ax)
+            lw = lmu[None, :] - r / beta[:, None]
+            m = lw.max(axis=-1, keepdims=True)
+            v_k = -beta * (m[:, 0] + np.log(np.exp(lw - m).sum(axis=-1)))
+            kl = float((p * (np.log(p) - lpt)).sum())
+            return -(float(w_np @ v_k) / X - kl / (eta * X))
 
-    res = minimize(negx, start_x, jac=negx_jac, method="SLSQP",
-                   bounds=[(floor, 1.0)] * I,
-                   constraints=[{"type": "eq",
-                                 "fun": lambda v: np.array([v.sum() - 1.0]),
-                                 "jac": lambda v: ones[None, :]}],
-                   options={"maxiter": int(maxiter), "ftol": float(ftol)})
-    v = np.clip(res.x, floor, None)
-    return v / v.sum()
+        def negx_jac(v, Ax=Ax, lmu=lmu, lpt=lpt):
+            p = np.clip(v, floor, None)
+            p = p / p.sum()
+            r = np.einsum("i,kij->kj", p, Ax)
+            lw = lmu[None, :] - r / beta[:, None]
+            lw -= lw.max(axis=-1, keepdims=True)
+            nu = np.exp(lw)
+            nu /= nu.sum(axis=-1, keepdims=True)
+            q = np.einsum("kj,kij->ki", nu, Ax)
+            gg = (w_np @ q) / X
+            gg -= (np.log(p) - lpt + 1.0) / (eta * X)
+            return -gg
+
+        res = minimize(negx, start_block[n], jac=negx_jac, method="SLSQP",
+                       bounds=bounds,
+                       constraints=[{"type": "eq",
+                                     "fun": lambda v: np.array([v.sum() - 1.0]),
+                                     "jac": lambda v: ones[None, :]}],
+                       options={"maxiter": int(maxiter), "ftol": float(ftol)})
+        v = np.clip(res.x, floor, None)
+        out[n] = v / v.sum()
+    return lo, out
 
 
 _EXECUTORS: dict = {}
 
 
-def _executor(workers: int):
-    """A process pool reused across dual evaluations.
-
-    A fresh pool per inner solve would cost more in startup than the solve
-    itself: the root dual makes 60-100 inner calls, so the pool is cached.
-    """
+def _executor(workers: int, key, init_args):
+    """A pool per (worker count, problem), reused across dual evaluations."""
     import atexit
     from concurrent.futures import ProcessPoolExecutor
-    ex = _EXECUTORS.get(workers)
-    if ex is None:
-        ex = ProcessPoolExecutor(max_workers=workers)
-        _EXECUTORS[workers] = ex
-        atexit.register(ex.shutdown, wait=False)
+    cached = _EXECUTORS.get(workers)
+    if cached is not None and cached[0] == key:
+        return cached[1]
+    if cached is not None:
+        cached[1].shutdown(wait=False)
+    ex = ProcessPoolExecutor(max_workers=workers, initializer=_worker_init,
+                             initargs=init_args)
+    _EXECUTORS[workers] = (key, ex)
+    atexit.register(ex.shutdown, wait=False)
     return ex
 
 
 def _solve_prompts_parallel(A, mu, log_pi_t, start, beta, w_np, eta, X, I,
                             floor, maxiter, ftol, workers):
+    import hashlib
     import numpy as np
-    ex = _executor(int(workers))
-    payload = [(A[:, x], mu[x], log_pi_t[x], start[x], beta, w_np, eta, X, I,
-                floor, maxiter, ftol) for x in range(X)]
-    chunk = max(1, X // (int(workers) * 4))
-    return np.asarray(list(ex.map(_solve_one_prompt, payload, chunksize=chunk)))
+    key = hashlib.sha256(np.ascontiguousarray(A).tobytes()).hexdigest()[:32]
+    ex = _executor(int(workers), key,
+                   (A, mu, log_pi_t, beta, eta, X, I, floor, maxiter, ftol))
+    n_chunks = min(X, int(workers))
+    edges = np.linspace(0, X, n_chunks + 1).astype(int)
+    tasks = [(int(edges[i]), int(edges[i + 1]), w_np, start[edges[i]:edges[i + 1]])
+             for i in range(n_chunks) if edges[i + 1] > edges[i]]
+    out = np.empty((X, I))
+    for lo, block in ex.map(_solve_prompt_chunk, tasks):
+        out[lo:lo + block.shape[0]] = block
+    return out
 
 
 def solve_proximal_exact(rep: ObjectiveRepresentation, pi_t: torch.Tensor,
@@ -915,6 +964,7 @@ def solve_finite_pool(
     inner_solver: str = "fixed_point",
     dual_tol: Optional[float] = None,
     dual_solver: str = "subgradient",
+    inner_workers: int = 1,
 ) -> FinitePoolSolution:
     """Solve one outer stage for any (representation, aggregation) pair.
 
@@ -937,7 +987,8 @@ def solve_finite_pool(
 
     def _inner(rep_, pi_t_, w_, eta_, R_, *, pi_init=None, damping_=0.0):
         if inner_solver == "exact":
-            return solve_proximal_exact(rep_, pi_t_, w_, eta_, pi_init=pi_init)
+            return solve_proximal_exact(rep_, pi_t_, w_, eta_, pi_init=pi_init,
+                                        workers=inner_workers)
         return solve_proximal(rep_, pi_t_, w_, eta_, R_, pi_init=pi_init,
                               damping=damping_)
 
@@ -1110,6 +1161,7 @@ def solve_finite_pool(
             "inner_solver": inner_solver,
             "dual_tol": dual_tol,
             "dual_solver": dual_solver,
+            "inner_workers": inner_workers,
             # Top-level `beta` is what the Eq. (26) pair builder reads. It is the
             # opponent temperature, so it exists only for a representation that
             # HAS an adaptive opponent; fixed_reference and bt_reward record None

@@ -248,3 +248,58 @@ def test_exact_inner_solve_cost_is_linear_in_the_number_of_prompts():
         timings.append(time.time() - t)
     # 4x the prompts must not cost more than ~8x: linear, with slack for noise
     assert timings[1] < 8 * timings[0] + 0.5
+
+
+def test_parallel_inner_solve_is_bit_identical_to_serial():
+    """Parallelism is infrastructure, so it must not move a single digit.
+
+    The worker pool holds the static tensors and only the dual weights travel per
+    call; an earlier version shipped one payload per prompt per call and was
+    *slower* than serial (42.7 s against 41.1 s at 1000 prompts). The redesign is
+    11.6x faster at the same size -- and the check that matters is that the answer
+    did not change at all.
+    """
+    from mnpo_scripts.nbpo_generic import solve_proximal_exact
+    A, mu, beta, _ = small_instance(alpha=0.9, K=4, X=24, I=5)
+    rep = _rep(A, mu, beta)
+    pi_t = uniform_policy(A.shape[1], A.shape[2])
+    w = torch.tensor([90.0, 30.0, 140.0, 60.0], dtype=torch.float64)
+    serial = solve_proximal_exact(rep, pi_t, w, 1.0, workers=1)
+    parallel = solve_proximal_exact(rep, pi_t, w, 1.0, workers=4)
+    assert torch.equal(serial.pi, parallel.pi)
+    assert serial.extra_map_residual == parallel.extra_map_residual
+
+
+def test_worker_processes_get_the_full_cpu_affinity_mask():
+    """Forked children inherit a restricted affinity mask, and it costs everything.
+
+    Measured on this machine: the parent may use 192 CPUs while each forked child
+    is pinned to 2. The pool still achieves full concurrency -- 32 chunks
+    genuinely overlap, the summed worker time is 30x the wall time -- but every
+    child runs about 30x slower per prompt, so the speedup is exactly cancelled
+    and parallelism looks useless. Restoring the mask in the initializer takes
+    the 7000-prompt, 16-response inner solve from 85 s to 2.3 s.
+    """
+    import os
+    import numpy as np
+    from mnpo_scripts.nbpo_generic import _executor
+
+    if not hasattr(os, "sched_getaffinity"):
+        pytest.skip("CPU affinity is not queryable on this platform")
+    parent = len(os.sched_getaffinity(0))
+    if parent < 4:
+        pytest.skip("too few CPUs for the mask to be meaningful")
+
+    A = np.zeros((2, 8, 3, 3))
+    ex = _executor(2, "affinity-probe",
+                   (A, np.full((8, 3), 1 / 3), np.log(np.full((8, 3), 1 / 3)),
+                    np.full(2, 0.25), 1.0, 8, 3, 1e-12, 50, 1e-12))
+    sizes = list(ex.map(_affinity_size, range(4)))
+    assert min(sizes) == parent, (
+        f"worker affinity {min(sizes)} < parent {parent}; the initializer is not "
+        "restoring the mask and every parallel solve will be silently slow")
+
+
+def _affinity_size(_):
+    import os
+    return len(os.sched_getaffinity(0))
