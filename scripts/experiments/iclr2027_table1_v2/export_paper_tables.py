@@ -361,33 +361,68 @@ def solver_scaling():
 
 
 def neural_realization():
-    """Target statistics only until training completes."""
-    p = RES / "smoke" / "train" / "solutions" / "smoke_solutions.json"
+    """Solver-side columns always; regression columns once a policy has been fit.
+
+    The six rows are the matched core set. ``bt_rm_utilitarian`` was absent from
+    the solver's own row list for a while, so "five solves finished" was not the
+    same statement as "the core set is complete"; it is listed explicitly here so
+    a missing row shows up as a missing row.
+
+    Projected KKT measures the Nash inverse-surplus system. For a utilitarian or
+    Kalai--Smorodinsky dual it does not apply, and the cell reads ``n/a`` rather
+    than a number or an em-dash that would look like an unfinished run.
+    """
+    p = RES / "smoke" / "train" / "solutions6" / "smoke_solutions.json"
     if not p.exists():
-        emit("neural_realization", [r"\multicolumn{8}{l}{\textit{pending: "
+        p = RES / "smoke" / "train" / "solutions" / "smoke_solutions.json"
+    if not p.exists():
+        emit("neural_realization", [r"\multicolumn{11}{l}{\textit{pending: "
                                     r"solver targets not yet built}}\\"], [],
              "pending", "no solver artifact")
         return
     d = json.loads(p.read_text())["rows"]
-    rows = []
-    for name in ("nbpo", "fixed_reference_nash", "bt_rm_nash", "game_utilitarian",
-                 "game_ks"):
+
+    # regression columns come from the SELECTED arm's TEST half, if it exists
+    gate_path = RES / "smoke" / "train2" / "selected_gate.json"
+    gate = json.loads(gate_path.read_text()) if gate_path.exists() else None
+    sources = [p] + ([gate_path] if gate else [])
+
+    rows, missing = [], []
+    for name, lab in (("nbpo", r"\NBPO{}"),
+                      ("fixed_reference_nash", "Fixed-ref.\\ Nash"),
+                      ("bt_rm_nash", "BT-RM--Nash"),
+                      ("game_utilitarian", "Game-util."),
+                      ("game_ks", "Game-KS"),
+                      ("bt_rm_utilitarian", "BT-RM--util.")):
         r = d.get(name)
         if not r or r.get("status") != "ok":
+            missing.append(name)
             continue
-        lab = {"nbpo": r"\NBPO{}", "fixed_reference_nash": "Fixed-ref.\\ Nash",
-               "bt_rm_nash": "BT-RM--Nash", "game_utilitarian": "Game-util.",
-               "game_ks": "Game-KS"}[name]
+        if r.get("projected_kkt_applies") is False:
+            kkt = r"n/a"
+        elif r.get("projected_kkt_residual") is None:
+            kkt = r"\pending"
+        else:
+            kkt = sci(r["projected_kkt_residual"])
+        reg = [r"\pending"] * 3
+        if gate and name == "nbpo":
+            m = gate["splits"]["test"]["metrics"]
+            reg = [f"${m['normalized_mse_var']:.3f}$",
+                   f"${m['sign_agreement']:.3f}$" if m["sign_agreement"] is not None else "--",
+                   f"${m['pearson']:+.3f}$" if m["pearson"] is not None else "--"]
         rows.append(" & ".join([
             lab, f"${r['target_rms']:.3f}$",
             f"${r['target_p10']:+.3f}$", f"${r['target_p90']:+.3f}$",
-            f"${r['weight_l1']:.2f}$",
-            sci(r["projected_kkt_residual"]) if r.get("projected_kkt_residual") is not None else "--",
+            f"${r['weight_l1']:.2f}$", kkt,
             sci(r["extra_map_residual"]), sci(r["target_identity_residual"]),
-            r"\pending", r"\pending", r"\pending"]) + r"\\")
-    emit("neural_realization", rows, [p], "partial",
-         "solver-side columns are measured on the 1000-prompt smoke pool; the "
-         "regression columns are pending until policy training completes",
+            *reg]) + r"\\")
+    note = ("solver-side columns are measured on the 1000-prompt smoke pool; "
+            "regression columns are the held-out TEST half of the selected arm, "
+            "selected on validation only")
+    if missing:
+        note += f"; MISSING core rows: {', '.join(missing)}"
+    emit("neural_realization", rows, sources,
+         "completed" if (gate and not missing) else "partial", note,
          seeds=[11], aggregation="single smoke instance (not a 3-seed mean)")
 
 

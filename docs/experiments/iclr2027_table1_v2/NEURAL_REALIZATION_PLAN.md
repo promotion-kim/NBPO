@@ -81,3 +81,29 @@ KKT 3.55e-15, extra-map residual 3.25e-13, Eq. (26) target identity 1.78e-15,
 `sign_agreement` is computed on rows where both `h` and the target are nonzero;
 31.2% of targets are exactly zero because the sampled `z_k` is a difference of
 two Bernoulli draws. The comparable-row count is reported alongside it.
+
+## Implementation-contract checks, measured on the trained arms
+
+`eta` applied exactly once, verified from the trainer's own logged target rather
+than by reading the code: mean `|target|` over 30 logged steps is
+
+| eta | mean `|target|` | ratio to eta=0.1 |
+|---|---|---|
+| 0.1 | 0.4925 | 1.000 |
+| 0.3 | 1.4774 | 2.9998 |
+| 1.0 | 4.9245 | 9.9990 |
+
+Linear in `eta` to four figures. A second application anywhere in the chain
+would give ratios of 9 and 100.
+
+Sequence-sum reduction: `precompute_meta.json` records `logp_reduction: sum`,
+and `validate_nbpo_args` refuses the `nbpo` branch otherwise. Provenance: the
+run config carries the pair-artifact, solver-artifact, precompute-manifest and
+tokenization-config hashes of this stage, checked before any weights load.
+
+The sampled target is not the deterministic finite-pool target and is not
+treated as one. `nbpo_weighted_z` takes values in
+`{0, ±lambda_1, ±lambda_2, ±(lambda_1+lambda_2)}` -- a difference of two
+Bernoulli draws against a sampled opponent -- with RMS 6.69, while its own
+conditional mean has RMS 2.54. The name says "target"; the quantity is a
+high-variance unbiased draw whose predictable part is 14% of its variance.
