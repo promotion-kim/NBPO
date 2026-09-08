@@ -1,0 +1,134 @@
+[
+  {
+    "n_prompts": 8,
+    "n_pairs": 224,
+    "epochs": 85.71428571428571,
+    "label": "canonN8",
+    "validation": {
+      "n": 4200,
+      "target_rms": 2.576799879748028,
+      "target_mean": -0.031237673833129153,
+      "prediction_rms": 1.2085646093868188,
+      "mse": 8.103551760960736,
+      "normalized_mse_var": 1.220612619172587,
+      "normalized_mse_ms": 1.2204332392450183,
+      "sign_agreement": 0.5017103762827823,
+      "n_sign_comparable": 3508,
+      "pearson": 0.0005285050430438732,
+      "spearman": -0.0075249251107424335
+    },
+    "test": {
+      "n": 4200,
+      "target_rms": 2.416905324577517,
+      "target_mean": -0.0019916179335811262,
+      "prediction_rms": 1.2502283291044753,
+      "mse": 7.556001451893916,
+      "normalized_mse_var": 1.2935197099112563,
+      "normalized_mse_ms": 1.2935188315648471,
+      "sign_agreement": 0.49056603773584906,
+      "n_sign_comparable": 3551,
+      "pearson": -0.025076360540156224,
+      "spearman": -0.02202217131644962
+    },
+    "surplus": {}
+  },
+  {
+    "n_prompts": 50,
+    "n_pairs": 1400,
+    "epochs": 13.714285714285714,
+    "label": "canonN50",
+    "validation": {
+      "n": 4200,
+      "target_rms": 2.576799879748028,
+      "target_mean": -0.031237673833129153,
+      "prediction_rms": 1.236148467937499,
+      "mse": 8.315648438246914,
+      "normalized_mse_var": 1.2525600773263426,
+      "normalized_mse_ms": 1.252376002434426,
+      "sign_agreement": 0.5021570319240725,
+      "n_sign_comparable": 3477,
+      "pearson": -0.024464243072540304,
+      "spearman": -0.022854168286193535
+    },
+    "test": {
+      "n": 4200,
+      "target_rms": 2.416905324577517,
+      "target_mean": -0.0019916179335811262,
+      "prediction_rms": 1.2723689764152384,
+      "mse": 7.181325225065577,
+      "normalized_mse_var": 1.2293784988059886,
+      "normalized_mse_ms": 1.2293776640137688,
+      "sign_agreement": 0.521552954610334,
+      "n_sign_comparable": 3503,
+      "pearson": 0.04566413672141175,
+      "spearman": 0.047245816089412966
+    },
+    "surplus": {}
+  },
+  {
+    "n_prompts": 200,
+    "n_pairs": 5600,
+    "epochs": 3.4285714285714284,
+    "label": "canonN200",
+    "validation": {
+      "n": 4200,
+      "target_rms": 2.576799879748028,
+      "target_mean": -0.031237673833129153,
+      "prediction_rms": 1.0558374789765166,
+      "mse": 7.57066514178069,
+      "normalized_mse_var": 1.1403455768747954,
+      "normalized_mse_ms": 1.1401779929060816,
+      "sign_agreement": 0.5300028710881424,
+      "n_sign_comparable": 3483,
+      "pearson": 0.033422718791675486,
+      "spearman": 0.03501148594979269
+    },
+    "test": {
+      "n": 4200,
+      "target_rms": 2.416905324577517,
+      "target_mean": -0.0019916179335811262,
+      "prediction_rms": 1.0882172422625098,
+      "mse": 6.7637353830291005,
+      "normalized_mse_var": 1.1578908614925363,
+      "normalized_mse_ms": 1.1578900752429937,
+      "sign_agreement": 0.5438696770505859,
+      "n_sign_comparable": 3499,
+      "pearson": 0.04978467364317175,
+      "spearman": 0.07091524810825021
+    },
+    "surplus": {}
+  },
+  {
+    "n_prompts": 700,
+    "n_pairs": 19600,
+    "epochs": 0.9795918367346939,
+    "label": "canonN700",
+    "validation": {
+      "n": 4200,
+      "target_rms": 2.576799879748028,
+      "target_mean": -0.031237673833129153,
+      "prediction_rms": 0.9177909608100342,
+      "mse": 7.222567779424561,
+      "normalized_mse_var": 1.0879127615209745,
+      "normalized_mse_ms": 1.0877528830228356,
+      "sign_agreement": 0.5300028710881424,
+      "n_sign_comparable": 3483,
+      "pearson": 0.054432756030066094,
+      "spearman": 0.0636379203552433
+    },
+    "test": {
+      "n": 4200,
+      "target_rms": 2.416905324577517,
+      "target_mean": -0.0019916179335811262,
+      "prediction_rms": 0.9826408860774003,
+      "mse": 6.367583448896098,
+      "normalized_mse_var": 1.0900732018238681,
+      "normalized_mse_ms": 1.0900724616249557,
+      "sign_agreement": 0.5695652173913044,
+      "n_sign_comparable": 3450,
+      "pearson": 0.09258328120384317,
+      "spearman": 0.12978744418944047
+    },
+    "surplus": {}
+  }
+]
