@@ -142,13 +142,27 @@ withdrawn (see `INTERPRETATION_CORRECTIONS.md`).
 - dtype is not the cause: the base checkpoint already declares bf16, both paths
   load bf16, and an explicit setting reproduces the run to six decimals.
 
-**A real defect, found and not yet fixed.** The zero-step identity fails: at
-`learning_rate = 0` the weights never change, so `h` must be exactly 0, and the
-measured `h` RMS is 0.30-0.61 with max |h| up to 0.86. The trainer's online
-log-probabilities do not reproduce the precompute cache. Evaluation is
-unaffected -- the gate computes both of its terms through the cache -- so this
-contaminates the TRAINING signal only, at about 14% of the target RMS. That is
-enough to matter and not obviously enough to explain a total failure.
+**A real defect, found and FIXED.** The zero-step identity failed: at
+`learning_rate = 0` the weights never change, so `h` must be exactly 0, and it
+measured RMS 0.30-0.61. The cause is now established (see
+`ZERO_STEP_ROOT_CAUSE.md`): `log pi(a)` came from the online forward and
+`log pi_t(a)` from the precompute cache, whose batches were grouped differently,
+and in bf16 a response's log-probability depends on its batch neighbours. Two
+terms, measured apart -- bf16 quantization of the accumulated sum (long-response
+log-probabilities came back as exact integers, differences exactly one ulp), and
+the bf16 forward's own dependence on batch shape.
+
+Fixed by accumulating the log-probability in float32 and, decisively, by
+forwarding a frozen copy of `pi_t` through the SAME collated batch as the policy.
+Zero-step now gives `h` exactly 0.000000 at every step, and the new
+`nbpo/ref_online_minus_cache_rms` diagnostic reproduces the old path's `h` to six
+decimals -- so the entire zero-step error was this and nothing else.
+
+Whether the fix changes the gate is a separate question, measured by the paired
+before/after runs and not assumed. Note also that the gate drew both of its terms
+from the same cached path, which made it internally consistent but was never
+independently verified, and a training signal that was wrong still determined
+where the earlier policies ended up.
 
 **Open.** Whether the residual failure is prompt-level generalization or
 remaining budget. The equal-compute prompt-count sweep now running is the
