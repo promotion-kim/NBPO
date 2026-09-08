@@ -1,0 +1,231 @@
+{
+  "config": {
+    "tensor_gpm": "results/iclr2027_table1_v2/smoke/train/tensor_gpm",
+    "tensor_bt": "results/iclr2027_table1_v2/smoke/train/tensor_bt",
+    "out_dir": "results/iclr2027_table1_v2/smoke/train/solutions6",
+    "eta": "1.0",
+    "beta": "0.25",
+    "dual_tol": "1e-06",
+    "max_dual_calls": "2000",
+    "workers": "64",
+    "rows": "['nbpo', 'fixed_reference_nash', 'bt_rm_nash', 'game_utilitarian', 'game_ks', 'bt_rm_utilitarian']"
+  },
+  "rows": {
+    "nbpo": {
+      "row": "nbpo",
+      "status": "ok",
+      "representation": "adaptive_game",
+      "aggregation": "nash",
+      "seconds": 6.188161373138428,
+      "weights": [
+        6.966388395211773,
+        6.74798290479777
+      ],
+      "weight_l1": 13.714371300009542,
+      "surplus": [
+        0.14354640356936435,
+        0.14819243233248802
+      ],
+      "min_surplus": 0.14354640356936435,
+      "avg_surplus": 0.14586941795092617,
+      "disagreement": [
+        -0.032280674259673785,
+        -0.03386380620190807
+      ],
+      "dual_converged": true,
+      "outer_iterations_used": 37,
+      "projected_kkt_residual": 3.552713678800501e-15,
+      "inverse_surplus_residual": 4.385380947269368e-15,
+      "fixed_point_residual": 1.170166368316683e-10,
+      "extra_map_residual": 3.248512570053208e-13,
+      "target_identity_residual": 1.7763568394002505e-15,
+      "proximal_kl": 0.8447847586561974,
+      "target_rms": 2.2727514501064867,
+      "target_p10": -3.841129384561154,
+      "target_p90": 1.0916972568025582,
+      "target_finite": true,
+      "projected_kkt_applies": true
+    },
+    "fixed_reference_nash": {
+      "row": "fixed_reference_nash",
+      "status": "ok",
+      "representation": "fixed_reference",
+      "aggregation": "nash",
+      "seconds": 0.04127693176269531,
+      "weights": [
+        7.030178653465544,
+        6.842870217305466
+      ],
+      "weight_l1": 13.87304887077101,
+      "surplus": [
+        0.14224389582291003,
+        0.14613750783567733
+      ],
+      "min_surplus": 0.14224389582291003,
+      "avg_surplus": 0.14419070182929367,
+      "disagreement": [
+        -3.363455347571431e-17,
+        1.6519771661727133e-17
+      ],
+      "dual_converged": true,
+      "outer_iterations_used": 21,
+      "projected_kkt_residual": 0.0,
+      "inverse_surplus_residual": 1.6653345369377348e-16,
+      "fixed_point_residual": 0.0,
+      "extra_map_residual": 0.0,
+      "target_identity_residual": 1.7763568394002505e-15,
+      "proximal_kl": 0.8407232660141353,
+      "target_rms": 2.332708827694384,
+      "target_p10": -3.9588634077431215,
+      "target_p90": 1.092626958989093,
+      "target_finite": true,
+      "projected_kkt_applies": true
+    },
+    "bt_rm_nash": {
+      "row": "bt_rm_nash",
+      "status": "ok",
+      "representation": "bt_reward",
+      "aggregation": "nash",
+      "seconds": 0.03208136558532715,
+      "weights": [
+        1.472034228790895,
+        1.4095592844822253
+      ],
+      "weight_l1": 2.8815935132731205,
+      "surplus": [
+        0.6793320294062617,
+        0.7094416042013661
+      ],
+      "min_surplus": 0.6793320294062617,
+      "avg_surplus": 0.6943868168038139,
+      "disagreement": [
+        5.4296844798074063e-17,
+        3.06213387979426e-17
+      ],
+      "dual_converged": true,
+      "outer_iterations_used": 16,
+      "projected_kkt_residual": 0.0,
+      "inverse_surplus_residual": 1.1102230246251565e-16,
+      "fixed_point_residual": 8.881784197001252e-16,
+      "extra_map_residual": 0.0,
+      "target_identity_residual": 1.7763568394002505e-15,
+      "proximal_kl": 0.8206503597246348,
+      "target_rms": 2.4733468085273973,
+      "target_p10": -4.223212717658138,
+      "target_p90": 1.059311847262932,
+      "target_finite": true,
+      "projected_kkt_applies": true
+    },
+    "game_utilitarian": {
+      "row": "game_utilitarian",
+      "status": "ok",
+      "representation": "adaptive_game",
+      "aggregation": "utilitarian",
+      "seconds": 0.2789576053619385,
+      "weights": [
+        6.857185650004771,
+        6.857185650004771
+      ],
+      "weight_l1": 13.714371300009542,
+      "surplus": [
+        0.1434822773942962,
+        0.14827502748793853
+      ],
+      "min_surplus": 0.1434822773942962,
+      "avg_surplus": 0.14587865244111736,
+      "disagreement": [
+        -0.032280674259673785,
+        -0.03386380620190807
+      ],
+      "dual_converged": null,
+      "outer_iterations_used": null,
+      "projected_kkt_residual": null,
+      "inverse_surplus_residual": null,
+      "fixed_point_residual": 8.868566242492548e-07,
+      "extra_map_residual": 2.7154258841477485e-09,
+      "target_identity_residual": 1.7763568394002505e-15,
+      "proximal_kl": 0.8449033924668136,
+      "target_rms": 2.273370048002445,
+      "target_p10": -3.8430381610014894,
+      "target_p90": 1.092487001755353,
+      "target_finite": true,
+      "projected_kkt_applies": false,
+      "matched_weight_l1": 13.714371300009542,
+      "matched_norm_source": "nbpo"
+    },
+    "game_ks": {
+      "row": "game_ks",
+      "status": "ok",
+      "representation": "adaptive_game",
+      "aggregation": "kalai_smorodinsky",
+      "seconds": 909.6240890026093,
+      "weights": [
+        6.394621208279655,
+        7.3197500917298886
+      ],
+      "weight_l1": 13.714371300009542,
+      "surplus": [
+        0.14320031135926922,
+        0.14861421100223063
+      ],
+      "min_surplus": 0.14320031135926922,
+      "avg_surplus": 0.14590726118074993,
+      "disagreement": [
+        -0.032280674259673785,
+        -0.03386380620190807
+      ],
+      "dual_converged": null,
+      "outer_iterations_used": null,
+      "projected_kkt_residual": null,
+      "inverse_surplus_residual": null,
+      "fixed_point_residual": 2.2761142672855783e-06,
+      "extra_map_residual": 6.6200553927586725e-09,
+      "target_identity_residual": 1.7763568394002505e-15,
+      "proximal_kl": 0.8454393809347184,
+      "target_rms": 2.2762838785272415,
+      "target_p10": -3.8476178640692043,
+      "target_p90": 1.0914272723244345,
+      "target_finite": true,
+      "projected_kkt_applies": false,
+      "matched_weight_l1": 13.714371300009542,
+      "matched_norm_source": "nbpo"
+    },
+    "bt_rm_utilitarian": {
+      "row": "bt_rm_utilitarian",
+      "status": "ok",
+      "representation": "bt_reward",
+      "aggregation": "utilitarian",
+      "seconds": 0.0028803348541259766,
+      "weights": [
+        1.4407967566365603,
+        1.4407967566365603
+      ],
+      "weight_l1": 2.8815935132731205,
+      "surplus": [
+        0.6789231818873952,
+        0.7101295995699559
+      ],
+      "min_surplus": 0.6789231818873952,
+      "avg_surplus": 0.6945263907286756,
+      "disagreement": [
+        5.4296844798074063e-17,
+        3.06213387979426e-17
+      ],
+      "dual_converged": null,
+      "outer_iterations_used": null,
+      "projected_kkt_residual": null,
+      "inverse_surplus_residual": null,
+      "fixed_point_residual": 0.8732290572286533,
+      "extra_map_residual": 0.0,
+      "target_identity_residual": 1.7763568394002505e-15,
+      "proximal_kl": 0.8210354265011902,
+      "target_rms": 2.4757013188808505,
+      "target_p10": -4.223869510622158,
+      "target_p90": 1.058750799328655,
+      "target_finite": true,
+      "projected_kkt_applies": false,
+      "matched_weight_l1": 2.8815935132731205,
+      "matched_norm_source": "bt_rm_nash"
+    }
+  }
+}

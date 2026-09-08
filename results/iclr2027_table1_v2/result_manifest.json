@@ -146,15 +146,15 @@
     "neural_realization": {
       "fragment": "nbpo_iclr/generated/neural_realization.tex",
       "status": "partial",
-      "note": "solver-side columns are measured on the 1000-prompt smoke pool; the regression columns are pending until policy training completes",
+      "note": "solver-side columns are measured on the 1000-prompt smoke pool; regression columns are the held-out TEST half of the selected arm, selected on validation only",
       "seeds": [
         11
       ],
       "aggregation": "single smoke instance (not a 3-seed mean)",
       "sources": [
         {
-          "path": "results/iclr2027_table1_v2/smoke/train/solutions/smoke_solutions.json",
-          "sha256_16": "4bf3b852cc82339a"
+          "path": "results/iclr2027_table1_v2/smoke/train/solutions6/smoke_solutions.json",
+          "sha256_16": "6c4b0b6985d614af"
         }
       ]
     }
