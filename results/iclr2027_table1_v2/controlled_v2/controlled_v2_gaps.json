@@ -1,0 +1,269 @@
+{
+  "nbpo_minus_fixed_reference": {
+    "per_alpha": [
+      {
+        "alpha": 0.0,
+        "bt_deviance": 0.0002689110197066151,
+        "n_seeds": 5,
+        "gap_mean": -0.001593267731712289,
+        "gap_ci95_low": -0.002500555257030479,
+        "gap_ci95_high": -0.0006702363448208626
+      },
+      {
+        "alpha": 0.25,
+        "bt_deviance": 0.020185706957567745,
+        "n_seeds": 5,
+        "gap_mean": -0.010386249657625713,
+        "gap_ci95_low": -0.016518175513234156,
+        "gap_ci95_high": -0.004254323802017268
+      },
+      {
+        "alpha": 0.5,
+        "bt_deviance": 0.08130004741069151,
+        "n_seeds": 5,
+        "gap_mean": 0.10512430501104697,
+        "gap_ci95_low": 0.08923809847573969,
+        "gap_ci95_high": 0.12176700473994247
+      },
+      {
+        "alpha": 0.75,
+        "bt_deviance": 0.18823648512112642,
+        "n_seeds": 5,
+        "gap_mean": 0.4651033971862293,
+        "gap_ci95_low": 0.41702779430442416,
+        "gap_ci95_high": 0.5071432843408623
+      },
+      {
+        "alpha": 1.0,
+        "bt_deviance": 0.3510243458724186,
+        "n_seeds": 5,
+        "gap_mean": 1.1724010925622022,
+        "gap_ci95_low": 0.9938409138368215,
+        "gap_ci95_high": 1.3756508976651385
+      }
+    ],
+    "slope_vs_bt_deviance": 3.4202790191222934,
+    "gap_at_max_alpha": {
+      "alpha": 1.0,
+      "bt_deviance": 0.3510243458724186,
+      "n_seeds": 5,
+      "gap_mean": 1.1724010925622022,
+      "gap_ci95_low": 0.9938409138368215,
+      "gap_ci95_high": 1.3756508976651385
+    }
+  },
+  "nbpo_minus_bt_rm_nash": {
+    "per_alpha": [
+      {
+        "alpha": 0.0,
+        "bt_deviance": 0.0002689110197066151,
+        "n_seeds": 5,
+        "gap_mean": -0.0014036890532153068,
+        "gap_ci95_low": -0.002360057271662397,
+        "gap_ci95_high": -0.0004355588205336991
+      },
+      {
+        "alpha": 0.25,
+        "bt_deviance": 0.020185706957567745,
+        "n_seeds": 5,
+        "gap_mean": -0.010232610415260445,
+        "gap_ci95_low": -0.016403466021771496,
+        "gap_ci95_high": -0.004061754808749396
+      },
+      {
+        "alpha": 0.5,
+        "bt_deviance": 0.08130004741069151,
+        "n_seeds": 5,
+        "gap_mean": 0.10527471884740429,
+        "gap_ci95_low": 0.08941295665903644,
+        "gap_ci95_high": 0.12175157378337856
+      },
+      {
+        "alpha": 0.75,
+        "bt_deviance": 0.18823648512112642,
+        "n_seeds": 5,
+        "gap_mean": 0.46542158816883106,
+        "gap_ci95_low": 0.4173111248795617,
+        "gap_ci95_high": 0.5076779107306459
+      },
+      {
+        "alpha": 1.0,
+        "bt_deviance": 0.3510243458724186,
+        "n_seeds": 5,
+        "gap_mean": 1.173334142463054,
+        "gap_ci95_low": 0.9951843855049407,
+        "gap_ci95_high": 1.375441053889468
+      }
+    ],
+    "slope_vs_bt_deviance": 3.4224242493694725,
+    "gap_at_max_alpha": {
+      "alpha": 1.0,
+      "bt_deviance": 0.3510243458724186,
+      "n_seeds": 5,
+      "gap_mean": 1.173334142463054,
+      "gap_ci95_low": 0.9951843855049407,
+      "gap_ci95_high": 1.375441053889468
+    }
+  },
+  "nbpo_minus_bt_rm_utilitarian": {
+    "per_alpha": [
+      {
+        "alpha": 0.0,
+        "bt_deviance": 0.0002689110197066151,
+        "n_seeds": 5,
+        "gap_mean": 0.014100518133778328,
+        "gap_ci95_low": 0.007679018874593014,
+        "gap_ci95_high": 0.023831204670189086
+      },
+      {
+        "alpha": 0.25,
+        "bt_deviance": 0.020185706957567745,
+        "n_seeds": 5,
+        "gap_mean": 0.001827776563864747,
+        "gap_ci95_low": -0.00549230027237928,
+        "gap_ci95_high": 0.008574033969592021
+      },
+      {
+        "alpha": 0.5,
+        "bt_deviance": 0.08130004741069151,
+        "n_seeds": 5,
+        "gap_mean": 0.113880155117983,
+        "gap_ci95_low": 0.09908439535995348,
+        "gap_ci95_high": 0.13558322098832382
+      },
+      {
+        "alpha": 0.75,
+        "bt_deviance": 0.18823648512112642,
+        "n_seeds": 5,
+        "gap_mean": 0.47038621455447877,
+        "gap_ci95_low": 0.4194954566525696,
+        "gap_ci95_high": 0.518223917894711
+      },
+      {
+        "alpha": 1.0,
+        "bt_deviance": 0.3510243458724186,
+        "n_seeds": 5,
+        "gap_mean": 1.1793811356758668,
+        "gap_ci95_low": 0.9979720006461609,
+        "gap_ci95_high": 1.390424195423335
+      }
+    ],
+    "slope_vs_bt_deviance": 3.3979365867870053,
+    "gap_at_max_alpha": {
+      "alpha": 1.0,
+      "bt_deviance": 0.3510243458724186,
+      "n_seeds": 5,
+      "gap_mean": 1.1793811356758668,
+      "gap_ci95_low": 0.9979720006461609,
+      "gap_ci95_high": 1.390424195423335
+    }
+  },
+  "nbpo_minus_game_utilitarian": {
+    "per_alpha": [
+      {
+        "alpha": 0.0,
+        "bt_deviance": 0.0002689110197066151,
+        "n_seeds": 5,
+        "gap_mean": 0.015653475890974166,
+        "gap_ci95_low": 0.009119257037783223,
+        "gap_ci95_high": 0.026167904398396048
+      },
+      {
+        "alpha": 0.25,
+        "bt_deviance": 0.020185706957567745,
+        "n_seeds": 5,
+        "gap_mean": 0.01404620678619919,
+        "gap_ci95_low": 0.006961226754828309,
+        "gap_ci95_high": 0.026517683320802222
+      },
+      {
+        "alpha": 0.5,
+        "bt_deviance": 0.08130004741069151,
+        "n_seeds": 5,
+        "gap_mean": 0.013565200898557927,
+        "gap_ci95_low": 0.005766945958057046,
+        "gap_ci95_high": 0.025029672905706457
+      },
+      {
+        "alpha": 0.75,
+        "bt_deviance": 0.18823648512112642,
+        "n_seeds": 5,
+        "gap_mean": 0.01645434438356035,
+        "gap_ci95_low": 0.0081970940721938,
+        "gap_ci95_high": 0.028848339170264393
+      },
+      {
+        "alpha": 1.0,
+        "bt_deviance": 0.3510243458724186,
+        "n_seeds": 5,
+        "gap_mean": 0.023199678601407703,
+        "gap_ci95_low": 0.010017667356417848,
+        "gap_ci95_high": 0.04286219770988335
+      }
+    ],
+    "slope_vs_bt_deviance": 0.023968589848359444,
+    "gap_at_max_alpha": {
+      "alpha": 1.0,
+      "bt_deviance": 0.3510243458724186,
+      "n_seeds": 5,
+      "gap_mean": 0.023199678601407703,
+      "gap_ci95_low": 0.010017667356417848,
+      "gap_ci95_high": 0.04286219770988335
+    }
+  },
+  "nbpo_minus_game_ks": {
+    "per_alpha": [
+      {
+        "alpha": 0.0,
+        "bt_deviance": 0.0002689110197066151,
+        "n_seeds": 5,
+        "gap_mean": -0.01199076515128381,
+        "gap_ci95_low": -0.03281939067999673,
+        "gap_ci95_high": 0.002403173746747367
+      },
+      {
+        "alpha": 0.25,
+        "bt_deviance": 0.020185706957567745,
+        "n_seeds": 5,
+        "gap_mean": -0.008278334940307875,
+        "gap_ci95_low": -0.02618979227232523,
+        "gap_ci95_high": 0.0031173283437954113
+      },
+      {
+        "alpha": 0.5,
+        "bt_deviance": 0.08130004741069151,
+        "n_seeds": 5,
+        "gap_mean": -0.007501084119954937,
+        "gap_ci95_low": -0.02748066218867016,
+        "gap_ci95_high": 0.008219983103366867
+      },
+      {
+        "alpha": 0.75,
+        "bt_deviance": 0.18823648512112642,
+        "n_seeds": 5,
+        "gap_mean": -0.0024095209414696896,
+        "gap_ci95_low": -0.02306337906661491,
+        "gap_ci95_high": 0.012801773182147947
+      },
+      {
+        "alpha": 1.0,
+        "bt_deviance": 0.3510243458724186,
+        "n_seeds": 5,
+        "gap_mean": -0.0007157258852508175,
+        "gap_ci95_low": -0.023962035570863606,
+        "gap_ci95_high": 0.019230131022955167
+      }
+    ],
+    "slope_vs_bt_deviance": 0.029656026610288416,
+    "gap_at_max_alpha": {
+      "alpha": 1.0,
+      "bt_deviance": 0.3510243458724186,
+      "n_seeds": 5,
+      "gap_mean": -0.0007157258852508175,
+      "gap_ci95_low": -0.023962035570863606,
+      "gap_ci95_high": 0.019230131022955167
+    }
+  },
+  "matched_controls_degrade_relative_to_nbpo": true,
+  "condition": "the pre-registered condition is that the matched controls DEGRADE relative to converged practical NBPO as intransitivity rises; it is checked as a strictly positive bootstrap lower bound on the paired gap at the largest alpha, for BOTH matched controls"
+}

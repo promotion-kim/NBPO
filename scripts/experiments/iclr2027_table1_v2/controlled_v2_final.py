@@ -397,7 +397,7 @@ def write_outputs(rows, out_dir: Path):
         agg.setdefault((r["alpha"], r["method"]), []).append(r)
     m = lambda v: (sum(v) / len(v)) if v else None
     sd = lambda v: statistics.stdev(v) if len(v) > 1 else 0.0
-    lines = ["alpha,method,n_seeds,n_converged,bt_deviance,rho_star,"
+    lines = ["alpha,method,n_seeds,n_converged,n_used,expected_non_convergent,bt_deviance,rho_star,"
              "min_surplus_mean,min_surplus_std,normalized_min_surplus_mean,"
              "normalized_min_surplus_std,avg_surplus_mean,nash_welfare_mean,"
              "exploitability_mean,kl_from_reference_mean,raw_multiplier_l1_mean,"
@@ -405,13 +405,20 @@ def write_outputs(rows, out_dir: Path):
              "max_projected_kkt,max_inner_fixed_point"]
     for (alpha, meth), rs in sorted(agg.items(), key=lambda kv: (kv[0][0],
                                                                 METHODS.index(kv[0][1]))):
+        strict = [r for r in rs if r.get("status") == "ok" and r.get("converged")]
+        expected_nc = any(r.get("expected_non_convergent") for r in rs)
+        # The legacy R-step arm is USED despite never converging, because its
+        # non-convergence is the ablation's result. Reporting that as
+        # "n_converged" would tell a reader it converged, so the two counts are
+        # separate columns and the expectation is flagged.
         ok = [r for r in rs if r.get("status") == "ok"
               and (r.get("converged") or r.get("expected_non_convergent"))]
         g = lambda k, src=None: [x[k] for x in (src or ok)
                                  if x.get(k) is not None]
         f = lambda v: "" if v is None else v
         lines.append(",".join(map(str, [
-            alpha, meth, len(rs), len(ok), f(m(g("bt_deviance_per_edge", rs))),
+            alpha, meth, len(rs), len(strict), len(ok), expected_nc,
+            f(m(g("bt_deviance_per_edge", rs))),
             f(m(g("rho_star", rs))), f(m(g("min_surplus"))), f(sd(g("min_surplus"))),
             f(m(g("normalized_min_surplus"))), f(sd(g("normalized_min_surplus"))),
             f(m(g("avg_surplus"))), f(m(g("nash_welfare"))),
@@ -437,5 +444,24 @@ def write_outputs(rows, out_dir: Path):
     print(f"\nwrote {out_dir}/controlled_v2_{{per_seed,summary,runtime}}.csv")
 
 
+def regenerate() -> None:
+    """Rebuild the CSVs from `controlled_v2_raw.json` without re-solving anything.
+
+    A bug in how results are *reported* must never cost hours of solver time to
+    correct, so the raw per-cell record is the source of truth and the tables are
+    derived from it.
+    """
+    ap = argparse.ArgumentParser(description=regenerate.__doc__)
+    ap.add_argument("--out-dir", type=Path, required=True)
+    a = ap.parse_args()
+    raw = json.loads((a.out_dir / "controlled_v2_raw.json").read_text())
+    write_outputs(raw["rows"], a.out_dir)
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+    if "--regenerate" in sys.argv:
+        sys.argv.remove("--regenerate")
+        regenerate()
+    else:
+        main()
