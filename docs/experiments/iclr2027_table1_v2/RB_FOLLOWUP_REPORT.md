@@ -52,6 +52,29 @@ alongside `nMSE_var`; they differ in the fourth decimal here, so nothing turns o
 the choice. Each arm is scored at its OWN training eta -- arms at different eta
 solved different proximal problems and must not share one target.
 
+## 2b. How much of the correlation survives uncertainty
+
+Pairs within a prompt share its responses and its target row, so they are not
+independent draws; the resampling unit is the prompt. Bootstrap Pearson, 2000
+resamples over the 150 held-out test prompts:
+
+| arm | test Pearson | 95% CI | excludes 0 |
+|---|---|---|---|
+| eta = 1.0, sampled | −0.026 | [−0.056, +0.006] | no |
+| lr = 2e-7, sampled | −0.008 | [−0.041, +0.027] | no |
+| RB, 300 | +0.025 | [−0.031, +0.084] | **no** |
+| RB, clip 100 | +0.064 | [+0.007, +0.123] | barely |
+| RB, 1200 | +0.089 | [+0.039, +0.144] | **yes** |
+
+This corrects a reading in the earlier note. The 300-step Rao-Blackwell arm was
+described as the first with positive correlation on both halves; its interval
+includes zero, so it is not distinguishable from no correlation at all. Only the
+1200-step arm is. That is what makes the under-training reading a measurement
+rather than an impression -- and it is also a reminder of the size involved: a
+correlation of 0.089 is a long way from a normalized MSE below 0.90.
+
+This is a reporting interval, not a new gate.
+
 ## 3. Target identity and noise audit
 
 The three quantities the manuscript's Eq. (24)-(27) relate, checked against the
