@@ -1,0 +1,174 @@
+{
+  "objectives": [
+    "helpfulness",
+    "harmlessness"
+  ],
+  "beta": [
+    0.25,
+    0.25
+  ],
+  "acceptance_rule": "Algorithm 1 promotes a candidate only if the held-out empirical surplus is positive for EVERY objective",
+  "pool_note": "the candidate is renormalized over the frozen response pool, which is the set the finite-pool problem optimizes over",
+  "arms": {
+    "pi_t_uniform_BASELINE": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_surplus": -0.01251363561852102,
+            "fraction_prompts_positive": 0.4266666666666667
+          },
+          "harmlessness": {
+            "mean_surplus": -0.012644847806102822,
+            "fraction_prompts_positive": 0.38
+          }
+        },
+        "worst_objective_mean_surplus": -0.012644847806102822,
+        "accepts": false
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_surplus": -0.003501345741211903,
+            "fraction_prompts_positive": 0.46
+          },
+          "harmlessness": {
+            "mean_surplus": -0.0019231930076030824,
+            "fraction_prompts_positive": 0.47333333333333333
+          }
+        },
+        "worst_objective_mean_surplus": -0.003501345741211903,
+        "accepts": false
+      }
+    },
+    "eta1p0": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_surplus": -0.031246222135937956,
+            "fraction_prompts_positive": 0.34
+          },
+          "harmlessness": {
+            "mean_surplus": -0.028310710964801256,
+            "fraction_prompts_positive": 0.34
+          }
+        },
+        "worst_objective_mean_surplus": -0.031246222135937956,
+        "accepts": false
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_surplus": -0.01971795285808189,
+            "fraction_prompts_positive": 0.38
+          },
+          "harmlessness": {
+            "mean_surplus": -0.016756491198940182,
+            "fraction_prompts_positive": 0.4066666666666667
+          }
+        },
+        "worst_objective_mean_surplus": -0.01971795285808189,
+        "accepts": false
+      }
+    },
+    "lr2em7": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_surplus": -0.03126179905906407,
+            "fraction_prompts_positive": 0.34
+          },
+          "harmlessness": {
+            "mean_surplus": -0.028344913226833832,
+            "fraction_prompts_positive": 0.3466666666666667
+          }
+        },
+        "worst_objective_mean_surplus": -0.03126179905906407,
+        "accepts": false
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_surplus": -0.020801142065111307,
+            "fraction_prompts_positive": 0.36666666666666664
+          },
+          "harmlessness": {
+            "mean_surplus": -0.01806308944398774,
+            "fraction_prompts_positive": 0.4066666666666667
+          }
+        },
+        "worst_objective_mean_surplus": -0.020801142065111307,
+        "accepts": false
+      }
+    },
+    "DIAGrb": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_surplus": -0.031625882303682885,
+            "fraction_prompts_positive": 0.3466666666666667
+          },
+          "harmlessness": {
+            "mean_surplus": -0.028593830543130257,
+            "fraction_prompts_positive": 0.34
+          }
+        },
+        "worst_objective_mean_surplus": -0.031625882303682885,
+        "accepts": false
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_surplus": -0.02002161858749718,
+            "fraction_prompts_positive": 0.37333333333333335
+          },
+          "harmlessness": {
+            "mean_surplus": -0.017291555019513648,
+            "fraction_prompts_positive": 0.4266666666666667
+          }
+        },
+        "worst_objective_mean_surplus": -0.02002161858749718,
+        "accepts": false
+      }
+    },
+    "DIAGrb_steps1200": {
+      "validation": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_surplus": -0.030933664218747565,
+            "fraction_prompts_positive": 0.35333333333333333
+          },
+          "harmlessness": {
+            "mean_surplus": -0.027951722827081735,
+            "fraction_prompts_positive": 0.3466666666666667
+          }
+        },
+        "worst_objective_mean_surplus": -0.030933664218747565,
+        "accepts": false
+      },
+      "test": {
+        "n_prompts": 150,
+        "per_objective": {
+          "helpfulness": {
+            "mean_surplus": -0.018471327105145475,
+            "fraction_prompts_positive": 0.38
+          },
+          "harmlessness": {
+            "mean_surplus": -0.01599627788518873,
+            "fraction_prompts_positive": 0.43333333333333335
+          }
+        },
+        "worst_objective_mean_surplus": -0.018471327105145475,
+        "accepts": false
+      }
+    }
+  }
+}
