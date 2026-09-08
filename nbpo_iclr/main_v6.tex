@@ -45,7 +45,7 @@
 \maketitle
 
 \begin{abstract}
-Aligning one large language model (LLM) to several objectives requires two decisions: how to represent preferences within each objective and how to choose one compromise across objectives. The first decision is difficult because pairwise judgments can be cyclic in realistic settings. For a medical-advice prompt, annotators may prefer a concise answer to a verbose one, the verbose answer to an incomplete one, yet the incomplete answer to the concise one because it includes a critical safety caveat. No scalar ranking can satisfy all three comparisons. Nash Learning from Human Feedback avoids this restriction by treating pairwise preferences as game payoffs, but its multi-objective extensions still require an aggregation rule. We introduce Nash Bargaining Preference Optimization (\NBPO{}), which evaluates each objective through a regularized preference game and applies Nash bargaining to its improvement over a common reference policy. Our main technical contribution is a practical optimizer for these policy-dependent game values: a constrained KL-proximal update handles zero surplus at the reference, a prompt-separable finite-pool solve accounts for adaptive opponents, and pairwise log-ratio regression transfers the resulting policy target to an LLM without evaluating an intractable normalizer. Under exact population updates, the final iterate achieves convergence with rate $O(1/T)$. Controlled experiments show that adaptive game-valued objectives remain robust as preference nontransitivity increases, while natural multi-objective experiments evaluate Nash bargaining under conflicting alignment objectives.
+Aligning one large language model (LLM) to several objectives requires two decisions: how to represent preferences within each objective and how to choose one compromise across objectives. The first decision is difficult because pairwise judgments can be cyclic in realistic settings. For a medical-advice prompt, annotators may prefer a concise answer to a verbose one, the verbose answer to an incomplete one, yet the incomplete answer to the concise one because it includes a critical safety caveat. No scalar ranking can satisfy all three comparisons. Nash Learning from Human Feedback avoids this restriction by treating pairwise preferences as game payoffs, but its multi-objective extensions still require an aggregation rule. We introduce Nash Bargaining Preference Optimization (\NBPO{}), which evaluates each objective through a regularized preference game and applies Nash bargaining to its improvement over a common reference policy. Our main technical contribution is a practical optimizer for these policy-dependent game values: a constrained KL-proximal update handles zero surplus at the reference, a prompt-separable finite-pool solve accounts for adaptive opponents, and a pairwise log-ratio regression objective states the resulting policy target for an LLM without evaluating an intractable normalizer. Realizing that target in an 8B policy remains open: our diagnostics do not yet meet the pre-registered regression criteria. Under exact population updates, the final iterate achieves convergence with rate $O(1/T)$. Controlled experiments show that adaptive game-valued objectives remain robust as preference nontransitivity increases, while natural multi-objective experiments evaluate Nash bargaining under conflicting alignment objectives.
 \end{abstract}
 
 \section{Introduction}
@@ -58,14 +58,14 @@ Nash Learning from Human Feedback (NLHF) avoids this misspecification by treatin
 
 Classical Nash bargaining offers a priority-free way to select one compromise. It maximizes the product of each objective's improvement over a common fallback \citep{nash1950}. In alignment, the reference policy provides a natural fallback: an aligned policy should improve each objective relative to the model that would otherwise be deployed. The classical Nash solution is Pareto optimal and invariant to independent changes in the units used for different objectives. Prior alignment work has applied Nash welfare to learned scalar rewards, while game-based preference methods have focused mainly on minimax or Blackwell solutions \citep{zhong2024nashwelfare,navon2022nashmtl,zhang2026prosper}. What remains is a practical method for Nash bargaining when every objective value is itself defined by a policy-dependent preference game rather than by a fixed scalar reward.
 
-We introduce Nash Bargaining Preference Optimization (\NBPO{}) for this setting. Within each objective, \NBPO{} evaluates the learner against an adaptive opponent that emphasizes responses exposing the learner's weaknesses, while a KL penalty keeps the opponent near the reference policy. Across objectives, it maximizes the Nash product of the resulting improvements over that same reference. The standard bargaining properties are useful in LLM alignment because they ensure that no objective falls below the fallback at the population optimum, no other feasible policy can improve one objective without worsening another, and arbitrary judge-specific units do not alter the selected compromise.
+We introduce Nash Bargaining Preference Optimization (\NBPO{}) for this setting. Within each objective, \NBPO{} evaluates the learner against an adaptive opponent that emphasizes responses exposing the learner's weaknesses, while a KL penalty keeps the opponent near the reference policy. Across objectives, it maximizes the Nash product of the resulting improvements over that same reference. The classical bargaining properties matter here: at the population optimum no objective falls below the fallback, the outcome is Pareto efficient, and judge-specific units do not move the compromise.
 
-The main technical challenge is optimization, not re-deriving the classical bargaining axioms. Three issues arise simultaneously: the reference policy has zero improvement and lies on the boundary of the logarithmic objective; each adaptive opponent depends on the policy being optimized; and an LLM cannot directly realize the normalized finite-action policy update. We address them with a constrained KL-proximal formulation, a low-dimensional dual whose weights are inversely proportional to achieved improvements, a prompt-separable direct solve of the finite-pool inner problem, and partition-free pairwise log-ratio regression that projects the finite-pool target into the language model.
+The main technical challenge is optimization, not re-deriving the classical bargaining axioms. Three issues arise simultaneously: the reference policy has zero improvement and lies on the boundary of the logarithmic objective; each adaptive opponent depends on the policy being optimized; and an LLM cannot directly realize the normalized finite-action policy update. We address them with a constrained KL-proximal formulation, a low-dimensional dual whose weights are inversely proportional to achieved improvements, a prompt-separable direct solve of the finite-pool inner problem, and a partition-free pairwise log-ratio regression objective for projecting the finite-pool target into the language model.
 
 Our contributions are:
 \begin{itemize}
     \item We formulate multi-objective alignment as Nash bargaining over objective-wise regularized preference-game values, separating within-objective preference representation from across-objective compromise selection.
-    \item We derive a practical optimizer that handles the zero-surplus boundary and policy-dependent opponents. For each dual iterate, the sampled finite-pool problem separates into small strictly concave prompt-wise programs; their target policy is transferred to the LLM through pairwise log-ratio regression without fitting a scalar reward or evaluating a language-model partition function.
+    \item We derive a practical optimizer that handles the zero-surplus boundary and policy-dependent opponents. For each dual iterate, the sampled finite-pool problem separates into small strictly concave prompt-wise programs; their target policy is expressed for the LLM as a pairwise log-ratio regression objective, without fitting a scalar reward or evaluating a language-model partition function. We report its realization diagnostics rather than a passing result.
     \item We prove $O(1/T)$ last-iterate convergence for exact population proximal updates. Feasibility-preserving controlled experiments isolate the benefit of adaptive game values under increasing nontransitivity, while a human-labeled \textsc{SafeRLHF} panel is reserved for testing Nash aggregation under natural objective conflict. Released natural datasets are not treated as evidence of within-objective cycles unless their comparison graphs identify such cycles.
 \end{itemize}
 
@@ -503,24 +503,7 @@ PROSPER/MaxEntBW$^\ddagger$ & \pending & \pending & \pending & \pending & \pendi
 \label{sec:neural-general}
 Before final seeds, a one-seed smoke test must show that the 8B policy learns the finite-pool log-ratio target: held-out normalized regression MSE below $0.90$, sign agreement above $0.65$, positive Pearson and Spearman correlations, and direct-solver residual below $10^{-4}$. Final checkpoints are then evaluated on task-specific and general benchmarks without using the retired prompted-Qwen judge. In-domain SafeRLHF reward/cost models are labeled as diagnostics; deterministic metrics and blinded human comparisons provide complementary evidence.
 
-\begin{table*}[t]
-\centering\scriptsize
-\setlength{\tabcolsep}{3.2pt}
-\caption{General capability and safety transfer of the frozen \textsc{SafeRLHF}-trained checkpoints. Official metrics where available; a local pairwise score is named ``reference win'', never presented as the official metric. Mean $\pm$ standard deviation over three training seeds; em-dash: run not completed.}
-\label{tab:general-capability}
-\begin{tabular}{lrrrrr}
-\toprule
-method & Arena-Hard ref. win & AlpacaEval-2 LC & IFEval strict & TruthfulQA MC2 & HarmBench ASR $\downarrow$\\
-\midrule
-Base $=\piref$ & $0.500$ & \pending & \pending & \pending & \pending\\
-\NBPO{} (ours) & \pending & \pending & \pending & \pending & \pending\\
-Fixed-reference Nash & \pending & \pending & \pending & \pending & \pending\\
-BT-RM--Nash & \pending & \pending & \pending & \pending & \pending\\
-Game-utilitarian & \pending & \pending & \pending & \pending & \pending\\
-Game-KS & \pending & \pending & \pending & \pending & \pending\\
-\bottomrule
-\end{tabular}
-\end{table*}
+
 
 \FloatBarrier
 \section{Related Work}
@@ -537,7 +520,7 @@ The Nash solution and its Pareto, uniqueness, and affine-invariance properties a
 \section{Conclusion and Limitations}
 \label{sec:conclusion}
 \NBPO{} separates two decisions in multi-objective alignment: adaptive game values represent general pairwise preferences within each objective, and Nash bargaining selects one reference-relative compromise across objectives. The constrained proximal formulation inherits the classical Nash outcome properties and admits an $O(1/T)$ exact-population last-iterate guarantee. Practically, a direct prompt-separable finite-pool inner solve is necessary: it reproduces the exact proximal target, whereas a naive alternating opponent--policy map can oscillate under strong nontransitivity. Feasibility-preserving experiments support the representation claim, with adaptive-game methods staying stable as scalar-reward and fixed-reference representations deteriorate; the natural \textsc{SafeRLHF} panel separately tests the aggregation claim.
-The evidence has clear limits. The controlled nontransitivity study is constructed, not a measurement of natural human cycles: the released datasets used here do not densely compare response triples, so they cannot establish within-objective human intransitivity. The SafeRLHF preference models may face distribution shift on newly generated responses, and the neural policy only approximates the finite-pool target. Nash is not empirically superior to Game-KS in the controlled panel, so any natural aggregation claim rests on Table~\ref{tab:saferlhf-main}. Finally, Assumption~\ref{ass:joint} fails when no policy improves every objective over the reference, and game-value improvements are averages, not per-prompt safety guarantees.
+The evidence has clear limits. The controlled study is constructed, not a measurement of natural human cycles: the released datasets do not densely compare response triples, so they cannot establish within-objective intransitivity. More importantly, our 8B policies do not yet realize the finite-pool target on held-out prompts --- the regression diagnostics in Appendix~\ref{app:solver-neural} do not meet the pre-registered criteria, so the LLM results are a report on that objective rather than a demonstration of it. Nash is also not empirically superior to Game-KS here, and Assumption~\ref{ass:joint} fails when no policy improves every objective; game values are averages, not per-prompt guarantees.
 
 \subsection*{AI use statement}
 In this work, generative AI tools were used to critique the problem formulation, assist with mathematical derivations and proof presentation, propose experimental checks, and edit manuscript text. The authors are responsible for independently verifying every theorem, citation, implementation, empirical result, and disclosure in the final submission.
@@ -1285,6 +1268,28 @@ The direct inner solve is exact only for the declared finite response pool and n
 \end{table*}
 
 \section{Evaluation Protocol}
+% Parked in the appendix while every cell is still pending: with no data it
+% carries no information in the body, and the 9-page limit is real. Move it
+% back to Section 6 once the capability runs land.
+\begin{table*}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\caption{General capability and safety transfer of the frozen \textsc{SafeRLHF}-trained checkpoints. Official metrics where available; a local pairwise score is named ``reference win'', never presented as the official metric. Mean $\pm$ standard deviation over three training seeds; em-dash: run not completed.}
+\label{tab:general-capability}
+\begin{tabular}{lrrrrr}
+\toprule
+method & Arena-Hard ref. win & AlpacaEval-2 LC & IFEval strict & TruthfulQA MC2 & HarmBench ASR $\downarrow$\\
+\midrule
+Base $=\piref$ & $0.500$ & \pending & \pending & \pending & \pending\\
+\NBPO{} (ours) & \pending & \pending & \pending & \pending & \pending\\
+Fixed-reference Nash & \pending & \pending & \pending & \pending & \pending\\
+BT-RM--Nash & \pending & \pending & \pending & \pending & \pending\\
+Game-utilitarian & \pending & \pending & \pending & \pending & \pending\\
+Game-KS & \pending & \pending & \pending & \pending & \pending\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
 \label{app:evaluation}
 \paragraph{Natural objective evaluation.}
 The preferred headline evaluation is a blinded human comparison against the common reference, with helpfulness and harmlessness collected as separate tasks. Method identity is hidden, response order and opaque identifiers are randomized independently, ties are allowed, and individual votes are retained. Automatic Beaver reward/cost scores are reported only as in-domain diagnostics because those evaluators are trained from SafeRLHF-family supervision. HarmBench, IFEval, TruthfulQA, Arena-Hard, and AlpacaEval provide complementary safety and capability checks.
