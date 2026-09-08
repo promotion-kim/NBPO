@@ -1,0 +1,336 @@
+{
+  "config": {
+    "splits_dir": "/root/sr_splits",
+    "out_dir": "/work/iclr27_table1_v2/saferlhf_ensemble",
+    "encoder": "roberta-base",
+    "width": "512",
+    "bt_width": "768",
+    "dropout": "0.1",
+    "max_len": "384",
+    "batch_size": "32",
+    "epochs": "2",
+    "lr": "1e-05",
+    "weight_decay": "0.01",
+    "clip": "1.0",
+    "seed": "42",
+    "workers": "4",
+    "log_every": "1000",
+    "limit_train": "None",
+    "models": "['gpm', 'bt']",
+    "save_predictions": "True"
+  },
+  "split_manifest_prompt_hashes": {
+    "train": "01251ff0ff1521914d43064c4686ba70d4f6bd9ca2fd5239291038c02b2dae46",
+    "validation": "9f96ee3eaf0d3896e99cccdbb48c91aaebfd991afff3de76ee000766ff1597f8",
+    "test": "132a0551290c962ed3135135518130f3399944e1ac217cc3b4abf23438f09aca"
+  },
+  "observed_three_cycles": {
+    "train": {
+      "helpfulness": 0,
+      "harmlessness": 0
+    },
+    "validation": {
+      "helpfulness": 0,
+      "harmlessness": 0
+    },
+    "test": {
+      "helpfulness": 0,
+      "harmlessness": 0
+    }
+  },
+  "models": {
+    "gpm": {
+      "kind": "gpm",
+      "train_seconds": 349.69899106025696,
+      "head_parameters": 1837058,
+      "total_parameters": 126482690,
+      "optimizer_steps": 3728,
+      "validation": {
+        "exactness": {
+          "max_antisymmetry_residual": 1.1920928955078125e-07,
+          "max_self_tie_residual": 0.0
+        },
+        "per_objective": {
+          "helpfulness": {
+            "nll": 0.5661014471812623,
+            "accuracy": 0.7079694323144105,
+            "balanced_accuracy": 0.7134279426810199,
+            "roc_auc": 0.7915740359434017,
+            "brier": 0.1904851049174051,
+            "ece": 0.1237897922900784,
+            "base_rate": 0.3640829694323144,
+            "n": 7328,
+            "logit_vs_length_difference_pearson": 0.39874736599060134
+          },
+          "harmlessness": {
+            "nll": 0.5340455249529484,
+            "accuracy": 0.7214792576419214,
+            "balanced_accuracy": 0.7446182216039186,
+            "roc_auc": 0.8353077087499637,
+            "brier": 0.17998252345590326,
+            "ece": 0.17623642684850385,
+            "base_rate": 0.2893013100436681,
+            "n": 7328,
+            "logit_vs_length_difference_pearson": 0.08328649134806432
+          }
+        }
+      },
+      "test": {
+        "exactness": {
+          "max_antisymmetry_residual": 1.1920928955078125e-07,
+          "max_self_tie_residual": 0.0
+        },
+        "per_objective": {
+          "helpfulness": {
+            "nll": 0.5587247459203414,
+            "accuracy": 0.7127246585190511,
+            "balanced_accuracy": 0.7211577066176947,
+            "roc_auc": 0.7983291692552563,
+            "brier": 0.1884521724676572,
+            "ece": 0.12351140264116392,
+            "base_rate": 0.3636232925952552,
+            "n": 6955,
+            "logit_vs_length_difference_pearson": 0.4268710185808519
+          },
+          "harmlessness": {
+            "nll": 0.5257586676637754,
+            "accuracy": 0.7258087706685837,
+            "balanced_accuracy": 0.7508447571590496,
+            "roc_auc": 0.843841247614283,
+            "brier": 0.17734060590342504,
+            "ece": 0.17408417402212606,
+            "base_rate": 0.2923076923076923,
+            "n": 6955,
+            "logit_vs_length_difference_pearson": 0.09653964137755099
+          }
+        }
+      },
+      "predicted_cycles_test": {
+        "per_objective": {
+          "helpfulness": {
+            "triples": 3392,
+            "cycles": 0,
+            "prompts_with_a_cycle": 0,
+            "cycle_rate": 0.0
+          },
+          "harmlessness": {
+            "triples": 3392,
+            "cycles": 0,
+            "prompts_with_a_cycle": 0,
+            "cycle_rate": 0.0
+          }
+        },
+        "n_prompts_scored": 400,
+        "max_cyclic_logit_residual_on_real_encodings": 2.2752304077148438,
+        "note": "PREDICTED, not observed. The human annotation graph contains zero triangles, so these triples were never compared by people."
+      },
+      "not_scalar_decomposable_random_inputs": {
+        "max_cyclic_residual": 0.09937350451946259,
+        "triple": [
+          0,
+          2,
+          5
+        ],
+        "scalar_decomposable": false,
+        "note": "a scalar reward model has residual 0 for every triple; a materially nonzero residual proves this model can represent a cyclic preference"
+      },
+      "provenance": {
+        "encoder_name": "roberta-base",
+        "adaptation_mode": "full_finetune",
+        "n_objectives": 2,
+        "hidden_size": 768,
+        "head_width": 512,
+        "train_split_sha256": null,
+        "label_source": "PKU-SafeRLHF released better_response_id/safer_response_id",
+        "extra": {},
+        "fingerprint": "1dc52bacc7737f277238b25730f8984e559c5919bea64694aefb1799c1c63a0f",
+        "architecture": "joint pair encoder + explicit antisymmetrization",
+        "guarantees": [
+          "P(y>z) + P(z>y) == 1 exactly",
+          "P(y>y) == 0.5 exactly",
+          "not decomposable into r(y) - r(z)"
+        ]
+      }
+    },
+    "bt": {
+      "kind": "bt",
+      "train_seconds": 311.51136302948,
+      "head_parameters": 1772546,
+      "total_parameters": 126418178,
+      "optimizer_steps": 3728,
+      "validation": {
+        "exactness": {
+          "max_antisymmetry_residual": 1.1920928955078125e-07,
+          "max_self_tie_residual": 0.0
+        },
+        "per_objective": {
+          "helpfulness": {
+            "nll": 0.5682689605472803,
+            "accuracy": 0.709061135371179,
+            "balanced_accuracy": 0.71420620162022,
+            "roc_auc": 0.789594044179627,
+            "brier": 0.19086200215849,
+            "ece": 0.12420396667799874,
+            "base_rate": 0.3640829694323144,
+            "n": 7328,
+            "logit_vs_length_difference_pearson": 0.39491526610204686
+          },
+          "harmlessness": {
+            "nll": 0.5346250411722108,
+            "accuracy": 0.7207969432314411,
+            "balanced_accuracy": 0.7432991334086891,
+            "roc_auc": 0.834694084572356,
+            "brier": 0.17992466123475975,
+            "ece": 0.17840022002903128,
+            "base_rate": 0.2893013100436681,
+            "n": 7328,
+            "logit_vs_length_difference_pearson": 0.08581919920755392
+          }
+        }
+      },
+      "test": {
+        "exactness": {
+          "max_antisymmetry_residual": 1.1920928955078125e-07,
+          "max_self_tie_residual": 0.0
+        },
+        "per_objective": {
+          "helpfulness": {
+            "nll": 0.5640769137680773,
+            "accuracy": 0.7121495327102804,
+            "balanced_accuracy": 0.7194347645933471,
+            "roc_auc": 0.7955336711409288,
+            "brier": 0.18954628762673012,
+            "ece": 0.1261050953338079,
+            "base_rate": 0.3636232925952552,
+            "n": 6955,
+            "logit_vs_length_difference_pearson": 0.4265795287898356
+          },
+          "harmlessness": {
+            "nll": 0.5228205661678138,
+            "accuracy": 0.7311286843997125,
+            "balanced_accuracy": 0.7579236082893133,
+            "roc_auc": 0.8461945353915574,
+            "brier": 0.17602776272147364,
+            "ece": 0.17573563331515502,
+            "base_rate": 0.2923076923076923,
+            "n": 6955,
+            "logit_vs_length_difference_pearson": 0.09833917420997479
+          }
+        }
+      },
+      "predicted_cycles_test": {
+        "per_objective": {
+          "helpfulness": {
+            "triples": 3392,
+            "cycles": 0,
+            "prompts_with_a_cycle": 0,
+            "cycle_rate": 0.0
+          },
+          "harmlessness": {
+            "triples": 3392,
+            "cycles": 0,
+            "prompts_with_a_cycle": 0,
+            "cycle_rate": 0.0
+          }
+        },
+        "n_prompts_scored": 400,
+        "max_cyclic_logit_residual_on_real_encodings": 7.152557373046875e-07,
+        "note": "PREDICTED, not observed. The human annotation graph contains zero triangles, so these triples were never compared by people."
+      }
+    }
+  },
+  "gpm_vs_bt": {
+    "validation": {
+      "helpfulness": {
+        "delta_nll_gpm_minus_bt_mean": -0.0021709346448081385,
+        "delta_nll_gpm_minus_bt_ci95": [
+          -0.005691425490852997,
+          0.0013083429982468947
+        ],
+        "delta_accuracy_gpm_minus_bt_mean": -0.0011331615208944438,
+        "delta_accuracy_gpm_minus_bt_ci95": [
+          -0.007776261937244233,
+          0.0054339282517208275
+        ],
+        "n_bootstrap": 2000,
+        "resampling_unit": "prompt",
+        "constant_predictor": {
+          "nll": 0.6557757423856295,
+          "accuracy": 0.6359170305676856,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.5,
+          "brier": 0.23154707961228646,
+          "predicted_probability": 0.35955320005366964
+        }
+      },
+      "harmlessness": {
+        "delta_nll_gpm_minus_bt_mean": -0.0006102731028138362,
+        "delta_nll_gpm_minus_bt_ci95": [
+          -0.004767240010693813,
+          0.003678194822195407
+        ],
+        "delta_accuracy_gpm_minus_bt_mean": 0.0007407049908734293,
+        "delta_accuracy_gpm_minus_bt_ci95": [
+          -0.005712735372915309,
+          0.007173043152477789
+        ],
+        "n_bootstrap": 2000,
+        "resampling_unit": "prompt",
+        "constant_predictor": {
+          "nll": 0.6015266569715585,
+          "accuracy": 0.7106986899563319,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.5,
+          "brier": 0.20560678507226302,
+          "predicted_probability": 0.2901516167986046
+        }
+      }
+    },
+    "test": {
+      "helpfulness": {
+        "delta_nll_gpm_minus_bt_mean": -0.005325307711670267,
+        "delta_nll_gpm_minus_bt_ci95": [
+          -0.009180104293670244,
+          -0.0015857703579578483
+        ],
+        "delta_accuracy_gpm_minus_bt_mean": 0.0005782971608453654,
+        "delta_accuracy_gpm_minus_bt_ci95": [
+          -0.00562241282932841,
+          0.006735841268766993
+        ],
+        "n_bootstrap": 2000,
+        "resampling_unit": "prompt",
+        "constant_predictor": {
+          "nll": 0.6555103691511679,
+          "accuracy": 0.6363767074047448,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.5,
+          "brier": 0.2314179593307376,
+          "predicted_probability": 0.35955320005366964
+        }
+      },
+      "harmlessness": {
+        "delta_nll_gpm_minus_bt_mean": 0.002953189027344699,
+        "delta_nll_gpm_minus_bt_ci95": [
+          -0.0012085839034304575,
+          0.007049724104353515
+        ],
+        "delta_accuracy_gpm_minus_bt_mean": -0.005285305794496079,
+        "delta_accuracy_gpm_minus_bt_ci95": [
+          -0.011768209383806044,
+          0.0009957871896607757
+        ],
+        "n_bootstrap": 2000,
+        "resampling_unit": "prompt",
+        "constant_predictor": {
+          "nll": 0.6042163102486383,
+          "accuracy": 0.7076923076923076,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.5,
+          "brier": 0.20686855398704465,
+          "predicted_probability": 0.2901516167986046
+        }
+      }
+    }
+  }
+}
