@@ -197,3 +197,52 @@ internally consistent, which is not the same as correct, and it was never
 separately verified. Two things follow. The evaluation path needs its own check.
 And a training signal that was wrong can still have determined where the final
 policies ended up -- consistency of the ruler does not undo a mis-measured build.
+
+## 15. The surplus evaluator used the wrong pool mapping, and the result reversed
+
+**Was:** "every arm sits below `pi_t`; training moves the held-out game values away
+from where they started; Algorithm 1 rejects all of them."
+
+**Is:** that was produced with `p_theta = softmax(log pi_theta)` over the pool.
+The finite-pool problem's induced distribution is the RELATIVE update
+
+    p_theta(i)  proportional to  p_t(i) * exp( log pi_theta(i) - log pi_t(i) )
+
+and the two coincide only when `p_t` is the conditional LM mass over the pool.
+Here `p_t` is uniform -- every row of `pi_t.npz` is 0.125 -- so the old mapping
+scored the LM's absolute log-probabilities, which track response length and
+content, instead of what training changed. It also failed the obvious check:
+at `theta = theta_t` it did not return `p_t`.
+
+The corrected evaluator runs two unit checks before reporting anything and
+refuses to continue if either fails:
+
+| check | error |
+|---|---|
+| `h = 0` recovers `p_t` | 0 |
+| `h = log(p*/p_t)` recovers `p*` | 4.4e-16 |
+
+With the mapping fixed, held-out worst-objective surplus:
+
+| policy | validation | test | accepts on test |
+|---|---|---|---|
+| `pi_t` | −0.01264 | −0.00350 | no |
+| `pi_star` (solver optimum) | +0.13926 | +0.14486 | **yes** |
+| RB, 1200 | −0.00808 | **+0.00160** | **yes** |
+| canonical, N=700, 1200 | −0.00995 | **+0.00230** | **yes** |
+| RB, clip 100 | −0.01301 | −0.00007 | no |
+| eta = 1.0, sampled | −0.01217 | −0.00572 | no |
+
+Three things follow, and none of them is "the arms pass".
+
+- **No arm accepts on validation.** Validation is what selects; a test-half pass
+  is not a validation pass and is not treated as one.
+- The paired improvements over `pi_t` are small and mostly not distinguishable
+  from zero: on test, `canonN700` gives +0.00580 with a prompt-clustered interval
+  of [−0.00001, +0.01111].
+- `pi_star` reaches +0.145 on held-out prompts, so the target is feasible out of
+  sample. Whatever fails, it is not the oracle's held-out feasibility.
+
+`pi_t` scoring slightly negative everywhere is expected rather than a defect: the
+disagreement point is estimated from an independently constructed
+reference-reference tensor, not from `pi_t` itself.
