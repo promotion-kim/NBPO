@@ -1,0 +1,79 @@
+{
+  "stages": [
+    {
+      "stage": "eta",
+      "selection_metric": "validation normalized_mse_var (lower is better)",
+      "selected": "eta1p0",
+      "arms": [
+        {
+          "label": "eta0p1",
+          "validation_normalized_mse_var": 2.318608628067627,
+          "validation_sign_agreement": 0.5055746140651801,
+          "validation_pearson": 0.019767981394274783,
+          "validation_spearman": 0.010951431621801275,
+          "validation_prediction_rms": 0.7848960771113392,
+          "validation_target_rms": 0.6719274652539139
+        },
+        {
+          "label": "eta0p3",
+          "validation_normalized_mse_var": 1.1212466737707216,
+          "validation_sign_agreement": 0.5223817567567568,
+          "validation_pearson": 0.03147766191830781,
+          "validation_spearman": 0.034245974892466995,
+          "validation_prediction_rms": 0.7678436879682712,
+          "validation_target_rms": 2.0157823957617413
+        },
+        {
+          "label": "eta1p0",
+          "validation_normalized_mse_var": 1.0202756796471895,
+          "validation_sign_agreement": 0.5061677631578947,
+          "validation_pearson": -0.009251885237369546,
+          "validation_spearman": 0.001637495719650713,
+          "validation_prediction_rms": 0.8941788464196079,
+          "validation_target_rms": 6.719274652539139
+        }
+      ],
+      "test_metrics_carried_but_not_used_for_selection": {
+        "eta0p1": {
+          "n": 4200,
+          "target_rms": 0.6781782995736357,
+          "target_mean": 0.008941722480195955,
+          "prediction_rms": 0.7833863554443563,
+          "mse": 1.0859415085845332,
+          "normalized_mse_var": 2.3615337721945475,
+          "normalized_mse_ms": 2.3611232385486356,
+          "sign_agreement": 0.48500428449014565,
+          "n_sign_comparable": 2334,
+          "pearson": -0.011213855773422769,
+          "spearman": -0.017826072277150194
+        },
+        "eta0p3": {
+          "n": 4200,
+          "target_rms": 2.034534898720907,
+          "target_mean": 0.026825167440587855,
+          "prediction_rms": 0.8069287028467041,
+          "mse": 4.89164401144341,
+          "normalized_mse_var": 1.1819526029572012,
+          "normalized_mse_ms": 1.181747130006909,
+          "sign_agreement": 0.4896580835795694,
+          "n_sign_comparable": 2369,
+          "pearson": -0.03036678732547207,
+          "spearman": -0.008387154022595385
+        },
+        "eta1p0": {
+          "n": 4200,
+          "target_rms": 6.781782995736356,
+          "target_mean": 0.08941722480195954,
+          "prediction_rms": 0.9183356267247514,
+          "mse": 47.16442116326517,
+          "normalized_mse_var": 1.0256572066043992,
+          "normalized_mse_ms": 1.0254789043512447,
+          "sign_agreement": 0.5047422680412371,
+          "n_sign_comparable": 2425,
+          "pearson": -0.025654578982270398,
+          "spearman": 0.0008514720275372869
+        }
+      }
+    }
+  ]
+}
