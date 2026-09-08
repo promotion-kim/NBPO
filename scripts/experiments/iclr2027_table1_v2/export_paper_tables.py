@@ -270,10 +270,10 @@ def data_audit():
         " & ".join([r"\textsc{SafeRLHF}", f"${m['total_rows']:,}$".replace(",", "{,}"),
                     f"${m['total_prompts']:,}$".replace(",", "{,}"), "$143{,}668$",
                     f"${tri}$", f"${100*conf:.2f}\\%$",
-                    "direct pairwise helpful/safe", "natural objective conflict"]) + r"\\",
+                    "direct pairwise", "objective conflict"]) + r"\\",
         " & ".join([r"\textsc{UltraFeedback}", "$63{,}967$", "$63{,}967$", "$4$/prompt",
                     "n/a (score-induced)", "n/a",
-                    "four ordinal attributes", "transitive aggregation control"]) + r"\\",
+                    "ordinal attributes", "transitive control"]) + r"\\",
     ]
     emit("data_audit", rows, [EXP / "saferlhf_splits" / "split_manifest.json"],
          "completed",

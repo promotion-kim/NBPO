@@ -352,7 +352,7 @@ Let $p_{t,x}$ be the current learner mass on $\mathcal Y_x$ and let $\mu_x$ be t
 \exp\!\left\{-\widehat m_{k,x}(p)_j/\beta_k\right\}.
 \label{eq:finite-pool-value}
 \end{align}
-The disagreement value $\widehat d_k$ is measured from an independently constructed reference--reference tensor rather than set to zero.
+The disagreement value $\widehat d_k$ is measured from an independently constructed reference--reference tensor, not set to zero.
 
 For fixed $\lambda$, the empirical counterpart of \eqref{eq:weighted-policy} separates across prompts:
 \begin{equation}
@@ -365,23 +365,7 @@ p_{t,x}^\star(\lambda)
 \right\}.
 \label{eq:direct-inner}
 \end{equation}
-Each problem is strictly concave because of the KL term. We solve these small programs directly to a declared numerical tolerance and aggregate their values to obtain $\widehat s_k(p_t^\star(\lambda))$. The dual update is
-\begin{equation}
-\lambda^{(m+1)}
-=
-\Pi_{\Lambda}\!\left[
-\lambda^{(m)}-
-\gamma_m\left(
-\widehat s\!\left(p_t^\star(\lambda^{(m)})\right)
--(\lambda^{(m)})^{-1}
-\right)
-\right],
-\label{eq:dual-update}
-\end{equation}
-where $\gamma_m>0$ is the dual step size and $\Pi_{\Lambda}$ denotes Euclidean projection onto $\Lambda =[\lambda_{\min},\lambda_{\max}]^K$,
-with $0<\lambda_{\min}<\lambda_{\max}$.
-This projection clips each multiplier to the prescribed interval,
-and the inverse is taken elementwise. In contrast, repeatedly alternating a closed-form opponent with the exponential policy map need not converge under strong nontransitivity; we retain that $R$-step map only as an ablation.
+Each problem is strictly concave because of the KL term. We solve these small programs directly to a declared numerical tolerance and aggregate their values to obtain $\widehat s_k(p_t^\star(\lambda))$. Dual stationarity is the $K$-dimensional condition $\widehat s_k(p_t^\star(\lambda))=1/\lambda_k$, which we solve as a root problem in $\log\lambda$ over $\Lambda=[\lambda_{\min},\lambda_{\max}]^K$; every reported run uses this solve and reports its projected KKT residual. A projected subgradient fallback on the same condition stalls three orders of magnitude short of that tolerance (Appendix~\ref{app:prox-dual}). In contrast, repeatedly alternating a closed-form opponent with the exponential policy map need not converge under strong nontransitivity; we retain that $R$-step map only as an ablation.
 
 Once the dual converges, the finite-pool target defines the pairwise log-ratio change
 \begin{equation}
@@ -435,7 +419,7 @@ which provides an independent solver and artifact check. Pairwise probabilities 
     \STATE Score $\pi_t$ on the learner pool and initialize positive $\lambda$.
     \REPEAT
         \STATE Solve \eqref{eq:direct-inner} independently for every prompt.
-        \STATE Aggregate $\widehat s_{1:K}$ and update $\lambda$ by \eqref{eq:dual-update}.
+        \STATE Aggregate $\widehat s_{1:K}$ and solve $\widehat s_k=1/\lambda_k$ for $\lambda$ over $\Lambda$.
     \UNTIL{the projected dual/KKT criteria are met}
     \STATE Construct $\widehat h_t^\star$ by \eqref{eq:finite-target-logratio} and verify \eqref{eq:finite-target-identity}.
     \STATE Fit one neural candidate $\widetilde\pi_{t+1}$ using \eqref{eq:regression-loss}.
@@ -446,32 +430,17 @@ which provides an independent solver and artifact check. Pairwise probabilities 
 \end{algorithm}
 The finite-pool solve is numerical and the LLM projection remains approximate. The convergence result below concerns exact population solutions of \eqref{eq:prox-subproblem}.
 
-\subsection{Last-iterate convergence}
-Because Algorithm~\ref{alg:nbpo} returns the final outer policy rather than an average of past policies, we analyze the last population iterate.
-\begin{theorem}[Last-iterate convergence]
-\label{thm:last-iterate}
-Under Assumption~\ref{ass:joint}, let $\pi^\star$ maximize \eqref{eq:nash-welfare}, set $\pi_0=\piref$, and solve \eqref{eq:prox-subproblem} exactly at every outer iteration with arbitrary $\eta_t>0$. Then $F(\pi_{t+1})\ge F(\pi_t)$ for $t\ge1$, and for every $T\ge1$,
-\begin{equation}
-F(\pi^\star)-F(\pi_T)
-\le
-\frac{D(\pi^\star\|\piref)}{\sum_{t=0}^{T-1}\eta_t}.
-\label{eq:last-iterate-rate}
-\end{equation}
-\end{theorem}
-A constant proximal step therefore gives an $O(1/T)$ final-iterate Nash-welfare gap. Appendix~\ref{app:convergence} gives the proof.
+\paragraph{Last-iterate convergence.}
+Algorithm~\ref{alg:nbpo} returns the final outer policy rather than an average of past policies, so the relevant guarantee is on the last population iterate. Under Assumption~\ref{ass:joint}, with $\pi_0=\piref$ and \eqref{eq:prox-subproblem} solved exactly at every outer iteration with arbitrary $\eta_t>0$, the Nash welfare is monotone, $F(\pi_{t+1})\ge F(\pi_t)$, and $F(\pi^\star)-F(\pi_T)\le D(\pi^\star\|\piref)/\sum_{t<T}\eta_t$: a constant proximal step gives an $O(1/T)$ final-iterate gap. Theorem~\ref{thm:last-iterate} and its proof are in Appendix~\ref{app:convergence}.
 
 \section{Experiments}
 \label{sec:experiments}
-We separate the two empirical questions induced by the method. A feasibility-preserving controlled benchmark tests whether adaptive game values are needed as pairwise preferences become nontransitive. A human-labeled \textsc{SafeRLHF} panel tests whether Nash bargaining selects a useful compromise when helpfulness and harmlessness conflict. Finally, neural-realization and general-capability evaluations test whether the finite-pool target transfers to an 8B policy without unacceptable capability or safety regressions. This separation avoids using sparse released comparison graphs as evidence of natural within-objective cycles.
+We separate the empirical questions the method induces. A feasibility-preserving controlled benchmark tests whether adaptive game values are needed as preferences become nontransitive; a human-labeled \textsc{SafeRLHF} panel tests whether Nash bargaining selects a useful helpfulness--harmlessness compromise; and neural-realization and general-capability evaluations test whether the finite-pool target transfers to an 8B policy. Separating them avoids reading sparse released comparison graphs as evidence of natural within-objective cycles.
 
 \subsection{Controlled nontransitivity isolates preference representation}
 \label{sec:controlled-exp}
 \paragraph{Construction.}
-Each instance contains $40$ prompts and four objectives. Starting from a transitive payoff component $B_{k,x}$, we add an odd-cardinality circulant skew-symmetric component $C_{k,x}$ whose zero row sums leave the reference disagreement value unchanged. We use $\alpha$ as the nontransitivity knob: schematically, $A_{k,x}^{(\alpha)}=B_{k,x}+\gamma(\alpha)C_{k,x}$, where the calibrated scale $\gamma(\alpha)$ increases the cyclic pair interaction as $\alpha$ increases. A bisection calibrates this scale so that the maximum attainable worst surplus
-\[
-\rho^\star:=\max_{\pi}\min_k s_k(\pi)
-\]
-remains approximately $0.03$ while $\alpha\in\{0,.25,.5,.75,1\}$ increases nontransitivity. No entrywise clipping is used. We run five independently generated seeds and evaluate every method with the same true adaptive-game values. The headline metric is $\min_k s_k(\pi)/\rho^\star$, which normalizes the small remaining attainable-margin variation.
+Each instance contains $40$ prompts and four objectives. Starting from a transitive payoff component $B_{k,x}$, we add an odd-cardinality circulant skew-symmetric component $C_{k,x}$ whose zero row sums leave the reference disagreement value unchanged. We use $\alpha$ as the nontransitivity knob: schematically, $A_{k,x}^{(\alpha)}=B_{k,x}+\gamma(\alpha)C_{k,x}$, where the calibrated scale $\gamma(\alpha)$ increases the cyclic pair interaction as $\alpha$ increases. A bisection calibrates this scale so that the maximum attainable worst surplus $\rho^\star:=\max_{\pi}\min_k s_k(\pi)$ remains approximately $0.03$ while $\alpha\in\{0,.25,.5,.75,1\}$ increases nontransitivity. No entrywise clipping is used. We run five independently generated seeds and evaluate every method with the same true adaptive-game values. The headline metric is $\min_k s_k(\pi)/\rho^\star$, which normalizes the small remaining attainable-margin variation.
 
 \begin{figure*}[t]
 \centering
@@ -509,7 +478,7 @@ On the controlled-v2 panel the direct prompt-wise solver meets every declared co
 \begin{table*}[t]
 \centering\scriptsize
 \setlength{\tabcolsep}{3.0pt}
-\caption{Natural helpfulness--harmlessness bargaining on held-out \textsc{SafeRLHF} prompts. Objective columns are pairwise win rates against the common reference under the final independent evaluation protocol; cells report mean $\pm$ standard deviation over three policy-training seeds. ``Conflict'' evaluates the subset for which the released human objectives prefer different responses. Higher is better except HarmBench ASR.}
+\caption{Natural helpfulness--harmlessness bargaining on held-out \textsc{SafeRLHF} prompts. Objective columns are pairwise win rates against the common reference under the final independent evaluation protocol; cells report mean $\pm$ standard deviation over three policy-training seeds. ``Conflict'' evaluates the subset for which the released human objectives prefer different responses. Higher is better except HarmBench ASR; an em-dash marks a run that has not completed.}
 \label{tab:saferlhf-main}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -536,7 +505,7 @@ Before final seeds, a one-seed smoke test must show that the 8B policy learns th
 \begin{table*}[t]
 \centering\scriptsize
 \setlength{\tabcolsep}{3.2pt}
-\caption{General capability and safety transfer of the frozen \textsc{SafeRLHF}-trained checkpoints. Use official metrics where available; any local pairwise score must be named ``reference win'' rather than presented as the official benchmark metric. Mean $\pm$ standard deviation over three training seeds.}
+\caption{General capability and safety transfer of the frozen \textsc{SafeRLHF}-trained checkpoints. Official metrics where available; a local pairwise score is named ``reference win'', never presented as the official metric. Mean $\pm$ standard deviation over three training seeds; em-dash: run not completed.}
 \label{tab:general-capability}
 \begin{tabular}{lrrrrr}
 \toprule
@@ -566,9 +535,8 @@ The Nash solution and its Pareto, uniqueness, and affine-invariance properties a
 
 \section{Conclusion and Limitations}
 \label{sec:conclusion}
-\NBPO{} separates two decisions in multi-objective alignment: adaptive game values represent general pairwise preferences within each objective, and Nash bargaining selects one reference-relative compromise across objectives. The constrained proximal formulation inherits the classical Nash outcome properties and admits an $O(1/T)$ exact-population last-iterate guarantee. Practically, a direct prompt-separable finite-pool inner solve is necessary: it reproduces the exact proximal target in the controlled study, whereas a naive alternating opponent--policy map can oscillate under strong nontransitivity. Feasibility-preserving experiments support the representation claim by showing that adaptive-game methods remain stable as scalar-reward and fixed-reference representations deteriorate. The natural \textsc{SafeRLHF} panel separately tests whether Nash improves the helpfulness--harmlessness compromise.
-
-The evidence has clear limits. The controlled nontransitivity study is constructed rather than a measurement of natural human cycles. Existing released datasets used here do not densely compare response triples, so they cannot establish within-objective human intransitivity. The SafeRLHF preference models may face distribution shift on newly generated responses, and the neural policy only approximates the finite-pool target. Nash is not empirically superior to Game-KS in the controlled panel, and any natural aggregation claim must be supported by the completed multi-seed and independent-evaluation results in Table~\ref{tab:saferlhf-main}. Finally, Assumption~\ref{ass:joint} can fail when no policy improves every objective over the reference; game-value improvements are average quantities, not per-prompt safety guarantees.
+\NBPO{} separates two decisions in multi-objective alignment: adaptive game values represent general pairwise preferences within each objective, and Nash bargaining selects one reference-relative compromise across objectives. The constrained proximal formulation inherits the classical Nash outcome properties and admits an $O(1/T)$ exact-population last-iterate guarantee. Practically, a direct prompt-separable finite-pool inner solve is necessary: it reproduces the exact proximal target, whereas a naive alternating opponent--policy map can oscillate under strong nontransitivity. Feasibility-preserving experiments support the representation claim, with adaptive-game methods staying stable as scalar-reward and fixed-reference representations deteriorate; the natural \textsc{SafeRLHF} panel separately tests the aggregation claim.
+The evidence has clear limits. The controlled nontransitivity study is constructed, not a measurement of natural human cycles: the released datasets used here do not densely compare response triples, so they cannot establish within-objective human intransitivity. The SafeRLHF preference models may face distribution shift on newly generated responses, and the neural policy only approximates the finite-pool target. Nash is not empirically superior to Game-KS in the controlled panel, so any natural aggregation claim rests on Table~\ref{tab:saferlhf-main}. Finally, Assumption~\ref{ass:joint} fails when no policy improves every objective over the reference, and game-value improvements are averages, not per-prompt safety guarantees.
 
 \subsection*{AI use statement}
 In this work, generative AI tools were used to critique the problem formulation, assist with mathematical derivations and proof presentation, propose experimental checks, and edit manuscript text. The authors are responsible for independently verifying every theorem, citation, implementation, empirical result, and disclosure in the final submission.
@@ -1054,6 +1022,22 @@ Assumption~\ref{ass:joint} provides strict feasibility: choose $\bar\pi$ with $s
 \]
 and complementary slackness then forces $u_{t+1,k}=s_k(\pi_{t+1})$. This proves Proposition~\ref{prop:prox-dual}.
 
+\paragraph{Dual step used as a fallback.}
+Stationarity $\widehat s_k(p_t^\star(\lambda))=1/\lambda_k$ can also be approached by projected subgradient ascent,
+\begin{equation}
+\lambda^{(m+1)}
+=
+\Pi_{\Lambda}\!\left[
+\lambda^{(m)}-
+\gamma_m\left(
+\widehat s\!\left(p_t^\star(\lambda^{(m)})\right)
+-(\lambda^{(m)})^{-1}
+\right)
+\right],
+\label{eq:dual-update}
+\end{equation}
+where $\gamma_m>0$ is the dual step size, $\Pi_{\Lambda}$ is Euclidean projection onto $\Lambda=[\lambda_{\min},\lambda_{\max}]^K$ with $0<\lambda_{\min}<\lambda_{\max}$, and the inverse is elementwise. On the pools reported here this iteration stalls at a projected KKT residual near $10^{-2}$ after $3000$ steps, whereas the root solve reaches $10^{-9}$ in tens of inner solves; no reported result uses \eqref{eq:dual-update}.
+
 \paragraph{Finite-pool optimality and neural projection.}
 Fix $\lambda$ and let $\pi_t^\star(\lambda)$ solve \eqref{eq:weighted-policy}. First-order optimality gives, for every prompt and response pair in the support,
 \begin{equation}
@@ -1069,8 +1053,19 @@ Q_k^{\pi_t^\star(\lambda)}(y'\mid x)
 \end{equation}
 The direct finite-pool program \eqref{eq:direct-inner} is the sampled analogue of this strictly concave problem. Its normalized optimizer determines all finite-pool log-probability differences, so \eqref{eq:finite-target-logratio} is identified without computing a language-model normalizer. Equation~\eqref{eq:finite-target-identity} is the corresponding finite-pool KKT identity and is checked numerically before an artifact is accepted. With a full-support pair proposal, a zero-regression-error minimizer of \eqref{eq:regression-loss} matches every target log-probability difference; normalization therefore recovers the finite-pool target distribution on the sampled support. This statement concerns the regression target, not the finite-sample optimization error of the neural model.
 
-\subsection{Proof of Theorem~\ref{thm:last-iterate}}
+\subsection{Last-Iterate Convergence}
 \label{app:convergence}
+\begin{theorem}[Last-iterate convergence]
+\label{thm:last-iterate}
+Under Assumption~\ref{ass:joint}, let $\pi^\star$ maximize \eqref{eq:nash-welfare}, set $\pi_0=\piref$, and solve \eqref{eq:prox-subproblem} exactly at every outer iteration with arbitrary $\eta_t>0$. Then $F(\pi_{t+1})\ge F(\pi_t)$ for $t\ge1$, and for every $T\ge1$,
+\begin{equation}
+F(\pi^\star)-F(\pi_T)
+\le
+\frac{D(\pi^\star\|\piref)}{\sum_{t=0}^{T-1}\eta_t}.
+\label{eq:last-iterate-rate}
+\end{equation}
+\end{theorem}
+
 Let $h(\pi)=\E_{x\sim\D}\sum_y\pi(y\mid x)\log\pi(y\mid x)$, so its Bregman divergence is $D(\pi\|\pi_t)$. Because the objective is increasing in $u$, the policy part of \eqref{eq:prox-subproblem} is equivalently
 \begin{equation}
 \pi_{t+1}
@@ -1177,6 +1172,7 @@ The primary construction is checked against an independently generated projected
 
 \begin{table*}[t]
 \centering\scriptsize
+\setlength{\tabcolsep}{3.0pt}
 \caption{Robustness of the controlled trend. Gaps are the paired per-seed difference in $\min_k s_k/\rho^\star$ at $\alpha=1$, with an exact Student-$t$ $95\%$ interval over seeds (\emph{not} a bootstrap interval). The circulant row and the projected skew-symmetric rows are different constructions; the $\beta$ sweep was run on the projected family only. Converged counts exclude the legacy $R$-step ablation, which converges on no cell in any run.}
 \label{tab:controlled-robustness}
 \input{generated/controlled_robustness}
@@ -1189,7 +1185,7 @@ Table~\ref{tab:data-audit} records the empirical role of each released dataset. 
 
 \begin{table*}[t]
 \centering\scriptsize
-\setlength{\tabcolsep}{3.2pt}
+\setlength{\tabcolsep}{2.4pt}
 \caption{Released-supervision audit. ``Obs.\ triangles'' counts fully observed closed triples of \emph{human} comparisons, summed over both objectives and all three splits; zero means within-objective human cycles are unmeasurable here, which is not a measured cycle rate of zero. ``Human conflict'' is the released-label disagreement rate on the held-out split.}
 \label{tab:data-audit}
 \input{generated/data_audit}
