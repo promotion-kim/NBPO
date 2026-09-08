@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import time
 from pathlib import Path
 
@@ -113,6 +114,20 @@ def main() -> None:
     print(f"\nwrote {args.out_dir}/smoke_solutions.json")
 
 
+def finite(x):
+    """``None`` for an inapplicable or non-finite diagnostic, never a bare NaN.
+
+    ``projected_kkt_residual`` measures the Nash inverse-surplus system and has
+    no meaning for a utilitarian or Kalai--Smorodinsky dual. Serialising that as
+    ``NaN`` produces invalid strict JSON and, worse, reads downstream as a solver
+    that failed rather than a diagnostic that does not apply.
+    """
+    if x is None:
+        return None
+    v = float(x)
+    return v if math.isfinite(v) else None
+
+
 def record(name, sol, secs, mu):
     tgt = (torch.log(sol.pi) - torch.log(sol.pi_t)).numpy()
     return {
@@ -127,16 +142,17 @@ def record(name, sol, secs, mu):
         "disagreement": [float(v) for v in sol.d],
         "dual_converged": sol.dual_converged,
         "outer_iterations_used": sol.outer_iterations_used,
-        "projected_kkt_residual": sol.projected_kkt_residual,
-        "inverse_surplus_residual": sol.kkt_residual,
-        "fixed_point_residual": sol.fixed_point_residual,
-        "extra_map_residual": sol.extra_map_residual,
-        "target_identity_residual": sol.target_log_ratio_check(),
-        "proximal_kl": sol.proximal_kl,
+        "projected_kkt_residual": finite(sol.projected_kkt_residual),
+        "inverse_surplus_residual": finite(sol.kkt_residual),
+        "fixed_point_residual": finite(sol.fixed_point_residual),
+        "extra_map_residual": finite(sol.extra_map_residual),
+        "target_identity_residual": finite(sol.target_log_ratio_check()),
+        "proximal_kl": finite(sol.proximal_kl),
         "target_rms": float(np.sqrt(np.mean(tgt ** 2))),
         "target_p10": float(np.percentile(tgt, 10)),
         "target_p90": float(np.percentile(tgt, 90)),
         "target_finite": bool(np.isfinite(tgt).all()),
+        "projected_kkt_applies": sol.aggregation == "nash",
     }
 
 
