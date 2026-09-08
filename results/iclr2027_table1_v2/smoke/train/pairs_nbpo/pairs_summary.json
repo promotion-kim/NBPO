@@ -1,0 +1,48 @@
+{
+  "target_mode": "sampled",
+  "seed": 11,
+  "pairs": {
+    "train": 28000,
+    "test": 0
+  },
+  "objectives": [
+    "helpfulness",
+    "harmlessness"
+  ],
+  "lambda_raw": [
+    6.966388395211773,
+    6.74798290479777
+  ],
+  "aggregation": "nash",
+  "note": "nbpo_weighted_z is unscaled: eta is applied exactly once, in the trainer",
+  "opponent_sampling_scope": "pair_objective",
+  "opponent_source": "nu_update.npz",
+  "opponent_source_hash": "6af9f72558d725989fe2d2174bdfc96c17fcf54ae06710673657a7b8f9ae68b2",
+  "rng_seed": 11,
+  "verified_input_hashes": {
+    "tensor_policy.npz": "6de52559df15fe4dba68117d8200ddd4762dc4165d02531c55a3fcf98b4db66c",
+    "tensor_ref.npz": "ac030c7c2c5f00246eb37b43c33afc969e7dce06b1a822700deb5d994ed5319d",
+    "meta.json": "6ea245d981e98042addda654886ed975ca0fd9992463fefc5db1f14b797d4116",
+    "nu_update.npz": "6af9f72558d725989fe2d2174bdfc96c17fcf54ae06710673657a7b8f9ae68b2",
+    "nu_final_policy.npz": "d0b1d47729f8d70b18b48548e0d8860518c6a318def751af55b49dfba08f0547",
+    "update_source_pi.npz": "c46b7dddbf6f561acd72c1ae4978e63c03f491e9c581ecd9e611928a6c5942f8"
+  },
+  "implementation_type": "finite_pool_one_shot_neural_realization",
+  "dual_policy_representation": "finite_response_distribution",
+  "neural_fits_per_outer_stage": 1,
+  "fixed_point_steps": 1,
+  "dual_iterations": 2000,
+  "inner_solver": null,
+  "dual_solver": null,
+  "exactness_scope": "'exact' names ONE subproblem: the direct finite-pool concave inner solve, to a declared tolerance. The population proximal update is exact by theorem; the neural projection is approximate. The algorithm as a whole is NOT exact.",
+  "implementation_note": "finite-pool NBPO realization: the dual of Eq. (27) runs on a frozen finite response pool and the neural policy is realized once from the Eq. (26) targets afterwards -- this is NOT population Algorithm 1, which solves the inner problem exactly at every dual step",
+  "outer_stage": 0,
+  "dual_checkpoint": 2000,
+  "solver_hash": "b9170ba8a2622873e161a0f18fb8d29799350ccafe92fb0df9c81f205886958c",
+  "tensor_response_pool_hash": "67452df3d82ab68d0bb914f48a0a0d4c39bda38a56290a6dc168961dd81ebb57",
+  "learner_manifest_sha256": null,
+  "tensor_policy_hash": "6de52559df15fe4dba68117d8200ddd4762dc4165d02531c55a3fcf98b4db66c",
+  "tensor_ref_hash": "ac030c7c2c5f00246eb37b43c33afc969e7dce06b1a822700deb5d994ed5319d",
+  "tensor_meta_hash": "6ea245d981e98042addda654886ed975ca0fd9992463fefc5db1f14b797d4116",
+  "nu_update_hash": "6af9f72558d725989fe2d2174bdfc96c17fcf54ae06710673657a7b8f9ae68b2"
+}

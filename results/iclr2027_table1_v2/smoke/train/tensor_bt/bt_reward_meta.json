@@ -1,0 +1,17 @@
+{
+  "source": "results/iclr2027_table1_v2/smoke/train",
+  "pool_size": 8,
+  "shape": [
+    2,
+    1000,
+    8
+  ],
+  "fit": "Bradley-Terry cross-entropy against the frozen BT ensemble's own pairwise probabilities, over all 2n responses jointly",
+  "identifiability": "the observed graph is the bipartite learner-by-comparator block plus the comparator tournament, which is connected; scores are centred on the comparator pool",
+  "mean_abs_probability_residual": 0.002142213053237547,
+  "max_abs_probability_residual": 0.015611853367521283,
+  "reward_scale": {
+    "learner_sd": 0.7122189317701887,
+    "reference_sd": 0.6294530193111789
+  }
+}

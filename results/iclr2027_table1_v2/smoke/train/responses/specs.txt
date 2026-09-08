@@ -1,0 +1,16 @@
+s1000=results/iclr2027_table1_v2/smoke/train/responses/policy_s1000.json
+s1001=results/iclr2027_table1_v2/smoke/train/responses/policy_s1001.json
+s1002=results/iclr2027_table1_v2/smoke/train/responses/policy_s1002.json
+s1003=results/iclr2027_table1_v2/smoke/train/responses/policy_s1003.json
+s1004=results/iclr2027_table1_v2/smoke/train/responses/policy_s1004.json
+s1005=results/iclr2027_table1_v2/smoke/train/responses/policy_s1005.json
+s1006=results/iclr2027_table1_v2/smoke/train/responses/policy_s1006.json
+s1007=results/iclr2027_table1_v2/smoke/train/responses/policy_s1007.json
+r2000=results/iclr2027_table1_v2/smoke/train/responses/ref_r2000.json
+r2001=results/iclr2027_table1_v2/smoke/train/responses/ref_r2001.json
+r2002=results/iclr2027_table1_v2/smoke/train/responses/ref_r2002.json
+r2003=results/iclr2027_table1_v2/smoke/train/responses/ref_r2003.json
+r2004=results/iclr2027_table1_v2/smoke/train/responses/ref_r2004.json
+r2005=results/iclr2027_table1_v2/smoke/train/responses/ref_r2005.json
+r2006=results/iclr2027_table1_v2/smoke/train/responses/ref_r2006.json
+r2007=results/iclr2027_table1_v2/smoke/train/responses/ref_r2007.json

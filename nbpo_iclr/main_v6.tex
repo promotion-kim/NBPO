@@ -40,6 +40,7 @@
 \author{Anonymous authors}
 %\iclrfinalcopy
 
+\input{generated/residual_macros}
 \begin{document}
 \maketitle
 
@@ -469,7 +470,7 @@ Each instance contains $40$ prompts and four objectives. Starting from a transit
 At $\alpha\le.25$, all converged representations are similar. From $\alpha=.5$ onward, \NBPO{} increasingly outperforms Fixed-reference Nash and BT-RM--Nash, reaching gaps of approximately $1.17$ normalized units at $\alpha=1$. BT-RM--Nash uses the same Nash rule as \NBPO{} but collapses with its scalar-reward utilitarian counterpart, while \NBPO{}, Game-KS, and game-utilitarian remain between $0.87$ and $0.93$. Thus the controlled result supports adaptive game-valued preference representation; it does not establish that Nash dominates every bargaining rule. Paired per-seed differences between \NBPO{} and Game-KS do not reach significance at any $\alpha$ under a five-seed Student-$t$ interval (for example $-0.0007$, $95\%$ CI $[-0.0347,+0.0332]$ at $\alpha=1$); with five seeds this is an absence of evidence for a difference and not evidence of equivalence. The paired \NBPO{} advantage over equal-weight game-utilitarian aggregation is positive in all $25$ cells but reaches significance only at $\alpha=0$ under the same interval.
 
 \paragraph{Solver fidelity.}
-On the controlled-v2 panel the direct prompt-wise solver meets every declared convergence gate in all $25$ instances: projected KKT residual at most $3.6\times10^{-15}$, inner stationarity residual at most $6.6\times10^{-9}$ against a $10^{-4}$ requirement, and finite-pool target identity at $1.8\times10^{-15}$. Table~\ref{tab:solver-audit} decomposes exact, proximal and practical solutions on a \emph{different} construction --- the original interpolated family --- where an exactly solved proximal reference is available; there the direct solve lies $\mathrm{TV}=0.027$ from that reference. Small inner residuals bound distance to the proximal solution at the current multipliers, not to a global Nash point. The legacy alternating map oscillates under stronger nontransitivity and fails every declared convergence gate. All final LLM experiments therefore require the direct finite-pool inner solve; Appendix~\ref{app:solver-neural} records the exact/proximal/practical decomposition and scaling measurements.
+On the controlled-v2 panel the direct prompt-wise solver meets every declared convergence gate in all $25$ instances: projected KKT residual at most \ControlledMaxKKT{}, inner stationarity residual at most \ControlledMaxInner{} against a $10^{-4}$ requirement --- a factor of two of margin, not orders of magnitude --- and finite-pool target identity at \ControlledMaxIdentity{}. Table~\ref{tab:solver-audit} decomposes exact, proximal and practical solutions on a \emph{different} construction --- the original interpolated family --- where an exactly solved proximal reference is available; there the direct solve lies $\mathrm{TV}=0.027$ from that reference. Small inner residuals bound distance to the proximal solution at the current multipliers, not to a global Nash point. The legacy alternating map oscillates under stronger nontransitivity and fails every declared convergence gate. All final LLM experiments therefore require the direct finite-pool inner solve; Appendix~\ref{app:solver-neural} records the exact/proximal/practical decomposition and scaling measurements.
 
 \subsection{Natural objective conflict on SafeRLHF}
 \label{sec:saferlhf-exp}
@@ -1023,7 +1024,7 @@ Assumption~\ref{ass:joint} provides strict feasibility: choose $\bar\pi$ with $s
 and complementary slackness then forces $u_{t+1,k}=s_k(\pi_{t+1})$. This proves Proposition~\ref{prop:prox-dual}.
 
 \paragraph{Dual step used as a fallback.}
-Stationarity $\widehat s_k(p_t^\star(\lambda))=1/\lambda_k$ can also be approached by projected subgradient ascent,
+Stationarity $\widehat s_k(p_t^\star(\lambda))=1/\lambda_k$ can also be approached by projected subgradient \emph{descent} on the dual --- the update below subtracts the dual gradient, and the dual of the concave inner problem is minimized over $\lambda$ ---
 \begin{equation}
 \lambda^{(m+1)}
 =
