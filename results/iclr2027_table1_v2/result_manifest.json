@@ -161,7 +161,7 @@
     "neural_arms": {
       "fragment": "nbpo_iclr/generated/neural_arms.tex",
       "status": "completed",
-      "note": "no arm meets the gate (nMSE < 0.90, sign > 0.65, both correlations > 0); daggered arms are diagnostics outside the pre-declared grid; worst surplus is Algorithm 1's acceptance quantity, and every arm is below pi_t",
+      "note": "no arm meets the gate (nMSE < 0.90, sign > 0.65, both correlations > 0); daggered arms are diagnostics outside the pre-declared grid; worst surplus is min_k E_x[s_k] under the corrected pool mapping p_theta \u221d p_t exp(h), and no arm accepts on the VALIDATION half that selects",
       "seeds": null,
       "aggregation": "single run per arm (not a multi-seed mean)",
       "sources": [
@@ -170,8 +170,8 @@
           "sha256_16": "82e73a3f1473074d"
         },
         {
-          "path": "results/iclr2027_table1_v2/smoke/heldout_surplus.json",
-          "sha256_16": "b9f7d4af60f2254d"
+          "path": "results/iclr2027_table1_v2/smoke/heldout_surplus_v2.json",
+          "sha256_16": "0d5fd3cdaf5820d2"
         }
       ]
     }

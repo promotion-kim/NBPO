@@ -476,7 +476,9 @@ def neural_arms():
     interpretable without the number the policy started from.
     """
     man = RES / "policy_release_manifest.json"
-    sur = RES / "smoke" / "heldout_surplus.json"
+    # v2: the corrected pool mapping p_theta ∝ p_t * exp(h). The v1 file used
+    # softmax(log pi_theta), which does not return p_t at theta = theta_t.
+    sur = RES / "smoke" / "heldout_surplus_v2.json"
     if not man.exists():
         emit("neural_arms", [r"\multicolumn{8}{l}{\textit{pending: no trained arm}}\\"],
              [], "pending", "no policy arm has been trained")
@@ -485,11 +487,13 @@ def neural_arms():
     surplus = json.loads(sur.read_text())["arms"] if sur.exists() else {}
 
     rows = []
-    base = surplus.get("pi_t_uniform_BASELINE", {}).get("test", {})
-    if base:
-        rows.append(" & ".join([
-            r"$\pi_t$ (start)", "--", "--", "--", "--", "--", "--",
-            f"${base['worst_objective_mean_surplus']:+.4f}$"]) + r"\\")
+    refs = json.loads(sur.read_text())["reference_policies"] if sur.exists() else {}
+    for key, lbl in (("pi_t", r"$\pi_t$ (start)"), ("pi_star", r"$p^\star$ (solver)")):
+        v = refs.get(key, {}).get("test", {})
+        if v:
+            rows.append(" & ".join([
+                lbl, "--", "--", "--", "--", "--", "--",
+                f"${v['min_over_objectives_of_mean_surplus']:+.4f}$"]) + r"\\")
     order = ["eta0p1", "eta0p3", "eta1p0", "lr2em7", "lr1em6", "DIAGlr1em5",
              "DIAGrb", "DIAGrb_clip100", "DIAGrb_steps1200"]
     label = {"eta0p1": r"$\eta{=}0.1$", "eta0p3": r"$\eta{=}0.3$",
@@ -503,7 +507,8 @@ def neural_arms():
         if not a:
             continue
         t, v = a["test"], a["validation"]
-        s = surplus.get(k, {}).get("test", {}).get("worst_objective_mean_surplus")
+        s = surplus.get(k, {}).get("test", {}).get(
+            "min_over_objectives_of_mean_surplus")
         rows.append(" & ".join([
             label.get(k, k),
             {"sampled": "sampled", "rao_blackwell": "RB"}.get(a["estimator"], a["estimator"]),
@@ -514,7 +519,8 @@ def neural_arms():
     emit("neural_arms", rows, [man] + ([sur] if sur.exists() else []), "completed",
          "no arm meets the gate (nMSE < 0.90, sign > 0.65, both correlations > 0); "
          "daggered arms are diagnostics outside the pre-declared grid; worst surplus "
-         "is Algorithm 1's acceptance quantity, and every arm is below pi_t",
+         "is min_k E_x[s_k] under the corrected pool mapping p_theta ∝ p_t exp(h), "
+         "and no arm accepts on the VALIDATION half that selects",
          aggregation="single run per arm (not a multi-seed mean)")
 
 
