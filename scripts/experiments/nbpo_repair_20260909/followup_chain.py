@@ -41,8 +41,14 @@ def write_json(path, payload):
 
 def artifact(name, gpu, stack, module, *arguments):
     """Run one step through the campaign's own job wrapper, for provenance."""
+    existing = ROOT / "jobs" / name / "exit.json"
+    if existing.exists():
+        record = json.loads(existing.read_text())
+        if record["exit_code"] == 0:
+            return {"job": name, "skipped": "already succeeded"}
+        raise ValueError(f"{name} already failed for a real reason; diagnose it, do not re-run")
     if (ROOT / "jobs" / name).exists():
-        return {"job": name, "skipped": "already ran"}
+        raise ValueError(f"{name} left a job directory with no exit record; inspect it")
     command = ["python3", "-m", PREFIX + "artifact_job", "--root", str(ROOT), "--job", name,
                "--gpu", str(gpu), "--stack", stack, "--",
                "python3", "-m", PREFIX + module, *map(str, arguments)]
