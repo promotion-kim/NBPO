@@ -53,6 +53,25 @@ Every pre-repair arm fitted its own training pairs and transferred at Pearson
 Eq. (26) works once the implementation is correct; the new loss is not what
 unlocked it, and is not credited with it.
 
+For scale, every pre-repair arm in the appendix's diagnostics table sits at test
+Pearson between −0.03 and −0.01 with sign accuracy 0.49–0.51 and nMSE 1.02–2.36,
+and none passes the gate. The repaired MSE arm at 250 updates meets all four
+regression criteria at once (nMSE 0.839 < 0.90, sign 0.692 > 0.65, Pearson and
+Spearman both positive) alongside a solver residual of 6.7e−11 against a 1e−4
+requirement.
+
+**What that recovery may and may not be attributed to.** The repaired arms differ
+from the pre-repair ones in more than the eight defects: the target is canonical
+rather than sampled, the reference is a frozen online forward rather than a
+cache, the pool is 8+8 drawn at temperature 1.0 / top-p 1.0 rather than 4+4 at
+0.9 / 0.95, and the prompt count is 2000 rather than 700. The pool change is
+itself part of the repair — a warped sampler makes the occurrence measure
+something other than 1/n — but it is also a change of data scale. Two earlier
+single-change arms are informative and both were negative: the canonical target
+alone at N=700 still transferred at ≈ 0, and the reference fix alone did not move
+the held-out regression at 300 updates. So no single fix accounts for this, and
+none is credited with it; the claim is about the repaired pipeline as a whole.
+
 The two projections then diverge with the horizon. WBC's held-out diagnostics
 are monotone and change sign:
 

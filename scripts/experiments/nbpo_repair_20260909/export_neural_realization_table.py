@@ -50,7 +50,7 @@ def render(arms, caption):
                 f"{cell(row['eval_nbpo/spearman'])} & {cell(row['eval_nbpo/mean_logratio'], 2)} \\\\")
         lines.append(r"\midrule")
     lines[-1] = r"\bottomrule"
-    lines += [r"\end{tabular}", r"\caption{\label{tab:neural-realization}%",
+    lines += [r"\end{tabular}", r"\caption{\label{tab:repaired-realization}%",
               caption, r"}", r"\end{table}"]
     return "\n".join(lines) + "\n"
 
