@@ -39,9 +39,22 @@ before either arm ran.
 
 ## 3. The result that matters so far
 
-The finite-pool target **is** neurally realizable on unseen prompts, and the
-weighted-behaviour-cloning objective then walks past it. WBC's held-out dev
-diagnostics are monotone in the horizon and change sign:
+The finite-pool target **is** neurally realizable on unseen prompts, and it is
+the repair that made it so. On 500 dev prompts, prompt-disjoint from the 2000
+training prompts (overlap verified 0), at 250 updates:
+
+| Projection | nMSE | Sign acc. | Pearson | Spearman |
+|---|---|---|---|---|
+| NBPO-MSE, Eq. (26) | 0.839 | 0.692 | **+0.516** | +0.499 |
+| NBPO-WBC, Eq. (28) | 0.920 | 0.645 | +0.419 | +0.415 |
+
+Every pre-repair arm fitted its own training pairs and transferred at Pearson
+≈ 0 (−0.05) to unseen prompts of the same construction. The paper's own
+Eq. (26) works once the implementation is correct; the new loss is not what
+unlocked it, and is not credited with it.
+
+The two projections then diverge with the horizon. WBC's held-out diagnostics
+are monotone and change sign:
 
 | updates | nMSE | sign acc. | Pearson | Spearman | mean log-ratio to reference |
 |---|---|---|---|---|---|
@@ -53,23 +66,18 @@ diagnostics are monotone in the horizon and change sign:
 | 1500 | 12.672 | 0.489 | −0.144 | −0.097 | −6.63 |
 | 1750 | 13.070 | 0.486 | −0.152 | −0.105 | −6.68 |
 
-For contrast, the pre-repair pairwise-MSE arms fitted their own training pairs
-well and transferred at Pearson ≈ 0 (−0.05) to unseen prompts of the same pool.
-A held-out Pearson of +0.42 is the first positive transfer this project has
-measured. It is a *diagnostic*, not an acceptance criterion, and it is measured
-on dev — no test prompt and no benchmark participated.
+That failure is structural, not noise. Weighted NLL has no stationary point at
+the target: it keeps concentrating mass on the highest-`p*` candidate, the
+per-response log-likelihood of the whole pool falls 6.7 nats, and the induced
+pairwise log-ratio overshoots far enough to anti-correlate with what it was
+fitting. The pairwise regression *does* have a stationary point at the target,
+so it is not expected to fail this way — its own trajectory is being recorded
+and will be reported whatever it shows.
 
-The failure mode after that point is not noise: the loss has no stationary point
-at the target. Weighted NLL keeps concentrating mass on the highest-`p*`
-candidate, the per-response log-likelihood of the whole pool falls by 6.7 nats,
-and the induced pairwise log-ratio overshoots the target far enough to
-anti-correlate with it.
-
-Because the 1750-update horizon was fixed in advance, that arm stands as the
-primary result whatever it shows. A separate 250-update arm was **declared in
-writing before being run** (`protocols/wbc_short_horizon_prospective_v1.json`),
+Because the 1750-update horizon was fixed in advance, those arms stand as the
+primary comparison. A separate 250-update WBC arm was **declared in writing
+before being run** (`protocols/wbc_short_horizon_prospective_v1.json`),
 labelled dev-selected, and is queued behind the primary evaluation.
-
 
 ## 4. Why the earlier checkpoints lost usefulness: they compress
 
