@@ -1,0 +1,40 @@
+{
+  "method": "Blinded structural + read audit of the frozen 100-prompt Alpaca subset from prepare_blind_audit.py. Slot order is randomised per prompt; every structural statistic below was computed on the blinded file and only then unblinded. This is an agent-assisted qualitative read, not human labels and not a validated refusal classifier.",
+  "n_prompts": 100,
+  "models": [
+    "base",
+    "canonN700",
+    "RB1200"
+  ],
+  "per_model": {
+    "RB1200": {
+      "mean_chars": 1645,
+      "median_chars": 1006,
+      "hit_token_cap": 6,
+      "refusal_opening": 1
+    },
+    "base": {
+      "mean_chars": 2190,
+      "median_chars": 2223,
+      "hit_token_cap": 2,
+      "refusal_opening": 0
+    },
+    "canonN700": {
+      "mean_chars": 1765,
+      "median_chars": 1062,
+      "hit_token_cap": 6,
+      "refusal_opening": 1
+    }
+  },
+  "canonN700_vs_base_length_ratio": {
+    "median": 0.566,
+    "p10": 0.316,
+    "p90": 2.207,
+    "shorter_than_base": 80,
+    "below_0.6": 57,
+    "below_0.3": 7
+  },
+  "byte_identical_canonN700_RB1200": 44,
+  "conclusion": "On benign prompts the pre-repair arms do not refuse and do not truncate: exactly one of 100 responses opens with a refusal, and the arms hit the token cap on 6 prompts against base's 2, which is the long tail, not the short one. They compress. Answers keep the base model's structure, formatting and opening sentence, drop enumerated items and elaboration, and close with a well-formed summary -- shorter than base on 80 of 100 prompts, median 57% of base length. That is consistent with the observed downstream pattern (IFEval length/count constraints missed, GSM8K chains cut short, HarmBench harmful rate down, local RM proxy down) and it is not explained by the teacher: the solver's mass is on slightly LONGER candidates (teacher-weighted mean response length 219.8 tokens against 205.2 unweighted). The compression is introduced by the projection, not requested by the bargaining target.",
+  "caveat": "canonN700 and RB1200 emit byte-identical greedy answers on 44 of 100 prompts, so they are not two independent arms for this comparison."
+}
