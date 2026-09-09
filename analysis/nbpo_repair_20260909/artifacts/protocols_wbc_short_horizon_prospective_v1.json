@@ -1,0 +1,25 @@
+{
+  "schema": "nbpo-repair-prospective-arm-v1",
+  "declared_utc": "2026-09-09T08:20:00+00:00",
+  "declared_by": "claude-opus-5",
+  "arm": "wbc_short_primary_v1",
+  "status": "declared_before_running",
+  "why": "The pre-registered WBC arm ran a fixed 1750-update horizon. Its dev diagnostics are monotone in the horizon and reverse sign: Pearson +0.419 / sign 0.645 / nMSE 0.920 at 250 updates, decaying through +0.250, +0.074, -0.028, -0.143, -0.144 to -0.152 at 1750, while the mean per-response log-ratio to the reference falls from -0.75 to -6.68. The finite-pool target is therefore neurally realizable on unseen prompts early in training, and the weighted-behaviour-cloning objective then keeps sharpening past it. A shorter horizon is a different experiment, not a re-read of this one.",
+  "horizon_updates": 250,
+  "selection_rule": "The horizon is chosen on the dev split of the same pool construction, from the already-recorded eval trajectory of wbc_primary_v1. No test prompt, no downstream benchmark and no generation output participates in this choice. This arm is reported as dev-selected and never as the pre-registered primary.",
+  "held_fixed_from_wbc_primary_v1": [
+    "base model and revision", "learner and comparator pools", "frozen preference-model ensemble",
+    "solved p_star and lambda", "tokenization and immutable candidate tokens", "loss type nbpo_wbc",
+    "learning rate 5e-7", "AdamW betas/eps/weight decay", "global batch of 32 pairs", "seed 42"
+  ],
+  "changed": {
+    "max_steps": "1750 -> 250",
+    "lr_schedule": "cosine over the declared horizon, so the shorter arm anneals over its own 250 updates rather than truncating the long arm's schedule; this is a real difference between the arms and is reported as such"
+  },
+  "reporting_contract": [
+    "The 1750-update arms remain the matched primary comparison and are reported in full whatever they show.",
+    "This arm is an additional row, labelled dev-selected horizon.",
+    "Its downstream evaluation uses the same frozen generation and scoring protocol as the primary arms.",
+    "If it fails, the failure is reported; the horizon is not searched further tonight."
+  ]
+}

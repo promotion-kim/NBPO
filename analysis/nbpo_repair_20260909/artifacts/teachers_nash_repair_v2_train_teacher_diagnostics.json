@@ -1,0 +1,48 @@
+{
+  "n_prompts": 2000,
+  "entropy_mean": 1.274988887483642,
+  "ess_mean": 3.1270759130599206,
+  "ess_min": 1.0165689955153026,
+  "maximum_mass_mean": 0.5331626816798093,
+  "maximum_mass_max": 0.9918117237563314,
+  "canonical_g_rms": 2.1492893594461333,
+  "pair_target_rms": 2.440397715261203,
+  "quantile_levels": [
+    0.0,
+    0.01,
+    0.05,
+    0.25,
+    0.5,
+    0.75,
+    0.95,
+    0.99,
+    1.0
+  ],
+  "g_quantiles": [
+    -7.951934938027122,
+    -5.7206989779453625,
+    -4.435800216491592,
+    -2.3652907130228495,
+    -1.016653999300617,
+    0.20046066281572122,
+    1.489757410230449,
+    1.9427045656619089,
+    2.0712195573688246
+  ],
+  "pair_target_quantiles": [
+    -9.86226571345207,
+    -6.090598642132286,
+    -4.172528813634912,
+    -1.4049168539837162,
+    0.0,
+    1.4116228390587957,
+    4.16887228343481,
+    6.070406645390976,
+    9.339644834059603
+  ],
+  "response_length_unweighted_mean": 205.1758125,
+  "response_length_teacher_weighted_mean": 219.84111054078082,
+  "refusal_keyword_unweighted_fraction": 0.561625,
+  "refusal_keyword_teacher_mass": 0.5155520050766672,
+  "refusal_measure_status": "diagnostic keyword heuristic; not a semantic refusal evaluation"
+}

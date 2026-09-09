@@ -9,8 +9,8 @@ fails the queue stops and the evidence is kept.
 Queue, in order:
   1. base HarmBench under tonight's protocol -- the primary chain scores only the
      two arms, so without this there is no matched base number for that column.
-  2. the short-horizon WBC arm declared in protocols/ before it was run.
-  3. generation + scoring for that arm on the same frozen panel.
+  2. both short-horizon arms of the 2x2 declared in protocols/ before they were run.
+  3. generation + scoring for each on the same frozen panel.
   4. pool-drift diagnostics for every checkpoint, base included as the control.
 """
 from __future__ import annotations
@@ -27,7 +27,7 @@ ROOT = Path("/work/nbpo_repair_20260909")
 PREFIX = "scripts.experiments.nbpo_repair_20260909."
 SKYWORK = "/work/hf_cache/hub/models--Skywork--Skywork-Reward-V2-Qwen3-8B/snapshots/6f19fdefb933293d4898bdb59a96f7223d998659"
 HARMBENCH = "/work/hf_cache/hub/models--cais--HarmBench-Llama-2-13b-cls/snapshots/bda705349d1144fa618770bea64d99ce54e3835b"
-SHORT = "wbc_short_primary_v1"
+SHORT_ARMS = ("wbc_short_primary_v1", "mse_short_primary_v1")
 
 
 def now():
@@ -114,53 +114,57 @@ def main():
                              "--harmbench-repo", ROOT / "external/HarmBench",
                              "--out", ROOT / "evaluations/harmbench_base_v1"))
 
-        declared = json.loads((ROOT / "protocols/wbc_short_horizon_prospective_v1.json").read_text())
-        if declared["horizon_updates"] != 250 or declared["arm"] != SHORT:
-            raise ValueError("The short arm's declaration does not match what is about to run")
-        wait_for_idle_gpus()
-        if not (ROOT / "jobs" / SHORT).exists():
-            subprocess.run(["python3", "-m", PREFIX + "train_job", "--root", str(ROOT),
-                            "--config", str(ROOT / "configs/wbc_short_primary_v1.yaml"),
-                            "--job", SHORT], cwd=ROOT / "code", check=True)
-        record = json.loads((ROOT / "jobs" / SHORT / "exit.json").read_text())
-        if record["exit_code"] != 0:
-            raise ValueError("Short arm failed; evidence retained, no restart")
-        state = json.loads((ROOT / "arms" / SHORT / "trainer_state.json").read_text())
-        if state["global_step"] != declared["horizon_updates"]:
-            raise ValueError("Short arm did not reach its declared horizon")
-        done.append({"job": SHORT, "seconds": record["seconds"], "global_step": state["global_step"]})
+        declared = json.loads((ROOT / "protocols/short_horizon_prospective_v2.json").read_text())
+        if tuple(a["arm"] for a in declared["arms"]) != SHORT_ARMS or any(
+                a["horizon_updates"] != 250 for a in declared["arms"]):
+            raise ValueError("The declaration does not match the arms about to run")
 
-        wait_for_idle_gpus()
-        done.append(artifact(f"{SHORT}_generation_v1", 0, "eval", "generate_eval",
-                             "--root", ROOT, "--model", ROOT / "arms" / SHORT, "--label", SHORT))
-        done.append(artifact(f"skywork_{SHORT}_v1", 0, "eval", "evaluate_responses",
-                             "--root", ROOT, "--mode", "skywork", "--labels", SHORT,
-                             "--rm", SKYWORK, "--out", ROOT / f"evaluations/skywork_{SHORT}_v1"))
-        done.append(artifact(f"harmbench_{SHORT}_v1", 2, "harmbench", "evaluate_responses",
-                             "--root", ROOT, "--mode", "harmbench", "--labels", SHORT,
-                             "--harmbench-model", HARMBENCH,
-                             "--harmbench-repo", ROOT / "external/HarmBench",
-                             "--out", ROOT / f"evaluations/harmbench_{SHORT}_v1"))
-        done.append(artifact(f"deterministic_{SHORT}_v1", "cpu", "eval", "evaluate_responses",
-                             "--root", ROOT, "--mode", "deterministic", "--labels", SHORT,
-                             "--out", ROOT / f"evaluations/deterministic_{SHORT}_v1"))
-        done.append(artifact(f"saferlhf_{SHORT}_v1", 3, "eval", "evaluate_saferlhf",
-                             "--root", ROOT, "--labels", SHORT,
-                             "--base-score-dir", ROOT / "evaluations/saferlhf_base_v1/base",
-                             "--encoder", ROOT / "assets/roberta-base",
-                             "--out", ROOT / f"evaluations/saferlhf_{SHORT}_v1"))
+        for arm in SHORT_ARMS:
+            wait_for_idle_gpus()
+            if not (ROOT / "jobs" / arm).exists():
+                subprocess.run(["python3", "-m", PREFIX + "train_job", "--root", str(ROOT),
+                                "--config", str(ROOT / "configs" / f"{arm}.yaml"),
+                                "--job", arm], cwd=ROOT / "code", check=True)
+            record = json.loads((ROOT / "jobs" / arm / "exit.json").read_text())
+            if record["exit_code"] != 0:
+                raise ValueError(f"{arm} failed; evidence retained, no restart")
+            state = json.loads((ROOT / "arms" / arm / "trainer_state.json").read_text())
+            if state["global_step"] != 250:
+                raise ValueError(f"{arm} did not reach its declared horizon")
+            done.append({"job": arm, "seconds": record["seconds"], "global_step": state["global_step"]})
 
-        done.append(artifact(f"xstest_{SHORT}_unadjudicated_v1", "cpu", "eval", "score_xstest_refusal",
-                             "--root", ROOT, "--labels", SHORT,
-                             "--output-dir", ROOT / f"evaluations/xstest_{SHORT}_unadjudicated_v1",
-                             "--unadjudicated-reason",
-                             "Pinned official WildGuard unavailable: existing authorized identity returns HTTP403; no terms/authentication changes made"))
+        for arm in SHORT_ARMS:
+            wait_for_idle_gpus()
+            done.append(artifact(f"{arm}_generation_v1", 0, "eval", "generate_eval",
+                                 "--root", ROOT, "--model", ROOT / "arms" / arm, "--label", arm))
+            done.append(artifact(f"skywork_{arm}_v1", 0, "eval", "evaluate_responses",
+                                 "--root", ROOT, "--mode", "skywork", "--labels", arm,
+                                 "--rm", SKYWORK, "--out", ROOT / f"evaluations/skywork_{arm}_v1"))
+            done.append(artifact(f"harmbench_{arm}_v1", 2, "harmbench", "evaluate_responses",
+                                 "--root", ROOT, "--mode", "harmbench", "--labels", arm,
+                                 "--harmbench-model", HARMBENCH,
+                                 "--harmbench-repo", ROOT / "external/HarmBench",
+                                 "--out", ROOT / f"evaluations/harmbench_{arm}_v1"))
+            done.append(artifact(f"deterministic_{arm}_v1", "cpu", "eval", "evaluate_responses",
+                                 "--root", ROOT, "--mode", "deterministic", "--labels", arm,
+                                 "--out", ROOT / f"evaluations/deterministic_{arm}_v1"))
+            done.append(artifact(f"saferlhf_{arm}_v1", 3, "eval", "evaluate_saferlhf",
+                                 "--root", ROOT, "--labels", arm,
+                                 "--base-score-dir", ROOT / "evaluations/saferlhf_base_v1/base",
+                                 "--encoder", ROOT / "assets/roberta-base",
+                                 "--out", ROOT / f"evaluations/saferlhf_{arm}_v1"))
+            done.append(artifact(f"xstest_{arm}_unadjudicated_v1", "cpu", "eval", "score_xstest_refusal",
+                                 "--root", ROOT, "--labels", arm,
+                                 "--output-dir", ROOT / f"evaluations/xstest_{arm}_unadjudicated_v1",
+                                 "--unadjudicated-reason",
+                                 "Pinned official WildGuard unavailable: existing authorized identity returns HTTP403; no terms/authentication changes made"))
 
         wait_for_idle_gpus()
         for label, model in (("base", "/work/models/bases/Llama-3.1-8B-Instruct"),
                              ("wbc_primary_v1", ROOT / "arms/wbc_primary_v1"),
                              ("mse_primary_v1", ROOT / "arms/mse_primary_v1"),
-                             (SHORT, ROOT / "arms" / SHORT)):
+                             ("wbc_short_primary_v1", ROOT / "arms/wbc_short_primary_v1"),
+                             ("mse_short_primary_v1", ROOT / "arms/mse_short_primary_v1")):
             done.append(pool_drift(label, model))
 
         write_json(directory / "complete.json", {"completed_utc": now(), "steps": done,

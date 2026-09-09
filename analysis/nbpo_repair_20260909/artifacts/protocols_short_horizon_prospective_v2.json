@@ -1,0 +1,33 @@
+{
+  "schema": "nbpo-repair-prospective-arm-v2",
+  "declared_utc": "2026-09-09T10:05:00+00:00",
+  "declared_by": "claude-opus-5",
+  "supersedes": "wbc_short_horizon_prospective_v1.json (kept; this extends it to a 2x2 and does not change the WBC arm)",
+  "status": "declared_before_running",
+  "design": "projection x horizon, 2x2: {NBPO-MSE, NBPO-WBC} x {1750 pre-registered, 250 short}",
+  "arms": [
+    {"arm": "wbc_short_primary_v1", "config": "/work/nbpo_repair_20260909/configs/wbc_short_primary_v1.yaml",
+     "config_sha256": "53407cb605f9209aceacaaef6e4e2b2e27d773b649e6de09d87bde80de979ebb",
+     "horizon_updates": 250, "loss": "nbpo_wbc"},
+    {"arm": "mse_short_primary_v1", "config": "/work/nbpo_repair_20260909/configs/mse_short_primary_v1.yaml",
+     "horizon_updates": 250, "loss": "nbpo"}
+  ],
+  "why_now": "The 250-update horizon was read off the WBC arm's own dev trajectory, which was complete before this file was written. The MSE arm has reported exactly one held-out evaluation, at step 250; its evaluations at 500 and beyond, its final checkpoint and every downstream number do not exist yet. Fixing the short horizon at the same 250 for both projections therefore cannot be a response to the MSE outcome, and the comparison stays a comparison of projections rather than of two separately tuned pipelines.",
+  "selection_rule": "One horizon, 250 updates, applied identically to both projections. It was chosen on dev, from the WBC trajectory only. No test prompt, no downstream benchmark and no generation output participates. Both short arms are reported as dev-selected and neither is ever presented as the pre-registered primary.",
+  "held_fixed": [
+    "base model and revision", "learner and comparator pools", "frozen preference-model ensemble",
+    "solved p_star and the train-fitted lambda", "tokenization and immutable candidate tokens",
+    "learning rate 5e-7", "AdamW betas/eps/weight decay", "global batch of 32 pairs", "seed 42",
+    "generation and scoring protocol"
+  ],
+  "changed_from_the_primary_arms": {
+    "max_steps": "1750 -> 250",
+    "lr_schedule": "cosine over the arm's own 250 updates, so a short arm anneals rather than truncating the long schedule. This is a real difference between short and long and is reported as such; it is identical across the two projections, so it does not confound the projection comparison."
+  },
+  "reporting_contract": [
+    "The two 1750-update arms remain the matched primary comparison and are reported in full whatever they show.",
+    "The two short arms are additional rows labelled dev-selected horizon.",
+    "All four use the same frozen API-free evaluation protocol.",
+    "No further horizon is searched tonight, whatever these four show."
+  ]
+}

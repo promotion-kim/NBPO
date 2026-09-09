@@ -48,7 +48,9 @@
       "status": "fixed",
       "evidence": "One helper does log_softmax, token selection and the sequence sum in FP32 with vocabulary chunking (mnpo_scripts/response_logps.py), used by mnpo_scripts/precompute.py, mnpo_scripts/run_mnpo.py and scripts/simpo_trainer.py. The running job records the observed dtypes every optimizer step: logits torch.float32, log_softmax torch.float32, selected_logp torch.float32, sequence_logp torch.float32, loss torch.float32, ZeRO-2 masters and Adam moments torch.float32, forward parameters torch.bfloat16 (arms/wbc_primary_v1/runtime_rank*.jsonl).",
       "verification": "tests/test_nbpo_neural_repair.py::test_long_bf16_response_logp_change_survives and ::test_chunked_backward_matches_dense_full_vocabulary. The FP32 master contract is asserted against the actual ZeRO partitions, not assumed from 'bf16 model + AdamW'.",
-      "affected_prior_artifacts": "Every reference log-probability cache built before the fix was invalidated and rebuilt; the old caches are retained."
+      "affected_prior_artifacts": "Every reference log-probability cache built before the fix was invalidated and rebuilt; the old caches are retained.",
+      "measured_scope_in_released_artifacts": "Active, and large. Replaying every saved pair of the released canonN700/RB1200 runs through the exact legacy helper (provenance/legacy_tokenization_audit_v1.json) finds 1416 of 5600 repeated candidate occurrences on train whose cached reference log-probability differs across occurrences of the SAME replayed token event -- median range 0, maximum range 8.0 nats (test: 604 of 2400, maximum 2.0). Identical tokens, identical frozen reference, different cached number. That is what made h nonzero before a single gradient step.",
+      "closed_on_real_hardware": "probes/deepspeed_cast_ablation_v1 and probes/reference_init_long_v1 run the actual trainer collator against the real 8B model on the longest pooled responses (1024 response tokens) and record sequence_max_abs 0.0 and pair_h_rms 0.0. The MSE arm's own step 1 logs nbpo/h = 0.0."
     },
     {
       "id": "F",
@@ -56,7 +58,8 @@
       "status": "fixed",
       "evidence": "The prompt and the whole 8-candidate pool are tokenized once; a pair only selects two frozen candidate token events and re-checks their hashes (mnpo_scripts/pair_tokenization.py::immutable_pair_tokens:110-134, chosen_token_sha256 / rejected_token_sha256). The running config sets nbpo_require_immutable_tokens: true, so a mismatch aborts the job rather than training on it.",
       "verification": "tests/test_nbpo_neural_repair.py::test_immutable_candidate_is_identical_across_partners_and_no_eos_is_invented and ::test_precompute_collator_consumes_same_immutable_tokens.",
-      "note": "The legacy behaviour -- prompt length taken as the minimum over the two sides' tokenizations, so a long partner truncated the shared prompt -- is documented in the module docstring and audited for the old artifacts in provenance/legacy_tokenization_audit_v1.json."
+      "note": "The legacy behaviour -- prompt length taken as the minimum over the two sides' tokenizations, so a long partner truncated the shared prompt -- is documented in the module docstring and audited for the old artifacts in provenance/legacy_tokenization_audit_v1.json.",
+      "measured_scope_in_released_artifacts": "Real in the code, INACTIVE in the released artifacts. The same replay reports 0 variable-event candidates, 0 variable prompt contexts, 0 affected prompt groups, 0 rows touching a variable candidate, 0 prompt or response truncations by the training tokenizer and 0 partner-forced boundary backoffs across 39200 side occurrences. Those runs' prompts were short enough that the partner never moved the boundary. The fix stands because the defect is real and would bite at longer prompts, but it is not an explanation for those runs' behaviour."
     },
     {
       "id": "G",
@@ -89,5 +92,6 @@
       "status": "in_progress",
       "detail": "Table 13 caption already corrected. Remaining: A.5 empirical importance distribution, the bounded-dual certificate scope, A.6 D-weighted pairing notation, the regression gate stated as diagnostic-only, and the WBC framing."
     }
-  ]
+  ],
+  "cross_arm_note": "canonN700 and RB1200 were trained against the SAME solver artifact (target_solver_sha256 b9170ba8a2622873e161a0f18fb8d29799350ccafe92fb0df9c81f205886958c) and differ only in the target estimator. They emit byte-identical greedy answers on 44 of 100 Alpaca prompts. They were never two independent arms."
 }
