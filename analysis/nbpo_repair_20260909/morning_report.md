@@ -82,8 +82,35 @@ target RMS of 2.37 -- but at very different speeds:
 | 500 | 1.226 | 0.688 | +0.452 | 1.932 | 0.623 | +0.250 |
 | 750 | 1.482 | 0.678 | +0.419 | 3.776 | 0.569 | +0.074 |
 
-MSE at 750 updates is still where WBC was at 250. WBC's full trajectory keeps
-going until it changes sign:
+MSE at 750 updates is still where WBC was at 250.
+
+**The residual splits into direction and magnitude, and only the magnitude runs
+away.** From the moments each run already logs, the nMSE at the single best
+rescaling of $h$ is $1-\E[hT]^2/(\E[h^2]\E[T^2])$; the gap to the reported nMSE
+is pure scale.
+
+| updates | MSE nMSE | MSE nMSE* | best scale | WBC nMSE | WBC nMSE* | best scale |
+|---|---|---|---|---|---|---|
+| 250 | 0.839 | **0.734** | 0.614 | 0.920 | 0.824 | 0.575 |
+| 500 | 1.226 | 0.796 | 0.408 | 1.932 | 0.938 | 0.200 |
+| 750 | 1.482 | 0.824 | 0.341 | 3.776 | 0.995 | 0.042 |
+| 1000 | 1.568 | 0.839 | 0.320 | 6.121 | 0.999 | −0.012 |
+| 1750 | — | — | — | 13.070 | 0.977 | −0.046 |
+
+A held-out nMSE of 13.07 reads as total failure and is not what happened: WBC's
+*direction* explains 17.6% of the target's second moment at 250 updates and
+essentially nothing by 750, while the reported number is dominated by magnitude
+the model kept adding after it had stopped adding information. MSE explains
+26.6% at 250 and still 16.1% at 1000, and its drift is flattening (−2.42 → −2.38
+nats) — which is what a regression with a stationary point at the target should
+do, and what weighted NLL does not.
+
+The optimal multiplier being below 1 is shrinkage under imperfect correlation,
+not evidence that $\eta$ was set too high. But it does make $\eta$ the obvious
+calibration knob for a follow-up, since it scales the target and is applied in
+the trainer, so one precompute serves every value.
+
+WBC's full trajectory keeps going until it changes sign:
 
 | updates | nMSE | sign acc. | Pearson | Spearman | mean log-ratio to reference |
 |---|---|---|---|---|---|
