@@ -127,17 +127,10 @@ WBC-short, complete, on dev (exit 0, 2.08 GPU-hours):
 
 **The same loss that collapses to nMSE 13.07 and Pearson −0.152 at 1750 passes
 every pre-registered criterion at 250** — nMSE 0.780 < 0.90, sign 0.687 > 0.65,
-both correlations positive — and posts the lowest held-out nMSE of any arm in
-this campaign. Its drift ends at −0.51 nats against the long arm's −6.68: a
-13-fold difference from the schedule length alone, at the same learning rate and
-the same loss.
-
-So the earlier reading of these two projections was wrong in an important way.
-Weighted behaviour cloning is not a worse realization of the target; it is a far
-more horizon-sensitive one. At the pre-registered 1750 updates that distinction
-does not help it, and the primary comparison stands as it stands. But the
-conclusion to carry forward is that the horizon was the binding error, and the
-2×2 is what separated the two.
+both correlations positive. Its drift ends at −0.51 nats against the long arm's
+−6.68: a 13-fold difference from the schedule length alone, at the same learning
+rate and the same loss. MSE-short peaks later and higher, at its horizon rather
+than at 150, which is the projection with a stationary point behaving like one.
 
 **It is overfitting, and the four questions stay separate.** The audit asked that
 solver self-consistency, fit on training pairs, transfer to unseen prompts, and
