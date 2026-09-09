@@ -381,7 +381,44 @@ prompts are the preference model's own test split rather than an untouched
 benchmark, which is why the run records `fresh_test_claim` as false. HarmBench is reported above; its lane
 had to be recovered first (§9), and it does not move for either arm.
 
-## 5. Both arms finished, and neither one compresses
+## 5. Only the short arms move the pool toward the target
+
+The pairwise regression metrics score the *direction* of the induced log-ratio.
+They cannot say whether the pool distribution the policy actually induces —
+$p_\theta(i)\propto p_t(i)\exp\{\log\pi_\theta-\log\pi_t\}$ — ended up nearer the
+solver's target or past it. Scoring every dev candidate once against the frozen
+reference on the identical token ids answers that:
+
+| arm | Pearson (prompt-clustered CI) | sign acc. | $\mathrm{KL}(p^\star\|p_\theta)$ | vs. reference | top-1 match | mass on $p^\star$'s argmax | partial $r$ given length |
+|---|---|---|---|---|---|---|---|
+| Base (control) | — | — | 0.7879 | **+0.0000** | 0.108 | **0.1250** | — |
+| \NBPO-MSE, 1750 | +0.417 [+0.370,+0.463] | 0.689 | 1.2131 | **−0.4252** | 0.420 | 0.3135 | +0.413 |
+| \NBPO-WBC, 1750 | −0.150 [−0.205,−0.095] | 0.482 | 6.0634 | **−5.2754** | 0.124 | 0.1113 | −0.123 |
+| **\NBPO-MSE, 250†** | **+0.589 [+0.554,+0.622]** | **0.695** | **0.6204** | **+0.1675** | 0.406 | 0.2906 | **+0.585** |
+| \NBPO-WBC, 250† | +0.496 [+0.459,+0.531] | 0.680 | 0.6875 | **+0.1004** | 0.362 | 0.2283 | +0.492 |
+
+**The control is exact.** Scoring the reference against itself gives a KL
+improvement of $+0.0000$ and mass $0.1250 = 1/8$ on the target's argmax — the
+measurement path is verified end to end, the same check that caught a broken
+evaluator earlier in this project.
+
+**Only the 250-update arms actually reduce the forward KL to the target**
+(+0.168 and +0.100). Both 1750-update arms increase it, MSE mildly (−0.425) and
+WBC catastrophically (−5.275) — and MSE-1750 does so *while* its pairwise Pearson
+reads a healthy +0.417. No pairwise diagnostic could have shown that: the
+regression can be getting the direction right on every pair while the
+distribution it induces moves away from the target, by over-concentrating. That
+is the sharpest form of the horizon result, and it is a metric the pre-registered
+gate does not contain.
+
+Length is not the mechanism: the partial correlation controlling for response
+length (+0.585 for MSE-250) is indistinguishable from the raw one (+0.589).
+
+The reconstruction is also a cross-check on the trainer. Computed independently
+from per-candidate forward passes, MSE-1750's Pearson comes out at 0.4169 against
+the trainer's logged 0.415, and its nMSE at 1.4143 against 1.418.
+
+## 6. Both arms finished, and neither one compresses
 
 | | WBC | MSE |
 |---|---|---|
@@ -420,7 +457,7 @@ all, and their GSM8K chains are slightly *longer* than base. Whether accuracy is
 preserved is a separate question that the scoring answers; length was the
 mechanism behind the earlier collapse, and it is absent here.
 
-## 6. Why the earlier checkpoints lost usefulness: they compress
+## 7. Why the earlier checkpoints lost usefulness: they compress
 
 A blinded read of a frozen 100-prompt Alpaca subset (slot order randomised per
 prompt; every statistic computed before unblinding) settles the question the
@@ -460,7 +497,7 @@ One caveat that limits the old comparison: canonN700 and RB1200 emit
 byte-identical greedy answers on **44 of 100** prompts, so they were never two
 independent arms.
 
-## 7. A standing limit on the teacher
+## 8. A standing limit on the teacher
 
 The frozen preference-model ensemble encodes at most 384 tokens, and **26,790 of
 the 84,000 pooled response occurrences (31.9%) are longer than that**; on the
@@ -478,7 +515,7 @@ against 205.2 unweighted), and the within-prompt $r^2$ of length on the target i
 0.006 / 0.008 / 0.003 on train / dev / test. The teacher is frozen for this run
 and was not retrained; this is recorded as a limitation, not fixed.
 
-## 8. What the held-out numbers do and do not establish
+## 9. What the held-out numbers do and do not establish
 
 From the run's own split manifest, stated plainly because it bounds the claim:
 
@@ -500,7 +537,7 @@ target to prompts it never trained on, under a teacher that has seen them. That
 is the question the neural-realization bottleneck was about. It is not a claim
 about a fresh benchmark.
 
-## 9. Two evaluator faults found, both worth keeping
+## 10. Two evaluator faults found, both worth keeping
 
 Neither is about NBPO, and both would have silently degraded the numbers.
 
@@ -530,7 +567,7 @@ with the hashes that were on disk when it was sent.
 responses score 0.754159 and 0.752311 on two runs of the official evaluator,
 one prompt of 541, while the loose variants are bit-identical.
 
-## 10. What is still open, and what to do about it
+## 11. What is still open, and what to do about it
 
 Ordered by how much each would change the paper.
 
@@ -567,7 +604,7 @@ Ordered by how much each would change the paper.
    Algorithm 1 acceptance. Sampling at the training temperature and re-scoring
    would close that gap.
 
-## 11. Cost and schedule
+## 12. Cost and schedule
 
 **Paid judge API calls: 0.** No request was made to OpenAI, Anthropic, Gemini or
 OpenRouter at any point.

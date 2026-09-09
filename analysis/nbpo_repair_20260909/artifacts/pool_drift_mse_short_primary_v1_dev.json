@@ -1,0 +1,41 @@
+{
+  "label": "mse_short_primary_v1",
+  "policy": "/work/nbpo_repair_20260909/arms/mse_short_primary_v1",
+  "split": "dev",
+  "pair_statistics_prompt_clustered_bootstrap": {
+    "resamples": 2000,
+    "seed": 20260909,
+    "unit": "prompt",
+    "pearson": {
+      "point": 0.5891982906074774,
+      "ci95_low": 0.5542267122515101,
+      "ci95_high": 0.6223561690483775
+    },
+    "sign_accuracy": {
+      "point": 0.6948571428571428,
+      "ci95_low": 0.6795,
+      "ci95_high": 0.7090714285714286
+    },
+    "nmse": {
+      "point": 0.6885050261297114,
+      "ci95_low": 0.6378759792782842,
+      "ci95_high": 0.744407650354842
+    }
+  },
+  "n_prompts": 500,
+  "n_candidates_scored": 4000,
+  "delta_mean": -0.9064376167953014,
+  "delta_std": 1.4015326410809086,
+  "delta_within_prompt_std": 1.2176019199125254,
+  "corr_delta_vs_g": 0.5891884068476687,
+  "corr_delta_vs_length": 0.12983631250323396,
+  "corr_g_vs_length": 0.08966964686235927,
+  "partial_corr_delta_vs_g_given_length": 0.5848323967946645,
+  "kl_target_to_policy_mean": 0.6204150601600817,
+  "kl_target_to_center_mean": 0.7879436016082764,
+  "kl_policy_to_center_mean": 0.5622338056564331,
+  "top1_match_rate": 0.406,
+  "mass_on_target_argmax_mean": 0.2906494140625,
+  "center_mass_on_target_argmax": 0.125,
+  "kl_improvement_vs_center": 0.16752854144819462
+}

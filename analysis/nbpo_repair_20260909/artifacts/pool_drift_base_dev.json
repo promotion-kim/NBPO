@@ -1,0 +1,44 @@
+{
+  "label": "base",
+  "policy": "/work/models/bases/Llama-3.1-8B-Instruct",
+  "split": "dev",
+  "pair_statistics_prompt_clustered_bootstrap": {
+    "resamples": 0,
+    "seed": 20260909,
+    "unit": "prompt",
+    "pearson": {
+      "point": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "undefined_reason": "degenerate: the induced log-ratio has zero variance"
+    },
+    "sign_accuracy": {
+      "point": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "undefined_reason": "degenerate: the induced log-ratio has zero variance"
+    },
+    "nmse": {
+      "point": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "undefined_reason": "degenerate: the induced log-ratio has zero variance"
+    }
+  },
+  "n_prompts": 500,
+  "n_candidates_scored": 4000,
+  "delta_mean": 0.0,
+  "delta_std": 0.0,
+  "delta_within_prompt_std": 0.0,
+  "corr_delta_vs_g": null,
+  "corr_delta_vs_length": null,
+  "corr_g_vs_length": 0.08966964686235927,
+  "partial_corr_delta_vs_g_given_length": null,
+  "kl_target_to_policy_mean": 0.7879435857066316,
+  "kl_target_to_center_mean": 0.7879436016082764,
+  "kl_policy_to_center_mean": 0.0,
+  "top1_match_rate": 0.108,
+  "mass_on_target_argmax_mean": 0.125,
+  "center_mass_on_target_argmax": 0.125,
+  "kl_improvement_vs_center": 1.590164477871525e-08
+}

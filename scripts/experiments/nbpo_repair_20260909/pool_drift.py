@@ -77,11 +77,18 @@ def main():
     keys = sorted(table)
     items = [table[k] for k in keys]
 
-    policy = AutoModelForCausalLM.from_pretrained(args.policy, dtype=torch.bfloat16).to(device).eval()
+    def load(path):
+        """transformers renamed torch_dtype to dtype; the train stack here wants the old name."""
+        try:
+            return AutoModelForCausalLM.from_pretrained(path, dtype=torch.bfloat16)
+        except TypeError:
+            return AutoModelForCausalLM.from_pretrained(path, torch_dtype=torch.bfloat16)
+
+    policy = load(args.policy).to(device).eval()
     logp_policy = score(policy, items, device)
     del policy
     torch.cuda.empty_cache()
-    reference = AutoModelForCausalLM.from_pretrained(args.reference, dtype=torch.bfloat16).to(device).eval()
+    reference = load(args.reference).to(device).eval()
     logp_reference = score(reference, items, device)
     del reference
     torch.cuda.empty_cache()
