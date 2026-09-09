@@ -223,9 +223,11 @@ never trained on. The two objectives also come out balanced (0.1339 against
 0.1337 for MSE), which is the bargaining solution's signature rather than an
 accident of one objective carrying the other.
 
-Against the finite-pool optimum: the base sits at −0.0405 and the solver target
-at +0.1653, so the MSE policy closes **85% of that gap** (WBC closes 56%). The
-same ordering holds on dev.
+Against the finite-pool target: the base sits at −0.0405 and the solver's $p^\star$
+at +0.1653, so the MSE policy covers **85% of that distance** (WBC covers 56%).
+The same ordering holds on dev. $p^\star$ is a reference point, not an upper
+bound — it is optimal over the *sampled pool*, while a policy may emit responses
+outside that pool and could in principle exceed its value.
 
 **And it does not cost capability.** Same checkpoints, official evaluators:
 
