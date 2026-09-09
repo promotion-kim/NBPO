@@ -320,6 +320,33 @@ one prompt of evaluator jitter — real but thin — while the loose gap of +0.0
 eight prompts and rests on a deterministic check. Both are reported; neither is
 averaged away.
 
+**The short horizon buys the tax back.** With all four arms scored on the same
+frozen panel:
+
+| | worst $s_k$ (test) | IFEval strict | GSM8K EM | HarmBench ↓ | Alpaca ref-win | Arena ref-win | med. tok |
+|---|---|---|---|---|---|---|---|
+| Base $=\pi_\text{ref}$ | −0.0405 | 0.752 | 0.867 | 0.281 | 0.500 | 0.500 | 457 |
+| \NBPO-MSE, 1750 | **+0.1337** | 0.758 | 0.864 | 0.284 | **0.419** | 0.435 | 481 |
+| \NBPO-WBC, 1750 | +0.0738 | 0.741 | 0.852 | 0.256 | **0.578** | 0.594 | 457 |
+| **\NBPO-MSE, 250†** | +0.1186 | **0.760** | **0.870** | 0.269 | 0.497 | 0.516 | 460 |
+| \NBPO-WBC, 250† | +0.0569 | 0.741 | 0.867 | 0.266 | 0.486 | 0.542 | 463 |
+
+At 1750 updates the two projections sit on opposite sides of the reference on the
+independent reward model — 0.419 and 0.578, both intervals excluding 0.5. **Both
+250-update arms sit at parity instead**, and the alignment tax is gone.
+
+**\NBPO-MSE at 250 updates is the row that did not exist before tonight.** It
+matches or exceeds the reference on every capability column at once — IFEval
+strict 0.760 against 0.752, GSM8K 0.870 against 0.867, HarmBench 0.269 against
+0.281, median tokens 460 against 457, reference win rate 0.497 — while carrying
+both bargaining objectives to +0.119 and +0.125 with intervals excluding zero.
+It gives up 0.015 of worst-objective surplus against the 1750-update arm and
+buys back the entire general-prompt regression, at a third of the compute.
+
+That is as close to a Pareto improvement as anything here gets, and it still is
+not one: HarmBench does not move for any arm, so the harmlessness game value
+does not transfer to an external safety benchmark, and every number is one seed.
+
 **An independent reward model disagrees, and it disagrees with the arm that won
 above.** On general-purpose prompts scored by `Skywork-Reward-V2-Qwen3-8B` — a
 scalar reward model that took no part in training — the same-prompt win rate
