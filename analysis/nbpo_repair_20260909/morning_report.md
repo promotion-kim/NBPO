@@ -72,8 +72,18 @@ alone at N=700 still transferred at ≈ 0, and the reference fix alone did not m
 the held-out regression at 300 updates. So no single fix accounts for this, and
 none is credited with it; the claim is about the repaired pipeline as a whole.
 
-The two projections then diverge with the horizon. WBC's held-out diagnostics
-are monotone and change sign:
+The two projections then diverge with the horizon. Both overshoot the target's
+own scale -- MSE's induced log-ratio RMS grows 1.87 -> 2.68 -> 3.29 against a
+target RMS of 2.37 -- but at very different speeds:
+
+| updates | MSE nMSE | MSE sign | MSE Pearson | WBC nMSE | WBC sign | WBC Pearson |
+|---|---|---|---|---|---|---|
+| 250 | 0.839 | 0.692 | +0.516 | 0.920 | 0.645 | +0.419 |
+| 500 | 1.226 | 0.688 | +0.452 | 1.932 | 0.623 | +0.250 |
+| 750 | 1.482 | 0.678 | +0.419 | 3.776 | 0.569 | +0.074 |
+
+MSE at 750 updates is still where WBC was at 250. WBC's full trajectory keeps
+going until it changes sign:
 
 | updates | nMSE | sign acc. | Pearson | Spearman | mean log-ratio to reference |
 |---|---|---|---|---|---|
