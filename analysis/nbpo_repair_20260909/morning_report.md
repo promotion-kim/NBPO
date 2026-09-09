@@ -88,15 +88,23 @@ a target RMS of 2.37 — but only one of them comes back:
 | 750 | 1.482 | 0.678 | +0.419 | −2.42 | 3.776 | 0.569 | +0.074 | −3.27 |
 | 1000 | 1.568 | 0.694 | +0.401 | −2.38 | 6.121 | 0.535 | −0.028 | −4.39 |
 | 1250 | 1.517 | 0.688 | +0.404 | −2.27 | 11.611 | 0.496 | −0.143 | −6.15 |
-| 1500 | **1.432** | 0.691 | **+0.412** | **−2.12** | 12.672 | 0.489 | −0.144 | −6.63 |
+| 1500 | 1.432 | 0.691 | +0.412 | −2.12 | 12.672 | 0.489 | −0.144 | −6.63 |
+| 1750 | **1.418** | **0.693** | **+0.415** | **−2.07** | 13.070 | 0.486 | −0.152 | −6.68 |
 
 **The two projections do not fail the same way, and only one of them fails.**
 MSE overshoots while the cosine schedule is near its peak and then comes back:
-its nMSE turns at step 1000 and falls 1.568 → 1.517 → 1.432, Pearson turns with
-it (+0.401 → +0.404 → +0.412), the induced log-ratio RMS shrinks back toward the
-target's 2.37 (3.32 → 3.19 → 3.02), and the drift to the reference contracts
-(−2.38 → −2.27 → −2.12). Sign accuracy never left 0.68–0.69 at any point. That
-is a regression settling onto its stationary point as the step size anneals.
+its nMSE turns at step 1000 and falls monotonically to the horizon (1.568 →
+1.517 → 1.432 → 1.418), Pearson turns with it (+0.401 → +0.404 → +0.412 →
++0.415), the induced log-ratio RMS shrinks back toward the target's 2.37 (3.32 →
+3.19 → 3.02 → 2.98), and the drift to the reference contracts (−2.38 → −2.07).
+Sign agreement never left 0.68–0.69 and Spearman never left 0.45–0.50, at any
+point in the whole run. That is a regression settling onto the stationary point
+it has, as the step size anneals.
+
+At the pre-registered horizon the MSE arm therefore meets **three of the four**
+criteria — sign 0.693 > 0.65, Pearson +0.415 > 0, Spearman +0.460 > 0 — and
+misses only nMSE, at 1.418 against 0.90. At the best single rescaling that
+residual is 0.828, so what the gate rejects is magnitude, not direction.
 
 WBC does not turn. It runs monotonically away over the same span, past zero
 correlation at 1000 updates and into anti-correlation, with the pool's mean
@@ -159,7 +167,46 @@ primary comparison. A separate 250-update WBC arm was **declared in writing
 before being run** (`protocols/wbc_short_horizon_prospective_v1.json`),
 labelled dev-selected, and is queued behind the primary evaluation.
 
-## 4. Why the earlier checkpoints lost usefulness: they compress
+## 4. Both arms finished, and neither one compresses
+
+| | WBC | MSE |
+|---|---|---|
+| exit code | 0 | 0 |
+| optimizer updates, all 4 ranks | 1750 | 1750 |
+| wall time | 6099.8 s | 6730.3 s |
+| GPU-hours | 6.78 | 7.48 |
+| policy forward tokens (rank 0) | 7,515,461 | 7,515,742 |
+| reference forward tokens (rank 0) | **0** | 7,515,742 |
+| pre-clip gradient norm, median | 1,076 | 9,274 |
+| fraction of updates clipped | **1.00** | **1.00** |
+| peak allocated | 74.9 GB | 74.9 GB |
+
+Two things in that table matter beyond bookkeeping. WBC's zero reference
+forwards are the runtime proof that its loss never touched a reference, so the
+two arms are not FLOPs-matched and are not described as such — the actual
+GPU-hours and forward-token counts are reported instead. And *every* update in
+both arms was clipped, at pre-clip norms three to four orders of magnitude above
+the threshold, which makes each update a fixed-length step along the gradient
+direction with the schedule controlling only that length. The audit was explicit
+that a large norm is not a reason to raise the clip, and it was not touched.
+
+**Response length is preserved at the full horizon.** Total generated tokens
+against base, at the pre-registered 1750 updates:
+
+| benchmark | WBC | MSE |
+|---|---|---|
+| IFEval | 93% | 97% |
+| GSM8K | 106% | 101% |
+| HarmBench | 93% | 121% |
+| XSTest | 105% | 116% |
+| AlpacaEval | 99% | 103% |
+
+The pre-repair arms sat at a median 57% of base length. These do not compress at
+all, and their GSM8K chains are slightly *longer* than base. Whether accuracy is
+preserved is a separate question that the scoring answers; length was the
+mechanism behind the earlier collapse, and it is absent here.
+
+## 5. Why the earlier checkpoints lost usefulness: they compress
 
 A blinded read of a frozen 100-prompt Alpaca subset (slot order randomised per
 prompt; every statistic computed before unblinding) settles the question the
@@ -199,7 +246,7 @@ One caveat that limits the old comparison: canonN700 and RB1200 emit
 byte-identical greedy answers on **44 of 100** prompts, so they were never two
 independent arms.
 
-## 5. A standing limit on the teacher
+## 6. A standing limit on the teacher
 
 The frozen preference-model ensemble encodes at most 384 tokens, and **26,790 of
 the 84,000 pooled response occurrences (31.9%) are longer than that**; on the
@@ -217,7 +264,7 @@ against 205.2 unweighted), and the within-prompt $r^2$ of length on the target i
 0.006 / 0.008 / 0.003 on train / dev / test. The teacher is frozen for this run
 and was not retrained; this is recorded as a limitation, not fixed.
 
-## 6. What the held-out numbers do and do not establish
+## 7. What the held-out numbers do and do not establish
 
 From the run's own split manifest, stated plainly because it bounds the claim:
 
@@ -239,7 +286,7 @@ target to prompts it never trained on, under a teacher that has seen them. That
 is the question the neural-realization bottleneck was about. It is not a claim
 about a fresh benchmark.
 
-## 7. Cost and schedule
+## 8. Cost and schedule
 
 | item | value |
 |---|---|
