@@ -206,6 +206,31 @@ MSE is at or above base on every IFEval variant and 0.23 points below on GSM8K.
 The pre-repair arms lost 15.7 GSM8K points and 9–11 IFEval points on the same
 kind of panel. That collapse is gone.
 
+**An independent reward model disagrees, and it disagrees with the arm that won
+above.** On general-purpose prompts scored by `Skywork-Reward-V2-Qwen3-8B` — a
+scalar reward model that took no part in training — the same-prompt win rate
+against base is:
+
+| | AlpacaEval prompts (805) | Arena-Hard (500) | Arena creative (250) | median tokens vs base |
+|---|---|---|---|---|
+| \NBPO-MSE, 1750 | **0.419** [0.387, 0.452] | 0.435 [0.395, 0.476] | 0.390 [0.332, 0.450] | 481 vs 457 |
+| \NBPO-WBC, 1750 | **0.578** [0.546, 0.612] | 0.594 [0.552, 0.637] | 0.584 [0.522, 0.646] | 457 vs 457 |
+
+Both intervals exclude 0.5, in opposite directions. So three evaluators order the
+two arms three different ways: the training teacher puts MSE far ahead
+(+0.134 vs +0.074 worst-objective surplus), the official deterministic
+benchmarks put MSE at or above base and WBC below it, and this independent
+reward model puts WBC above base and MSE clearly below.
+
+That is not a length artifact — MSE's answers are *longer* than base here — and
+it is not a tie that more seeds would resolve. It is the alignment tax showing
+up off the training distribution: SafeRLHF is a safety-and-helpfulness panel,
+AlpacaEval and Arena-Hard are general assistant prompts, and the arm that moved
+furthest toward the SafeRLHF bargaining target is the one a general-purpose
+reward model likes least. The reward model is also exactly the kind of scalar
+evaluator this paper argues against, so it is reported as a third opinion rather
+than as an adjudicator. No Pareto claim survives this table, and none is made.
+
 **What this is not.** These are greedy point-mass decodes, not unbiased samples
 from the trained stochastic policy, and the evaluation report says so itself and
 declines to certify Algorithm 1 acceptance on that basis. It is one training
