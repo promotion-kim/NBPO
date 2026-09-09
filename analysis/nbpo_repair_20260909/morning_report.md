@@ -81,13 +81,28 @@ The two projections then diverge with the horizon. Both overshoot the target's
 own scale -- MSE's induced log-ratio RMS grows 1.87 -> 2.68 -> 3.29 against a
 target RMS of 2.37 -- but at very different speeds:
 
-| updates | MSE nMSE | MSE sign | MSE Pearson | WBC nMSE | WBC sign | WBC Pearson |
-|---|---|---|---|---|---|---|
-| 250 | 0.839 | 0.692 | +0.516 | 0.920 | 0.645 | +0.419 |
-| 500 | 1.226 | 0.688 | +0.452 | 1.932 | 0.623 | +0.250 |
-| 750 | 1.482 | 0.678 | +0.419 | 3.776 | 0.569 | +0.074 |
+| updates | MSE nMSE | MSE sign | MSE Pearson | MSE drift | WBC nMSE | WBC sign | WBC Pearson | WBC drift |
+|---|---|---|---|---|---|---|---|---|
+| 250 | 0.839 | 0.692 | +0.516 | −1.13 | 0.920 | 0.645 | +0.419 | −0.75 |
+| 500 | 1.226 | 0.688 | +0.452 | −1.86 | 1.932 | 0.623 | +0.250 | −2.04 |
+| 750 | 1.482 | 0.678 | +0.419 | −2.42 | 3.776 | 0.569 | +0.074 | −3.27 |
+| 1000 | 1.568 | 0.694 | +0.401 | −2.38 | 6.121 | 0.535 | −0.028 | −4.39 |
+| 1250 | 1.517 | 0.688 | +0.404 | −2.27 | 11.611 | 0.496 | −0.143 | −6.15 |
+| 1500 | **1.432** | 0.691 | **+0.412** | **−2.12** | 12.672 | 0.489 | −0.144 | −6.63 |
 
-MSE at 750 updates is still where WBC was at 250.
+**The two projections do not fail the same way, and only one of them fails.**
+MSE overshoots while the cosine schedule is near its peak and then comes back:
+its nMSE turns at step 1000 and falls 1.568 → 1.517 → 1.432, Pearson turns with
+it (+0.401 → +0.404 → +0.412), the induced log-ratio RMS shrinks back toward the
+target's 2.37 (3.32 → 3.19 → 3.02), and the drift to the reference contracts
+(−2.38 → −2.27 → −2.12). Sign accuracy never left 0.68–0.69 at any point. That
+is a regression settling onto its stationary point as the step size anneals.
+
+WBC does not turn. It runs monotonically away over the same span, past zero
+correlation at 1000 updates and into anti-correlation, with the pool's mean
+log-likelihood still falling at 1750. Weighted NLL has no stationary point at
+the target, so annealing the step size slows the divergence without reversing
+it.
 
 **The residual splits into direction and magnitude, and only the magnitude runs
 away.** From the moments each run already logs, the nMSE at the single best
