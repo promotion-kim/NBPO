@@ -77,9 +77,9 @@ alone at N=700 still transferred at ≈ 0, and the reference fix alone did not m
 the held-out regression at 300 updates. So no single fix accounts for this, and
 none is credited with it; the claim is about the repaired pipeline as a whole.
 
-The two projections then diverge with the horizon. Both overshoot the target's
-own scale -- MSE's induced log-ratio RMS grows 1.87 -> 2.68 -> 3.29 against a
-target RMS of 2.37 -- but at very different speeds:
+The two projections then part company over the horizon. Both first overshoot the
+target's own scale — MSE's induced log-ratio RMS goes 1.87 → 2.68 → 3.29 against
+a target RMS of 2.37 — but only one of them comes back:
 
 | updates | MSE nMSE | MSE sign | MSE Pearson | MSE drift | WBC nMSE | WBC sign | WBC Pearson | WBC drift |
 |---|---|---|---|---|---|---|---|---|
