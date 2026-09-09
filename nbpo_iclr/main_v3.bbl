@@ -1,4 +1,4 @@
-\begin{thebibliography}{26}
+\begin{thebibliography}{23}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -45,11 +45,6 @@ Vincent Conitzer, Rachel Freedman, Jobst Heitzig, Wesley~H. Holliday, Bob~M. Jac
 \newblock Position: Social choice should guide {AI} alignment in dealing with diverse human feedback.
 \newblock In \emph{Proceedings of the 41st International Conference on Machine Learning}, volume 235 of \emph{Proceedings of Machine Learning Research}, 2024.
 
-\bibitem[Danskin(1967)]{danskin1967theory}
-John~M. Danskin.
-\newblock \emph{The Theory of Max-Min and Its Application to Weapons Allocation Problems}.
-\newblock Springer-Verlag, 1967.
-
 \bibitem[Munos et~al.(2024)Munos, Valko, Calandriello, Azar, Rowland, Guo, Tang, Geist, Mesnard, Michi, et~al.]{munos2024nash}
 R{\'e}mi Munos, Michal Valko, Daniele Calandriello, Mohammad~Gheshlaghi Azar, Mark Rowland, Daniel Guo, Yunhao Tang, Matthieu Geist, Thomas Mesnard, Andrea Michi, et~al.
 \newblock Nash learning from human feedback.
@@ -89,16 +84,6 @@ Corby Rosset, Ching-An Cheng, Arindam Mitra, Michael Santacroce, Ahmed Awadallah
 Seongho Son, William Bankes, Sangwoong Yoon, Shyam~Sundhar Ramesh, Xiaohang Tang, and Ilija Bogunovic.
 \newblock Robust multi-objective controlled decoding of large language models.
 \newblock In \emph{International Conference on Learning Representations}, 2026.
-
-\bibitem[Tversky(1969)]{tversky1969intransitivity}
-Amos Tversky.
-\newblock Intransitivity of preferences.
-\newblock \emph{Psychological Review}, 76\penalty0 (1):\penalty0 31--48, 1969.
-
-\bibitem[Wang et~al.(2024)Wang, Xiong, Xie, Zhao, and Zhang]{wang2024armorm}
-Haoxiang Wang, Wei Xiong, Tengyang Xie, Han Zhao, and Tong Zhang.
-\newblock Interpretable preferences via multi-objective reward modeling and mixture-of-experts.
-\newblock In \emph{Findings of the Association for Computational Linguistics: EMNLP 2024}, pp.\  10582--10592, 2024.
 
 \bibitem[Wu et~al.(2025)Wu, Sun, Yuan, Ji, Yang, and Gu]{wu2025sppo}
 Yue Wu, Zhiqing Sun, Huizhuo Yuan, Kaixuan Ji, Yiming Yang, and Quanquan Gu.

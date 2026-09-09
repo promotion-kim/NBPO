@@ -1,0 +1,35 @@
+\begin{table}[t]
+\centering\footnotesize
+\caption{Preregistered population-optimizer audit over 200 finite cyclic games. Regret differences are paired means with 95\% bootstrap intervals.}
+\label{tab:synthetic-simplification}
+\begin{tabular}{lcc}
+\toprule
+comparison & endpoint & result \\
+\midrule
+full vs. minimal & max policy $\ell_1$ & $0.0e+00$ \\
+normalized vs. absorbed step & max policy $\ell_1$ & $2.9e-15$ \\
+without Phase 0 & Nash-regret increase & $0.0187$ $[0.0165,0.0213]$ \\
+noisy stage gate & Nash-regret change & $-0.0372$ $[-0.0407,-0.0340]$ \\
+raw fixed step & strict-IR change & $-0.040$ $[-0.070,-0.015]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Population optimizer audit.}
+The full and minimal exact-gradient updates were identical, and absorbing the
+sum of inverse-surplus weights into the step size changed the policy by at most
+$2.9e-15$ in $\ell_1$. Removing Phase~0 increased
+Nash-welfare regret by $0.0187$, while a stage-level acceptance test
+reduced regret under frozen gradient noise by $0.0372$. Raw
+inverse weights at the same nominal step reduced the strict-IR rate by
+$4.0\%$. The scale-covariance and Pareto residuals were below
+$2.4e-15$. These results support a minimal population update:
+retain the feasibility warm start, normalize inverse-surplus weights or absorb
+their sum into the step size, and omit post-warm-start clipping. Stage
+acceptance remains an outer safeguard for inexact neural updates.
+
+The simultaneous Hoeffding lower bound made no false certifications in this
+study, compared with 1.09\% for the plug-in
+rule at $n=128$, but its power was only 9.0\% at
+$n=8192$. We therefore use confidence bounds as external certificates rather
+than as an optimization ingredient.
