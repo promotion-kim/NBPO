@@ -474,7 +474,44 @@ with the hashes that were on disk when it was sent.
 responses score 0.754159 and 0.752311 on two runs of the official evaluator,
 one prompt of 541, while the loose variants are bit-identical.
 
-## 10. Cost and schedule
+## 10. What is still open, and what to do about it
+
+Ordered by how much each would change the paper.
+
+1. **One seed.** Every number here is a single training run. The paired
+   prompt-bootstrap intervals are prompt-sampling uncertainty and say nothing
+   about seed variance; the artifacts label them that way. Two more seeds of the
+   MSE arm at both horizons is roughly 30 GPU-hours and is the first thing to
+   buy.
+2. **The three evaluators disagree and nothing here resolves it.** The arm that
+   moves furthest toward the bargaining target is the one an independent reward
+   model likes least on general prompts. Candidate explanations that this run
+   cannot separate: distribution shift between SafeRLHF and general assistant
+   prompts; the reward model's own preferences for a style the teacher does not
+   share; or a genuine tax paid for the safety-and-helpfulness compromise. A
+   blinded human comparison on a stratified sample of the disagreeing prompts
+   would settle which, and costs no GPU.
+3. **The teacher sees 384 tokens.** A third of what it scores is truncated, so
+   the target carries no information about content past that budget. Retraining
+   the ensemble with a longer encoder context is the single change most likely to
+   move the downstream numbers, and it is a preference-model job rather than a
+   policy one.
+4. **This panel cannot discriminate aggregation rules.** The Nash and
+   $\ell_1$-matched utilitarian targets differ by 0.3% of their own magnitude
+   (`aggregation_control.json`), so the control arm was prepared and not run.
+   Testing the bargaining claim needs objectives whose Nash weights are
+   genuinely asymmetric — a third objective, or a panel where one objective is
+   much harder to improve than the other.
+5. **The horizon was the binding error and is not yet tuned.** WBC-short peaks
+   at 150 updates, not 250, and the 2×2 was declared at a single short horizon.
+   A proper horizon sweep on dev, declared in advance, is cheap: five points at
+   250 updates each is about 10 GPU-hours.
+6. **Greedy decodes are not the policy.** Every downstream number is a
+   point-mass decoder, which the evaluation record itself says does not certify
+   Algorithm 1 acceptance. Sampling at the training temperature and re-scoring
+   would close that gap.
+
+## 11. Cost and schedule
 
 **Paid judge API calls: 0.** No request was made to OpenAI, Anthropic, Gemini or
 OpenRouter at any point.
