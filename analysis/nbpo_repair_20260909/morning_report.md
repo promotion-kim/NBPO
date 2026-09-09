@@ -70,7 +70,38 @@ primary result whatever it shows. A separate 250-update arm was **declared in
 writing before being run** (`protocols/wbc_short_horizon_prospective_v1.json`),
 labelled dev-selected, and is queued behind the primary evaluation.
 
-## 4. Cost and schedule
+
+## 4. Why the earlier checkpoints lost usefulness: they compress
+
+A blinded read of a frozen 100-prompt Alpaca subset (slot order randomised per
+prompt; every statistic computed before unblinding) settles the question the
+audit raised about the pre-repair arms.
+
+- Refusal: **1 of 100** responses opens with a refusal. Over-refusal is not the mechanism.
+- Truncation: the arms hit the 2048-token cap on **6** prompts against base's **2** — that is the long tail, not the short one.
+- Compression: shorter than base on **80 of 100** prompts, **median 57%** of base length, 57 below 60%, only 7 below 30%.
+
+The answers stay coherent. They keep base's opening sentence and formatting,
+drop enumerated items and elaboration, and close with a well-formed summary.
+That single mechanism accounts for the whole downstream pattern — IFEval length
+and count constraints missed, GSM8K chains cut short, HarmBench harmful rate
+down, local RM proxy down.
+
+It is not what the teacher asked for. The solver puts its mass on slightly
+**longer** candidates: teacher-weighted mean response length 219.8 tokens
+against 205.2 unweighted, and the canonical target is nearly length-independent
+(within-prompt $r^2$ of length on the target is 0.006 on train, 0.008 on dev,
+0.003 on test). The compression is introduced by the projection.
+
+GSM8K splits cleanly: canonN700 loses 15.7 points, of which at most 4.9 can be
+parser failure (65 extra unparseable answers out of 1319, counting every one as
+otherwise correct). At least 69% is arithmetic that is actually wrong.
+
+One caveat that limits the old comparison: canonN700 and RB1200 emit
+byte-identical greedy answers on **44 of 100** prompts, so they were never two
+independent arms.
+
+## 5. Cost and schedule
 
 | item | value |
 |---|---|
