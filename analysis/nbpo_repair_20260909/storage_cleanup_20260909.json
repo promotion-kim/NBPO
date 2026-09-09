@@ -1,0 +1,59 @@
+{
+  "schema": "sjkim-storage-cleanup-v1",
+  "recorded_utc": "2026-09-09T11:35:21.500738+00:00",
+  "scope": "PVCs sjkim (/work) and sjkim-data (/data) only; no other users PVC is mounted in this pod",
+  "total_gib": 297.52,
+  "targets": [
+    {
+      "path": "/data/runs/mmpae-3B-e280-2gpu-bs64-lr3e5-b2500/Polyone_AE_0190.pt",
+      "reason": "byte-identical duplicate of Checkpoint_BEST.pt in the same directory (same size 47703187565, same md5 of first 20MB); metrics.jsonl records epoch 190 as the best epoch, and Checkpoint_BEST.pt is kept",
+      "recoverable": "no loss: the identical bytes remain as Checkpoint_BEST.pt",
+      "exists": true,
+      "bytes": 47703187565,
+      "gib": 44.43
+    },
+    {
+      "path": "/data/runs/mmpae-0p35B-e200/Polyone_AE_0190.pt",
+      "reason": "byte-identical duplicate of Checkpoint_BEST.pt in the same directory (same size 5673462421, same md5 of first 20MB); epoch 190 is the best epoch here too",
+      "recoverable": "no loss: the identical bytes remain as Checkpoint_BEST.pt",
+      "exists": true,
+      "bytes": 5673462421,
+      "gib": 5.28
+    },
+    {
+      "path": "/work/models/xj_judges",
+      "reason": "stock public HuggingFace snapshots (Llama-3.3-70B judge, Qwen3-32B, microsoft/phi-4, RLHFlow/ArmoRM), no local fine-tuning; not referenced by any running process, nor by the repair run configs, protocols or teacher inputs",
+      "recoverable": "re-downloadable from HuggingFace, which this pod can reach (verified HTTP 200); the Qwen3-32B copy is the permanently retired prompted judge",
+      "exists": true,
+      "bytes": 266080306997,
+      "gib": 247.81
+    }
+  ],
+  "executed_utc": "2026-09-09T11:40:55.688922+00:00",
+  "executed": [
+    {
+      "what": "MMPAE intermediate epoch checkpoints, both runs",
+      "paths": "/data/runs/{mmpae-3B-e280-2gpu-bs64-lr3e5-b2500,mmpae-0p35B-e200}/Polyone_AE_{0010..0190}.pt",
+      "files": 38,
+      "gib": 944.5,
+      "kept": "Checkpoint_BEST.pt (= epoch 190, verified byte-identical before deletion), Polyone_AE_0200.pt (final epoch), and eval/ with metrics.jsonl carrying all 20 per-epoch evaluations",
+      "guard": "refused to delete unless both keepers existed nonzero and eval/metrics.jsonl was present"
+    },
+    {
+      "what": "public HuggingFace judge/model snapshots",
+      "paths": "/work/models/xj_judges (llama70, qwen3-32b, microsoft--phi-4, RLHFlow--ArmoRM)",
+      "gib": 247.8,
+      "kept": "nothing local was unique: all four are stock upstream snapshots and huggingface.co is reachable from this pod (verified HTTP 200)",
+      "guard": "scanned /proc for open file handles and cwd under the target outside my own process tree; none found. An earlier guard aborted on a false positive - the shell wrapper's own command line contained the path string."
+    }
+  ],
+  "total_freed_gib": 1192.3,
+  "not_touched": [
+    "other users' PVCs, which are not mounted in this pod at all",
+    "/work/nbpo_repair_20260909, the campaign running tonight",
+    "/work/hf_cache, holding the Skywork and HarmBench classifiers in use",
+    "/work/iclr27_table1_v2, cited as evidence by tonight's audit findings",
+    "/work/models/bases and /work/models/restored",
+    "every completed-campaign checkpoint under /work (game, v3_20260904, gtpref, campaign_*)"
+  ]
+}
