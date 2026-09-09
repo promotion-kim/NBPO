@@ -106,9 +106,13 @@ nats) — which is what a regression with a stationary point at the target shoul
 do, and what weighted NLL does not.
 
 The optimal multiplier being below 1 is shrinkage under imperfect correlation,
-not evidence that $\eta$ was set too high. But it does make $\eta$ the obvious
-calibration knob for a follow-up, since it scales the target and is applied in
-the trainer, so one precompute serves every value.
+not evidence that $\eta$ was set too high — and $\eta$ is *not* the lever here.
+nMSE is invariant to rescaling $h$ and the target together, which is what
+changing $\eta$ does to first order, so an $\eta$ sweep would move the target's
+magnitude without moving this ratio. The quantity that has to shrink is $h$
+*relative to* a fixed target, and the levers for that are the ones the 2×2 tests
+or regularizes directly: the horizon, the step size, and an explicit proximal
+penalty. The horizon is the one being measured tonight.
 
 WBC's full trajectory keeps going until it changes sign:
 
