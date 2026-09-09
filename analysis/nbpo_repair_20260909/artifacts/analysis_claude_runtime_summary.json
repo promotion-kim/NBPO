@@ -1,0 +1,112 @@
+{
+  "wbc_primary_v1": {
+    "arm": "wbc_primary_v1",
+    "steps_recorded_per_rank": {
+      "0": 1750,
+      "1": 1750,
+      "2": 1750,
+      "3": 1750
+    },
+    "every_rank_recorded_1_to_horizon": true,
+    "finished": true,
+    "exit_code": 0,
+    "wall_seconds": 6099.77022524178,
+    "gpu_hours": 6.777522472490867,
+    "seconds_per_update": {
+      "median": 2.5687409564852715,
+      "mean": 2.559433536976576,
+      "records": 20
+    },
+    "preclip_grad_norm": {
+      "median": 1075.7579345703125,
+      "min": 456.0912170410156,
+      "max": 2214.49658203125,
+      "p95": 1453.7037353515625
+    },
+    "clipped_fraction": 1.0,
+    "master_update_l2": {
+      "median": 0.0008190992561733991,
+      "sum_if_every_step_aligned": 0.01583812729612718
+    },
+    "forward_tokens_rank0": {
+      "policy_forward_tokens": 7515461,
+      "policy_response_tokens": 5827543,
+      "reference_forward_tokens": 0,
+      "reference_response_tokens": 0
+    },
+    "precision": {
+      "loss": "torch.float32",
+      "masters": [
+        "torch.float32"
+      ],
+      "adam": [
+        "torch.float32"
+      ],
+      "forward_parameters": "torch.bfloat16",
+      "logp": {
+        "implementation": "fp32_chunked_selected_logsoftmax_v1",
+        "logits": "torch.float32",
+        "log_softmax": "torch.float32",
+        "selected_logp": "torch.float32",
+        "sequence_logp": "torch.float32"
+      }
+    },
+    "rotary_buffer_restorations": 33,
+    "peak_allocated_gb": 74.93319988250732
+  },
+  "mse_primary_v1": {
+    "arm": "mse_primary_v1",
+    "steps_recorded_per_rank": {
+      "0": 1566,
+      "1": 1566,
+      "2": 1566,
+      "3": 1566
+    },
+    "every_rank_recorded_1_to_horizon": false,
+    "finished": false,
+    "exit_code": null,
+    "wall_seconds": null,
+    "gpu_hours": null,
+    "seconds_per_update": {
+      "median": 2.910779805853963,
+      "mean": 2.941970919072628,
+      "records": 20
+    },
+    "preclip_grad_norm": {
+      "median": 9747.27685546875,
+      "min": 2059.384765625,
+      "max": 44709.35546875,
+      "p95": 19987.984375
+    },
+    "clipped_fraction": 1.0,
+    "master_update_l2": {
+      "median": 0.000829623335205469,
+      "sum_if_every_step_aligned": 0.016094780863637078
+    },
+    "forward_tokens_rank0": {
+      "policy_forward_tokens": 6738782,
+      "policy_response_tokens": 5228948,
+      "reference_forward_tokens": 6739063,
+      "reference_response_tokens": 5229073
+    },
+    "precision": {
+      "loss": "torch.float32",
+      "masters": [
+        "torch.float32"
+      ],
+      "adam": [
+        "torch.float32"
+      ],
+      "forward_parameters": "torch.bfloat16",
+      "logp": {
+        "implementation": "fp32_chunked_selected_logsoftmax_v1",
+        "logits": "torch.float32",
+        "log_softmax": "torch.float32",
+        "selected_logp": "torch.float32",
+        "sequence_logp": "torch.float32"
+      }
+    },
+    "rotary_buffer_restorations": 33,
+    "peak_allocated_gb": 74.93319988250732
+  }
+}
