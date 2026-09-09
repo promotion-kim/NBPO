@@ -485,29 +485,18 @@ On the controlled-v2 panel the direct prompt-wise solver meets every declared co
 
 \subsection{Natural objective conflict on SafeRLHF}
 \label{sec:saferlhf-exp}
-\textsc{SafeRLHF} provides direct human pairwise labels for helpfulness and harmlessness \citep{dai2024safe}. Its released graph contains no fully observed response triangles, so it cannot identify within-objective human cycles; we use it instead for the aggregation question. The two objectives disagree on $24.33\%$ of held-out \emph{human-annotated} pairs, which defines the conflict subset by a fixed prompt mapping. On \emph{generated} response pools the frozen preference-model ensemble disagrees on only $7.7$--$7.8\%$ of pairs (Table~\ref{tab:pool-pilot}); the two rates have different populations, denominators and adjudicators and are not interchangeable. We fit matched-capacity objective models: an explicitly anti-symmetric joint-pair model for the general-preference interface and a scalar Bradley--Terry model for the reward-based controls. Their near-null held-out difference is reported rather than used as evidence for or against natural cyclicity. Final policy comparisons use the same sampled response pool and direct inner solver, three training seeds, and evaluation independent of the training preference models.
+\textsc{SafeRLHF} provides direct human pairwise labels for helpfulness and harmlessness \citep{dai2024safe}. Its released graph contains no fully observed response triangles, so it cannot identify within-objective human cycles; we use it instead for the aggregation question. The two objectives disagree on $24.33\%$ of held-out \emph{human-annotated} pairs, which defines the conflict subset by a fixed prompt mapping. On \emph{generated} response pools the frozen preference-model ensemble disagrees on only $7.7$--$7.8\%$ of pairs (Table~\ref{tab:pool-pilot}); the two rates have different populations, denominators and adjudicators and are not interchangeable. We fit matched-capacity objective models: an explicitly anti-symmetric joint-pair model for the general-preference interface and a scalar Bradley--Terry model for the reward-based controls. Their near-null held-out difference is reported rather than used as evidence for or against natural cyclicity. Final policy comparisons use the same sampled response pool and direct inner solver, and evaluation independent of the training preference models.
+
+Table~\ref{tab:saferlhf-main} reports what one seed of the repaired pipeline achieves on prompts held out from policy fitting. Both projections carry every objective strictly above the reference --- the individual-rationality property the bargaining solution is chosen for --- and the pairwise regression carries them furthest, to $+0.134$ and $+0.134$ against a base at $-0.041$ and $-0.032$, closing $85\%$ of the distance from the base policy to the finite-pool target ($56\%$ for weighted behavior cloning). The two objectives land within $0.0002$ of each other, which is the solution's own signature rather than one objective subsidizing the other. Neither arm shortens its answers to get there: total generated tokens across the evaluation panel are $100\%$ and $106\%$ of the base model's.
+
+That does not settle the question, and two columns elsewhere say so. \textsc{HarmBench}'s harmful-completion rate does not move for either arm (Table~\ref{tab:general-capability}), so the improvement in the harmlessness \emph{game value} does not appear on an external safety benchmark. And on general-purpose prompts an independent scalar reward model puts the weaker arm above the reference and the stronger arm clearly below it, reversing this table's ordering; \S\ref{sec:neural-general} takes that up.
 
 \begin{table*}[t]
 \centering\scriptsize
 \setlength{\tabcolsep}{3.0pt}
-\caption{Natural helpfulness--harmlessness bargaining on held-out \textsc{SafeRLHF} prompts. Objective columns are pairwise win rates against the common reference under the final independent evaluation protocol; cells report mean $\pm$ standard deviation over three policy-training seeds. ``Conflict'' evaluates the subset for which the released human objectives prefer different responses. Higher is better except HarmBench ASR; an em-dash marks a run that has not completed.}
+\caption{Objective-wise surplus over the reference on $1{,}000$ held-out \textsc{SafeRLHF} prompts, one training seed. Each policy is decoded greedily and scored against the \emph{same} frozen finite comparator pools and the same disagreement point $\widehat d$ used in training, so the rows differ only in the policy. $s_k=\widehat V_k-\widehat d_k$; intervals in the text are paired prompt bootstraps and exclude zero for both trained arms on both objectives. The finite-pool row is the solver's own target $p^\star$ on the same prompts and is the ceiling this projection is aiming at, not a policy. $^{\dagger}$Horizon selected on dev and declared before the arm was run. Greedy point-mass responses are not unbiased samples from the trained stochastic policy, so this table is a comparison of deployed decoders and not a certificate of Algorithm~\ref{alg:nbpo} acceptance; the run's own evaluation record declines that certificate on the same grounds. Aggregation-rule controls --- fixed-reference Nash, BT-RM--Nash, game-utilitarian, game-KS --- and additional seeds are the next step and are not claimed here.}
 \label{tab:saferlhf-main}
-\begin{tabular}{lrrrrrr}
-\toprule
-method & helpful $\uparrow$ & harmless $\uparrow$ & worst $\uparrow$ & average $\uparrow$ & conflict worst $\uparrow$ & HarmBench ASR $\downarrow$\\
-\midrule
-Base $=\piref$ & $0.500$ & $0.500$ & $0.500$ & $0.500$ & \pending & \pending\\
-\NBPO{} (ours) & \pending & \pending & \pending & \pending & \pending & \pending\\
-Fixed-reference Nash & \pending & \pending & \pending & \pending & \pending & \pending\\
-BT-RM--Nash & \pending & \pending & \pending & \pending & \pending & \pending\\
-Game-utilitarian & \pending & \pending & \pending & \pending & \pending & \pending\\
-Game-KS & \pending & \pending & \pending & \pending & \pending & \pending\\
-BT-RM--utilitarian & \pending & \pending & \pending & \pending & \pending & \pending\\
-\addlinespace
-PROSPER/MaxEntBW$^\ddagger$ & \pending & \pending & \pending & \pending & \pending & \pending\\
-\bottomrule
-\multicolumn{7}{l}{\footnotesize $^\ddagger$Retain only if a faithful matched-data run is completed; otherwise remove this row.}
-\end{tabular}
+\input{generated/surplus_test}
 \end{table*}
 
 \subsection{Neural realization and general capability}

@@ -1,0 +1,161 @@
+{
+  "split": "test",
+  "table": {
+    "base": {
+      "objectives": [
+        "helpfulness",
+        "harmlessness"
+      ],
+      "surplus": {
+        "helpfulness": {
+          "estimate": -0.040520161526883064,
+          "ci95": [
+            -0.04795277711739447,
+            -0.03342157434764988
+          ]
+        },
+        "harmlessness": {
+          "estimate": -0.03204408277321056,
+          "ci95": [
+            -0.03943834188280487,
+            -0.02436932269796073
+          ]
+        }
+      },
+      "delta_vs_base": {
+        "helpfulness": {
+          "estimate": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "harmlessness": {
+          "estimate": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "worst_objective": -0.040520161526883064,
+      "worst_objective_definition": "min_k E_x[s_k], not E_x[min_k s_k]",
+      "n_prompts": 1000,
+      "response_length": {
+        "mean_tokens": 200.338,
+        "median_tokens": 19.0,
+        "max_length_hits": 4
+      },
+      "teacher_truncation": {
+        "n_evaluated": 1500,
+        "prompt_truncated_fraction": 0.0,
+        "response_truncated_fraction": 0.31933333333333336,
+        "status": "measured"
+      }
+    },
+    "mse_primary_v1": {
+      "objectives": [
+        "helpfulness",
+        "harmlessness"
+      ],
+      "surplus": {
+        "helpfulness": {
+          "estimate": 0.1339041220959067,
+          "ci95": [
+            0.12334951923699951,
+            0.14526283775568988
+          ]
+        },
+        "harmlessness": {
+          "estimate": 0.13374774680604967,
+          "ci95": [
+            0.12285529793803539,
+            0.1448379490067626
+          ]
+        }
+      },
+      "delta_vs_base": {
+        "helpfulness": {
+          "estimate": 0.17442428362279008,
+          "ci95": [
+            0.161448163889848,
+            0.18712387085134835
+          ]
+        },
+        "harmlessness": {
+          "estimate": 0.16579182957926036,
+          "ci95": [
+            0.1526551183873889,
+            0.17848513855233591
+          ]
+        }
+      },
+      "worst_objective": 0.13374774680604967,
+      "worst_objective_definition": "min_k E_x[s_k], not E_x[min_k s_k]",
+      "n_prompts": 1000,
+      "response_length": {
+        "mean_tokens": 250.63066666666666,
+        "median_tokens": 79.0,
+        "max_length_hits": 1
+      },
+      "teacher_truncation": {
+        "n_evaluated": 1500,
+        "prompt_truncated_fraction": 0.0,
+        "response_truncated_fraction": 0.376,
+        "status": "measured"
+      }
+    },
+    "wbc_primary_v1": {
+      "objectives": [
+        "helpfulness",
+        "harmlessness"
+      ],
+      "surplus": {
+        "helpfulness": {
+          "estimate": 0.07376886085132343,
+          "ci95": [
+            0.06421949938564712,
+            0.08292615513122564
+          ]
+        },
+        "harmlessness": {
+          "estimate": 0.08080658061851226,
+          "ci95": [
+            0.07132817544197435,
+            0.09032121622538379
+          ]
+        }
+      },
+      "delta_vs_base": {
+        "helpfulness": {
+          "estimate": 0.11428902237820636,
+          "ci95": [
+            0.10273362543318708,
+            0.12551115072586064
+          ]
+        },
+        "harmlessness": {
+          "estimate": 0.11285066339172284,
+          "ci95": [
+            0.10126530842326757,
+            0.12470738952468599
+          ]
+        }
+      },
+      "worst_objective": 0.07376886085132343,
+      "worst_objective_definition": "min_k E_x[s_k], not E_x[min_k s_k]",
+      "n_prompts": 1000,
+      "response_length": {
+        "mean_tokens": 223.66733333333335,
+        "median_tokens": 47.5,
+        "max_length_hits": 1
+      },
+      "teacher_truncation": {
+        "n_evaluated": 1500,
+        "prompt_truncated_fraction": 0.0,
+        "response_truncated_fraction": 0.3393333333333333,
+        "status": "measured"
+      }
+    }
+  }
+}
