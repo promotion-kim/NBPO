@@ -145,13 +145,22 @@ def test_exact_inner_solve_matches_the_converged_fixed_point_where_one_exists():
     assert nf.total_variation(ex.pi.numpy(), it.pi.numpy()) < 1e-6
 
 
-def test_exact_inner_solve_preserves_the_target_log_ratio_identity():
-    """The Eq. (26) identity must hold to float64, not merely to optimizer tolerance.
+def test_exact_inner_solve_preserves_the_identity_where_no_bound_is_active():
+    """Where the identity may be checked, it holds; where it may not, the solver says so.
 
-    `write_generic_solution_artifact` refuses above 1e-9, and a raw optimizer
-    iterate only satisfies the identity to its own stationarity tolerance. The
-    solver therefore returns the Eq. (21) map APPLIED AT the maximizer, which
-    makes the identity exact by construction.
+    This test used to assert the identity everywhere, which the solver satisfied
+    by returning the Eq. (21) exponential map applied at the maximizer rather
+    than the maximizer itself. That makes the identity true by construction and
+    certifies nothing about the optimizer, which is the audit's finding C. The
+    solver now returns its actual refined solution, so the identity is a real
+    check with a real precondition: it is a first-order condition of the
+    *unconstrained* stationary point, and a coordinate pinned at the probability
+    floor does not satisfy it.
+
+    At raw Nash weight scale one prompt of six is driven onto the floor. The
+    contract is that the identity holds to float64 on every prompt that is
+    interior, and that the constrained prompt is reported as uncertified with
+    its active bound flagged rather than silently accepted.
     """
     from mnpo_scripts.nbpo_generic import solve_proximal_exact
     A, mu, beta, _ = small_instance(alpha=1.0, K=4, X=6, I=4)
@@ -159,11 +168,25 @@ def test_exact_inner_solve_preserves_the_target_log_ratio_identity():
     pi_t = uniform_policy(A.shape[1], A.shape[2])
     w = torch.tensor([120.0, 80.0, 200.0, 60.0], dtype=torch.float64)   # raw Nash scale
     ex = solve_proximal_exact(rep, pi_t, w, 1.0)
-    lr = torch.log(ex.pi) - torch.log(pi_t)
-    score = 1.0 * torch.einsum("k,kxi->xi", w, ex.q_update)
-    diff = lr - score
-    identity = float((diff - diff.mean(dim=-1, keepdim=True)).abs().max())
+    floor = ex.optimizer_diagnostics["probability_floor"]
+    at_bound = (ex.pi <= floor * (1.0 + 1e-9)).any(dim=-1)
+    diff = ((torch.log(ex.pi) - torch.log(pi_t))
+            - 1.0 * torch.einsum("k,kxi->xi", w, ex.q_update))
+
+    free = diff[~at_bound]
+    assert free.shape[0] > 0, "the instance must contain interior prompts to check"
+    identity = float((free - free.mean(dim=-1, keepdim=True)).abs().max())
     assert identity < 1e-9, identity
+
+    reports = ex.optimizer_diagnostics["prompts"]
+    assert len(reports) == ex.pi.shape[0]
+    for index, report in enumerate(reports):
+        if at_bound[index]:
+            assert not report["refinement_certified"], report
+            assert report["probability_floor_active"], report
+        else:
+            assert report["refinement_certified"], report
+            assert report["independent_stationarity_inf"] < 1e-4, report
 
 
 def test_exact_inner_solve_beats_the_r_step_map_where_the_map_diverges():

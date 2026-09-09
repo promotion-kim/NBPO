@@ -25,17 +25,18 @@ objectives:
   config: ../../training_configs/nbpo/objectives/saferlhf.yaml
   names: [helpfulness, harmlessness]
 judge:
-  # Three roles, recorded separately in every artifact/gate record. The
-  # manuscript's held-out evaluator is Llama-3.3-70B-Instruct; the training
-  # judge (Qwen3-32B) is never silently reused for monitoring or final reporting.
+  # Three roles, recorded separately in every artifact/gate record. The training
+  # teacher is a FROZEN preference-model ensemble, not a prompted generative
+  # judge: the free-form Qwen3-32B judge this file used to name here is retired
+  # and final_run_validator rejects any config that reinstates it. The held-out
+  # evaluator remains Llama-3.3-70B-Instruct, and is never the training teacher.
   training:
-    backend: vllm
-    model_path: Qwen/Qwen3-32B
-    max_retries: 2
-    tensor_parallel_size: 4
-    max_model_len: 8192
-    decoding: {temperature: 0.0, top_p: 1.0, top_k: -1, max_tokens: 512, retry_temperature: 0.3}
-    chat_template_kwargs: {enable_thinking: false}   # applied AND recorded
+    backend: preference_model_ensemble
+    checkpoint_root: /work/iclr27_table1_v2/models/saferlhf_ensemble_ckpt
+    seeds: [41, 42, 43]
+    aggregation: calibrated_probabilities_then_seed_mean
+    max_encoder_tokens: 384
+    frozen: true
   monitoring:
     backend: vllm
     model_path: meta-llama/Llama-3.3-70B-Instruct
@@ -55,12 +56,18 @@ generation:
   # a pool decoded under different kwargs is rejected rather than silently mixed.
   chat_template_kwargs: {}
 sampling:
-  policy_responses_per_prompt: 4     # response files below must carry 4 seeds each
-  reference_comparators_per_prompt: 4
-  pair_proposal: all_six_unordered_pairs
-  generation_temperature: 0.9
-  generation_top_p: 0.95
-  max_response_tokens: 512
+  # The pool defines an occurrence measure, so it is decoded from the untempered
+  # policy: warping the sampler makes p_t something other than 1/n and breaks the
+  # correspondence between the finite program and the model it is meant to move.
+  policy_responses_per_prompt: 8     # response files below must carry 8 seeds each
+  reference_comparators_per_prompt: 8
+  pair_proposal: all_unordered_pairs
+  generation_temperature: 1.0
+  generation_top_p: 1.0
+  generation_top_k: -1
+  repetition_penalty: 1.0
+  preserve_duplicate_multiplicity: true
+  max_response_tokens: 1024
 response_manifests:
   # Bare response paths cannot express WHICH checkpoint produced a pool. Each
   # manifest (scripts/nbpo/response_manifest.py) carries the generating
@@ -140,7 +147,10 @@ solver:
     record_solver_mode: true
     reject_legacy_artifacts: true
 targets:
-  mode: sampled                       # manuscript Eq. (24); rao_blackwell is a labeled variant
+  mode: canonical_logratio            # manuscript Eq. (24), written directly as log(p*/p_t)
+  target_column: nbpo_logratio_target
+  target_units: final_logratio_change
+  eta_already_included: true          # the trainer must NOT scale this target again
   seed: 42
 trainer:
   # run_mnpo settings for the candidate fit (tab:policy-training-hparams; full
