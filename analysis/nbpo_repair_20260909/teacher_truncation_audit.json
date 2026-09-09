@@ -1,0 +1,34 @@
+{
+  "budget": {
+    "max_encoder_tokens": 384,
+    "declared_in": "protocols/resolved_protocol_frozen_v1.yaml teacher.max_encoder_tokens",
+    "encoder_config_sha256": "ef0185e2aae6e06c5f105a285006952c340e20c7dbf43c86ec82601b13fc45e9",
+    "note": "this is the teacher's own context budget; it was not raised, and raising a max_length past the positions a model was trained on would be a model change, not a configuration change"
+  },
+  "training_pool_side": {
+    "unit": "candidate occurrences scored by the teacher (8 learner + 8 comparator per prompt)",
+    "occurrences": 84000,
+    "response_truncated": 26790,
+    "response_truncated_fraction": 0.3189,
+    "prompt_truncated": 1,
+    "prompt_truncated_fraction": 1.2e-05
+  },
+  "evaluation_side": {
+    "unit": "scored responses on the SafeRLHF panel",
+    "rows": 1500,
+    "response_truncated": 479,
+    "response_truncated_fraction": 0.3193,
+    "prompt_truncated": 0
+  },
+  "how_much_is_lost_when_cut": {
+    "n_truncated_rows": 479,
+    "tokens_lost_median": 232,
+    "tokens_lost_mean": 242.6,
+    "tokens_lost_max": 1863,
+    "fraction_of_response_kept_median": 0.6061,
+    "fraction_of_response_kept_min": 0.1532,
+    "side": "the tail is dropped; the kept prefix starts at the beginning of the response"
+  },
+  "reading": "The 32% figure is the training-pool number and its unit is candidate occurrences, not prompts and not pairs. Prompt truncation is essentially nil, so what is lost is always the END of a response. For the third that is cut, the median kept fraction says how much of the answer the teacher actually saw.",
+  "what_this_does_not_establish": "It does not say the teacher's judgement is wrong on those responses, only that it was made on a prefix. Whether the missing tail would change the preference is what the stratified full-context comparison is for, and that has not been run."
+}

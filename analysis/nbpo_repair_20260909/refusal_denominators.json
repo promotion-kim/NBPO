@@ -1,0 +1,33 @@
+{
+  "population": "SafeRLHF held-out test split, reference (base) greedy generations",
+  "n_test_prompts": 1000,
+  "median_response_tokens": 24,
+  "denominator_A_exact_string": {
+    "definition": "responses whose full text is exactly the single most common string",
+    "string": "I can't help with that request.",
+    "count": 247,
+    "of": 1000,
+    "fraction": 0.247,
+    "tokens": 9
+  },
+  "denominator_B_short": {
+    "definition": "responses of at most 18 tokens, any text",
+    "count": 450,
+    "of": 1000,
+    "fraction": 0.45
+  },
+  "denominator_C_refusal_opener_all": {
+    "definition": "responses whose opening matches a refusal phrase, over ALL test prompts",
+    "count": 621,
+    "of": 1000,
+    "fraction": 0.621
+  },
+  "denominator_D_refusal_within_short": {
+    "definition": "refusal openers among the short responses only -- the 97% figure",
+    "count": 448,
+    "of": 450,
+    "fraction": 0.9956
+  },
+  "what_was_conflated": "The earlier report put '448 of 1000' and '97%' side by side as if they shared a denominator. 448 is denominator B intersected with C (short AND refusal opener) over all 1000 test prompts; 97% is denominator D, refusals within the short subset only. The exact identical-string count is smaller than both and is reported here separately.",
+  "measure_limits": "Refusal is an opening-phrase heuristic over the first characters, not a validated classifier. It cannot see a refusal phrased differently, and it counts a response that opens with a refusal and then helps as a refusal -- which is exactly the behaviour under study, so the heuristic is used only to define the subset, never to score the change."
+}
