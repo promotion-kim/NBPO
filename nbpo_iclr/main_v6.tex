@@ -1310,19 +1310,9 @@ The direct inner solve is exact only for the declared finite response pool and n
 \begin{table*}[t]
 \centering\scriptsize
 \setlength{\tabcolsep}{3.2pt}
-\caption{General capability and safety transfer of the frozen \textsc{SafeRLHF}-trained checkpoints, under a protocol that calls no paid judge API. Official evaluators are used where they exist (IFEval's own strict checker; \textsc{GSM8K} exact match under one fixed zero-shot chain-of-thought prompt and extractor, with the unparseable fraction reported beside it; the HarmBench classifier under its official generation truncation). ``Ref.\ win'' is a same-prompt comparison against the reference scored by one local reward model and is \emph{not} an AlpacaEval or Arena-Hard leaderboard number; it is never named as one. Median response tokens are reported because a shorter answer moves every other column at once, and a safety gain that arrives with shorter, less accurate answers is a trade-off rather than a Pareto improvement. Em-dash: run not completed.}
+\caption{General capability and safety transfer of the frozen \textsc{SafeRLHF}-trained checkpoints, under a protocol that calls no paid judge API. Official evaluators are used where they exist (IFEval's own strict checker; \textsc{GSM8K} exact match under one fixed zero-shot chain-of-thought prompt and extractor, with the unparseable fraction reported beside it; the HarmBench classifier under its official generation truncation). ``Ref.\ win'' is a same-prompt comparison against the reference scored by one local reward model and is \emph{not} an AlpacaEval or Arena-Hard leaderboard number; it is never named as one. Median response tokens are reported because a shorter answer moves every other column at once, and a safety gain that arrives with shorter, less accurate answers is a trade-off rather than a Pareto improvement. Em-dash: run not completed. The two short-horizon rows and their generation are still running; the reference-win columns invert the ordering the training teacher gives, which \S\ref{sec:neural-general} discusses rather than reconciles.}
 \label{tab:general-capability}
-\begin{tabular}{lrrrrrr}
-\toprule
-method & IFEval strict & \textsc{GSM8K} EM & HarmBench $\downarrow$ & Alpaca ref.\ win & Arena ref.\ win & med.\ tokens\\
-\midrule
-Base $=\piref$ & \pending & \pending & \pending & $0.500$ & $0.500$ & \pending\\
-\NBPO{}-MSE, 1750 & \pending & \pending & \pending & \pending & \pending & \pending\\
-\NBPO{}-WBC, 1750 & \pending & \pending & \pending & \pending & \pending & \pending\\
-\NBPO{}-MSE, 250$^{\dagger}$ & \pending & \pending & \pending & \pending & \pending & \pending\\
-\NBPO{}-WBC, 250$^{\dagger}$ & \pending & \pending & \pending & \pending & \pending & \pending\\
-\bottomrule
-\end{tabular}
+\input{generated/capability}
 \\[2pt]
 {\scriptsize $^{\dagger}$Horizon selected on the dev split from the 1750-update arms' own regression trajectory, declared before these arms were run, and never presented as the pre-registered comparison.}
 \end{table*}

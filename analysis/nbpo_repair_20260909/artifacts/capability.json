@@ -1,0 +1,42 @@
+{
+  "table": {
+    "base": {
+      "IFEval strict": 0.7523105360443623,
+      "\\textsc{GSM8K} EM": 0.866565579984837,
+      "HarmBench $\\downarrow$": 0.28125,
+      "Alpaca ref.\\ win": 0.5,
+      "Arena ref.\\ win": 0.5,
+      "med.\\ tokens": 457.0,
+      "_gsm8k_parse_failure": 0.01288855193328279
+    },
+    "mse_primary_v1": {
+      "IFEval strict": 0.7578558225508318,
+      "\\textsc{GSM8K} EM": 0.8642911296436695,
+      "HarmBench $\\downarrow$": 0.284375,
+      "Alpaca ref.\\ win": 0.4186335403726708,
+      "Arena ref.\\ win": 0.435,
+      "med.\\ tokens": 481.0,
+      "_gsm8k_parse_failure": 0.013646702047005308
+    },
+    "wbc_primary_v1": {
+      "IFEval strict": 0.7412199630314233,
+      "\\textsc{GSM8K} EM": 0.8521607278241091,
+      "HarmBench $\\downarrow$": 0.25625,
+      "Alpaca ref.\\ win": 0.5782608695652174,
+      "Arena ref.\\ win": 0.594,
+      "med.\\ tokens": 457.0,
+      "_gsm8k_parse_failure": 0.016679302501895376
+    }
+  },
+  "missing": {},
+  "evaluator_disagreements": [
+    {
+      "benchmark": "ifeval",
+      "label": "base",
+      "section": "metrics",
+      "chosen": "/work/nbpo_repair_20260909/evaluations/deterministic_primary_v1/ifeval_base.summary.json",
+      "other": "/work/nbpo_repair_20260909/evaluations/base_deterministic_v1/ifeval_base.summary.json",
+      "note": "Identical responses scored twice with different results: the evaluator is not deterministic. Reported alongside the number it affects, never averaged away."
+    }
+  ]
+}
