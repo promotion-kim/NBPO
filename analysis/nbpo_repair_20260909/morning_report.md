@@ -109,6 +109,28 @@ One caveat that limits the old comparison: canonN700 and RB1200 emit
 byte-identical greedy answers on **44 of 100** prompts, so they were never two
 independent arms.
 
+## 5. What the held-out numbers do and do not establish
+
+From the run's own split manifest, stated plainly because it bounds the claim:
+
+- The 2000 policy-training prompts are **all** inside the preference model's
+  training set, and the 500 dev prompts are **all** inside its calibration set.
+  Dev is held out from the *policy* — which is what the transfer claim needs —
+  but it is not held out from the *teacher*.
+- The 1000 test prompts are disjoint from preference training and calibration,
+  but they are the preference model's own test split and have been scored
+  before, so `fresh_test_claim` is recorded as **false**. This is not presented
+  as an untouched test set.
+- 2 training prompts overlapped a benchmark prompt and were replaced by the next
+  eligible prompt in the same hash order; 57 of the 2000 appear in legacy policy
+  training. Pretraining and preference-model contamination is not claimed to be
+  excluded.
+
+So the correct reading of Pearson +0.52 is: the network generalizes the solver's
+target to prompts it never trained on, under a teacher that has seen them. That
+is the question the neural-realization bottleneck was about. It is not a claim
+about a fresh benchmark.
+
 ## 5. Cost and schedule
 
 | item | value |
