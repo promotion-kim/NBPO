@@ -1,0 +1,86 @@
+{
+  "n_pairs": 8400,
+  "n_prompts": 300,
+  "overall_rms_error": 2.606736583193693,
+  "target_rms": 2.498132199088011,
+  "h_rms": 0.9507689936928907,
+  "variance_decomposition": {
+    "between_prompt": 0.6754428641332713,
+    "total": 6.794346486952124,
+    "between_prompt_share": 0.09941248439866777,
+    "note": "share of the error variance that is a per-prompt offset rather than variation within a prompt; a large share means the policy is wrong about whole prompts, not about particular pairs"
+  },
+  "by_response_tokens": [
+    {
+      "bucket": "<128",
+      "n": 5236,
+      "mean_squared_error": 6.489318009324657,
+      "rms_error": 2.5474139846763535
+    },
+    {
+      "bucket": "128-256",
+      "n": 162,
+      "mean_squared_error": 6.694909734472812,
+      "rms_error": 2.58745236371084
+    },
+    {
+      "bucket": "256-512",
+      "n": 439,
+      "mean_squared_error": 8.101827906561125,
+      "rms_error": 2.846371006485473
+    },
+    {
+      "bucket": "512-1024",
+      "n": 1562,
+      "mean_squared_error": 7.78696356851848,
+      "rms_error": 2.790513137134187
+    },
+    {
+      "bucket": ">1024",
+      "n": 1001,
+      "mean_squared_error": 6.289761378753312,
+      "rms_error": 2.507939668084803
+    }
+  ],
+  "by_target_magnitude": [
+    {
+      "bucket": "|T|<0.5",
+      "n": 2103,
+      "mean_squared_error": 1.0093926168518121,
+      "rms_error": 1.0046853322567282
+    },
+    {
+      "bucket": "0.5-1.5",
+      "n": 2350,
+      "mean_squared_error": 1.722175885347167,
+      "rms_error": 1.3123169911828343
+    },
+    {
+      "bucket": "1.5-3",
+      "n": 2054,
+      "mean_squared_error": 5.527693218759577,
+      "rms_error": 2.3511046805192612
+    },
+    {
+      "bucket": "3-5",
+      "n": 1391,
+      "mean_squared_error": 15.322889065477703,
+      "rms_error": 3.9144462016328316
+    },
+    {
+      "bucket": ">5",
+      "n": 502,
+      "mean_squared_error": 36.33615257715121,
+      "rms_error": 6.027947625614477
+    }
+  ],
+  "truncated_rows": {
+    "n": 0,
+    "rms_error": null,
+    "rms_error_untruncated": 2.606736583193693
+  },
+  "correlation_of_abs_error_with": {
+    "response_tokens": 0.04177047667240497,
+    "target_magnitude": 0.8784377615186906
+  }
+}
