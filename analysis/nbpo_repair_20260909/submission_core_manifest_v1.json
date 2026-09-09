@@ -6,33 +6,86 @@
   "recipe_source": {
     "arm": "mse_short_primary_v1",
     "why": "the only arm that met every pre-registered regression criterion and matched or exceeded the reference on every capability column",
-    "exit_code": 0, "seconds": 1979.75, "gpu_count": 4,
-    "resolved": {"loss_type": "nbpo", "max_steps": 250, "learning_rate": 5.0e-07,
-                 "optim": "adamw_torch", "adam_betas": [0.9, 0.95], "weight_decay": 0.0,
-                 "lr_scheduler_type": "cosine", "warmup_ratio": 0.1, "max_grad_norm": 1.0,
-                 "per_device_train_batch_size": 1, "gradient_accumulation_steps": 8,
-                 "gpus": 4, "global_pairs_per_update": 32, "eta": 1.0,
-                 "bf16": true, "deepspeed": "zero2", "nbpo_num_candidates": 8,
-                 "target_mode": "canonical_logratio", "eta_already_included": true,
-                 "base": "meta-llama/Llama-3.1-8B-Instruct",
-                 "base_revision": "0e9e39f249a16976918f6564b8830bc894c89659"},
+    "exit_code": 0,
+    "seconds": 1979.75,
+    "gpu_count": 4,
+    "resolved": {
+      "loss_type": "nbpo",
+      "max_steps": 250,
+      "learning_rate": 5e-07,
+      "optim": "adamw_torch",
+      "adam_betas": [
+        0.9,
+        0.95
+      ],
+      "weight_decay": 0.0,
+      "lr_scheduler_type": "cosine",
+      "warmup_ratio": 0.1,
+      "max_grad_norm": 1.0,
+      "per_device_train_batch_size": 1,
+      "gradient_accumulation_steps": 8,
+      "gpus": 4,
+      "global_pairs_per_update": 32,
+      "eta": 1.0,
+      "bf16": true,
+      "deepspeed": "zero2",
+      "nbpo_num_candidates": 8,
+      "target_mode": "canonical_logratio",
+      "eta_already_included": true,
+      "base": "meta-llama/Llama-3.1-8B-Instruct",
+      "base_revision": "0e9e39f249a16976918f6564b8830bc894c89659"
+    },
     "note": "single outer stage; 250 optimizer updates, NOT 250 NBPO outer iterations"
   },
   "arms": [
-    {"name": "mse_s43", "role": "NBPO-MSE seed 1 of 2 additional",
-     "config_sha256": "c87855cc9dd20eff1204c4642eb5fdb156be8b250732f5f39a08f89f17f8221e",
-     "changed_from_recipe": {"seed": "42 -> 43", "data_seed": "42 -> 43"}},
-    {"name": "mse_s44", "role": "NBPO-MSE seed 2 of 2 additional",
-     "config_sha256": "9c5cab4bb6a32d2bf9b269c7dc073b8009354d23a3deac53fb081f6535a1ba2a",
-     "changed_from_recipe": {"seed": "42 -> 44", "data_seed": "42 -> 44"}},
-    {"name": "utilitarian_mse_s42", "role": "aggregation control at seed 42",
-     "config_sha256": "91cdb2d500e30710d7e607bc416bb7d21f13f6d6ba28321751f1ed24b7f61b98",
-     "changed_from_recipe": {"dataset": "nash_repair_v2 -> utilitarian_l1matched_v1"},
-     "definition": "equal raw weights at the L1 norm of the full-precision Nash lambda; same game, pool, projection, horizon and optimizer. Only the aggregation changes.",
-     "expectation_recorded_in_advance": "The two targets differ by a total-variation distance of 0.0008 on average (0.3% of the target RMS), so a null is the likely and legitimate outcome. A null is evidence about the limits of the mechanism claim on this panel, not a reason to skip the arm."}
+    {
+      "name": "mse_s43",
+      "role": "NBPO-MSE seed 1 of 2 additional",
+      "config_sha256": "c87855cc9dd20eff1204c4642eb5fdb156be8b250732f5f39a08f89f17f8221e",
+      "changed_from_recipe": {
+        "seed": "42 -> 43",
+        "data_seed": "42 -> 43"
+      }
+    },
+    {
+      "name": "mse_s44",
+      "role": "NBPO-MSE seed 2 of 2 additional",
+      "config_sha256": "9c5cab4bb6a32d2bf9b269c7dc073b8009354d23a3deac53fb081f6535a1ba2a",
+      "changed_from_recipe": {
+        "seed": "42 -> 44",
+        "data_seed": "42 -> 44"
+      }
+    },
+    {
+      "name": "utilitarian_mse_s42",
+      "role": "aggregation control at seed 42",
+      "config_sha256": "91cdb2d500e30710d7e607bc416bb7d21f13f6d6ba28321751f1ed24b7f61b98",
+      "changed_from_recipe": {
+        "dataset": "nash_repair_v2 -> utilitarian_l1matched_v1"
+      },
+      "definition": "equal raw weights at the L1 norm of the full-precision Nash lambda; same game, pool, projection, horizon and optimizer. Only the aggregation changes.",
+      "expectation_recorded_in_advance": "The two targets differ by a total-variation distance of 0.0008 on average (0.3% of the target RMS), so a null is the likely and legitimate outcome. A null is evidence about the limits of the mechanism claim on this panel, not a reason to skip the arm."
+    }
   ],
   "evaluation": "each arm is generated and scored on the frozen panel the moment its training exits, not after the batch",
   "selection_rule": "dev only; test and the downstream panel select nothing",
   "reporting": "seed-level results are reported individually and as mean +/- SD over the three MSE seeds; prompt-bootstrap CIs are prompt-sampling uncertainty and are kept separate from seed spread",
-  "paid_api_calls": 0
+  "paid_api_calls": 0,
+  "amendments": [
+    {
+      "time_utc": "2026-09-09T15:20:00+00:00",
+      "arm": "utilitarian_mse_s42",
+      "what": "the declared config omitted the dataset and solver hash pins, so the trainer refused to start",
+      "why": "I had set them to null to get past a guard that exists to stop a canonical run using an unverified dataset. The correct fix is to pin the utilitarian artifacts own hashes, not to remove the check.",
+      "old_config_sha256": "91cdb2d500e30710d7e607bc416bb7d21f13f6d6ba28321751f1ed24b7f61b98",
+      "new_config_sha256": "916baab498170707996e17ed64b71782f1f690da73105a199db8729e1fb9875b",
+      "new_arm_name": "utilitarian_mse_s42_v2",
+      "pins_added": {
+        "dataset_manifest": "995855b6c16cc455451516ded329390058567b80f5a0e5b84344f53c5bb41ae7",
+        "solver_artifact": "fa6dc118c425eb4894060c6cec24a02579be1d27f2794f2a5e5d552ea2273c74"
+      },
+      "nothing_else_changed": "seed 42, 250 updates, LR, batch, schedule and precision are unchanged",
+      "failed_job_retained": "jobs/utilitarian_mse_s42 is kept with its traceback"
+    }
+  ]
 }

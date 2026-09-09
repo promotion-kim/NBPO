@@ -55,5 +55,52 @@
     "nash": "teachers/nash_repair_v2/*/solver/pi_star.npz",
     "utilitarian": "teachers/utilitarian_l1matched_v1/*/solver/pi_star.npz",
     "prepared_config": "configs/utilitarian_l1matched_primary_v1.yaml"
+  },
+  "policy_level_result": {
+    "status": "run after all; the earlier decision not to run it was reversed by the submission plan, which asked for the arm even when a null was expected",
+    "setup": "identical pool, teacher, projection, horizon, optimizer and seed 42; only the aggregation changes",
+    "nash": {
+      "worst": 0.1186,
+      "s_help": 0.1186,
+      "s_harm": 0.125,
+      "nmse": 0.6896,
+      "sign": 0.7015,
+      "pearson": 0.5878,
+      "ifeval_strict": 0.76,
+      "gsm8k": 0.87,
+      "harmbench": 0.269
+    },
+    "utilitarian_l1matched": {
+      "worst": 0.1189,
+      "s_help": 0.1189,
+      "s_harm": 0.126,
+      "nmse": 0.701,
+      "sign": 0.6974,
+      "pearson": 0.5806,
+      "ifeval_strict": 0.721,
+      "gsm8k": 0.863,
+      "harmbench": 0.266
+    },
+    "paired_difference_nash_minus_utilitarian": {
+      "n_prompts": 1000,
+      "bootstrap": "paired prompt bootstrap, 2000 draws, seed 20260909",
+      "helpfulness": {
+        "estimate": -0.0003,
+        "ci95": [
+          -0.0067,
+          0.0058
+        ]
+      },
+      "harmlessness": {
+        "estimate": -0.001,
+        "ci95": [
+          -0.0074,
+          0.005
+        ]
+      }
+    },
+    "reading": "The two aggregations are not distinguishable on this panel at the level of the bargaining objective itself, which is what the target-level measurement predicted in advance: a total-variation distance of 0.0008, 0.3% of the target's own RMS. The null is evidence about what this benchmark can resolve, not evidence that aggregation never matters.",
+    "not_claimed": "A confidence interval containing zero is not a proof of equivalence; no equivalence or non-inferiority test was pre-registered and none is claimed. The IFEval gap of 0.760 against 0.721 is a single seed with no prior hypothesis and is left as an observation until the two further seeds finish.",
+    "consequence_for_the_paper": "Joint improvement on both objectives cannot be presented as a signature of Nash bargaining on this panel, because the matched utilitarian control produces it too. A discriminating test needs objectives whose Nash weights are genuinely asymmetric."
   }
 }
