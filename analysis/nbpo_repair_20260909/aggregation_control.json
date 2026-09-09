@@ -1,0 +1,59 @@
+{
+  "question": "Does the aggregation rule change the finite-pool target on this panel, once weight scale is matched?",
+  "answer": "No, to within 0.3% of the target's own magnitude.",
+  "nash_lambda_raw": [
+    6.32539583922393,
+    6.185673374281126
+  ],
+  "utilitarian_l1matched_weights": [
+    6.255534606752528,
+    6.255534606752528
+  ],
+  "l1_norm": {
+    "nash": 12.511069213505056,
+    "utilitarian": 12.511069213505056,
+    "note": "Matched by construction: equal raw weights at the Nash solution's total L1 mass, so the effective KL strength is the same and only the aggregation differs."
+  },
+  "nash_weight_asymmetry": 0.0223,
+  "target_comparison": {
+    "train": {
+      "n_prompts": 2000,
+      "tv_mean": 0.00074,
+      "tv_max": 0.00625,
+      "target_diff_rms": 0.00338,
+      "target_rms": 1.1251
+    },
+    "dev": {
+      "n_prompts": 500,
+      "tv_mean": 0.00083,
+      "tv_max": 0.00657,
+      "target_diff_rms": 0.00377,
+      "target_rms": 1.1048
+    },
+    "test": {
+      "n_prompts": 1000,
+      "tv_mean": 0.00078,
+      "tv_max": 0.00747,
+      "target_diff_rms": 0.00363,
+      "target_rms": 1.1247
+    }
+  },
+  "finite_pool_surplus_test": {
+    "nash": [
+      0.1653,
+      0.1662
+    ],
+    "utilitarian_l1matched": [
+      0.1652,
+      0.1662
+    ]
+  },
+  "reading": "The two objectives are nearly symmetric on this panel: the Nash dual puts 6.325 on helpfulness and 6.186 on harmlessness, 2.2% apart. Equalising those weights at the same L1 mass moves the finite-pool target by a total-variation distance of 0.0008 on average and 0.0075 at worst, and changes the pairwise target by an RMS of 0.0034 against the target's own RMS of 1.125. Two policies trained on targets that close would differ by far less than two training seeds of the same target.",
+  "decision": "The policy-level utilitarian arm was prepared and not run. Two GPU-hours cannot resolve a 0.3% difference in the thing being trained on, and reporting a null from such an arm would invite the reader to conclude that aggregation does not matter in general. What the measurement actually shows is that THIS PANEL cannot discriminate aggregation rules, which is a property of the benchmark rather than of the method.",
+  "implication": "Any Nash-versus-utilitarian comparison on SafeRLHF helpfulness/harmlessness is measuring weight scale, not aggregation, unless the controls are L1-matched -- and once they are, it measures almost nothing. A discriminating test needs objectives whose Nash weights are genuinely asymmetric.",
+  "artifacts": {
+    "nash": "teachers/nash_repair_v2/*/solver/pi_star.npz",
+    "utilitarian": "teachers/utilitarian_l1matched_v1/*/solver/pi_star.npz",
+    "prepared_config": "configs/utilitarian_l1matched_primary_v1.yaml"
+  }
+}
