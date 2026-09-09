@@ -7,7 +7,10 @@ integration probes run the actual trainer against the real 8B model on GPU.
 ## 1. Unit tests, CPU, production entrypoints
 
 Run against the repaired source at commit `288075e` on branch
-`exp/iclr27-table1-v2`.
+`exp/iclr27-table1-v2`: **523 passed, 2 skipped, 0 failed** in 301 s, of which
+70 are the repair's own tests (`test_nbpo_neural_repair.py`,
+`test_nbpo_export_validation.py`, `test_collect_primary_results.py`,
+`test_xstest_refusal.py`). The 2 skips are pre-existing and unrelated.
 
 The nine checks the audit asked for, and where each lives:
 
