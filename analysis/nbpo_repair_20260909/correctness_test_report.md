@@ -68,3 +68,30 @@ returned policy rather than from the map used to build the target:
 splits solve only the fixed-weight inner problem. λ is interior to its box
 [1e−3, 1e3]² by at least two decades in log₁₀, which is the condition under
 which the projected residual certifies the original problem.
+
+## 4. External evaluators: what they guarantee, and what they do not
+
+Our own tests say nothing about the tools we score with. Two properties were
+measured directly and both matter for how the numbers should be read.
+
+**IFEval's strict checker is not deterministic.** Scoring the identical 541 base
+responses twice (verified identical `responses_sha256`) gives strict prompt
+accuracy 0.754159 and 0.752311, and strict instruction accuracy 0.824940 and
+0.823741 — one prompt of 541, one instruction of 834. The loose variants are
+bit-identical across both runs. The strict path performs language detection,
+which is seeded per process. Any strict-metric difference below roughly two
+prompts should therefore be treated as within evaluator noise; the loose
+variants carry no such caveat.
+
+**HarmBench's official `eval_utils.py` initializes CUDA when imported.** It is
+loaded before the classifier engine is constructed, and vLLM v1 forks its engine
+core, so the child cannot re-initialize CUDA and the engine fails to start with a
+message that names the GPU rather than the ordering. Reproduced in isolation: a
+forked child fails after those helpers are loaded, succeeds without them, and
+succeeds either way when spawned. Running with
+`VLLM_WORKER_MULTIPROC_METHOD=spawn` fixes it without touching what is scored.
+Anyone combining that repository with a vLLM-based classifier will hit this.
+
+Both are properties of the evaluation tooling rather than of \NBPO, and neither
+was visible from the summaries alone — the first surfaced only because the same
+responses happened to be scored twice, the second because the job failed loudly.
