@@ -134,8 +134,51 @@ def main():
     if None not in (r_dg, r_dl, r_gl) and abs(r_dl) < 1 and abs(r_gl) < 1:
         partial = (r_dg - r_dl * r_gl) / math.sqrt((1 - r_dl ** 2) * (1 - r_gl ** 2))
 
+    # The 28 pairs inside a prompt are dependent, so the interval has to be
+    # resampled over prompts, not over pair rows. Build every pair once as a
+    # (prompts, 28) block, then resample whole prompts. This reconstructs the
+    # trainer's own evaluation set and reports what its point estimates cannot:
+    # how much of the held-out correlation is prompt sampling.
+    n_candidates = d_all.shape[1]
+    left, right = zip(*[(a, b) for a in range(n_candidates)
+                        for b in range(a + 1, n_candidates)])
+    left, right = list(left), list(right)
+    h_block = d_all[:, left] - d_all[:, right]
+    t_block = g_all[:, left] - g_all[:, right]
+
+    def pair_statistics(index):
+        h, target = h_block[index].reshape(-1), t_block[index].reshape(-1)
+        if h.std() == 0 or target.std() == 0:
+            return None
+        centred_h, centred_t = h - h.mean(), target - target.mean()
+        return {
+            "pearson": float((centred_h * centred_t).mean()
+                             / (h.std(unbiased=False) * target.std(unbiased=False))),
+            "sign_accuracy": float(((h.sign() == target.sign()) & (target != 0)).double().mean()),
+            "nmse": float(((h - target) ** 2).mean() / (target ** 2).mean()),
+            "pair_rows": int(h.numel()),
+        }
+
+    n_prompts = h_block.shape[0]
+    point = pair_statistics(torch.arange(n_prompts))
+    generator = torch.Generator().manual_seed(20260909)
+    draws = [value for value in
+             (pair_statistics(torch.randint(n_prompts, (n_prompts,), generator=generator))
+              for _ in range(2000)) if value is not None]
+    interval = {}
+    for field in ("pearson", "sign_accuracy", "nmse"):
+        values = torch.tensor(sorted(draw[field] for draw in draws), dtype=torch.float64)
+        interval[field] = {"point": point[field] if point else None,
+                           "ci95_low": float(values[int(0.025 * len(values))]),
+                           "ci95_high": float(values[int(0.975 * len(values)) - 1])}
+
     summary = {
         "label": args.label, "policy": args.policy, "split": args.split,
+        "pair_statistics_prompt_clustered_bootstrap": {
+            "resamples": len(draws), "seed": 20260909, "unit": "prompt",
+            "pair_rows": point["pair_rows"] if point else None, **interval},
+        "pair_statistics_prompt_clustered_bootstrap": {
+            "resamples": len(draws), "seed": 20260909, "unit": "prompt", **interval},
         "n_prompts": len(rows), "n_candidates_scored": len(items),
         "delta_mean": float(d_all.mean()), "delta_std": float(d_all.std()),
         "delta_within_prompt_std": float(dc.std()),
