@@ -171,15 +171,18 @@ is pure scale.
 | 500 | 1.226 | 0.796 | 0.408 | 1.932 | 0.938 | 0.200 |
 | 750 | 1.482 | 0.824 | 0.341 | 3.776 | 0.995 | 0.042 |
 | 1000 | 1.568 | 0.839 | 0.320 | 6.121 | 0.999 | −0.012 |
-| 1750 | — | — | — | 13.070 | 0.977 | −0.046 |
+| 1250 | 1.517 | 0.836 | 0.329 | 11.611 | 0.979 | −0.046 |
+| 1500 | 1.432 | 0.831 | 0.347 | 12.672 | 0.979 | −0.044 |
+| 1750 | 1.418 | **0.828** | 0.351 | 13.070 | 0.977 | −0.046 |
 
 A held-out nMSE of 13.07 reads as total failure and is not what happened: WBC's
 *direction* explains 17.6% of the target's second moment at 250 updates and
 essentially nothing by 750, while the reported number is dominated by magnitude
 the model kept adding after it had stopped adding information. MSE explains
-26.6% at 250 and still 16.1% at 1000, and its drift is flattening (−2.42 → −2.38
-nats) — which is what a regression with a stationary point at the target should
-do, and what weighted NLL does not.
+26.6% at 250, bottoms out at 16.1% at 1000, and recovers to 17.2% by 1750 as the
+schedule anneals — the direction it holds is stable while the magnitude
+overshoots and comes back. Its optimal rescaling turns with it, 0.614 → 0.320 →
+0.351.
 
 The optimal multiplier being below 1 is shrinkage under imperfect correlation,
 not evidence that $\eta$ was set too high — and $\eta$ is *not* the lever here.
@@ -207,13 +210,15 @@ the target: it keeps concentrating mass on the highest-`p*` candidate, the
 per-response log-likelihood of the whole pool falls 6.7 nats, and the induced
 pairwise log-ratio overshoots far enough to anti-correlate with what it was
 fitting. The pairwise regression *does* have a stationary point at the target,
-so it is not expected to fail this way — its own trajectory is being recorded
-and will be reported whatever it shows.
+and it does not fail this way: it turns at 1000 updates and recovers to the
+horizon.
 
 Because the 1750-update horizon was fixed in advance, those arms stand as the
-primary comparison. A separate 250-update WBC arm was **declared in writing
-before being run** (`protocols/wbc_short_horizon_prospective_v1.json`),
-labelled dev-selected, and is queued behind the primary evaluation.
+primary comparison. Two 250-update arms, one per projection, were **declared in
+writing before either was run** (`protocols/short_horizon_prospective_v2.json`,
+timestamped while the MSE arm had reported exactly one held-out evaluation and
+no downstream number existed), labelled dev-selected, and are reported as
+additional rows and never as the pre-registered comparison.
 
 ## 4. The bargaining claim, end to end, on held-out prompts
 
