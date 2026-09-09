@@ -161,14 +161,23 @@ def main():
 
     n_prompts = h_block.shape[0]
     point = pair_statistics(torch.arange(n_prompts))
-    generator = torch.Generator().manual_seed(20260909)
-    draws = [value for value in
-             (pair_statistics(torch.randint(n_prompts, (n_prompts,), generator=generator))
-              for _ in range(2000)) if value is not None]
+    draws = []
+    if point is not None:
+        generator = torch.Generator().manual_seed(20260909)
+        draws = [value for value in
+                 (pair_statistics(torch.randint(n_prompts, (n_prompts,), generator=generator))
+                  for _ in range(2000)) if value is not None]
     interval = {}
     for field in ("pearson", "sign_accuracy", "nmse"):
+        if not draws:
+            # The reference scored against itself has delta identically zero, which
+            # is the control's whole point: there is no correlation to bound.
+            interval[field] = {"point": point[field] if point else None,
+                               "ci95_low": None, "ci95_high": None,
+                               "undefined_reason": "degenerate: the induced log-ratio has zero variance"}
+            continue
         values = torch.tensor(sorted(draw[field] for draw in draws), dtype=torch.float64)
-        interval[field] = {"point": point[field] if point else None,
+        interval[field] = {"point": point[field],
                            "ci95_low": float(values[int(0.025 * len(values))]),
                            "ci95_high": float(values[int(0.975 * len(values)) - 1])}
 
@@ -176,7 +185,7 @@ def main():
         "label": args.label, "policy": args.policy, "split": args.split,
         "pair_statistics_prompt_clustered_bootstrap": {
             "resamples": len(draws), "seed": 20260909, "unit": "prompt",
-            "pair_rows": point["pair_rows"] if point else None, **interval},
+            "pair_rows": point["pair_rows"] if point else int(h_block.numel()), **interval},
         "pair_statistics_prompt_clustered_bootstrap": {
             "resamples": len(draws), "seed": 20260909, "unit": "prompt", **interval},
         "n_prompts": len(rows), "n_candidates_scored": len(items),
