@@ -412,8 +412,26 @@ one prompt of 541, while the loose variants are bit-identical.
 
 ## 10. Cost and schedule
 
-| item | value |
-|---|---|
-| paid judge API calls | 0 |
-| WBC arm | 6099.8 s wall, 6.78 GPU-hours, exit 0, 1750/1750 updates on all 4 ranks |
+**Paid judge API calls: 0.** No request was made to OpenAI, Anthropic, Gemini or
+OpenRouter at any point.
 
+GPU accounting from the jobs' own exit records, 24 recorded jobs, **15.89
+GPU-hours** in total:
+
+| | wall | GPU-hours | exit |
+|---|---|---|---|
+| \NBPO-WBC arm, 1750 updates | 6099.8 s | 6.78 | 0 |
+| \NBPO-MSE arm, 1750 updates | 6730.3 s | 7.48 | 0 |
+| generation, both arms | 266 + 272 s | 0.15 | 0 |
+| all scoring lanes | — | 0.65 | 0 |
+| HarmBench, two failed starts | 27 + 23 s | 0.013 | 1, 1 |
+| profiling runs before the arms | — | 0.84 | — |
+
+The two failed HarmBench starts are listed rather than netted out. The
+short-horizon arms and their evaluation are running and are not in this total.
+
+Timeline, all times KST: the pipeline was inherited mid-flight at 16:27 from an
+earlier session that lost its connection at 16:02; the WBC arm finished 16:44,
+the MSE arm 18:36, generation for both 18:42, the scoring lanes 18:47 with
+HarmBench recovered by 19:11, the evaluation controller closed 19:13, and the
+short-horizon arms began 19:15.
