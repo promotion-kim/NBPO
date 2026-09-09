@@ -52,7 +52,12 @@ def artifact(name, gpu, stack, module, *arguments):
     command = ["python3", "-m", PREFIX + "artifact_job", "--root", str(ROOT), "--job", name,
                "--gpu", str(gpu), "--stack", stack, "--",
                "python3", "-m", PREFIX + module, *map(str, arguments)]
-    subprocess.run(command, cwd=ROOT / "code", check=True)
+    # HarmBench's official eval_utils.py initializes CUDA when it is imported, before the
+    # classifier engine is built, so vLLM's forked engine core cannot re-initialize CUDA and
+    # reports it as a missing GPU. Spawning changes how the engine process starts and nothing
+    # about what is scored.
+    subprocess.run(command, cwd=ROOT / "code", check=True,
+                   env=dict(os.environ, VLLM_WORKER_MULTIPROC_METHOD="spawn"))
     record = json.loads((ROOT / "jobs" / name / "exit.json").read_text())
     if record["exit_code"] != 0:
         raise ValueError(f"{name} failed; evidence retained in jobs/{name}")
@@ -146,11 +151,11 @@ def main():
             done.append(artifact(f"skywork_{arm}_v1", 0, "eval", "evaluate_responses",
                                  "--root", ROOT, "--mode", "skywork", "--labels", arm,
                                  "--rm", SKYWORK, "--out", ROOT / f"evaluations/skywork_{arm}_v1"))
-            done.append(artifact(f"harmbench_{arm}_v1", 2, "harmbench", "evaluate_responses",
+            done.append(artifact(f"harmbench_{arm}_v2", 2, "harmbench", "evaluate_responses",
                                  "--root", ROOT, "--mode", "harmbench", "--labels", arm,
                                  "--harmbench-model", HARMBENCH,
                                  "--harmbench-repo", ROOT / "external/HarmBench",
-                                 "--out", ROOT / f"evaluations/harmbench_{arm}_v1"))
+                                 "--out", ROOT / f"evaluations/harmbench_{arm}_v2"))
             done.append(artifact(f"deterministic_{arm}_v1", "cpu", "eval", "evaluate_responses",
                                  "--root", ROOT, "--mode", "deterministic", "--labels", arm,
                                  "--out", ROOT / f"evaluations/deterministic_{arm}_v1"))
