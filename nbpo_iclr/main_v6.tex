@@ -507,7 +507,7 @@ The finite-pool solve and the neural fit are separate questions, and only the fi
 
 \begin{table}[t]
 \centering\small
-\caption{Held-out realization of the finite-pool target on the repaired pipeline. Diagnostics on $500$ dev prompts, verified disjoint from the $2{,}000$ training prompts; both projections read the identical solver artifact and differ only in how it is fitted. nMSE is normalized by $\E[(\widehat h_t^\star)^2]$ on the same split, so $1.0$ is the zero predictor. nMSE$^\ast$ is that residual at the single best rescaling of $h_t$, $1-\E[h_t\widehat h_t^\star]^2/(\E[h_t^2]\E[(\widehat h_t^\star)^2])$: the gap between the two columns is pure magnitude, so reading them together separates what the projection learned about the target's \emph{direction} from how far it then moved. The last column is the mean per-response log-ratio to the proximal centre, a drift measure rather than a fit measure. Every pre-repair arm in Table~\ref{tab:neural-arms} sits at Pearson between $-0.03$ and $-0.01$; these numbers are what the eight corrections in Appendix~\ref{app:solver-neural} recover, and no single correction is credited with the recovery. \emph{These are diagnostics. No checkpoint, horizon or hyperparameter in this paper is selected by them.}}
+\caption{Held-out realization of the finite-pool target on the repaired pipeline. Diagnostics on $500$ dev prompts, verified disjoint from the $2{,}000$ training prompts; both projections read the identical solver artifact and differ only in how it is fitted. Each arm is shown at its own declared horizon; the full evaluation trajectories are in Table~\ref{tab:realization-trajectories}. $^{\dagger}$ marks a horizon selected on dev and declared before the arm was run. nMSE is normalized by $\E[(\widehat h_t^\star)^2]$ on the same split, so $1.0$ is the zero predictor. nMSE$^\ast$ is that residual at the single best rescaling of $h_t$, $1-\E[h_t\widehat h_t^\star]^2/(\E[h_t^2]\E[(\widehat h_t^\star)^2])$: the gap between the two columns is pure magnitude, so reading them together separates what the projection learned about the target's \emph{direction} from how far it then moved. The last column is the mean per-response log-ratio to the proximal centre, a drift measure rather than a fit measure. Every pre-repair arm in Table~\ref{tab:neural-arms} sits at Pearson between $-0.03$ and $-0.01$; these numbers are what the eight corrections in Appendix~\ref{app:solver-neural} recover, and no single correction is credited with the recovery. \emph{These are diagnostics. No checkpoint, horizon or hyperparameter in this paper is selected by them.}}
 \label{tab:repaired-realization}
 \input{generated/repaired_realization}
 \end{table}
@@ -1287,6 +1287,13 @@ The direct inner solve is exact only for the declared finite response pool and n
 \input{generated/neural_arms}
 \end{table*}
 
+
+\begin{table*}[t]
+\centering\scriptsize
+\caption{Full held-out evaluation trajectories for the repaired arms, every recorded evaluation of every arm. Columns are as in Table~\ref{tab:repaired-realization}. The two $1750$-update arms are the pre-registered comparison; the two $250$-update arms anneal their own cosine schedule over their own horizon and are not truncations of the long ones, which is why their drift is an order of magnitude smaller at the same learning rate.}
+\label{tab:realization-trajectories}
+\input{generated/realization_trajectories}
+\end{table*}
 
 \begin{table*}[t]
 \centering\scriptsize
