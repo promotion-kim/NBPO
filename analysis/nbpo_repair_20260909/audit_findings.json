@@ -77,7 +77,8 @@
       "discovered_during": "this repair run",
       "evidence": "Casting the model to bf16 also cast the RoPE inv_freq buffers, quantising the position frequencies. A guard snapshots the original FP32 buffers and restores them before training, recording how many were restored: arms/wbc_primary_v1/rotary_buffer_precision_rank*.json and the per-step field rotary_buffer_restorations = 33 in runtime_rank*.jsonl.",
       "verification": "tests/test_nbpo_neural_repair.py::test_zero_bfloat16_rotary_cast_restores_exact_pretrained_frequencies and tests/test_nbpo_export_validation.py::test_rope_requires_exact_original_fp32_not_rounded_recast.",
-      "affected_prior_artifacts": "Every arm trained before this guard existed ran with bf16-quantised RoPE frequencies. This is an additional reason the pre-repair tables are not being restored."
+      "affected_prior_artifacts": "Every arm trained before this guard existed ran with bf16-quantised RoPE frequencies. This is an additional reason the pre-repair tables are not being restored.",
+      "measured_quantisation": "The guard records what the cast actually cost, per buffer: every one of the 33 rotary_emb inv_freq buffers came back with before_dtype torch.bfloat16, after_dtype torch.float32 and rounding_max_abs 0.0017890334129333496 -- identical across all 32 layers and the model-level buffer, which is what a pure dtype round-trip on the same frequency table should give. That is the error that was being applied to every position encoding in every forward pass before the guard existed."
     }
   ],
   "not_yet_addressed": [
