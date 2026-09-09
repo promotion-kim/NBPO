@@ -112,6 +112,21 @@ log-likelihood still falling at 1750. Weighted NLL has no stationary point at
 the target, so annealing the step size slows the divergence without reversing
 it.
 
+**The short-horizon arms are not the long arms truncated, and the difference
+shows immediately.** Because each anneals its own cosine schedule over 250
+updates, the drift stays small and the fit is better than the long arm reaches at
+any horizon. WBC-short on dev:
+
+| updates | nMSE | sign acc. | Pearson | drift |
+|---|---|---|---|---|
+| 50 | 0.866 | 0.628 | +0.401 | −0.39 |
+| 100 | **0.807** | 0.655 | **+0.473** | −0.55 |
+
+against the long WBC arm's best of nMSE 0.920 / Pearson 0.419, reached at 250 and
+never bettered. This is the declared difference between the arms doing exactly
+what the declaration said it would, and it is why the short arms are reported as
+a separate row rather than as a checkpoint of the long ones.
+
 **It is overfitting, and the four questions stay separate.** The audit asked that
 solver self-consistency, fit on training pairs, transfer to unseen prompts, and
 generation quality never be collapsed into one number. All four are now measured
