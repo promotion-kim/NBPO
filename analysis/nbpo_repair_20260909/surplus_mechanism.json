@@ -1,0 +1,33 @@
+{
+  "question": "Is the held-out surplus gain a real behavioural improvement, or an artefact of the trained policy writing longer answers?",
+  "answer": "Real, and specific: the policy converts the reference's bare refusals into refusals that also offer a constructive alternative. Length is a consequence of that change, not a confound inflating a hollow metric.",
+  "how_it_was_settled": {
+    "false_alarm": "Conditioning on prompts where the response did not lengthen showed the gain collapsing from +0.174 to +0.024, which looked like a length artefact. That estimator is wrong: it selects prompts where the policy barely changed its output at all, i.e. it conditions on the treatment's own intensity rather than controlling for length.",
+    "also_wrong": "A linear regression of delta-surplus on delta-length put the zero-length-change intercept at +0.160, only 8% below the raw +0.174. That assumes a homogeneous linear length effect, which the strata show is false.",
+    "correct_stratifier": "The reference policy's own response length. The effect is concentrated where the reference is terse and is essentially zero where it is not."
+  },
+  "base_length_strata_mse_1750": [
+    {"base_tokens": "7-9", "n": 50, "mean_delta_len": 95.8, "ds_help": 0.3374, "ds_harm": 0.3259},
+    {"base_tokens": "9-18", "n": 295, "mean_delta_len": 90.7, "ds_help": 0.3182, "ds_harm": 0.3067},
+    {"base_tokens": "18-49", "n": 255, "mean_delta_len": 70.5, "ds_help": 0.2365, "ds_harm": 0.2178},
+    {"base_tokens": "49-520", "n": 200, "mean_delta_len": 33.7, "ds_help": -0.0017, "ds_harm": -0.0007},
+    {"base_tokens": "520-2048", "n": 200, "mean_delta_len": -32.2, "ds_help": 0.0187, "ds_harm": 0.0180}
+  ],
+  "stonewall_subpopulation": {
+    "definition": "test prompts where the reference emits at most 18 tokens AND opens with a refusal marker",
+    "count": 448, "of": 1000,
+    "note": "the reference's median SafeRLHF response is 24 tokens; on these prompts it is typically the single sentence 'I can't help with that request.'",
+    "arms": {
+      "mse_primary_v1": {"still_refuses": 0.95, "added_tokens": 82, "ds": [0.3181, 0.3145], "ds_elsewhere": [0.0578, 0.0451]},
+      "wbc_primary_v1": {"still_refuses": 0.98, "added_tokens": 42, "ds": [0.2021, 0.2052], "ds_elsewhere": [0.0430, 0.0379]},
+      "wbc_short_primary_v1": {"still_refuses": 0.99, "added_tokens": 30, "ds": [0.1754, 0.1859], "ds_elsewhere": [0.0341, 0.0315]}
+    }
+  },
+  "reading": "On nearly half of the held-out prompts the reference stonewalls with one sentence. The trained policies keep refusing there -- 95% to 99% of the time, and HarmBench's harmful-completion rate does not move for any arm -- while adding a constructive alternative, and the teacher rewards that on BOTH objectives at once. That is the behaviour a helpfulness-harmlessness bargaining solution is supposed to produce: not a trade-off between the two, but a change that lifts both. Where the reference already answers substantively, the policy adds little (+0.05) or nothing.",
+  "limits": [
+    "Refusal is detected by an opening-phrase heuristic, not a validated classifier; only the within-measure comparison across arms is claimed.",
+    "The strata are observational: length is an outcome of training, not randomised, so none of these is a causal estimate.",
+    "MSE-1750 still refuses on 95% of the stonewall prompts against WBC-250's 99%; that 4-point shift is reported rather than dismissed, though HarmBench does not move for either.",
+    "One training seed."
+  ]
+}
