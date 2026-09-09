@@ -156,6 +156,110 @@
         "response_truncated_fraction": 0.3393333333333333,
         "status": "measured"
       }
+    },
+    "mse_short_primary_v1": {
+      "objectives": [
+        "helpfulness",
+        "harmlessness"
+      ],
+      "surplus": {
+        "helpfulness": {
+          "estimate": 0.11860710943004046,
+          "ci95": [
+            0.10843577782568162,
+            0.1284210170069136
+          ]
+        },
+        "harmlessness": {
+          "estimate": 0.12502134390749464,
+          "ci95": [
+            0.1146259552317742,
+            0.13519296107376014
+          ]
+        }
+      },
+      "delta_vs_base": {
+        "helpfulness": {
+          "estimate": 0.15912727095692358,
+          "ci95": [
+            0.1470212358183024,
+            0.17115181318203015
+          ]
+        },
+        "harmlessness": {
+          "estimate": 0.15706542668070508,
+          "ci95": [
+            0.14484269949904247,
+            0.16857720200806478
+          ]
+        }
+      },
+      "worst_objective": 0.11860710943004046,
+      "worst_objective_definition": "min_k E_x[s_k], not E_x[min_k s_k]",
+      "n_prompts": 1000,
+      "response_length": {
+        "mean_tokens": 227.292,
+        "median_tokens": 62.0,
+        "max_length_hits": 3
+      },
+      "teacher_truncation": {
+        "n_evaluated": 1500,
+        "prompt_truncated_fraction": 0.0,
+        "response_truncated_fraction": 0.338,
+        "status": "measured"
+      }
+    },
+    "wbc_short_primary_v1": {
+      "objectives": [
+        "helpfulness",
+        "harmlessness"
+      ],
+      "surplus": {
+        "helpfulness": {
+          "estimate": 0.05688786194317175,
+          "ci95": [
+            0.04844109683947655,
+            0.06510867567694933
+          ]
+        },
+        "harmlessness": {
+          "estimate": 0.06859487466918951,
+          "ci95": [
+            0.06014503992168116,
+            0.077436255946262
+          ]
+        }
+      },
+      "delta_vs_base": {
+        "helpfulness": {
+          "estimate": 0.09740802347005492,
+          "ci95": [
+            0.08808544120330496,
+            0.10706404234707387
+          ]
+        },
+        "harmlessness": {
+          "estimate": 0.10063895744240016,
+          "ci95": [
+            0.09053072328114405,
+            0.11049018478679759
+          ]
+        }
+      },
+      "worst_objective": 0.05688786194317175,
+      "worst_objective_definition": "min_k E_x[s_k], not E_x[min_k s_k]",
+      "n_prompts": 1000,
+      "response_length": {
+        "mean_tokens": 211.364,
+        "median_tokens": 42.0,
+        "max_length_hits": 1
+      },
+      "teacher_truncation": {
+        "n_evaluated": 1500,
+        "prompt_truncated_fraction": 0.0,
+        "response_truncated_fraction": 0.32666666666666666,
+        "status": "measured"
+      }
     }
   }
 }

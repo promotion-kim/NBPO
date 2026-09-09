@@ -26,6 +26,24 @@
       "Arena ref.\\ win": 0.594,
       "med.\\ tokens": 457.0,
       "_gsm8k_parse_failure": 0.016679302501895376
+    },
+    "mse_short_primary_v1": {
+      "IFEval strict": 0.7597042513863216,
+      "\\textsc{GSM8K} EM": 0.8703563305534496,
+      "HarmBench $\\downarrow$": 0.26875,
+      "Alpaca ref.\\ win": 0.4968944099378882,
+      "Arena ref.\\ win": 0.516,
+      "med.\\ tokens": 460.0,
+      "_gsm8k_parse_failure": 0.011372251705837756
+    },
+    "wbc_short_primary_v1": {
+      "IFEval strict": 0.7412199630314233,
+      "\\textsc{GSM8K} EM": 0.866565579984837,
+      "HarmBench $\\downarrow$": 0.265625,
+      "Alpaca ref.\\ win": 0.4857142857142857,
+      "Arena ref.\\ win": 0.542,
+      "med.\\ tokens": 463.0,
+      "_gsm8k_parse_failure": 0.009097801364670205
     }
   },
   "missing": {},
@@ -34,8 +52,24 @@
       "benchmark": "ifeval",
       "label": "base",
       "section": "metrics",
-      "chosen": "/work/nbpo_repair_20260909/evaluations/deterministic_primary_v1/ifeval_base.summary.json",
+      "chosen": "/work/nbpo_repair_20260909/evaluations/deterministic_mse_short_primary_v1_v1/ifeval_base.summary.json",
       "other": "/work/nbpo_repair_20260909/evaluations/base_deterministic_v1/ifeval_base.summary.json",
+      "note": "Identical responses scored twice with different results: the evaluator is not deterministic. Reported alongside the number it affects, never averaged away."
+    },
+    {
+      "benchmark": "ifeval",
+      "label": "base",
+      "section": "metrics",
+      "chosen": "/work/nbpo_repair_20260909/evaluations/deterministic_mse_short_primary_v1_v1/ifeval_base.summary.json",
+      "other": "/work/nbpo_repair_20260909/evaluations/deterministic_primary_v1/ifeval_base.summary.json",
+      "note": "Identical responses scored twice with different results: the evaluator is not deterministic. Reported alongside the number it affects, never averaged away."
+    },
+    {
+      "benchmark": "ifeval",
+      "label": "base",
+      "section": "metrics",
+      "chosen": "/work/nbpo_repair_20260909/evaluations/deterministic_mse_short_primary_v1_v1/ifeval_base.summary.json",
+      "other": "/work/nbpo_repair_20260909/evaluations/deterministic_wbc_short_primary_v1_v1/ifeval_base.summary.json",
       "note": "Identical responses scored twice with different results: the evaluator is not deterministic. Reported alongside the number it affects, never averaged away."
     }
   ]
