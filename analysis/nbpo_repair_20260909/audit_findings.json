@@ -114,5 +114,14 @@
     },
     "why_it_matters": "For roughly one response in three the teacher judged a prefix, so the finite-pool target carries no information about content past that budget. It cannot reward the elaboration that the trained arms drop, which is a standing limit on how much of the compression result the teacher could have prevented. It is not, however, a bias toward brevity: the solver's mass sits on slightly LONGER candidates (teacher-weighted mean response length 219.8 tokens against 205.2 unweighted) and the within-prompt length-on-target r^2 is 0.006/0.008/0.003 on train/dev/test.",
     "status": "recorded, not fixed; the teacher is frozen for this run and was not retrained"
-  }
+  },
+  "operational_interventions": [
+    {
+      "what": "Released a hung vLLM engine-core process after the HarmBench job had finished writing results",
+      "when": "2026-09-09 ~19:05 KST",
+      "detail": "jobs/harmbench_primary_v3 wrote every summary, per-item file and its evaluation_complete.json, then its parent sat in do_wait for five minutes on a VLLM::EngineCore child that would not exit -- a teardown deadlock, with the results already complete and hashed on disk. That blocks the GPU for every queued job behind it. SIGTERM to the engine child (my own process, no one else's) let the parent complete: it recorded exit_code 0, child_exit_code 0, and both of its own GPU-idle checks passed on the first poll.",
+      "evidence_preserved": "The summaries were sha256-recorded before the signal was sent; none changed.",
+      "not_done": "No other user's process was signalled, and no failed job was made to look successful."
+    }
+  ]
 }
