@@ -35,7 +35,43 @@
 
 Compiles at 24 pages, 0 undefined references, 0 overfull boxes.
 
-## Pending, waiting on tonight's artifacts
+## Applied after the arms finished
+
+7. **Abstract and third contribution bullet.** Both said the neural realization
+   "remains open". They now say it is realizable with the implementation
+   corrected, quote Pearson $0.52$ and $69\%$ sign agreement on held-out prompts,
+   and name the remaining error as magnitude rather than direction.
+8. **New main-body table `tab:repaired-realization`**, generated from the arms'
+   own `trainer_state.json` with an `nMSE$^\ast$` column that separates what the
+   projection learned about the target's direction from how far it then moved.
+   The pre-repair diagnostics table keeps its place and its caption now names
+   its scope and points here.
+9. **`tab:saferlhf-main` replaced.** It asked for win rates over three seeds
+   against six aggregation baselines and every cell was pending. It now reports
+   the objective-wise surplus the run measured on $1{,}000$ held-out prompts,
+   with the finite-pool target as the ceiling and the two declared short-horizon
+   arms pending. Its caption declines the Algorithm-1 acceptance certificate on
+   the same grounds the run's own record declines it.
+10. **`tab:general-capability` filled**, generated from the scoring summaries,
+    including the reference-win columns that invert the training teacher's
+    ordering, and a median-response-tokens column.
+11. **"Three evaluators, three orderings"** added to §5.3: the training teacher,
+    the official benchmarks and an independent scalar reward model rank the two
+    projections three different ways, which is stated as part of the result.
+
+Compiles at 26 pages, 0 undefined references, 0 overfull boxes.
+
+## Still pending
+
+12. The two short-horizon rows in both result tables, and their generation and
+    scoring, are running.
+13. Held-out pool-drift diagnostics with prompt-clustered bootstrap intervals for
+    all four checkpoints, with the reference against itself as the zero control.
+14. Aggregation-rule controls (fixed-reference Nash, BT-RM--Nash,
+    game-utilitarian, game-KS) and additional training seeds. Named in the
+    SafeRLHF caption as next steps rather than implied.
+
+## Earlier pending items, now resolved above
 
 7. **Abstract and third contribution bullet.** Both currently say the neural
    realization "remains open" and that we "report its realization diagnostics
