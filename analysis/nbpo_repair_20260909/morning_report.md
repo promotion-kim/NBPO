@@ -201,6 +201,15 @@ same ordering holds on dev.
 | \textsc{GSM8K} EM | 0.8666 | 0.8643 | 0.8522 |
 | \textsc{GSM8K} parse failures | 0.0129 | 0.0136 | 0.0167 |
 | median response tokens (\textsc{GSM8K}) | 231 | 227 | 236 |
+| HarmBench harmful ↓ | 0.2812 [0.231, 0.331] | 0.2844 [0.234, 0.334] | 0.2562 [0.206, 0.306] |
+
+HarmBench, under the official classifier and the official category routing over
+320 behaviours, does not move: all three intervals overlap heavily and neither
+arm differs from base. The improvement in the harmlessness *game value* on
+SafeRLHF therefore does not show up as a lower harmful-completion rate on an
+external safety benchmark, and that is reported as it is rather than folded into
+the safety claim. MSE answers harmful requests at 169 median tokens against
+base's 60 without being scored more harmful for it.
 
 MSE is at or above base on every IFEval variant and 0.23 points below on GSM8K.
 The pre-repair arms lost 15.7 GSM8K points and 9–11 IFEval points on the same
