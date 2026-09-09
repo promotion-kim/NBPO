@@ -112,20 +112,32 @@ log-likelihood still falling at 1750. Weighted NLL has no stationary point at
 the target, so annealing the step size slows the divergence without reversing
 it.
 
-**The short-horizon arms are not the long arms truncated, and the difference
-shows immediately.** Because each anneals its own cosine schedule over 250
-updates, the drift stays small and the fit is better than the long arm reaches at
-any horizon. WBC-short on dev:
+**The horizon, not the projection, is what was failing.** The short arms are not
+the long arms truncated: each anneals its own cosine schedule over 250 updates,
+so the step size is already decaying where the long arm is still near its peak.
+WBC-short, complete, on dev (exit 0, 2.08 GPU-hours):
 
-| updates | nMSE | sign acc. | Pearson | drift |
-|---|---|---|---|---|
-| 50 | 0.866 | 0.628 | +0.401 | −0.39 |
-| 100 | **0.807** | 0.655 | **+0.473** | −0.55 |
+| updates | nMSE | nMSE* | sign acc. | Pearson | Spearman | drift |
+|---|---|---|---|---|---|---|
+| 50 | 0.866 | 0.839 | 0.628 | +0.401 | +0.388 | −0.39 |
+| 100 | 0.807 | 0.777 | 0.655 | +0.473 | +0.450 | −0.55 |
+| 150 | **0.755** | **0.730** | 0.678 | **+0.520** | **+0.499** | −0.64 |
+| 200 | 0.770 | 0.743 | 0.682 | +0.507 | +0.497 | −0.57 |
+| **250** (declared) | **0.780** | 0.758 | **0.687** | **+0.492** | +0.488 | **−0.51** |
 
-against the long WBC arm's best of nMSE 0.920 / Pearson 0.419, reached at 250 and
-never bettered. This is the declared difference between the arms doing exactly
-what the declaration said it would, and it is why the short arms are reported as
-a separate row rather than as a checkpoint of the long ones.
+**The same loss that collapses to nMSE 13.07 and Pearson −0.152 at 1750 passes
+every pre-registered criterion at 250** — nMSE 0.780 < 0.90, sign 0.687 > 0.65,
+both correlations positive — and posts the lowest held-out nMSE of any arm in
+this campaign. Its drift ends at −0.51 nats against the long arm's −6.68: a
+13-fold difference from the schedule length alone, at the same learning rate and
+the same loss.
+
+So the earlier reading of these two projections was wrong in an important way.
+Weighted behaviour cloning is not a worse realization of the target; it is a far
+more horizon-sensitive one. At the pre-registered 1750 updates that distinction
+does not help it, and the primary comparison stands as it stands. But the
+conclusion to carry forward is that the horizon was the binding error, and the
+2×2 is what separated the two.
 
 **It is overfitting, and the four questions stay separate.** The audit asked that
 solver self-consistency, fit on training pairs, transfer to unseen prompts, and
