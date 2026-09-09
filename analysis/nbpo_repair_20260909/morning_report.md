@@ -23,8 +23,13 @@ recorded with code pointers and verification in `audit_findings.json`.
 | G | A substring heuristic ignored `dev` and selected `test` for evaluation | fixed — exact split names, `test` refused outright |
 | H | **new** — RoPE `inv_freq` buffers were cast to bf16 with the model | fixed — 33 buffers snapshotted in FP32 and restored, count logged per step |
 
-70 targeted tests pass on the production entrypoints, plus the pre-existing
-446-test suite.
+The whole suite is green against the repaired source: **523 passed, 2 skipped,
+0 failed**, of which 70 are the repair's own tests against the production
+entrypoints. Two failures on the first full run were the tests being right about
+the old code, and both are fixed: the identity test pinned the exponential-map
+behaviour that finding C called a defect, and the final-run validator caught the
+repository's own `final_iclr2027` config still naming the retired Qwen3-32B judge
+as its training teacher. Details in `correctness_test_report.md`.
 
 ## 2. The two matched arms
 
