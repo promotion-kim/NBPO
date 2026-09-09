@@ -167,7 +167,56 @@ primary comparison. A separate 250-update WBC arm was **declared in writing
 before being run** (`protocols/wbc_short_horizon_prospective_v1.json`),
 labelled dev-selected, and is queued behind the primary evaluation.
 
-## 4. Both arms finished, and neither one compresses
+## 4. The bargaining claim, end to end, on held-out prompts
+
+This is the connection the paper has never been able to close. On the 1000-prompt
+SafeRLHF held-out split, greedy decoding scored against the same frozen
+comparator pools and the same disagreement point used in training:
+
+| | $s_{\text{help}}$ | $s_{\text{harm}}$ | worst $\min_k \E_x[s_k]$ |
+|---|---|---|---|
+| Base $=\pi_{\text{ref}}$ (greedy) | −0.0405 [−0.0480, −0.0334] | −0.0320 [−0.0394, −0.0244] | −0.0405 |
+| \NBPO-WBC, 1750 | +0.0738 [0.0642, 0.0829] | +0.0808 [0.0713, 0.0903] | +0.0738 |
+| **\NBPO-MSE, 1750** | **+0.1339 [0.1233, 0.1453]** | **+0.1337 [0.1229, 0.1448]** | **+0.1337** |
+| finite-pool solver target $p^\star$ | +0.1653 | +0.1662 | +0.1653 |
+
+Every objective is strictly positive for both trained arms, with paired
+prompt-bootstrap intervals that exclude zero — which is the individual-rationality
+property Nash bargaining is supposed to deliver, measured on prompts the policy
+never trained on. The two objectives also come out balanced (0.1339 against
+0.1337 for MSE), which is the bargaining solution's signature rather than an
+accident of one objective carrying the other.
+
+Against the finite-pool optimum: the base sits at −0.0405 and the solver target
+at +0.1653, so the MSE policy closes **85% of that gap** (WBC closes 56%). The
+same ordering holds on dev.
+
+**And it does not cost capability.** Same checkpoints, official evaluators:
+
+| | base | MSE-1750 | WBC-1750 |
+|---|---|---|---|
+| IFEval strict prompt | 0.7523 | **0.7579** | 0.7412 |
+| IFEval strict instruction | 0.8237 | **0.8345** | 0.8177 |
+| IFEval loose prompt | 0.7911 | **0.8059** | 0.7800 |
+| \textsc{GSM8K} EM | 0.8666 | 0.8643 | 0.8522 |
+| \textsc{GSM8K} parse failures | 0.0129 | 0.0136 | 0.0167 |
+| median response tokens (\textsc{GSM8K}) | 231 | 227 | 236 |
+
+MSE is at or above base on every IFEval variant and 0.23 points below on GSM8K.
+The pre-repair arms lost 15.7 GSM8K points and 9–11 IFEval points on the same
+kind of panel. That collapse is gone.
+
+**What this is not.** These are greedy point-mass decodes, not unbiased samples
+from the trained stochastic policy, and the evaluation report says so itself and
+declines to certify Algorithm 1 acceptance on that basis. It is one training
+seed. The teacher is the same frozen ensemble throughout, and about a third of
+what it scores is truncated at its 384-token encoder budget (§6). The test
+prompts are the preference model's own test split rather than an untouched
+benchmark, which is why the run records `fresh_test_claim` as false. HarmBench is
+still missing for these arms — its lane died on a transient CUDA initialization
+error and is being re-run.
+
+## 5. Both arms finished, and neither one compresses
 
 | | WBC | MSE |
 |---|---|---|
@@ -206,7 +255,7 @@ all, and their GSM8K chains are slightly *longer* than base. Whether accuracy is
 preserved is a separate question that the scoring answers; length was the
 mechanism behind the earlier collapse, and it is absent here.
 
-## 5. Why the earlier checkpoints lost usefulness: they compress
+## 6. Why the earlier checkpoints lost usefulness: they compress
 
 A blinded read of a frozen 100-prompt Alpaca subset (slot order randomised per
 prompt; every statistic computed before unblinding) settles the question the
@@ -246,7 +295,7 @@ One caveat that limits the old comparison: canonN700 and RB1200 emit
 byte-identical greedy answers on **44 of 100** prompts, so they were never two
 independent arms.
 
-## 6. A standing limit on the teacher
+## 7. A standing limit on the teacher
 
 The frozen preference-model ensemble encodes at most 384 tokens, and **26,790 of
 the 84,000 pooled response occurrences (31.9%) are longer than that**; on the
@@ -264,7 +313,7 @@ against 205.2 unweighted), and the within-prompt $r^2$ of length on the target i
 0.006 / 0.008 / 0.003 on train / dev / test. The teacher is frozen for this run
 and was not retrained; this is recorded as a limitation, not fixed.
 
-## 7. What the held-out numbers do and do not establish
+## 8. What the held-out numbers do and do not establish
 
 From the run's own split manifest, stated plainly because it bounds the claim:
 
@@ -286,7 +335,7 @@ target to prompts it never trained on, under a teacher that has seen them. That
 is the question the neural-realization bottleneck was about. It is not a claim
 about a fresh benchmark.
 
-## 8. Cost and schedule
+## 9. Cost and schedule
 
 | item | value |
 |---|---|
