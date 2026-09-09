@@ -1,0 +1,93 @@
+{
+  "schema": "nbpo-repair-audit-findings-v1",
+  "recorded_by": "claude-opus-5",
+  "recorded_utc": "2026-09-09T07:45:00+00:00",
+  "run": {
+    "root": "/work/nbpo_repair_20260909",
+    "parent_commit": "afc527b375bab7b18f1100ece07bd18832c47508",
+    "source_snapshot_commit": "ddc8c2d",
+    "source_archive_sha256": "e9a1522b28332901c5ac372795d713ee7d91e26682ae5d8ac9aaaa75d6505e1b",
+    "note": "The pipeline was built and launched directly under /work/.../code by an earlier agent session that lost its connection at 16:02 KST. The tree was copied back into the repository verbatim so this diff is reviewable; /work/.../code is NOT edited while the chains run, because the evaluation controller verifies a frozen source-hash contract."
+  },
+  "findings": [
+    {
+      "id": "A",
+      "title": "The BT baseline's teacher never reaches the training data",
+      "status": "fixed",
+      "evidence": "Every representation now writes one canonical artifact g = log(p_star/pi_t) and the pair target g_a - g_b. scripts/nbpo/build_nbpo_pairs.py:117-201 emits target_mode=canonical_logratio, target_column=nbpo_logratio_target, eta_already_included=true; mnpo_scripts/nbpo_neural.py:11-15 returns the canonical target unscaled so eta is not applied a second time; the running config sets nbpo_target_mode accordingly and pins nbpo_expected_solver_artifact_sha256=4fd522a7891fa7ba4ab3bcfcd82f0d72a5b50de23a8b9239a8e480b74588afc8.",
+      "verification": "tests/test_nbpo_neural_repair.py::test_production_canonical_mse_does_not_apply_eta_twice (eta=0.5 and 2.0) and ::test_dataset_contract_checks_pairs_masses_and_canonical_target.",
+      "affected_prior_artifacts": "All pre-repair BT-representation arms. Their targets are retained, not overwritten.",
+      "caveat": "The sampled/rao_blackwell paths always applied eta exactly once; this is a single-source-of-truth fix, not a retroactive double-eta bug in those losses."
+    },
+    {
+      "id": "B",
+      "title": "Train and validation solve different target problems",
+      "status": "fixed",
+      "evidence": "train/dev/test pair files are produced by one campaign entrypoint over one solver backend: scripts/experiments/nbpo_repair_20260909/solve_campaign.py:271-284 solves all three splits with representation=adaptive_game, aggregation=nash, and the held-out splits reuse the train-fitted global lambda through the shared dispatch scripts/nbpo/run_nbpo_stage.py::solve_stage_finite_pool (fixed_weights path). The trainer reads dev pairs from the same teachers/nash_repair_v2/pairs/ directory as train.",
+      "verification": "teachers/nash_repair_v2/{train,dev,test}/solver/solution.json all record representation=adaptive_game, aggregation=nash, eta=1.0 and the identical global lambda_raw=[6.32539583922393, 6.185673374281126] fitted on train -- the held-out splits solve only the fixed-weight inner problem. The legacy pair (train -0.1046924751 vs validation -0.3298213679 on the same input) came from two different backends; there is now one backend, so that particular discrepancy cannot arise. This is a structural argument, not a re-measurement of the legacy numbers.",
+      "affected_prior_artifacts": "The legacy R-step build_validation_pairs() at scripts/nbpo/run_nbpo_stage.py:312 still exists for old stage configs and is inactive_in_this_run."
+    },
+    {
+      "id": "C",
+      "title": "The target-identity check is not an independent verification of solver accuracy",
+      "status": "fixed",
+      "evidence": "The solver now returns its actual optimizer policy and nu/Q are recomputed from that policy rather than from the identity used to build the target. teachers/nash_repair_v2/inputs.json certificate for the train split: canonical_serialization_error 0.0, independent_stationarity_inf 6.713e-11, extra_map_residual 1.272e-11, q_at_returned_policy_error 0.0.",
+      "verification": "All four numbers are far inside the pre-registered gates (serialization <1e-9, stationarity <1e-4, extra-map <1e-4). The dual is projected and bound activity is recorded alongside lambda_raw.",
+      "caveat": "A bounded-dual projected-KKT certificate certifies the bounded problem, not the unconstrained Nash problem; lambda sits strictly inside the box [1e-3, 1e3] here, which is what makes the two coincide. This scope limit is being written into v6."
+    },
+    {
+      "id": "D",
+      "title": "Stage dispatch and config disagree with what is declared",
+      "status": "fixed",
+      "evidence": "One resolved config per arm is frozen before launch and hashed: protocols/resolved_protocol_frozen_v1.yaml and protocols/primary_horizon_frozen_v1.json; jobs/<arm>/launch.json records command, cwd, config path, config_sha256, per-file source_hashes and source_archive_sha256. The controller re-checks the frozen MSE config hash before launching the second arm (scripts/experiments/nbpo_repair_20260909/primary_chain.py) and refuses to run if any training source changed between the matched arms.",
+      "verification": "wbc_primary_v1 config_sha256 d9be3d3c4c84c79d594f32d32c26f9056d64e3595b48f8287800562654b5b394; the YAML's comments are not trusted -- the resolved values (frozen GPM ensemble, canonical targets, 8+8 pools) are read back from the artifacts."
+    },
+    {
+      "id": "E",
+      "title": "BF16 logits collapse the sequence log-probability difference",
+      "status": "fixed",
+      "evidence": "One helper does log_softmax, token selection and the sequence sum in FP32 with vocabulary chunking (mnpo_scripts/response_logps.py), used by mnpo_scripts/precompute.py, mnpo_scripts/run_mnpo.py and scripts/simpo_trainer.py. The running job records the observed dtypes every optimizer step: logits torch.float32, log_softmax torch.float32, selected_logp torch.float32, sequence_logp torch.float32, loss torch.float32, ZeRO-2 masters and Adam moments torch.float32, forward parameters torch.bfloat16 (arms/wbc_primary_v1/runtime_rank*.jsonl).",
+      "verification": "tests/test_nbpo_neural_repair.py::test_long_bf16_response_logp_change_survives and ::test_chunked_backward_matches_dense_full_vocabulary. The FP32 master contract is asserted against the actual ZeRO partitions, not assumed from 'bf16 model + AdamW'.",
+      "affected_prior_artifacts": "Every reference log-probability cache built before the fix was invalidated and rebuilt; the old caches are retained."
+    },
+    {
+      "id": "F",
+      "title": "The same candidate is scored under a different prompt depending on its partner",
+      "status": "fixed",
+      "evidence": "The prompt and the whole 8-candidate pool are tokenized once; a pair only selects two frozen candidate token events and re-checks their hashes (mnpo_scripts/pair_tokenization.py::immutable_pair_tokens:110-134, chosen_token_sha256 / rejected_token_sha256). The running config sets nbpo_require_immutable_tokens: true, so a mismatch aborts the job rather than training on it.",
+      "verification": "tests/test_nbpo_neural_repair.py::test_immutable_candidate_is_identical_across_partners_and_no_eos_is_invented and ::test_precompute_collator_consumes_same_immutable_tokens.",
+      "note": "The legacy behaviour -- prompt length taken as the minimum over the two sides' tokenizations, so a long partner truncated the shared prompt -- is documented in the module docstring and audited for the old artifacts in provenance/legacy_tokenization_audit_v1.json."
+    },
+    {
+      "id": "G",
+      "title": "A substring split heuristic ignores dev and selects test for evaluation",
+      "status": "fixed",
+      "evidence": "mnpo_scripts/nbpo_neural.py::select_training_splits requires exact split names, refuses eval_split=='test' outright, and refuses train_split==eval_split; mnpo_scripts/run_mnpo.py:201-236 calls it with the configured names and validates each split's dataset contract separately. Final test is only readable through a separate evaluation entrypoint.",
+      "verification": "tests/test_nbpo_neural_repair.py::test_explicit_split_sentinels_never_select_test.",
+      "caveat": "A split historically named 'test' may have played the dev role; the name alone is not treated as proof of past leakage."
+    },
+    {
+      "id": "H",
+      "title": "NEW -- rotary position buffers were cast to bfloat16 with the model",
+      "status": "fixed",
+      "discovered_during": "this repair run",
+      "evidence": "Casting the model to bf16 also cast the RoPE inv_freq buffers, quantising the position frequencies. A guard snapshots the original FP32 buffers and restores them before training, recording how many were restored: arms/wbc_primary_v1/rotary_buffer_precision_rank*.json and the per-step field rotary_buffer_restorations = 33 in runtime_rank*.jsonl.",
+      "verification": "tests/test_nbpo_neural_repair.py::test_zero_bfloat16_rotary_cast_restores_exact_pretrained_frequencies and tests/test_nbpo_export_validation.py::test_rope_requires_exact_original_fp32_not_rounded_recast.",
+      "affected_prior_artifacts": "Every arm trained before this guard existed ran with bf16-quantised RoPE frequencies. This is an additional reason the pre-repair tables are not being restored."
+    }
+  ],
+  "not_yet_addressed": [
+    {
+      "id": "audit-7",
+      "title": "NBPO-WBC as a second neural realization",
+      "status": "in_progress",
+      "detail": "Implemented at mnpo_scripts/nbpo_neural.py::nbpo_wbc_pair_loss and mnpo_scripts/mnpo_trainer.py:351-355; the WBC arm is training now and the matched canonical-MSE control follows on the same pools, teacher and horizon."
+    },
+    {
+      "id": "audit-9",
+      "title": "Manuscript v6 revisions",
+      "status": "in_progress",
+      "detail": "Table 13 caption already corrected. Remaining: A.5 empirical importance distribution, the bounded-dual certificate scope, A.6 D-weighted pairing notation, the regression gate stated as diagnostic-only, and the WBC framing."
+    }
+  ]
+}

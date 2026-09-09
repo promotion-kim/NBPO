@@ -344,7 +344,7 @@ Thus the constrained problem recovers the inverse-surplus weighting in \eqref{eq
 \label{sec:finite-pool-solve}
 At one outer stage, sample learner candidates $\mathcal Y_x=\{y_{x,i}\}_{i=1}^{n_x}$ and comparator candidates $\mathcal Z_x=\{z_{x,j}\}_{j=1}^{m_x}$, and estimate the centered pairwise matrices
 $\widehat A_{k,x}[i,j]=\widehat\Delta_k(y_{x,i},z_{x,j}\mid x)$.
-Let $p_{t,x}$ be the current learner mass on $\mathcal Y_x$ and let $\mu_x$ be the empirical reference mass on $\mathcal Z_x$. For $p\in\Delta^{n_x}$, define
+Let $p_{t,x}\in\Delta^{n_x}$ be the learner pool's \emph{occurrence measure} --- the empirical importance weight each sampled candidate carries inside the finite program --- and let $\mu_x$ be the corresponding occurrence measure on $\mathcal Z_x$. Both are counting measures over what was actually drawn, not the language model's conditional law: with $n_x$ i.i.d.\ draws from $\pi_t$ and duplicates retained with multiplicity, $p_{t,x}(i)=1/n_x$ regardless of the value of $\pi_t(y_{x,i}\mid x)$. The finite program below reweights that sampled support; the only bridge back to the model is the pool mapping $p_\theta(i)\propto p_{t,x}(i)\exp\{\log\pi_\theta(y_{x,i}\mid x)-\log\pi_t(y_{x,i}\mid x)\}$, which is what every finite-pool quantity we report is computed through. Reading $\mathrm{softmax}_i\log\pi_\theta(y_{x,i}\mid x)$ as the pool distribution instead silently replaces the occurrence measure by a renormalized conditional and changes the sign of measured surpluses. For $p\in\Delta^{n_x}$, define
 \begin{align}
 \widehat m_{k,x}(p)_j
 &:=\sum_{i=1}^{n_x}p_i\widehat A_{k,x}[i,j],\\
@@ -408,6 +408,17 @@ No language-model partition function appears. At the inner optimum,
 \label{eq:finite-target-identity}
 \end{equation}
 which provides an independent solver and artifact check. Pairwise probabilities may come from direct human comparisons or a general pairwise preference model; \NBPO{} never requires them to decompose into scalar response rewards.
+
+\paragraph{Two projections of one solver target.}
+Equation~\eqref{eq:regression-loss} constrains only \emph{differences} of log-ratios inside the sampled support; it says nothing about the pool's overall likelihood, and a network can drive its residual down while moving mass in ways the target never specified. We therefore also report a second projection of the same $p_{t,x}^\star$, weighted behavior cloning over the pool,
+\begin{equation}
+\mathcal L_{\mathrm{WBC}}^{(t)}(\theta)
+=
+\E_{x}\sum_{i=1}^{n_x}
+p_{t,x}^\star(i)\bigl(-\log\pi_\theta(y_{x,i}\mid x)\bigr),
+\label{eq:wbc-loss}
+\end{equation}
+with the weights detached and $\log\pi_\theta$ the full-vocabulary autoregressive log-probability of the response, summed over its tokens and not divided by length. This is finite-pool weighted behavior cloning: an empirical approximation of the forward KL from the finite-pool target to the policy on the sampled support. It inherits none of the exactness of \eqref{eq:finite-target-logratio}, and we do not present it as a realization of the population theorem. The two losses read the identical solver artifact and differ only in how that artifact is pushed into the network, which is what makes the comparison informative. Writing \eqref{eq:wbc-loss} on unordered pairs as $\tfrac{n_x}{2}\bigl(p_{t,x}^\star(i)(-\log\pi_\theta(y_{x,i}\mid x))+p_{t,x}^\star(i')(-\log\pi_\theta(y_{x,i'}\mid x))\bigr)$ reproduces the prompt-wise weighted likelihood exactly when all $\binom{n_x}{2}$ pairs appear once, so both objectives share one dataloader, one tokenization and one token exposure.
 
 \begin{algorithm}[t]
 \caption{Nash Bargaining Preference Optimization}
@@ -501,7 +512,9 @@ PROSPER/MaxEntBW$^\ddagger$ & \pending & \pending & \pending & \pending & \pendi
 
 \subsection{Neural realization and general capability}
 \label{sec:neural-general}
-Before final seeds, a one-seed smoke test must show that the 8B policy learns the finite-pool log-ratio target: held-out normalized regression MSE below $0.90$, sign agreement above $0.65$, positive Pearson and Spearman correlations, and direct-solver residual below $10^{-4}$. Final checkpoints are then evaluated on task-specific and general benchmarks without using the retired prompted-Qwen judge. In-domain SafeRLHF reward/cost models are labeled as diagnostics; deterministic metrics and blinded human comparisons provide complementary evidence.
+The finite-pool solve and the neural fit are separate questions, and only the first is settled. We therefore report four columns that are easy to conflate: whether the solver artifact is self-consistent, whether the network fits the target on its own training pairs, whether that fit transfers to unseen prompts from the same pool construction, and whether the resulting policy is more useful. A regression threshold is a \emph{diagnostic} on the second and third, never an acceptance criterion for the fourth: the earlier plan's held-out gate --- normalized MSE below $0.90$, sign agreement above $0.65$, positive Pearson and Spearman --- is reported as a measurement, and no checkpoint, horizon, or hyperparameter is selected by it. The floor of the normalized MSE is set by the target's own estimation noise, so a small residual is not evidence that unseen pairs are predictable to the complement of it.
+
+Two neural realizations of the same solver artifact are compared at a horizon fixed in advance: the canonical pairwise regression \eqref{eq:regression-loss} and the weighted behavior cloning \eqref{eq:wbc-loss}. They share the base model, the learner and comparator pools, the frozen preference-model ensemble, the solved $p_t^\star$, the tokenization, the optimizer and the number of updates, so a difference between them isolates the projection rather than the bargaining objective. Final checkpoints are evaluated on task-specific and general benchmarks with no paid judge API and without the retired prompted-Qwen judge: in-domain SafeRLHF reward and cost models are labeled as diagnostics, a local reward model supplies a same-prompt reference win rate that is not an official leaderboard score, and instruction-following, mathematical and safety benchmarks use their official evaluators. Safety gains that arrive together with shorter answers and lower task accuracy are reported as a trade-off and not as a Pareto improvement.
 
 
 
@@ -1022,6 +1035,9 @@ Stationarity $\widehat s_k(p_t^\star(\lambda))=1/\lambda_k$ can also be approach
 \end{equation}
 where $\gamma_m>0$ is the dual step size, $\Pi_{\Lambda}$ is Euclidean projection onto $\Lambda=[\lambda_{\min},\lambda_{\max}]^K$ with $0<\lambda_{\min}<\lambda_{\max}$, and the inverse is elementwise. On the pools reported here this iteration stalls at a projected KKT residual near $10^{-2}$ after $3000$ steps, whereas the root solve reaches $10^{-9}$ in tens of inner solves; no reported result uses \eqref{eq:dual-update}.
 
+\paragraph{What the projected certificate certifies.}
+Both the root solve and the fallback act on the box $\Lambda=[\lambda_{\min},\lambda_{\max}]^K$, so the residual we report is the projected KKT residual of the \emph{box-constrained} dual. That residual certifies the original problem only when the box is inactive at the returned $\lambda$: on an active bound the projection can annihilate a genuine stationarity violation, and a small number then certifies nothing. We therefore report bound activity alongside every residual and treat a run with an active bound as uncertified rather than converged. In the runs reported here the multipliers are interior by a wide margin --- on the \textsc{SafeRLHF} pool, $\Lambda=[10^{-3},10^{3}]^2$ and the solved $\lambda=(6.33,6.19)$ sit at least two decades from either bound in $\log_{10}\lambda$ --- and the stationarity residual recomputed independently from the returned policy is $6.7\times10^{-11}$.
+
 \paragraph{Finite-pool optimality and neural projection.}
 Fix $\lambda$ and let $\pi_t^\star(\lambda)$ solve \eqref{eq:weighted-policy}. First-order optimality gives, for every prompt and response pair in the support,
 \begin{equation}
@@ -1050,7 +1066,7 @@ F(\pi^\star)-F(\pi_T)
 \end{equation}
 \end{theorem}
 
-Let $h(\pi)=\E_{x\sim\D}\sum_y\pi(y\mid x)\log\pi(y\mid x)$, so its Bregman divergence is $D(\pi\|\pi_t)$. Because the objective is increasing in $u$, the policy part of \eqref{eq:prox-subproblem} is equivalently
+Work throughout in the $\D$-weighted geometry: pair functions of $(x,y)$ by $\langle f,g\rangle_\D=\E_{x\sim\D}\sum_yf(x,y)g(x,y)$, and let $h$ be the \emph{prompt-wise} negative entropy $h(\pi)(x)=\sum_y\pi(y\mid x)\log\pi(y\mid x)$, whose gradient at $(x,y)$ is $1+\log\pi(y\mid x)$. Its Bregman divergence in that geometry is exactly $D(\pi\|\pi_t)=\E_{x\sim\D}\KL(\pi(\cdot\mid x)\|\pi_t(\cdot\mid x))$. The prompt expectation enters once, through the pairing, and is not also carried inside $h$. Because the objective is increasing in $u$, the policy part of \eqref{eq:prox-subproblem} is equivalently
 \begin{equation}
 \pi_{t+1}
 \in
