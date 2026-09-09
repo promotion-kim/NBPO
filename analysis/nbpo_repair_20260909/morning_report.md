@@ -380,7 +380,37 @@ target to prompts it never trained on, under a teacher that has seen them. That
 is the question the neural-realization bottleneck was about. It is not a claim
 about a fresh benchmark.
 
-## 9. Cost and schedule
+## 9. Two evaluator faults found, both worth keeping
+
+Neither is about NBPO, and both would have silently degraded the numbers.
+
+**HarmBench could not start its classifier at all.** Two jobs died with "CUDA
+driver initialization failed", which reads as a hardware problem and is not one.
+`evaluate_responses.harmbench()` loads HarmBench's official `eval_utils.py`
+before constructing the vLLM engine, and that module imports torch and touches
+CUDA; vLLM v1 then *forks* its engine core, and a forked child cannot
+re-initialize CUDA in a process whose parent already has. Reproduced in
+isolation: a forked child fails after those helpers are loaded, succeeds without
+them, and succeeds either way when spawned. `VLLM_WORKER_MULTIPROC_METHOD=spawn`
+fixes it and changes nothing about what is scored. My first re-run assumed the
+failure was transient and failed identically — the fresh shell I had tested in
+had not loaded HarmBench's helpers.
+
+**The same job then deadlocked after finishing.** Every summary and the
+completion marker were written, and the parent sat in `do_wait` on an engine
+child that never exits, holding a GPU against the whole queue behind it. The
+results were hashed, the engine child was signalled, and the job completed and
+recorded `exit_code 0`, `child_exit_code 0`, with its own GPU-idle checks passing.
+Because two more HarmBench jobs are queued, this is now automated under
+conditions narrow enough that it cannot mask a real failure — the results must
+already be complete before anything is signalled — and every signal is logged
+with the hashes that were on disk when it was sent.
+
+**And IFEval's strict checker is not deterministic.** See §4: the same 541
+responses score 0.754159 and 0.752311 on two runs of the official evaluator,
+one prompt of 541, while the loose variants are bit-identical.
+
+## 10. Cost and schedule
 
 | item | value |
 |---|---|
