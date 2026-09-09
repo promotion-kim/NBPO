@@ -1262,7 +1262,7 @@ The direct inner solve is exact only for the declared finite response pool and n
 \begin{table*}[t]
 \centering\scriptsize
 \setlength{\tabcolsep}{3.4pt}
-\caption{Every trained policy arm, under both acceptance criteria. \emph{nMSE} is the Eq.~(26) regression gate (requirement $<0.90$); \emph{worst surplus} is Algorithm~\ref{alg:nbpo}'s own acceptance quantity, the held-out worst-objective surplus, which must be positive. No arm meets either. $\pi_t$ is listed because a negative surplus is not readable without the value training started from, and every arm sits below it. Daggered arms are diagnostics outside the pre-declared grid and were never selection candidates.}
+\caption{Neural projection diagnostics. \textbf{No trained arm satisfies the regression gate} ($\mathrm{nMSE}<0.90$ and sign agreement $>0.65$, both on the selecting validation half, with Pearson and Spearman $>0$). Three arms have \emph{positive point estimates} of the frozen-pool worst-objective surplus $\min_k\E_x[s_k]$ on the test half; that is neither passage of the full neural gate nor completion of policy promotion, and no arm has positive surplus on validation. Columns state their split: nMSE is given for both halves, sign and the correlations are the test half, and surplus is given for both. $\pi_t$ is the initial policy and $p^\star$ the finite-pool solver target; $p^\star$ performs no neural regression, so its gate is not applicable. Daggered arms are diagnostics, not frozen protocol candidates. Per-objective values, hashes and the evaluator version are in the result manifest.}
 \label{tab:neural-arms}
 \input{generated/neural_arms}
 \end{table*}

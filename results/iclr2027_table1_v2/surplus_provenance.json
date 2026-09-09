@@ -1,0 +1,54 @@
+{
+  "what_changed": "the surplus evaluator's policy-to-pool mapping, and nothing else: the same checkpoints, the same split, the same tensor, the same solver artifact and the same aggregation were re-scored",
+  "v1": {
+    "script": "scripts/experiments/iclr2027_table1_v2/held_out_surplus.py",
+    "git": "ed4b273e9f46",
+    "mapping": "p_theta(i) = softmax(log pi_theta(i)) over the pool",
+    "defect": "only equals the finite-pool induced distribution when p_t is the conditional LM mass over the pool. Here p_t is UNIFORM (every row of pi_t.npz is 0.125), so v1 scored absolute log-probabilities, which track response length and content rather than what training changed. It also fails the identity check: at theta = theta_t it does not return p_t.",
+    "unit_checks": "none"
+  },
+  "v2": {
+    "script": "scripts/experiments/iclr2027_table1_v2/held_out_surplus_v2.py",
+    "git": "6b301345da06",
+    "mapping": "p_theta(i) proportional to p_t(i) * exp(log pi_theta(i) - log pi_t(i))",
+    "unit_checks": {
+      "h_zero_recovers_pi_t_max_abs_error": 0.0,
+      "canonical_potential_recovers_pi_star_max_abs_error": 4.440892098500626e-16
+    },
+    "note": "the script refuses to report if either unit check fails"
+  },
+  "held_fixed_across_v1_and_v2": {
+    "split": "the same 150/150 validation/test prompt map, salt nbpo-smoke-valtest",
+    "aggregation": "min_k E_x[s_k(x)] -- NOT E_x[min_k s_k(x)]",
+    "tensor_policy_sha256": "6de52559df15fe4dba68117d8200ddd4762dc4165d02531c55a3fcf98b4db66c",
+    "tensor_ref_sha256": "ac030c7c2c5f00246eb37b43c33afc969e7dce06b1a822700deb5d994ed5319d",
+    "tensor_meta_sha256": "6ea245d981e98042addda654886ed975ca0fd9992463fefc5db1f14b797d4116",
+    "solver_solution_sha256": "b9170ba8a2622873e161a0f18fb8d29799350ccafe92fb0df9c81f205886958c",
+    "pi_t_sha256": "9b96d7b9965fdaa9df5bb709e48f3e86f03d5ade5d79f8f05ac8f1c758a09200",
+    "pi_star_sha256": "0fd1c6ef5c68e2d804f6964a8a0b1aa049f369c2e6b96a5ace337ddf9399e362",
+    "checkpoints": "identical; no arm was retrained between v1 and v2"
+  },
+  "superseded_values_test_half_worst_surplus": {
+    "eta1p0": {
+      "v1": -0.01972,
+      "v2": -0.00572,
+      "status": "v1 superseded: wrong mapping"
+    },
+    "lr2em7": {
+      "v1": -0.0208,
+      "v2": -0.00261,
+      "status": "v1 superseded: wrong mapping"
+    },
+    "DIAGrb": {
+      "v1": -0.02002,
+      "v2": -0.00227,
+      "status": "v1 superseded: wrong mapping"
+    },
+    "DIAGrb_steps1200": {
+      "v1": -0.01847,
+      "v2": 0.0016,
+      "status": "v1 superseded: wrong mapping"
+    }
+  },
+  "explicitly_not_the_reason": "no arm improved. The checkpoints are byte-identical to the ones v1 scored; only the evaluator changed."
+}

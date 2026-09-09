@@ -86,9 +86,11 @@ HEADERS.update({
  "solver_scaling": ("rrrrrrrrrr",
    r"prompts & pool & workers & solve (s) & dual evals & s/eval & proj.\ KKT & "
    r"inner resid. & peak RSS (MB) & artifact (s)\\"),
- "neural_arms": ("llrrrrrrl",
-   r"arm & target & val nMSE & test nMSE & sign agr. & Pearson & Spearman & "
-   r"worst surplus & accepts\\"),
+ "neural_arms": ("lllrrrrrrrrl",
+   "arm & target & ref & upd. & $N$ & \\multicolumn{2}{c}{nMSE} & sign & Pearson & "
+   "\\multicolumn{2}{c}{$\\min_k\\E_x[s_k]$} & gate\\\\\n"
+   "\\cmidrule(lr){6-7}\\cmidrule(lr){10-11}\n"
+   " & & & & & val & test & test & test & val & test & (val)\\\\"),
  "neural_realization": ("lrrrrrrrrrr",
    r"row & target RMS & $p_{10}$ & $p_{90}$ & $\|\lambda\|_1$ & proj.\ KKT & "
    r"inner resid. & identity & norm.\ MSE & sign agr. & Pearson\\"),
@@ -467,59 +469,76 @@ def residual_macros():
 
 
 def neural_arms():
-    """Every trained arm, under both acceptance criteria, from the arms index.
+    """Every trained arm, with each column's split stated and the two criteria apart.
 
-    This used to read the release manifest, which lists only the arms that were
-    uploaded, so anything trained afterwards was invisible to the table. It now
-    reads the consolidated index, built from each arm's own gate file.
+    An earlier version of this table asserted that no arm met either criterion and
+    that every arm sat below pi_t. Both were false once the pool mapping was
+    corrected: three arms have a positive point estimate of the test-half surplus,
+    and N=700 at +0.0023 is above pi_t's -0.0035. Failing the regression gate and
+    having positive surplus are different statements, so they get different
+    columns, and "surplus > 0" is not called "accepts" -- Algorithm 1 promotes on
+    the selecting half, where no arm is positive.
 
-    Both criteria appear because they measure different things and, on these
-    arms, do not order them the same way. The reference policies are rows because
-    a surplus near zero is unreadable without pi_t and p* beside it.
+    p* runs no neural regression, so its gate is n/a rather than a failure.
     """
     idx = RES / "arms_index.json"
     if not idx.exists():
-        emit("neural_arms", [r"\multicolumn{9}{l}{\textit{pending: no trained arm}}\\"],
-             [], "pending", "no arm has been scored")
+        emit("neural_arms", [r"\multicolumn{11}{l}{\textit{pending}}\\"], [],
+             "pending", "no arm has been scored")
         return
     d = json.loads(idx.read_text())
-    LBL = {"eta0p1": r"$\eta{=}0.1$", "eta0p3": r"$\eta{=}0.3$", "eta1p0": r"$\eta{=}1$",
-           "lr2em7": "lr $2$e-$7$", "lr1em6": "lr $1$e-$6$",
-           "DIAGlr1em5": r"lr $1$e-$5^{\dagger}$", "DIAGrb": r"RB $300^{\dagger}$",
-           "DIAGrb_clip100": r"RB clip $100^{\dagger}$",
-           "DIAGrb_steps1200": r"RB $1200^{\dagger}$",
-           "canonN8": r"canon $N{=}8^{\dagger}$", "canonN50": r"canon $N{=}50^{\dagger}$",
-           "canonN200": r"canon $N{=}200^{\dagger}$", "canonN700": r"canon $N{=}700$",
-           "PAIRED300_oldref": r"paired 300, cached$^{\dagger}$",
-           "PAIRED300_newref": r"paired 300, online$^{\dagger}$"}
+    # every N-sweep arm is a diagnostic: the sweep was never a pre-declared grid
+    LBL = {"eta0p1": (r"$\eta{=}0.1^{\dagger}$", "300", "700"),
+           "eta0p3": (r"$\eta{=}0.3^{\dagger}$", "300", "700"),
+           "eta1p0": (r"$\eta{=}1$", "300", "700"),
+           "lr2em7": ("lr $2$e-$7$", "300", "700"),
+           "lr1em6": ("lr $1$e-$6$", "300", "700"),
+           "DIAGlr1em5": (r"lr $1$e-$5^{\dagger}$", "300", "700"),
+           "DIAGrb": (r"RB$^{\dagger}$", "300", "700"),
+           "DIAGrb_clip100": (r"RB clip$100^{\dagger}$", "300", "700"),
+           "DIAGrb_steps1200": (r"RB$^{\dagger}$", "1200", "700"),
+           "canonN8": (r"canon$^{\dagger}$", "1200", "8"),
+           "canonN50": (r"canon$^{\dagger}$", "1200", "50"),
+           "canonN200": (r"canon$^{\dagger}$", "1200", "200"),
+           "canonN700": (r"canon$^{\dagger}$", "1200", "700"),
+           "PAIRED300_oldref": (r"canon$^{\dagger}$", "300", "700"),
+           "PAIRED300_newref": (r"canon$^{\dagger}$", "300", "700")}
     EST = {"sampled": "sampled", "RB": "RB", "canonical": "canon"}
+    REF = {"cached": "cached", "online": "online"}
+
+    def f(v, d_=4, sgn=True):
+        return "--" if v is None else (f"${v:+.{d_}f}$" if sgn else f"${v:.{d_}f}$")
 
     rows = []
-    for key, lbl in (("pi_t", r"$\pi_t$ (start)"), ("pi_star", r"$p^\star$ (solver)")):
-        v = d["reference_policies"].get(key, {}).get("test", {})
-        if v:
-            rows.append(" & ".join([lbl, "--", "--", "--", "--", "--", "--",
-                                    f"${v['min_over_objectives_of_mean_surplus']:+.4f}$",
-                                    "yes" if v.get("accepts_all_objectives_positive")
-                                    else "no"]) + r"\\")
+    for key, lbl in (("pi_t", r"$\pi_t$ (start)"), ("p_star", r"$p^\star$ (solver)")):
+        k = "pi_star" if key == "p_star" else key
+        v = d["reference_policies"].get(k, {})
+        if not v:
+            continue
+        rows.append(" & ".join([
+            lbl, "--", "--", "--", "--", "--", "--", "--", "--",
+            f(v.get("validation", {}).get("min_over_objectives_of_mean_surplus")),
+            f(v.get("test", {}).get("min_over_objectives_of_mean_surplus")),
+            "n/a"]) + r"\\")
     for key, r in d["arms"].items():
         v, t = r["validation"], r["test"]
-        sur = t.get("surplus") or {}
-        smin = sur.get("min_over_objectives")
+        lbl, upd, n = LBL.get(key, (key.replace("_", "-"), "--", "--"))
+        vs = (v.get("surplus") or {}).get("min_over_objectives")
+        ts = (t.get("surplus") or {}).get("min_over_objectives")
         rows.append(" & ".join([
-            LBL.get(key, key.replace("_", "-")), EST.get(r["estimator"], r["estimator"]),
-            f"${v['metrics']['normalized_mse_var']:.3f}$",
-            f"${t['metrics']['normalized_mse_var']:.3f}$",
-            f"${t['metrics']['sign_agreement']:.3f}$",
-            f"${t['metrics']['pearson']:+.3f}$",
-            f"${t['metrics']['spearman']:+.3f}$",
-            (f"${smin:+.4f}$" if smin is not None else "--"),
-            ("yes" if sur.get("accepts") else "no") if sur else "--"]) + r"\\")
+            lbl, EST.get(r["estimator"], r["estimator"]),
+            REF.get(r["reference_path"], r["reference_path"]), upd, n,
+            f(v["metrics"]["normalized_mse_var"], 3, False),
+            f(t["metrics"]["normalized_mse_var"], 3, False),
+            f(t["metrics"]["sign_agreement"], 3, False),
+            f(t["metrics"]["pearson"], 3),
+            f(vs), f(ts),
+            "fail"]) + r"\\")
     emit("neural_arms", rows, [idx], "completed",
-         "no arm meets the regression gate (nMSE < 0.90, sign > 0.65, both "
-         "correlations > 0) and none accepts on the VALIDATION half that selects; "
-         "the acceptance column is the test half. Daggered arms are diagnostics "
-         "outside the pre-declared grid.",
+         "regression gate and frozen-pool surplus are reported separately; the gate "
+         "is evaluated on validation, no arm passes it, and no arm has positive "
+         "validation surplus. Three arms have positive TEST surplus point estimates, "
+         "which is not gate passage and not promotion. p* runs no neural regression.",
          aggregation="single run per arm (not a multi-seed mean)")
 
 

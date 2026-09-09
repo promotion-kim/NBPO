@@ -161,7 +161,7 @@
     "neural_arms": {
       "fragment": "nbpo_iclr/generated/neural_arms.tex",
       "status": "completed",
-      "note": "no arm meets the regression gate (nMSE < 0.90, sign > 0.65, both correlations > 0) and none accepts on the VALIDATION half that selects; the acceptance column is the test half. Daggered arms are diagnostics outside the pre-declared grid.",
+      "note": "regression gate and frozen-pool surplus are reported separately; the gate is evaluated on validation, no arm passes it, and no arm has positive validation surplus. Three arms have positive TEST surplus point estimates, which is not gate passage and not promotion. p* runs no neural regression.",
       "seeds": null,
       "aggregation": "single run per arm (not a multi-seed mean)",
       "sources": [
