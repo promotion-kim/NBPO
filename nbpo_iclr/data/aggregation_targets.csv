@@ -1,0 +1,11 @@
+metric_tex,value,source
+Mean target TV,0.0008,attached TeX and user report; raw artifact unavailable
+Maximum target TV,0.0075,attached TeX and user report; raw artifact unavailable
+Pairwise target difference RMS,0.0034,attached TeX and user report; raw artifact unavailable
+Target RMS on the aggregation panel,1.125,attached TeX and user report; raw artifact unavailable
+Nash $\lambda_{\rm help}$,6.325,attached TeX and user report; raw artifact unavailable
+Nash $\lambda_{\rm safe}$,6.186,attached TeX and user report; raw artifact unavailable
+"Policy $\min_k s_k$, Nash",0.1186,"measured on this server 2026-09-10; arms mse_short_primary_v1 and utilitarian_mse_s42_v2, seed 42"
+"Policy $\min_k s_k$, utilitarian",0.1189,"measured on this server 2026-09-10; arms mse_short_primary_v1 and utilitarian_mse_s42_v2, seed 42"
+"Paired $\Delta s_{\rm help}$, Nash $-$ util.",-0.0003,"measured on this server 2026-09-10; arms mse_short_primary_v1 and utilitarian_mse_s42_v2, seed 42"
+"Paired $\Delta s_{\rm safe}$, Nash $-$ util.",-0.0010,"measured on this server 2026-09-10; arms mse_short_primary_v1 and utilitarian_mse_s42_v2, seed 42"

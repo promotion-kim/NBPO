@@ -1,0 +1,13 @@
+run_id,method_tex,ifeval_strict_prompt,gsm8k_em,harmbench_harmful,xstest_safe_refusal,alpaca_local_wr,arena_hard_local_wr,arena_creative_local_wr,alpaca_median_tokens,seeds,source,status
+base,Base (greedy),.752,.867,.281,,.500,,,,,attached PDF p26 Table17; Arena subset and token-set definitions unresolved,partially_reported
+mse1750,NBPO-MSE (1750),.758,.864,.284,,.419,,,,,attached PDF p26 Table17; Arena subset and token-set definitions unresolved,partially_reported
+wbc1750,NBPO-WBC (1750),.741,.852,.256,,.578,,,,,attached PDF p26 Table17; Arena subset and token-set definitions unresolved,partially_reported
+mse250,NBPO-MSE (250)$^\dagger$,.760,.870,.269,,.497,,,,,User Claude report 2026-09-09 21:37 KST; IFEval strict column type pending raw evaluator check; Arena subset and token-set definitions unresolved,partially_reported
+wbc250,NBPO-WBC (250)$^\dagger$,.741,.867,.266,,.486,,,,,User Claude report 2026-09-09 21:37 KST; IFEval strict column type pending raw evaluator check; Arena subset and token-set definitions unresolved,partially_reported
+util250,Game-utilitarian,,,,,,,,,,,pending
+fixed250,Fixed-reference Nash,,,,,,,,,,,pending
+bt250,BT-RM--Nash,,,,,,,,,,,pending
+prosper,PROSPER,,,,,,,,,,,pending
+mopo,MOPO,,,,,,,,,,,pending
+maxmin250,Game-maxmin,,,,,,,,,,,pending
+weighted_dpo,Scalarized DPO,,,,,,,,,,,pending

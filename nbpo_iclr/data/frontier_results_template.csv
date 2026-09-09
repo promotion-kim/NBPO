@@ -1,0 +1,1 @@
+protocol_id,dataset,split,evaluator_id,evaluator_revision,policy_seed,method,weight_help,weight_safe,n_prompts,help_mean,help_ci_low,help_ci_high,safe_mean,safe_ci_low,safe_ci_high,ci_method,checkpoint_sha256,decoding_manifest_sha256,source_artifact

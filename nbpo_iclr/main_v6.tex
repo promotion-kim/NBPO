@@ -1316,7 +1316,7 @@ The repaired study changed target construction, reference handling, tokenization
 On the reported pool, Nash weights $(6.325,6.186)$ yield targets close to equal weights with the same $\ell_1$ mass. This is a target-level comparison; policy-level seed variation and statistical power are unknown. Weight asymmetry alone is not a sufficient criterion for benchmark informativeness because it can reflect objective units.
 \begin{table}[h]
 \centering\small
-\caption{Nash versus mass-matched utilitarian target diagnostics on the reported pool. Policy comparisons remain unmeasured.}
+\caption{Nash versus $\ell_1$-mass-matched utilitarian on the reported pool, at the target and at the policy. Equalising the weights at the same total mass moves the finite-pool target by a total-variation distance of $0.0008$ on average, $0.3\%$ of the target's own RMS, and the two policies trained from those targets under an identical pool, teacher, projection, horizon and seed differ by $-0.0003$ and $-0.0010$ in paired per-prompt surplus over $1{,}000$ held-out prompts. This panel therefore does not resolve the aggregation rule, so joint improvement on both objectives cannot be read here as a signature of Nash bargaining. An interval containing zero is not equivalence: no equivalence or non-inferiority test was pre-registered and none is claimed. One policy seed; two further seeds are running.}
 \label{tab:aggregation-targets}
 \input{generated/aggregation_targets}
 \end{table}

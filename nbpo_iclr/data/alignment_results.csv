@@ -1,0 +1,14 @@
+run_id,method_tex,updates,help_surplus,safe_surplus,min_surplus,seeds,split,source,status
+finite_pool,Finite-pool target $p^\star$,,+0.1653,+0.1662,+0.1653,,heldout1000,attached PDF p9 Table2,reported_target
+base,Base (greedy),,-0.0405,-0.0320,-0.0405,,heldout1000,attached PDF p9 Table2,reported
+mse1750,NBPO-MSE (1750),1750,+0.1339,+0.1337,+0.1337,,heldout1000,attached PDF p9 Table2,reported
+wbc1750,NBPO-WBC (1750),1750,+0.0738,+0.0808,+0.0738,,heldout1000,attached PDF p9 Table2,reported
+mse250,NBPO-MSE (250)$^\dagger$,250,+0.119,+0.125,+0.1186,,heldout1000,User Claude report 2026-09-09 21:37 KST; objective means rounded to 3 decimals; minimum separately reported to 4 decimals,reported_rounded_objectives
+wbc250,NBPO-WBC (250)$^\dagger$,250,,,+0.0569,,heldout1000,User Claude report 2026-09-09 21:37 KST; individual objective means not supplied,partially_reported
+util250,Game-utilitarian,250,,,,,heldout1000,,pending
+fixed250,Fixed-reference Nash,250,,,,,heldout1000,,pending
+bt250,BT-RM--Nash,250,,,,,heldout1000,,pending
+prosper,PROSPER,,,,,,heldout1000,,pending
+mopo,MOPO,,,,,,heldout1000,,pending
+maxmin250,Game-maxmin,250,,,,,heldout1000,,pending
+weighted_dpo,Scalarized DPO,,,,,,heldout1000,,pending
