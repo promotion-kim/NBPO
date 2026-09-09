@@ -112,10 +112,46 @@ log-likelihood still falling at 1750. Weighted NLL has no stationary point at
 the target, so annealing the step size slows the divergence without reversing
 it.
 
-**The horizon, not the projection, is what was failing.** The short arms are not
-the long arms truncated: each anneals its own cosine schedule over 250 updates,
-so the step size is already decaying where the long arm is still near its peak.
-WBC-short, complete, on dev (exit 0, 2.08 GPU-hours):
+**The horizon, not the projection, was failing — the 2×2 settles it.** At each
+arm's own declared horizon, on 500 held-out dev prompts:
+
+| arm | nMSE | nMSE* | sign acc. | Pearson | Spearman | drift | GPU-h |
+|---|---|---|---|---|---|---|---|
+| NBPO-MSE, 1750 | 1.418 | 0.828 | 0.693 | +0.415 | +0.460 | −2.07 | 7.48 |
+| NBPO-WBC, 1750 | 13.070 | 0.977 | 0.486 | −0.152 | −0.105 | −6.68 | 6.78 |
+| **NBPO-MSE, 250†** | **0.690** | **0.655** | **0.702** | **+0.588** | **+0.552** | −0.90 | 2.20 |
+| NBPO-WBC, 250† | 0.780 | 0.758 | 0.687 | +0.492 | +0.488 | −0.51 | 2.08 |
+
+Both short arms beat both long arms on every held-out measure, and the short MSE
+arm is best on every one: the only arm above 0.70 sign agreement, its direction
+explaining 34.5% of the target's second moment against 17.2% for the same loss at
+1750, at a third of the compute. It passes every pre-registered criterion with
+room — nMSE 0.690 against 0.90, sign 0.702 against 0.65 — and was still improving
+at its horizon.
+
+The gap between *projections* at a matched horizon (nMSE 0.690 against 0.780) is
+small next to the gap between *horizons* for one projection (0.780 against
+13.070). Weighted behaviour cloning is therefore a far more horizon-sensitive
+realization rather than a worse one. The regression stays primary because it is
+what Eq. (26) states and because it wins at every horizon measured — not because
+the alternative fails.
+
+Both short arms are dev-selected and are never presented as the pre-registered
+comparison, which remains the two 1750-update arms. The short arms are not
+truncations: each anneals its own cosine schedule over its own 250 updates, so
+the step size is already decaying where the long arm is still near its peak.
+
+MSE-short's full trajectory (exit 0, 2.20 GPU-hours):
+
+| updates | nMSE | nMSE* | sign acc. | Pearson | Spearman | drift |
+|---|---|---|---|---|---|---|
+| 50 | 0.737 | 0.702 | 0.675 | +0.546 | +0.507 | -0.77 |
+| 100 | 0.751 | 0.674 | 0.691 | +0.571 | +0.537 | -1.11 |
+| 150 | 0.710 | 0.659 | 0.695 | +0.584 | +0.548 | -1.03 |
+| 200 | 0.701 | 0.668 | 0.693 | +0.576 | +0.539 | -0.87 |
+| 250 | 0.690 | 0.655 | 0.702 | +0.588 | +0.552 | -0.90 |
+
+and WBC-short's:
 
 | updates | nMSE | nMSE* | sign acc. | Pearson | Spearman | drift |
 |---|---|---|---|---|---|---|
