@@ -112,6 +112,27 @@ log-likelihood still falling at 1750. Weighted NLL has no stationary point at
 the target, so annealing the step size slows the divergence without reversing
 it.
 
+**It is overfitting, and the four questions stay separate.** The audit asked that
+solver self-consistency, fit on training pairs, transfer to unseen prompts, and
+generation quality never be collapsed into one number. All four are now measured
+and they do not agree:
+
+| | MSE arm | WBC arm |
+|---|---|---|
+| solver certificate (stationarity) | 6.7e−11 | same artifact |
+| training loss, median over steps 1–250 | 4.486 | 184.5 |
+| training loss, median over steps 1501–1750 | **3.195** | 137.5 |
+| held-out loss at 250 | 4.582 | 203.4 |
+| held-out loss at 1750 | **7.776** | 211.4 |
+
+Both arms keep fitting their training pairs better while their held-out error
+rises — the MSE arm improves its training median by 29% over the same span in
+which its held-out loss grows by 70%. What survives to unseen prompts is the
+direction (sign 0.69, Spearman 0.46, both flat across the whole horizon); what
+does not is the magnitude. Training loss here is the running per-batch median
+over 32-pair steps, not an epoch-level evaluation on a fixed training set, so it
+is comparable in trend rather than level with the held-out figure.
+
 **The residual splits into direction and magnitude, and only the magnitude runs
 away.** From the moments each run already logs, the nMSE at the single best
 rescaling of $h$ is $1-\E[hT]^2/(\E[h^2]\E[T^2])$; the gap to the reported nMSE
