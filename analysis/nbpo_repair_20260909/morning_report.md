@@ -19,7 +19,7 @@ recorded with code pointers and verification in `audit_findings.json`.
 | C | The target-identity check was not an independent solver verification | fixed — ν and Q recomputed from the returned optimizer policy; stationarity 6.7e-11 |
 | D | Stage dispatch and config disagreed with what was declared | fixed — one frozen resolved config per arm, hashed, re-checked before the second arm launches |
 | E | BF16 logits collapsed the sequence log-probability difference | fixed — FP32 chunked log-softmax/sum, dtypes recorded every optimizer step |
-| F | The same candidate was scored under a different prompt depending on its partner | fixed — pool-level tokenization, per-candidate token hashes verified at load |
+| F | The same candidate was scored under a different prompt depending on its partner | fixed — pool-level tokenization, per-candidate token hashes verified at load. Real in the code but **inactive** in the released artifacts: 0 partner-forced boundary backoffs across 39,200 side occurrences |
 | G | A substring heuristic ignored `dev` and selected `test` for evaluation | fixed — exact split names, `test` refused outright |
 | H | **new** — RoPE `inv_freq` buffers were cast to bf16 with the model | fixed — 33 buffers snapshotted in FP32 and restored, count logged per step |
 
@@ -295,9 +295,8 @@ declines to certify Algorithm 1 acceptance on that basis. It is one training
 seed. The teacher is the same frozen ensemble throughout, and about a third of
 what it scores is truncated at its 384-token encoder budget (§6). The test
 prompts are the preference model's own test split rather than an untouched
-benchmark, which is why the run records `fresh_test_claim` as false. HarmBench is
-still missing for these arms — its lane died on a transient CUDA initialization
-error and is being re-run.
+benchmark, which is why the run records `fresh_test_claim` as false. HarmBench is reported above; its lane
+had to be recovered first (§9), and it does not move for either arm.
 
 ## 5. Both arms finished, and neither one compresses
 
