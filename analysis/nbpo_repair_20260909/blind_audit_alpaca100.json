@@ -36,5 +36,19 @@
   },
   "byte_identical_canonN700_RB1200": 44,
   "conclusion": "On benign prompts the pre-repair arms do not refuse and do not truncate: exactly one of 100 responses opens with a refusal, and the arms hit the token cap on 6 prompts against base's 2, which is the long tail, not the short one. They compress. Answers keep the base model's structure, formatting and opening sentence, drop enumerated items and elaboration, and close with a well-formed summary -- shorter than base on 80 of 100 prompts, median 57% of base length. That is consistent with the observed downstream pattern (IFEval length/count constraints missed, GSM8K chains cut short, HarmBench harmful rate down, local RM proxy down) and it is not explained by the teacher: the solver's mass is on slightly LONGER candidates (teacher-weighted mean response length 219.8 tokens against 205.2 unweighted). The compression is introduced by the projection, not requested by the bargaining target.",
-  "caveat": "canonN700 and RB1200 emit byte-identical greedy answers on 44 of 100 prompts, so they are not two independent arms for this comparison."
+  "caveat": "canonN700 and RB1200 emit byte-identical greedy answers on 44 of 100 prompts, so they are not two independent arms for this comparison.",
+  "gsm8k_decomposition": {
+    "source": "/work/nbpo_downstream_local_v1/scores/gsm8k_*.json (Phase-1 API-free panel, 1319 official test items)",
+    "accuracy": {
+      "base": 0.8431,
+      "canonN700": 0.6861,
+      "RB1200": 0.6899
+    },
+    "no_answer_in_specified_format": {
+      "base": 17,
+      "canonN700": 82,
+      "RB1200": 84
+    },
+    "reading": "canonN700 loses 15.7 accuracy points against base. The extra format failures are 65 of 1319 items, so at most 4.9 points -- under a third of the drop -- can be parser failure even if every one of them would otherwise have been correct. At least 69% of the loss is arithmetic that is actually wrong, which is what a compressed chain of thought produces."
+  }
 }
