@@ -170,6 +170,52 @@ It does change the reading of the earlier result. "Under-training" suggested mor
 updates would help; on the same prompts, more updates make held-out worse. What
 helps is more distinct prompts, and this pool has 700 to give.
 
+## 4d. The arms fit their own training data
+
+Every earlier number was a held-out endpoint, which cannot separate "failed to
+generalize" from "never fit what it trained on". Scoring the final checkpoints on
+their own training rows, same target, mask, aggregation and normalization as
+held-out -- and not the online minibatch loss, which averages over a moving
+policy:
+
+| arm | own-train nMSE | own sign | own Pearson | held-out nMSE |
+|---|---|---|---|---|
+| canonical N=200 | **0.4122** | **0.8085** | +0.7672 | 1.1579 |
+| canonical N=700 | **0.6147** | **0.7312** | +0.6221 | 1.0901 |
+| paired 300, cached ref | 0.9187 | 0.6172 | +0.3135 | 1.1121 |
+| paired 300, online ref | 0.9194 | 0.6208 | +0.3162 | 1.1223 |
+
+On training data the arms clear the gate's thresholds. On the 500 pool prompts
+`canonN200` never saw -- same pool, same construction, no distribution shift --
+it reaches nMSE 1.1294 and Pearson +0.0644.
+
+So the bottleneck is generalization, not optimization, and the prompt-count curve
+follows: N=200 at 3.43 epochs fits its train better than N=700 at 0.98 and
+generalizes worse. That retires the "under-training" reading given earlier.
+
+## 4e. Where the held-out error lives
+
+Decomposing `canonN700`'s held-out squared error:
+
+| quantity | value |
+|---|---|
+| corr(\|error\|, \|target\|) | 0.878 |
+| corr(\|error\|, response tokens) | 0.042 |
+| truncated rows | 0 |
+| between-prompt share of error variance | 0.099 |
+
+The error is explained by the size of the target the policy failed to predict --
+rms 1.005 where `|T| < 0.5`, 6.028 where `|T| > 5` -- which is what a policy
+emitting a small, weakly aligned value looks like: `h` RMS 0.95 against target RMS
+2.50. Response length plays no part and nothing was truncated.
+
+The between-prompt share is the informative one. Only 10% of the error variance
+is a per-prompt offset, so the policy is not failing whole prompts as blocks; it
+fails pair by pair inside each unseen prompt. The precise statement is narrower
+than "prompt-level generalization": the projection memorizes per-(prompt, pair)
+values on prompts it trains on, and does not learn a rule that orders pairs
+within a prompt it has not seen.
+
 ## 5. Actual optimizer update comparison
 
 `clip100` changed `max_grad_norm` from 1.0 to 100 with everything else fixed and
