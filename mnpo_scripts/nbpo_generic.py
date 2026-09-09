@@ -30,8 +30,11 @@ them, and is verified numerically in
     [log pi_w(y|x) - log pi_t(y|x)] - [log pi_w(y'|x) - log pi_t(y'|x)]
         = eta * sum_k w_k ( q_k(y|x) - q_k(y'|x) ).
 
-``eta`` appears once, in the exponent; the artifact stores the UNSCALED weight
-vector and the unscaled ``q``, and the trainer applies ``eta`` exactly once.
+``eta`` appears once in the proximal problem. Canonical artifacts store the
+final candidate log-ratio ``log(pi_star/pi_t)`` and the actual probability mass;
+canonical trainers do not multiply their target by eta again. The historical
+sampled/RB realization retains its unscaled weighted-Z contract and applies eta
+once in its trainer.
 
 Kalai--Smorodinsky
 ------------------

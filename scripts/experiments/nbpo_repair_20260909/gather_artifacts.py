@@ -25,6 +25,9 @@ def main():
         "provenance/inventory.json", "protocols/*.json", "protocols/*.yaml",
         "controllers/*/*.json", "evaluation/**/*.json", "evaluation/**/*.jsonl",
         "teacher_rm/*/*.json", "teacher_rm/*/summary.md", "deps_harmbench/runtime_validation.json",
+        "teacher_rm/*/aggregate/*.json", "teacher_rm/*/aggregate/*.jsonl",
+        "teacher_rm/*/shard*/manifest.json", "teacher_rm/*/shard*/settings.json",
+        "analyses/**/*.json", "analyses/**/*.md", "analyses/**/*.tex",
         "jobs/*/environment_versions.json", "jobs/*/spec.json"]
     files = sorted({p for pattern in patterns for p in args.root.glob(pattern) if p.is_file()})
     if any(p.stat().st_size > 20_000_000 for p in files):
