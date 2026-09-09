@@ -228,6 +228,16 @@ comparator pools and the same disagreement point used in training:
 | **\NBPO-MSE, 1750** | **+0.1339 [0.1233, 0.1453]** | **+0.1337 [0.1229, 0.1448]** | **+0.1337** |
 | finite-pool solver target $p^\star$ | +0.1653 | +0.1662 | +0.1653 |
 
+Recomputed independently from the 1,000 per-prompt records rather than read from
+the summary, the means agree exactly. Those records also give a stronger
+statement than the aggregate: the fraction of *individual* prompts on which
+**both** objectives are strictly positive is 0.283 for base, 0.629 for WBC and
+**0.740** for MSE. So the improvement is not a few prompts carrying the mean —
+three quarters of held-out prompts are individually rational under the trained
+policy, against a bit over a quarter for the reference. (This is a different
+quantity from the table's $\min_k \E_x[s_k]$, which is the minimum of the
+per-objective means and is the one the bargaining objective is defined on.)
+
 Every objective is strictly positive for both trained arms, with paired
 prompt-bootstrap intervals that exclude zero — which is the individual-rationality
 property Nash bargaining is supposed to deliver, measured on prompts the policy
