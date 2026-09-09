@@ -93,5 +93,25 @@
       "detail": "Table 13 caption already corrected. Remaining: A.5 empirical importance distribution, the bounded-dual certificate scope, A.6 D-weighted pairing notation, the regression gate stated as diagnostic-only, and the WBC framing."
     }
   ],
-  "cross_arm_note": "canonN700 and RB1200 were trained against the SAME solver artifact (target_solver_sha256 b9170ba8a2622873e161a0f18fb8d29799350ccafe92fb0df9c81f205886958c) and differ only in the target estimator. They emit byte-identical greedy answers on 44 of 100 Alpaca prompts. They were never two independent arms."
+  "cross_arm_note": "canonN700 and RB1200 were trained against the SAME solver artifact (target_solver_sha256 b9170ba8a2622873e161a0f18fb8d29799350ccafe92fb0df9c81f205886958c) and differ only in the target estimator. They emit byte-identical greedy answers on 44 of 100 Alpaca prompts. They were never two independent arms.",
+  "teacher_observation_limit": {
+    "finding": "The frozen preference-model ensemble encodes at most 384 tokens, and about a third of what it scores is longer than that.",
+    "pool_side": {
+      "occurrences": 84000,
+      "response_truncated_fraction": 0.3189,
+      "prompt_truncated_fraction": 1.19e-05,
+      "source": "scores/shard*/manifest.json truncation block"
+    },
+    "evaluation_side": {
+      "rows": 1500,
+      "response_truncated": 479,
+      "fraction": 0.3193,
+      "teacher_response_tokens_median": 18.0,
+      "p95": 701,
+      "max": 2200,
+      "source": "evaluations/saferlhf_base_v1/teacher_truncation.jsonl"
+    },
+    "why_it_matters": "For roughly one response in three the teacher judged a prefix, so the finite-pool target carries no information about content past that budget. It cannot reward the elaboration that the trained arms drop, which is a standing limit on how much of the compression result the teacher could have prevented. It is not, however, a bias toward brevity: the solver's mass sits on slightly LONGER candidates (teacher-weighted mean response length 219.8 tokens against 205.2 unweighted) and the within-prompt length-on-target r^2 is 0.006/0.008/0.003 on train/dev/test.",
+    "status": "recorded, not fixed; the teacher is frozen for this run and was not retrained"
+  }
 }

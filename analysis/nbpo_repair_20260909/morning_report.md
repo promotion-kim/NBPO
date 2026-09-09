@@ -138,7 +138,25 @@ One caveat that limits the old comparison: canonN700 and RB1200 emit
 byte-identical greedy answers on **44 of 100** prompts, so they were never two
 independent arms.
 
-## 5. What the held-out numbers do and do not establish
+## 5. A standing limit on the teacher
+
+The frozen preference-model ensemble encodes at most 384 tokens, and **26,790 of
+the 84,000 pooled response occurrences (31.9%) are longer than that**; on the
+evaluation side, 479 of 1,500 (31.9%). Prompt truncation is essentially nil (1
+occurrence in 84,000).
+
+For roughly one response in three, then, the teacher scored a prefix. The
+finite-pool target carries no information about content past that budget, so it
+cannot reward the elaboration the trained arms drop — which bounds how much of
+the compression result the teacher could ever have prevented.
+
+It is not a bias toward brevity, and should not be reported as one: the solver's
+mass sits on slightly *longer* candidates (teacher-weighted mean 219.8 tokens
+against 205.2 unweighted), and the within-prompt $r^2$ of length on the target is
+0.006 / 0.008 / 0.003 on train / dev / test. The teacher is frozen for this run
+and was not retrained; this is recorded as a limitation, not fixed.
+
+## 6. What the held-out numbers do and do not establish
 
 From the run's own split manifest, stated plainly because it bounds the claim:
 
@@ -160,7 +178,7 @@ target to prompts it never trained on, under a teacher that has seen them. That
 is the question the neural-realization bottleneck was about. It is not a claim
 about a fresh benchmark.
 
-## 5. Cost and schedule
+## 7. Cost and schedule
 
 | item | value |
 |---|---|
