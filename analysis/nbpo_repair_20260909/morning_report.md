@@ -130,6 +130,16 @@ against 205.2 unweighted, and the canonical target is nearly length-independent
 (within-prompt $r^2$ of length on the target is 0.006 on train, 0.008 on dev,
 0.003 on test). The compression is introduced by the projection.
 
+The alternative explanation — that the teacher asked for shorter, safer answers —
+is closed from three directions. Length explains under 1% of the within-prompt
+target variance on every split ($r^2$ 0.006 / 0.008 / 0.003). The teacher's mass
+sits on longer candidates than uniform (219.8 vs 205.2 tokens on train), and so
+does its single highest-mass candidate (222.1). And that top candidate refuses
+*less* often than the pool average on all three splits (0.502 vs 0.562 on train,
+0.498 vs 0.569 on dev, 0.494 vs 0.540 on test) — under the run's own keyword
+heuristic, which is diagnostic-only, so only the within-measure comparison is
+claimed. The projection produced something the target did not ask for.
+
 GSM8K splits cleanly: canonN700 loses 15.7 points, of which at most 4.9 can be
 parser failure (65 extra unparseable answers out of 1319, counting every one as
 otherwise correct). At least 69% is arithmetic that is actually wrong.

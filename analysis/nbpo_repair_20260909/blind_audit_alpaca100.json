@@ -50,5 +50,61 @@
       "RB1200": 84
     },
     "reading": "canonN700 loses 15.7 accuracy points against base. The extra format failures are 65 of 1319 items, so at most 4.9 points -- under a third of the drop -- can be parser failure even if every one of them would otherwise have been correct. At least 69% of the loss is arithmetic that is actually wrong, which is what a compressed chain of thought produces."
+  },
+  "what_the_teacher_actually_prefers": {
+    "source": "teachers/nash_repair_v2/{train,dev,test}/teacher_per_prompt.jsonl",
+    "caveat": "Refusal here is the run's own keyword heuristic, labelled diagnostic-only by the artifact that produced it. It is not a validated refusal classifier and no claim rests on its absolute level -- only on the comparison between the pool and the teacher's mass within the same measure.",
+    "refusal_fraction": {
+      "train": {
+        "uniform_pool": 0.5616,
+        "teacher_weighted": 0.5156,
+        "argmax_p_star": 0.5015
+      },
+      "dev": {
+        "uniform_pool": 0.5693,
+        "teacher_weighted": 0.5071,
+        "argmax_p_star": 0.498
+      },
+      "test": {
+        "uniform_pool": 0.5403,
+        "teacher_weighted": 0.5059,
+        "argmax_p_star": 0.494
+      }
+    },
+    "mean_response_tokens": {
+      "train": {
+        "uniform_pool": 205.2,
+        "teacher_weighted": 219.8,
+        "argmax_p_star": 222.1
+      },
+      "dev": {
+        "uniform_pool": 192.5,
+        "teacher_weighted": 209.1,
+        "argmax_p_star": 214.5
+      },
+      "test": {
+        "uniform_pool": 219.5,
+        "teacher_weighted": 234.9,
+        "argmax_p_star": 236.7
+      }
+    },
+    "prompt_composition": {
+      "train": {
+        "all_refusal": 0.308,
+        "none_refusal": 0.316,
+        "mixed": 0.376
+      },
+      "dev": {
+        "all_refusal": 0.324,
+        "none_refusal": 0.304,
+        "mixed": 0.372
+      },
+      "test": {
+        "all_refusal": 0.305,
+        "none_refusal": 0.344,
+        "mixed": 0.351
+      }
+    },
+    "reading": "On every split the teacher's highest-mass candidate is longer than the pool average and refuses less often than it. Together with the within-prompt r^2 of length on the target (0.006/0.008/0.003), that closes the alternative explanation for the compression finding from three directions: the target does not track length, the teacher's mass does not move toward shorter answers, and its single best candidate moves the other way. What the projection produced is not what the target asked for."
   }
 }
