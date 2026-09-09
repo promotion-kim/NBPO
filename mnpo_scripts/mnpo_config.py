@@ -97,6 +97,17 @@ class MNPOConfig(SimPOConfig):
     # Column holding the UNSCALED weighted binary target sum_k lambda_k Z_k
     # (raw lambda from the dual solve; the trainer multiplies by eta exactly once).
     nbpo_target_column: str = "nbpo_weighted_z"
+    nbpo_target_mode: str = "sampled"
+    nbpo_target_units: str = "unscaled_weighted_advantage"
+    nbpo_eta_already_included: bool = False
+    nbpo_require_immutable_tokens: bool = False
+    nbpo_num_candidates: int = 8
+    logp_chunk_size: int = 64
+    nbpo_verify_reference_initialization: bool = False
+    nbpo_reference_init_atol: float = 1e-4
+    nbpo_require_fp32_optimizer: bool = False
+    nbpo_profile_updates: int = 0
+    nbpo_expected_dataset_manifest_sha256: Optional[str] = None
 
     # Compute the proximal centre pi_t with a frozen reference model forwarded
     # through the SAME collated batch, instead of reading the cached columns.
@@ -105,6 +116,7 @@ class MNPOConfig(SimPOConfig):
     # same response scores differently depending on its batch neighbours. Off by
     # default so existing runs stay reproducible; every new run should set it.
     nbpo_online_reference: bool = False
+    nbpo_eval_online_reference: bool = False
     nbpo_reference_model_path: str = ""
 
     # Expected-artifact hashes, written into run_config.yaml by

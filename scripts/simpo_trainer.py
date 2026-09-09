@@ -40,7 +40,9 @@ from transformers import TrainingArguments
 from mnpo_scripts.pair_tokenization import (
     build_tokenized_answer as canonical_build_tokenized_answer,
     tokenize_preference_pair,
+    immutable_pair_tokens,
 )
+from mnpo_scripts.response_logps import response_logps, LOGP_IMPLEMENTATION
 
 try:
     from trl.trainer.utils import (
@@ -423,6 +425,12 @@ class SimPOTrainer(Trainer):
         identical attention and label masks, which is what Eq. (22) requires.
         """
         if not self.is_encoder_decoder:
+            immutable = immutable_pair_tokens(
+                feature, self.max_length, self.max_prompt_length, self.label_pad_token_id)
+            if immutable is not None:
+                return immutable
+            if getattr(getattr(self, "args", None), "nbpo_require_immutable_tokens", False):
+                raise ValueError("This NBPO run requires immutable sampled candidate tokens")
             batch = tokenize_preference_pair(
                 self.tokenizer,
                 feature["prompt"], feature["chosen"], feature["rejected"],
@@ -571,6 +579,12 @@ class SimPOTrainer(Trainer):
 
         We do this to avoid doing two forward passes, because it's faster for FSDP.
         """
+        # Also covers evaluation-only ZeRO initialization, which has no
+        # on_train_begin callback. This touches only originally-FP32 RoPE
+        # buffers, never learner parameters or the frozen reference weights.
+        rotary_guard = getattr(self, "_nbpo_rotary_buffer_guard", None)
+        if rotary_guard is not None:
+            rotary_guard.restore_if_cast()
         concatenated_batch = self.concatenated_inputs(
             batch,
             is_encoder_decoder=self.is_encoder_decoder,
@@ -605,7 +619,14 @@ class SimPOTrainer(Trainer):
             average_log_prob=(str(getattr(self.args, "logp_reduction", "mean")).lower() == "mean"),
             is_encoder_decoder=self.is_encoder_decoder,
             label_pad_token_id=self.label_pad_token_id,
+            chunk_size=int(getattr(self.args, "logp_chunk_size", 64)),
         )
+        if not hasattr(self, "_logp_runtime_dtypes"):
+            self._logp_runtime_dtypes = {
+                "implementation": LOGP_IMPLEMENTATION, "logits": str(all_logits.dtype),
+                "log_softmax": "torch.float32", "selected_logp": "torch.float32",
+                "sequence_logp": str(all_logps.dtype),
+            }
 
         chosen_logps = all_logps[:len_chosen]
         rejected_logps = all_logps[len_chosen:]
@@ -624,6 +645,7 @@ class SimPOTrainer(Trainer):
         average_log_prob: bool = True,
         label_pad_token_id: int = -100,
         is_encoder_decoder: bool = False,
+        chunk_size: int = 64,
     ) -> torch.FloatTensor:
         """Compute the log probabilities of the given labels under the given logits.
 
@@ -637,40 +659,8 @@ class SimPOTrainer(Trainer):
         Returns:
             A tensor of shape (batch_size,) containing the average/sum log probabilities of the given labels under the given logits.
         """
-        if logits.shape[:-1] != labels.shape:
-            raise ValueError("Logits (batch and sequence length dim) and labels must have the same shape.")
-
-        if not is_encoder_decoder:
-            labels = labels[:, 1:].clone()
-            logits = logits[:, :-1, :]
-        loss_mask = labels != label_pad_token_id
-
-        # dummy token; we'll ignore the losses on these tokens later
-        labels[labels == label_pad_token_id] = 0
-
-        # The sequence log-probability is a SUM over hundreds of response tokens and
-        # reaches magnitudes of 250-300 nats. bfloat16 has an 8-bit mantissa, so its
-        # spacing at |x| in [256, 512) is 2 and in [128, 256) is 1: accumulating this
-        # sum in bf16 quantizes the answer to +/- 1-2 nats. Measured directly -- the
-        # same response scored in two different batches differed by exactly one ulp
-        # of the stored value (2.0000 at |logp| = 270, 1.0000 at 248, 0.0625 at 11.5),
-        # which is what made h nonzero at a zero learning rate.
-        #
-        # log_softmax with an explicit dtype computes and returns float32 WITHOUT
-        # materializing a float32 copy of the (batch, seq, vocab) logits, so the
-        # gather and the reduction both run in float32 at no memory cost. This does
-        # not remove the bf16 error in the forward that produced the logits; it
-        # removes the quantization of the accumulation, which is the term that
-        # dominated the measurement.
-        per_token_logps = torch.gather(
-            logits.log_softmax(-1, dtype=torch.float32), dim=2,
-            index=labels.unsqueeze(2)).squeeze(2)
-        loss_mask = loss_mask.to(per_token_logps.dtype)
-
-        if average_log_prob:
-            return (per_token_logps * loss_mask).sum(-1) / loss_mask.sum(-1)
-        else:
-            return (per_token_logps * loss_mask).sum(-1)
+        return response_logps(logits, labels, average_log_prob, label_pad_token_id,
+                              is_encoder_decoder, chunk_size)
 
     def get_batch_loss_metrics(
         self,

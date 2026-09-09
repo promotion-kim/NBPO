@@ -43,7 +43,7 @@ from scripts.nbpo.nbpo_common import (
     write_json,
 )
 
-TARGET_MODES = ("sampled", "rao_blackwell", "canonical")
+TARGET_MODES = ("sampled", "rao_blackwell", "canonical", "canonical_logratio")
 # "canonical" integrates BOTH sources of randomness -- the Bernoulli flips and the
 # comparator draw -- so the stored value is the exact finite-pool quantity
 #   z_k(a,b) = q_k(a) - q_k(b),   q_k(i) = sum_j nu*_k(j) P_k(i > z_j),
@@ -68,7 +68,17 @@ def flip_pair_row(row: dict) -> dict:
     flipped["chosen_response_id"], flipped["rejected_response_id"] = (
         row["rejected_response_id"], row["chosen_response_id"])
     flipped["nbpo_z"] = {k: -v for k, v in row["nbpo_z"].items()}
-    flipped["nbpo_weighted_z"] = -row["nbpo_weighted_z"]
+    if "nbpo_weighted_z" in row:
+        flipped["nbpo_weighted_z"] = -row["nbpo_weighted_z"]
+    if "nbpo_logratio_target" in row:
+        flipped["nbpo_logratio_target"] = -row["nbpo_logratio_target"]
+        flipped["nbpo_weight_a"], flipped["nbpo_weight_b"] = row["nbpo_weight_b"], row["nbpo_weight_a"]
+        if "nbpo_center_a" in row and "nbpo_center_b" in row:
+            flipped["nbpo_center_a"], flipped["nbpo_center_b"] = row["nbpo_center_b"], row["nbpo_center_a"]
+    for suffix in ("text_sha256", "token_sha256", "candidate_index", "input_ids", "attention_mask", "labels"):
+        a, b = "chosen_" + suffix, "rejected_" + suffix
+        if a in row and b in row:
+            flipped[a], flipped[b] = row[b], row[a]
     return flipped
 
 
@@ -98,19 +108,42 @@ def resolve_opponent_betas(solution: dict):
 
 
 def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_seed_of,
-               rng, target_mode, meta_ids, provenance):
+               rng, target_mode, meta_ids, provenance, canonical_data=None):
     """One row per (prompt, unordered learner pair); deterministic given the RNG."""
     K = len(objectives)
     I = A_policy.shape[2]
     policy_ids = meta_ids["policy_learner_ids"]
     comparator_ids = meta_ids["comparator_ids"]
+    if target_mode == "canonical_logratio":
+        if canonical_data is None:
+            raise ValueError("canonical_logratio requires the solved p_star/pi_t/g artifact")
+        g = np.asarray(canonical_data["g"], dtype=np.float64)
+        p_star = np.asarray(canonical_data["p_star"], dtype=np.float64)
+        p_t = np.asarray(canonical_data["p_t"], dtype=np.float64) if "p_t" in canonical_data else np.full_like(p_star, 1.0 / I)
+        if g.shape != (len(prompt_ids), I) or p_star.shape != g.shape:
+            raise ValueError("canonical candidate shape does not match the response pool")
     rows = []
     for x, pid in enumerate(prompt_ids):
         seed0 = policy_ids[0].split(":", 1)[1]
         prompt_text = str(policy[seed0][pid]["prompt"])
+        candidate_events = None
+        if target_mode == "canonical_logratio":
+            candidates = [policy[rid.split(":", 1)[1]][pid] for rid in policy_ids]
+            has_tokens = [any(key in c for key in ("input_ids", "response_token_ids", "token_ids"))
+                          for c in candidates]
+            if any(has_tokens):
+                from mnpo_scripts.pair_tokenization import candidate_event_tokens, IMMUTABLE_TOKENIZATION_SCHEMA
+                prompt_tokens = candidates[0].get("prompt_token_ids")
+                if not all(has_tokens) or prompt_tokens is None:
+                    raise ValueError("canonical pool has incomplete immutable candidate events")
+                if any(c.get("prompt_token_ids") != prompt_tokens for c in candidates):
+                    raise ValueError("canonical candidates disagree on their conditioning prompt tokens")
+                candidate_events = [candidate_event_tokens(prompt_tokens, c) for c in candidates]
         for i1, i2 in itertools.combinations(range(I), 2):
             z, opp = {}, {}
             for k, obj in enumerate(objectives):
+                if target_mode == "canonical_logratio":
+                    continue
                 # Eq. (26): draw (y, y') first, THEN one z_k ~ nu*_k for this pair and
                 # objective. The same z_k serves both y and y' of the row; other rows
                 # of the same prompt and other objectives draw independently.
@@ -131,7 +164,7 @@ def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_see
                     z[obj] = p1 - p2
                 opp[obj] = comparator_ids[j]
             id1, id2 = policy_ids[i1], policy_ids[i2]
-            rows.append({
+            row = {
                 "prompt_id": pid,
                 "prompt": prompt_text,
                 "chosen": str(policy[id1.split(":", 1)[1]][pid]["generated_text"]),
@@ -145,7 +178,8 @@ def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_see
                 "rejected_text_sha256": sha256_text(
                     str(policy[id2.split(":", 1)[1]][pid]["generated_text"])),
                 "nbpo_z": z,
-                "nbpo_weighted_z": float(sum(lam[k] * z[obj] for k, obj in enumerate(objectives))),
+                "nbpo_weighted_z": (None if target_mode == "canonical_logratio" else
+                                    float(sum(lam[k] * z[obj] for k, obj in enumerate(objectives)))),
                 "lambda_raw": {obj: float(lam[k]) for k, obj in enumerate(objectives)},
                 "opponent_response_id": opp,
                 "opponent_beta": (None if betas is None else
@@ -153,8 +187,69 @@ def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_see
                 "opponent_sampling_scope": "pair_objective",
                 "target_mode": target_mode,
                 **provenance,
-            })
+            }
+            if target_mode == "canonical_logratio":
+                row.update({
+                    "nbpo_logratio_target": float(g[x, i1] - g[x, i2]),
+                    "nbpo_weight_a": float(p_star[x, i1]),
+                    "nbpo_weight_b": float(p_star[x, i2]),
+                    "nbpo_center_a": float(p_t[x, i1]),
+                    "nbpo_center_b": float(p_t[x, i2]),
+                    "nbpo_num_candidates": I,
+                    "chosen_candidate_index": i1, "rejected_candidate_index": i2,
+                    "target_column": "nbpo_logratio_target",
+                    "target_units": "final_logratio_change", "eta_already_included": True,
+                    "opponent_sampling_scope": "none_canonical_artifact",
+                })
+                # Kept only as a compatibility diagnostic; the named canonical
+                # target column is the sole training target for this mode.
+                row.pop("nbpo_weighted_z")
+                if candidate_events is not None:
+                    row.update({"prompt_input_ids": prompt_tokens,
+                                "prompt_attention_mask": [1] * len(prompt_tokens),
+                                "candidate_token_schema": IMMUTABLE_TOKENIZATION_SCHEMA})
+                    for prefix, index in (("chosen", i1), ("rejected", i2)):
+                        row.update({prefix + "_" + key: value
+                                    for key, value in candidate_events[index].items()})
+            rows.append(row)
     return rows
+
+
+def load_canonical_artifact(solver_dir: Path, solution: dict, *, expected_prompt_ids=None,
+                            expected_representation=None, expected_aggregation=None) -> dict:
+    """Load only a hash-bound, independently certified final-logratio teacher."""
+    required = {"target_mode": "canonical_logratio", "target_column": "nbpo_logratio_target",
+                "target_units": "final_logratio_change", "eta_already_included": True}
+    for name, expected in required.items():
+        if solution.get(name) != expected:
+            raise ValueError(f"canonical artifact schema mismatch: {name}")
+    for name, expected in (("prompt_ids", expected_prompt_ids),
+                           ("representation", expected_representation),
+                           ("aggregation", expected_aggregation)):
+        if expected is not None and solution.get(name) != expected:
+            raise ValueError(f"canonical artifact binding mismatch: {name}")
+    certificate = solution.get("certificate") or {}
+    if (solution.get("config") or {}).get("inner_solver") != "exact":
+        raise ValueError("canonical artifact requires the direct inner solver")
+    if certificate.get("certified") is not True:
+        raise ValueError("canonical artifact has no independent solver certificate")
+    arrays = {}
+    for fname, key, dest in (("pi_star.npz", "pi", "p_star"), ("pi_t.npz", "pi", "p_t"),
+                              ("target_log_ratio.npz", "h", "g")):
+        path = Path(solver_dir) / fname
+        if sha256_file(path) != (solution.get("artifact_hashes") or {}).get(fname):
+            raise ValueError(f"canonical artifact hash mismatch: {fname}")
+        arrays[dest] = np.asarray(np.load(path)[key], dtype=np.float64)
+    p, pt, g = arrays["p_star"], arrays["p_t"], arrays["g"]
+    if p.shape != pt.shape or p.shape != g.shape or p.ndim != 2:
+        raise ValueError("canonical artifact shapes disagree")
+    if not all(np.isfinite(v).all() for v in (p, pt, g)) or np.any(p <= 0) or np.any(pt <= 0):
+        raise ValueError("canonical artifact requires finite values and positive support")
+    if max(np.abs(p.sum(-1)-1).max(), np.abs(pt.sum(-1)-1).max()) > 1e-10:
+        raise ValueError("canonical artifact probability normalization failed")
+    if np.max(np.abs(g - (np.log(p)-np.log(pt)))) >= 1e-9:
+        raise ValueError("canonical serialization error >= 1e-9")
+    return arrays
 
 
 def verify_solver_input_chain(tensor_dir: Path, solver_dir: Path, solution: dict,
@@ -367,6 +462,7 @@ def build_pairs_from_artifacts(tensor_dir: Path, solver_dir: Path, policy_file_s
         # Every hash below was recomputed from the current bytes by
         # verify_solver_input_chain, not read out of solution.json.
         "solver_hash": sha256_file(solver_dir / "solution.json"),
+        "solver_artifact_sha256": sha256_file(solver_dir / "solution.json"),
         "tensor_response_pool_hash": meta.get("learner_response_pool_hash"),
         "learner_manifest_sha256": pool_check.get("learner_manifest_sha256"),
         "tensor_policy_hash": verified["tensor_policy.npz"],
@@ -375,8 +471,17 @@ def build_pairs_from_artifacts(tensor_dir: Path, solver_dir: Path, policy_file_s
         "nu_update_hash": verified["nu_update.npz"],
     }
     rng = np.random.default_rng(seed)
+    canonical_data = None
+    if target_mode == "canonical_logratio":
+        canonical_data = load_canonical_artifact(
+            solver_dir, solution, expected_prompt_ids=meta["prompt_ids"],
+            expected_representation=solution.get("representation"),
+            expected_aggregation=solution.get("aggregation"))
+        provenance.update({"target_artifact_hash": solution["artifact_hashes"]["target_log_ratio.npz"],
+                           "pi_star_hash": solution["artifact_hashes"]["pi_star.npz"],
+                           "representation": solution["representation"]})
     rows = build_rows(meta["prompt_ids"], objectives, A_policy, nu, lam, betas, policy,
-                      None, rng, target_mode, meta, provenance)
+                      None, rng, target_mode, meta, provenance, canonical_data=canonical_data)
 
     test_ids = set()
     if test_prompts:
@@ -413,6 +518,13 @@ def build_pairs_from_artifacts(tensor_dir: Path, solver_dir: Path, policy_file_s
             fixed_point_steps=solution["config"].get("R")),
         **provenance,
     }
+    if target_mode == "canonical_logratio":
+        summary.update({"target_column": "nbpo_logratio_target",
+                        "target_units": "final_logratio_change", "eta_already_included": True,
+                        "note": "pair target = stored g[a] - g[b]; eta already included",
+                        "opponent_sampling_scope": "none_canonical_artifact",
+                        "opponent_source": None,
+                        "certificate": solution["certificate"]})
     write_json(out_dir / "pairs_summary.json", summary)
     return summary
 

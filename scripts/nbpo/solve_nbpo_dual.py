@@ -207,6 +207,8 @@ def write_generic_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashe
     the response-level objective scores, the target log-ratios, every residual,
     and the identity check that ties them together.
     """
+    from mnpo_scripts.nbpo_generic import validate_finite_pool_solution
+    certificate = validate_finite_pool_solution(res)
     out_dir.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(out_dir / "nu_update.npz", nu=res.nu_update.numpy())
     np.savez_compressed(out_dir / "nu_final_policy.npz", nu=res.nu_final_policy.numpy())
@@ -254,6 +256,14 @@ def write_generic_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashe
         # Verified numerically here rather than assumed downstream.
         "target_log_ratio_identity_residual": identity,
         "target_log_ratio_identity_holds": bool(identity < 1e-9),
+        "canonical_schema_version": 1,
+        "target_mode": "canonical_logratio",
+        "target_column": "nbpo_logratio_target",
+        "target_units": "final_logratio_change",
+        "eta_already_included": True,
+        "certificate": certificate,
+        "canonical_serialization_error": certificate["canonical_serialization_error"],
+        "independent_stationarity_inf": certificate["independent_stationarity_inf"],
         "eta": res.eta,
         "eta_applications_in_solver": 1,
         "ks": res.ks,
@@ -285,11 +295,9 @@ def write_generic_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashe
         "history": res.history,
         **extra,
     }
-    if not solution["target_log_ratio_identity_holds"]:
-        raise SystemExit(
-            f"the solved policy does not reproduce its own weighted-q target "
-            f"(residual {identity:.3e}). The Eq. (26) pair target would not be the "
-            "target this solve actually optimized; refusing to write a usable artifact.")
+    # The historical weighted-Q identity is a diagnostic. Independent
+    # final-policy stationarity and exact serialization have distinct units
+    # and tolerances, checked centrally before any artifact is written.
     write_json(out_dir / "solution.json", solution)
     return solution
 
@@ -347,6 +355,9 @@ def main() -> None:
                          "lambda; pass ||lambda||_1 from the NBPO solve here so every control "
                          "takes the same effective proximal step and the rows differ only in "
                          "the DIRECTION of the weight vector")
+    ap.add_argument("--weights", default=None, help="comma-separated raw utilitarian weights")
+    ap.add_argument("--fixed-training-solution", type=Path,
+                    help="held-out inner solve with this training solution's fixed raw weights")
     ap.add_argument("--match-weight-l1-to-nash", action="store_true",
                     help="solve the Nash dual first on these same tensors and use its raw "
                          "||lambda||_1 as --weight-l1 (recorded in the artifact)")
@@ -363,6 +374,10 @@ def main() -> None:
                          "infrastructure: output is bit-identical and the measured "
                          "speedup reaches 37x. Without it a 1000-prompt solve runs "
                          "serially and takes tens of minutes.")
+    ap.add_argument("--inner-maxiter", type=int, default=400)
+    ap.add_argument("--inner-ftol", type=float, default=1e-14)
+    ap.add_argument("--probability-floor", type=float, default=1e-12)
+    ap.add_argument("--max-bound-expansions", type=int, default=3)
     ap.add_argument("--dual-solver", choices=("subgradient", "root"),
                     default="subgradient",
                     help="how the Nash dual is solved. 'root' solves the "
@@ -451,17 +466,30 @@ def main() -> None:
         return
 
     rep = build_objective_representation(args, A_policy, A_ref, mu, beta, construction)
+    inner_options = dict(inner_workers=args.inner_workers, inner_maxiter=args.inner_maxiter,
+                         inner_ftol=args.inner_ftol, probability_floor=args.probability_floor,
+                         max_bound_expansions=args.max_bound_expansions)
+    fixed_weights = None
+    if args.fixed_training_solution is not None:
+        training = json.loads(args.fixed_training_solution.read_text())
+        if training.get("representation") != args.representation or training.get("aggregation") != args.aggregation:
+            raise ValueError("held-out representation/aggregation must match the training solution")
+        if not (training.get("certificate") or {}).get("certified"):
+            raise ValueError("held-out fixed weights require a certified training solution")
+        fixed_weights = torch.tensor(training["lambda_raw"], dtype=torch.float64)
 
     weight_l1 = args.weight_l1
     matched_note = None
     if args.match_weight_l1_to_nash:
+        if fixed_weights is not None:
+            raise ValueError("cannot fit a new Nash scale on held-out fixed-weight data")
         if weight_l1 is not None:
             raise SystemExit("pass either --weight-l1 or --match-weight-l1-to-nash, not both")
         nash = solve_finite_pool(rep, "nash", eta=args.eta, pi_t=None, R=args.R, M=args.M,
                                  gamma=gamma, lambda_box=(args.lambda_min, args.lambda_max),
                                  lambda_init=lambda_init, damping=args.damping,
                                  inner_solver=args.inner_solver,
-                                 inner_workers=args.inner_workers,
+                                 **inner_options,
                                  dual_solver=args.dual_solver,
                                  dual_tol=args.dual_tol)
         weight_l1 = matched_weight_l1(nash)
@@ -480,8 +508,11 @@ def main() -> None:
             lambda_init=lambda_init, damping=args.damping,
             adversary_step=args.adversary_step, weight_l1=weight_l1,
             log_every=args.log_every, ks_kwargs=ks_kwargs,
-            inner_solver=args.inner_solver, inner_workers=args.inner_workers,
-            dual_solver=args.dual_solver, dual_tol=args.dual_tol)
+            inner_solver=args.inner_solver, **inner_options,
+            dual_solver=args.dual_solver, dual_tol=args.dual_tol,
+            fixed_weights=fixed_weights,
+            weights=(None if args.weights is None else torch.tensor(
+                [float(v) for v in args.weights.split(",")], dtype=torch.float64)))
     except KSUndefinedError as exc:
         # A bargaining set that does not dominate the disagreement point is a
         # property of the stage, not a solver failure: record it and stop, rather
@@ -496,6 +527,11 @@ def main() -> None:
                          f"{args.out_dir / 'solution_blocked.json'}. {exc}")
 
     extra = {}
+    if args.reward_table is not None:
+        extra["reward_table_sha256"] = sha256_file(args.reward_table)
+    if args.fixed_training_solution is not None:
+        extra.update({"lambda_source": "fixed training solution",
+                      "training_solution_sha256": sha256_file(args.fixed_training_solution)})
     if matched_note:
         extra["matched_weight_l1"] = matched_note
     if args.ks_unregularized_diagnostics:

@@ -1,5 +1,6 @@
 import logging
 import inspect
+import json
 import os
 import random
 import sys
@@ -39,6 +40,8 @@ from peft import PeftConfig, PeftModel
 from mnpo_scripts.mnpo_trainer import MNPOTrainer
 from mnpo_scripts.mnpo_config import MNPOConfig
 from datasets import load_from_disk
+from mnpo_scripts.response_logps import response_logps
+from mnpo_scripts.nbpo_neural import select_training_splits, validate_canonical_pair_dataset
 # =====================================================================================
 
 
@@ -67,37 +70,7 @@ def get_batch_logps(
         label_pad_token_id: int = -100,
 ) -> torch.FloatTensor:
     """Compute the log probabilities of the given labels under the given logits."""
-    if logits.shape[:-1] != labels.shape:
-        raise ValueError("Logits and labels must have the same shape.")
-
-    labels = labels[:, 1:].clone()
-    logits = logits[:, :-1, :]
-    loss_mask = labels != label_pad_token_id
-
-    labels[labels == label_pad_token_id] = 0
-    # The sequence log-probability is a SUM over hundreds of response tokens and
-    # reaches magnitudes of 250-300 nats. bfloat16 has an 8-bit mantissa, so its
-    # spacing at |x| in [256, 512) is 2 and in [128, 256) is 1: accumulating this
-    # sum in bf16 quantizes the answer to +/- 1-2 nats. Measured directly -- the
-    # same response scored in two different batches differed by exactly one ulp
-    # of the stored value (2.0000 at |logp| = 270, 1.0000 at 248, 0.0625 at 11.5),
-    # which is what made h nonzero at a zero learning rate.
-    #
-    # log_softmax with an explicit dtype computes and returns float32 WITHOUT
-    # materializing a float32 copy of the (batch, seq, vocab) logits, so the
-    # gather and the reduction both run in float32 at no memory cost. This does
-    # not remove the bf16 error in the forward that produced the logits; it
-    # removes the quantization of the accumulation, which is the term that
-    # dominated the measurement.
-    per_token_logps = torch.gather(
-        logits.log_softmax(-1, dtype=torch.float32), dim=2,
-        index=labels.unsqueeze(2)).squeeze(2)
-    loss_mask = loss_mask.to(per_token_logps.dtype)
-
-    if average_log_prob:
-        return (per_token_logps * loss_mask).sum(-1) / loss_mask.sum(-1)
-    else:
-        return (per_token_logps * loss_mask).sum(-1)
+    return response_logps(logits, labels, average_log_prob, label_pad_token_id)
 
 
 # =====================================================================================
@@ -225,18 +198,8 @@ def main():
     if not isinstance(raw_datasets, DatasetDict):
         raw_datasets = DatasetDict({"train": raw_datasets})
 
-    train_dataset = None
-    eval_dataset = None
-    for split_name in raw_datasets.keys():
-        if "train" in split_name:
-            train_dataset = raw_datasets[split_name]
-        elif "test" in split_name or "eval" in split_name:
-            eval_dataset = raw_datasets[split_name]
-
-    if train_dataset is None:
-        raise ValueError(
-            f"No training split found in the dataset. Available splits: {list(raw_datasets.keys())}"
-        )
+    train_dataset, eval_dataset = select_training_splits(
+        raw_datasets, data_args.train_split, data_args.eval_split)
 
     logger.info(f"Using '{next(k for k, v in raw_datasets.items() if v is train_dataset)}' for training.")
     if eval_dataset:
@@ -251,12 +214,32 @@ def main():
     data_args.truncation_side = "left"
     tokenizer = get_tokenizer(model_args, data_args)
 
-    column_names = list(raw_datasets["train"].features)
+    column_names = list(train_dataset.features)
+    if training_args.nbpo_target_mode == "canonical_logratio":
+        from mnpo_scripts.precompute_provenance import verify_precompute_manifest, tokenizer_content_hashes
+        expected_manifest = training_args.nbpo_expected_dataset_manifest_sha256
+        if not expected_manifest:
+            raise ValueError("Canonical training config must pin nbpo_expected_dataset_manifest_sha256")
+        verify_precompute_manifest(dataset_path, expected_manifest_sha256=expected_manifest)
+        with open(os.path.join(dataset_path, "nbpo_dataset_provenance.json")) as handle:
+            provenance = json.load(handle)["provenance"]
+        token_hashes = tokenizer_content_hashes(tokenizer)
+        for key in ("tokenizer_hash", "chat_template_hash"):
+            if provenance[key] != token_hashes[key]:
+                raise ValueError(f"Immutable dataset {key} does not match the training tokenizer")
+        if str(provenance["model_revision"]) != str(model_args.model_revision):
+            raise ValueError("Dataset generation model revision differs from training model revision")
+        for name, split in ((data_args.train_split, train_dataset), (data_args.eval_split, eval_dataset)):
+            if split is not None:
+                report = validate_canonical_pair_dataset(
+                    split, training_args.max_length, training_args.max_prompt_length,
+                    training_args.nbpo_expected_solver_artifact_sha256 if name == data_args.train_split else None)
+                logger.info("Canonical split %s validated: %s", name, report)
 
     # Fail fast for the NBPO branch: validate the target column, the
     # single proximal center, and the precompute provenance sidecar (reduction +
     # tokenizer/chat-template hashes) BEFORE the policy model is loaded.
-    if str(getattr(training_args, "loss_type", "")).lower() == "nbpo":
+    if str(getattr(training_args, "loss_type", "")).lower() in ("nbpo", "nbpo_wbc"):
         from mnpo_scripts.mnpo_trainer import validate_nbpo_args
         from mnpo_scripts.precompute_provenance import (
             checkpoint_fingerprint,
@@ -320,23 +303,30 @@ def main():
     # re-synced to the learner during training. Its only job is to be forwarded
     # through the same collated batch as the policy, so that h is a difference of
     # two log-probabilities computed on the identical kernel path.
-    if getattr(training_args, "nbpo_online_reference", False):
+    if (getattr(training_args, "nbpo_online_reference", False)
+            or getattr(training_args, "nbpo_eval_online_reference", False)):
         ref_path = getattr(training_args, "nbpo_reference_model_path", "") or \
             model_args.model_name_or_path
         logger.info(f"*** Loading frozen NBPO reference (pi_t) from {ref_path} ***")
         ref = AutoModelForCausalLM.from_pretrained(
-            ref_path, dtype=getattr(model, "dtype", None), use_cache=False)
+            ref_path, torch_dtype=next(trainer.model.parameters()).dtype, use_cache=False,
+            revision=model_args.model_revision, attn_implementation=model_args.attn_implementation,
+            trust_remote_code=model_args.trust_remote_code)
         ref.eval()
         for prm in ref.parameters():
             prm.requires_grad_(False)
         trainer.nbpo_reference_model = ref.to(trainer.accelerator.device)
         logger.info("*** NBPO online reference active: pi_t forwarded per batch ***")
 
+    if training_args.nbpo_require_fp32_optimizer:
+        from mnpo_scripts.nbpo_runtime import NBPOPrecisionCallback
+        trainer.add_callback(NBPOPrecisionCallback(trainer))
+
     # =====================================================================================
 
     if os.environ.get("MNPO_EVAL_ONLY", "").lower() in {"1", "true", "yes"}:
         if eval_dataset is None:
-            raise ValueError("MNPO_EVAL_ONLY requires a test or eval split")
+            raise ValueError("MNPO_EVAL_ONLY requires the explicitly selected dev split")
         metrics = trainer.evaluate()
         trainer.log_metrics("eval", metrics)
         trainer.save_metrics("eval", metrics)
@@ -352,12 +342,16 @@ def main():
         checkpoint = last_checkpoint
     train_result = trainer.train(resume_from_checkpoint=checkpoint)
     metrics = train_result.metrics
-    metrics["train_samples"] = len(raw_datasets["train"])
+    metrics["train_samples"] = len(train_dataset)
     trainer.log_metrics("train", metrics)
     trainer.save_metrics("train", metrics)
     trainer.save_state()
 
     logger.info("*** Training complete ***")
+    if training_args.nbpo_profile_updates > 0:
+        logger.info("Disposable runtime profile complete at %d updates; scheduler horizon was %d. No model export.",
+                    trainer.state.global_step, training_args.max_steps)
+        return
 
     skip_final_save = os.environ.get("MNPO_SKIP_FINAL_SAVE", "").lower() in {"1", "true", "yes"}
     if skip_final_save:

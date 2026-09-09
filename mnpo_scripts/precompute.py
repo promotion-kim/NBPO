@@ -39,6 +39,7 @@ except ImportError:
         )
 import torch.nn as nn
 from mnpo_scripts.precompute_trainer import PreferenceDataCollatorWithPadding
+from mnpo_scripts.response_logps import response_logps, LOGP_IMPLEMENTATION
 
 logger = logging.getLogger(__name__)
 
@@ -246,40 +247,16 @@ def get_batch_logps(
     Returns:
         Shape (batch,)
     """
-    if logits.shape[:-1] != labels.shape:
-        raise ValueError("Logits (batch, seq_len) and labels must have the same shape on those dims.")
-
-    if not is_encoder_decoder:
-        labels = labels[:, 1:].clone()
-        logits = logits[:, :-1, :]
-    loss_mask = labels != label_pad_token_id
-
-    # replace pad labels with a dummy id (ignored by loss via mask)
-    labels[labels == label_pad_token_id] = 0
-
-    # The sequence log-probability is a SUM over hundreds of response tokens and
-    # reaches magnitudes of 250-300 nats. bfloat16 has an 8-bit mantissa, so its
-    # spacing at |x| in [256, 512) is 2 and in [128, 256) is 1: accumulating this
-    # sum in bf16 quantizes the answer to +/- 1-2 nats. Measured directly -- the
-    # same response scored in two different batches differed by exactly one ulp
-    # of the stored value (2.0000 at |logp| = 270, 1.0000 at 248, 0.0625 at 11.5),
-    # which is what made h nonzero at a zero learning rate.
-    #
-    # log_softmax with an explicit dtype computes and returns float32 WITHOUT
-    # materializing a float32 copy of the (batch, seq, vocab) logits, so the
-    # gather and the reduction both run in float32 at no memory cost. This does
-    # not remove the bf16 error in the forward that produced the logits; it
-    # removes the quantization of the accumulation, which is the term that
-    # dominated the measurement.
-    per_token_logps = torch.gather(
-        logits.log_softmax(-1, dtype=torch.float32), dim=2,
-        index=labels.unsqueeze(2)).squeeze(2)
-    loss_mask = loss_mask.to(per_token_logps.dtype)
-
-    if average_log_prob:
-        return (per_token_logps * loss_mask).sum(-1) / loss_mask.sum(-1)
-    else:
-        return (per_token_logps * loss_mask).sum(-1)
+    result = response_logps(logits, labels, average_log_prob, label_pad_token_id,
+                            is_encoder_decoder)
+    if not hasattr(get_batch_logps, "runtime_dtypes"):
+        get_batch_logps.runtime_dtypes = {
+            "logits": str(logits.dtype), "log_softmax": "torch.float32",
+            "selected_logp": "torch.float32", "sequence_logp": str(result.dtype),
+            "implementation": LOGP_IMPLEMENTATION,
+        }
+        logger.info("Reference logp runtime dtypes: %s", get_batch_logps.runtime_dtypes)
+    return result
 
 
 def concatenated_inputs(
@@ -420,6 +397,10 @@ def apply_preference_chat_template(
     tokenizer: PreTrainedTokenizerBase,
     auto_insert_empty_system_msg: bool = False,
 ) -> Dict[str, Any]:
+    if "chosen_input_ids" in example:
+        # The generator's native chat template and sampled terminal event have
+        # already been fixed. Formatting this text again would change the event.
+        return example
     prompt_messages, chosen_response, rejected_response = _split_preference_example(example)
     if auto_insert_empty_system_msg:
         prompt_messages = _maybe_insert_empty_system(prompt_messages, tokenizer)
@@ -859,6 +840,10 @@ def main():
             except Exception:
                 solver_sha = None
         meta = {
+            "logp_implementation": LOGP_IMPLEMENTATION,
+            "log_softmax_dtype": "float32", "selected_logp_dtype": "float32",
+            "sequence_sum_dtype": "float32", "cached_logp_dtype": "float32",
+            "runtime_dtypes": getattr(get_batch_logps, "runtime_dtypes", {}),
             "logp_reduction": str(script_args.logp_reduction).lower(),
             **tokenizer_content_hashes(tokenizer),
             "tokenizer_source": script_args.model_name_or_path,

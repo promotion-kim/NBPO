@@ -123,6 +123,18 @@ NBPO_TRAINER_INVARIANTS = {
 }
 
 
+def trainer_invariants(stage_cfg):
+    invariants = dict(NBPO_TRAINER_INVARIANTS)
+    trainer = stage_cfg.get("trainer") or {}
+    mode = (stage_cfg.get("targets") or {}).get("mode", trainer.get("nbpo_target_mode", "sampled"))
+    if mode == "canonical_logratio":
+        invariants.update({"loss_type": trainer.get("loss_type", "nbpo"),
+                           "nbpo_target_mode": mode, "nbpo_target_column": "nbpo_logratio_target",
+                           "nbpo_target_units": "final_logratio_change",
+                           "nbpo_eta_already_included": True})
+    return invariants
+
+
 def _step(name: str, detail: str = "") -> None:
     print(f"[nbpo-stage] step={name} status=ok{' detail=' + detail if detail else ''}", flush=True)
 
@@ -263,6 +275,40 @@ def check_disjoint_by_text(named_prompt_files: dict) -> dict:
                    "n_distinct_texts": len(texts[name])} for name in names}
 
 
+def solve_stage_finite_pool(scfg, A_policy, A_ref, mu, beta, construction, *,
+                           base=Path("."), lambda_init=None, fixed_weights=None):
+    """Shared train/dev dispatch; held-out calls only solve the fixed-weight inner problem."""
+    from types import SimpleNamespace
+    from mnpo_scripts.nbpo_generic import solve_finite_pool, validate_finite_pool_solution
+    from scripts.nbpo.solve_nbpo_dual import build_objective_representation
+    reward_table = scfg.get("reward_table")
+    rep = build_objective_representation(
+        SimpleNamespace(representation=scfg.get("representation", "adaptive_game"),
+                        reward_table=(_resolve(base, reward_table) if reward_table else None)),
+        A_policy, A_ref, mu, beta, construction)
+    result = solve_finite_pool(
+        rep, scfg.get("aggregation", "nash"), eta=float(scfg["eta"]),
+        R=int(scfg.get("R", 1)), M=int(scfg.get("max_dual_calls", scfg.get("M", 800))),
+        gamma=scfg.get("gamma", 0.5), lambda_box=tuple(scfg.get("lambda_box", (1e-3, 1e3))),
+        lambda_init=lambda_init, inner_solver=str(scfg.get("inner_solver", "exact")),
+        dual_solver=str(scfg.get("dual_solver", "subgradient")),
+        dual_tol=(float(scfg["dual_tol"]) if scfg.get("dual_tol") else None),
+        inner_workers=int(scfg.get("inner_workers", 1)),
+        inner_maxiter=int(scfg.get("inner_maxiter", 400)),
+        inner_ftol=float(scfg.get("inner_ftol", 1e-14)),
+        probability_floor=float(scfg.get("probability_floor", 1e-12)),
+        fixed_weights=fixed_weights,
+        weights=(torch.tensor(scfg["weights"], dtype=torch.float64) if "weights" in scfg else None),
+        weight_l1=scfg.get("weight_l1"), warm_start_policy=bool(scfg.get("warm_start_policy", True)),
+        damping=float(scfg.get("damping", 0.0)), adversary_step=float(scfg.get("adversary_step", 1.0)),
+        log_every=int(scfg.get("log_every", 0)), ks_kwargs=scfg.get("ks_kwargs"),
+        max_bound_expansions=int(scfg.get("max_bound_expansions", 3)))
+    validate_finite_pool_solution(
+        result, stationarity_tol=min(1e-4, float(scfg.get("max_stationarity_residual", 1e-4))),
+        extra_map_tol=min(1e-4, float(scfg.get("max_inner_residual", 1e-4))))
+    return result
+
+
 def build_validation_pairs(cfg, base, workdir, objectives, objectives_config, judge_cfg,
                            solver_solution, beta, stage, reproduction_mode, allow_partial,
                            mu_fingerprint, parent_fingerprint, pairs_dir):
@@ -310,50 +356,70 @@ def build_validation_pairs(cfg, base, workdir, objectives, objectives_config, ju
     mu_val = uniform_policy(A_val.shape[1], A_val.shape[3])
     pi_t_val = uniform_policy(A_val.shape[1], A_val.shape[2])
     lam = torch.tensor(solver_solution["lambda_raw"], dtype=torch.float64)
-    sol = solve_weighted_policy(A_val, mu_val, pi_t_val, lam, beta,
-                                float((solver_solution["config"] or {}).get("eta", 1.0)),
-                                R=int((solver_solution["config"] or {}).get("R", 1)))
     v_solver_dir = workdir / "solver_validation"
-    v_solver_dir.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(v_solver_dir / "nu_update.npz", nu=sol.nu_update.numpy())
-    np.savez_compressed(v_solver_dir / "nu_final_policy.npz", nu=sol.nu_final_policy.numpy())
-    np.savez_compressed(v_solver_dir / "pi_star.npz", pi=sol.pi.numpy())
-    np.savez_compressed(v_solver_dir / "update_source_pi.npz",
-                        pi=sol.update_source_pi.numpy())
-    v_solution = {
-        **implementation_contract(
-            dual_iterations=(solver_solution["config"] or {}).get("M"),
-            fixed_point_steps=(solver_solution["config"] or {}).get("R")),
-        "aggregation": solver_solution["aggregation"],
-        "stage": int(stage),
-        "objectives": objectives,
-        "lambda_raw": list(solver_solution["lambda_raw"]),
-        "lambda_source": "training dual solve (validation does NOT re-solve the dual)",
-        "config": dict(solver_solution["config"] or {}),
-        "input_hashes": {n: sha256_file(v_tensor_dir / n)
-                         for n in ("tensor_policy.npz", "tensor_ref.npz", "meta.json")},
-        "artifact_hashes": {n: sha256_file(v_solver_dir / n)
-                            for n in ("nu_update.npz", "nu_final_policy.npz", "pi_star.npz",
-                                      "update_source_pi.npz")},
-        "opponent_artifacts": {
-            # No warm start here: the validation solve starts at the proximal
-            # centre, and the solver reports which it actually used either way.
-            "nu_update.npz": {"artifact_kind": "regularized_opponent",
-                              "source_policy": sol.update_source_kind,
-                              "source_policy_hash": _array_sha256(
-                                  sol.update_source_pi.numpy()),
-                              "source_policy_artifact": "update_source_pi.npz",
-                              "source_fixed_point_iteration": int(sol.update_source_iteration),
-                              "used_for": "eq26_target"},
-            "nu_final_policy.npz": {"artifact_kind": "regularized_opponent",
-                                    "source_policy": "final_policy",
-                                    "source_policy_artifact": "pi_star.npz",
-                                    "source_fixed_point_iteration": int(
-                                        (solver_solution["config"] or {}).get("R", 1)),
-                                    "used_for": "diagnostics"},
-        },
-    }
-    write_json(v_solver_dir / "solution.json", v_solution)
+    if solver_solution.get("solver_path") == "generic_solve_finite_pool":
+        from scripts.nbpo.solve_nbpo_dual import write_generic_solution_artifact
+        scfg = dict(cfg["solver"])
+        if scfg.get("representation") == "bt_reward":
+            if not vcfg.get("reward_table"):
+                raise ValueError("BT validation requires its own validation.reward_table")
+            scfg["reward_table"] = vcfg["reward_table"]
+        v_meta = json.loads((v_tensor_dir / "meta.json").read_text())
+        sol = solve_stage_finite_pool(
+            scfg, A_val, A_val_ref, mu_val, beta,
+            v_meta.get("reference_construction", "shared_pool"), base=base,
+            fixed_weights=lam)
+        v_solution = write_generic_solution_artifact(
+            v_solver_dir, sol, v_meta,
+            {n: sha256_file(v_tensor_dir / n) for n in ("tensor_policy.npz", "tensor_ref.npz", "meta.json")},
+            v_tensor_dir, stage, False,
+            {"lambda_source": "training dual solve (validation does NOT re-solve the dual)",
+             "training_solution_sha256": sha256_file(workdir / "solver" / "solution.json")})
+    else:
+        sol = solve_weighted_policy(A_val, mu_val, pi_t_val, lam, beta,
+                                    float((solver_solution["config"] or {}).get("eta", 1.0)),
+                                    R=int((solver_solution["config"] or {}).get("R", 1)))
+        v_solver_dir = workdir / "solver_validation"
+        v_solver_dir.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(v_solver_dir / "nu_update.npz", nu=sol.nu_update.numpy())
+        np.savez_compressed(v_solver_dir / "nu_final_policy.npz", nu=sol.nu_final_policy.numpy())
+        np.savez_compressed(v_solver_dir / "pi_star.npz", pi=sol.pi.numpy())
+        np.savez_compressed(v_solver_dir / "update_source_pi.npz",
+                            pi=sol.update_source_pi.numpy())
+        v_solution = {
+            **implementation_contract(
+                dual_iterations=(solver_solution["config"] or {}).get("M"),
+                fixed_point_steps=(solver_solution["config"] or {}).get("R")),
+            "aggregation": solver_solution["aggregation"],
+            "stage": int(stage),
+            "objectives": objectives,
+            "lambda_raw": list(solver_solution["lambda_raw"]),
+            "lambda_source": "training dual solve (validation does NOT re-solve the dual)",
+            "config": dict(solver_solution["config"] or {}),
+            "input_hashes": {n: sha256_file(v_tensor_dir / n)
+                             for n in ("tensor_policy.npz", "tensor_ref.npz", "meta.json")},
+            "artifact_hashes": {n: sha256_file(v_solver_dir / n)
+                                for n in ("nu_update.npz", "nu_final_policy.npz", "pi_star.npz",
+                                          "update_source_pi.npz")},
+            "opponent_artifacts": {
+                # No warm start here: the validation solve starts at the proximal
+                # centre, and the solver reports which it actually used either way.
+                "nu_update.npz": {"artifact_kind": "regularized_opponent",
+                                  "source_policy": sol.update_source_kind,
+                                  "source_policy_hash": _array_sha256(
+                                      sol.update_source_pi.numpy()),
+                                  "source_policy_artifact": "update_source_pi.npz",
+                                  "source_fixed_point_iteration": int(sol.update_source_iteration),
+                                  "used_for": "eq26_target"},
+                "nu_final_policy.npz": {"artifact_kind": "regularized_opponent",
+                                        "source_policy": "final_policy",
+                                        "source_policy_artifact": "pi_star.npz",
+                                        "source_fixed_point_iteration": int(
+                                            (solver_solution["config"] or {}).get("R", 1)),
+                                        "used_for": "diagnostics"},
+            },
+        }
+        write_json(v_solver_dir / "solution.json", v_solution)
     v_pairs_dir = workdir / "pairs_validation"
     v_summary = build_pairs_from_artifacts(
         v_tensor_dir, v_solver_dir, v_policy_specs, v_pairs_dir,
@@ -566,7 +632,7 @@ def materialize_run_config(stage_cfg: dict, parent_checkpoint, precomputed_datas
         "dataset_splits": list(dataset_splits or ["train"]),
     }
     run.update(trainer)
-    run.update(NBPO_TRAINER_INVARIANTS)
+    run.update(trainer_invariants(stage_cfg))
     # Bind this training run to the exact artifacts of THIS stage. Without these
     # the trainer only sees the sidecar, which travels with the dataset and so
     # cannot tell a stale-but-self-consistent artifact from the right one.
@@ -593,7 +659,7 @@ def parse_run_config(path):
 
     parser = H4ArgumentParser((ModelArguments, DataArguments, MNPOConfig))
     model_args, data_args, training_args = parser.parse_yaml_file(os.path.abspath(str(path)))
-    if str(training_args.loss_type).lower() != "nbpo":
+    if str(training_args.loss_type).lower() not in ("nbpo", "nbpo_wbc"):
         raise ValueError(f"materialized run config has loss_type={training_args.loss_type!r}")
     validate_nbpo_args(training_args)   # config-level invariants
     if not data_args.dataset_mixer:
@@ -726,7 +792,7 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
     # Every invariant the manuscript numbers depend on, asserted before any work.
     invariants = check_reproduction_invariants(
         cfg.get("solver") or {},
-        {**(cfg.get("trainer") or {}), **NBPO_TRAINER_INVARIANTS},
+        {**(cfg.get("trainer") or {}), **trainer_invariants(cfg)},
     ) if reproduction_mode else {"reproduction_mode": False}
     _step("reproduction_mode", f"{reproduction_mode} invariants={invariants}")
 
@@ -886,33 +952,10 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
     else:
         # A config that ASKS for a solver must get it or stop. Silently falling
         # back would produce a result that claims a solver it never used.
-        from mnpo_scripts.nbpo_generic import solve_finite_pool
-        from mnpo_scripts.nbpo_representations import build_representation
         from scripts.nbpo.solve_nbpo_dual import write_generic_solution_artifact
-        rep = build_representation(
-            scfg.get("representation", "adaptive_game"),
-            A_policy=A_policy, A_ref=A_ref, mu=mu, beta=beta,
-            reference_construction=tensor_meta_construction)
-        res = solve_finite_pool(
-            rep, scfg.get("aggregation", "nash"), eta=float(scfg["eta"]),
-            R=int(scfg.get("R", 1)), M=int(scfg.get("max_dual_calls", scfg.get("M", 800))),
-            gamma=scfg.get("gamma", 0.5),
-            lambda_box=tuple(scfg.get("lambda_box", (1e-3, 1e3))),
-            lambda_init=lambda_init,
-            inner_solver=str(inner_solver),
-            dual_solver=str(scfg.get("dual_solver", "subgradient")),
-            dual_tol=(float(scfg["dual_tol"]) if scfg.get("dual_tol") else None),
-        )
-        max_inner = float(scfg.get("max_inner_residual", 1e-4))
-        if res.extra_map_residual is not None and res.extra_map_residual > max_inner:
-            raise RuntimeError(
-                f"inner stationarity residual {res.extra_map_residual:.3e} exceeds the "
-                f"declared {max_inner:.1e}; refusing to write a target from a solve "
-                "that did not converge")
-        if res.dual_converged is False:
-            raise RuntimeError(
-                "the dual solve hit its evaluation cap without reaching dual_tol; "
-                "refusing to write a target from a non-converged solve")
+        res = solve_stage_finite_pool(
+            scfg, A_policy, A_ref, mu, beta, tensor_meta_construction,
+            base=base, lambda_init=lambda_init)
         solution = write_generic_solution_artifact(
             solver_dir, res, tensor_meta, hashes, tensor_dir, stage,
             lambda_warm_started=lambda_init is not None,
@@ -945,7 +988,7 @@ def run_stage(config_path: Path, workdir: Path, dry_run: bool) -> dict:
 
     if reproduction_mode:
         check_reproduction_invariants(cfg.get("solver") or {},
-                                      {**(cfg.get("trainer") or {}), **NBPO_TRAINER_INVARIANTS},
+                                      {**(cfg.get("trainer") or {}), **trainer_invariants(cfg)},
                                       target_summary=summary)
         _step("target_invariants", "eta applied once (target unscaled); "
                                    f"opponent_scope={summary['opponent_sampling_scope']}")

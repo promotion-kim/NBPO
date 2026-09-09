@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple, Union
 from scripts.simpo_trainer import SimPOTrainer
 from mnpo_scripts.mnpo_config import MNPOConfig
 from mnpo_scripts.pair_tokenization import TOKENIZATION_SCHEMA_VERSION
+from mnpo_scripts.nbpo_neural import nbpo_regression_target, nbpo_wbc_pair_loss
 from transformers import AutoModelForCausalLM, DataCollator, PreTrainedModel, PreTrainedTokenizerBase, Trainer
 
 
@@ -45,7 +46,8 @@ def validate_nbpo_args(
     ``verify_precompute_manifest``) to this exact stage. All of it runs before
     any model weights load.
     """
-    if str(getattr(args, "loss_type", "")).lower() != "nbpo":
+    loss_type = str(getattr(args, "loss_type", "")).lower()
+    if loss_type not in ("nbpo", "nbpo_wbc"):
         return
     problems = []
     if float(getattr(args, "reference_anchor_weight", 0.0)) != 0.0:
@@ -66,6 +68,34 @@ def validate_nbpo_args(
             "history_weights must be [1.0]; NBPO never mixes multiple history models"
         )
     target_column = str(getattr(args, "nbpo_target_column", "nbpo_weighted_z"))
+    mode = str(getattr(args, "nbpo_target_mode", "sampled"))
+    if mode == "canonical_logratio" or loss_type == "nbpo_wbc":
+        if mode != "canonical_logratio" or target_column != "nbpo_logratio_target":
+            problems.append("canonical realization requires nbpo_logratio_target / canonical_logratio")
+        if getattr(args, "nbpo_target_units", None) != "final_logratio_change" or getattr(args, "nbpo_eta_already_included", None) is not True:
+            problems.append("canonical target units must be final_logratio_change with eta already included")
+        if not getattr(args, "nbpo_require_immutable_tokens", False):
+            problems.append("canonical realization requires immutable sampled candidate tokens")
+        if float(getattr(args, "sft_weight", 0.0)) != 0.0:
+            problems.append("sft_weight must be 0 for the matched NBPO realizations")
+        if loss_type == "nbpo_wbc" and getattr(args, "nbpo_online_reference", False):
+            problems.append("nbpo_wbc must not forward a reference model during training")
+        if dataset_columns is not None:
+            required = {target_column, "nbpo_weight_a", "nbpo_weight_b", "nbpo_num_candidates"}
+            required |= {f"{side}_{key}" for side in ("chosen", "rejected")
+                         for key in ("input_ids", "attention_mask", "labels")}
+            if not required <= set(dataset_columns):
+                problems.append(f"canonical dataset lacks columns {sorted(required - set(dataset_columns))}")
+        if loss_type == "nbpo_wbc" or getattr(args, "nbpo_online_reference", False):
+            if problems:
+                raise ValueError("invalid canonical NBPO configuration: " + "; ".join(problems))
+            return  # no cached reference is consumed on these paths
+        if precompute_meta is not None:
+            from mnpo_scripts.response_logps import LOGP_IMPLEMENTATION
+            if precompute_meta.get("logp_implementation") != LOGP_IMPLEMENTATION:
+                problems.append("canonical MSE requires a fresh FP32 candidate reference cache")
+            if precompute_meta.get("online_reference_verified") is not True:
+                problems.append("reference cache needs frozen online verification; use nbpo_online_reference otherwise")
     if dataset_columns is not None:
         cols = set(dataset_columns)
         if target_column not in cols:
@@ -172,6 +202,14 @@ def validate_nbpo_args(
 
 
 class MNPOTrainer(SimPOTrainer):
+    def _get_train_sampler(self, train_dataset=None):
+        if getattr(self.args, "nbpo_target_mode", "sampled") == "canonical_logratio":
+            from torch.utils.data import RandomSampler
+            dataset = train_dataset if train_dataset is not None else self.train_dataset
+            seed = self.args.data_seed if self.args.data_seed is not None else self.args.seed
+            return RandomSampler(dataset, generator=torch.Generator().manual_seed(int(seed)))
+        return super()._get_train_sampler()
+
     def __init__(
             self,
             model: Optional[Union[PreTrainedModel, nn.Module, str]] = None,
@@ -220,6 +258,7 @@ class MNPOTrainer(SimPOTrainer):
 
         # NBPO (finite-temperature regression; docs/NBPO_ALGORITHM_MAPPING.md)
         self.nbpo_target_column = str(getattr(args, "nbpo_target_column", "nbpo_weighted_z"))
+        self.nbpo_target_mode = str(getattr(args, "nbpo_target_mode", "sampled"))
         self.logp_reduction = str(getattr(args, "logp_reduction", "mean")).lower()
         if self.logp_reduction not in ("mean", "sum"):
             raise ValueError(f"logp_reduction must be 'mean' or 'sum', got {self.logp_reduction!r}")
@@ -290,21 +329,32 @@ class MNPOTrainer(SimPOTrainer):
             ronpo_target: Optional[torch.FloatTensor] = None,
             ht_target: Optional[torch.FloatTensor] = None,
             nbpo_target: Optional[torch.FloatTensor] = None,
+            nbpo_weight_a: Optional[torch.FloatTensor] = None,
+            nbpo_weight_b: Optional[torch.FloatTensor] = None,
+            nbpo_num_candidates: Optional[torch.FloatTensor] = None,
     ) -> Tuple[torch.FloatTensor, torch.FloatTensor, torch.FloatTensor]:
 
         device = self.accelerator.device
 
         pcl = policy_chosen_logps.to(device=device, dtype=torch.float32)
         prl = policy_rejected_logps.to(device=device, dtype=torch.float32)
-        rcl = reference_chosen_logps.to(device=device, dtype=torch.float32)
-        rrl = reference_rejected_logps.to(device=device, dtype=torch.float32)
+        rcl = (reference_chosen_logps.to(device=device, dtype=torch.float32)
+               if reference_chosen_logps is not None else torch.zeros_like(pcl))
+        rrl = (reference_rejected_logps.to(device=device, dtype=torch.float32)
+               if reference_rejected_logps is not None else torch.zeros_like(prl))
 
         pi_logratios = pcl - prl       # log[pi(yw)/pi(yl)]
         ref_logratios = rcl - rrl      # log[mu(yw)/mu(yl)]
 
         lt = self.loss_type
 
-        if lt == "simpo":
+        if lt == "nbpo_wbc":
+            if nbpo_weight_a is None or nbpo_weight_b is None or nbpo_num_candidates is None:
+                raise ValueError("nbpo_wbc requires actual candidate probability masses and N")
+            losses = nbpo_wbc_pair_loss(pcl, prl, nbpo_weight_a, nbpo_weight_b,
+                                       nbpo_num_candidates)
+
+        elif lt == "simpo":
             # reference-free, length-normalized reward with a target margin gamma
             logits = self.simpo_beta * pi_logratios - self.simpo_gamma
             losses = -F.logsigmoid(logits)
@@ -386,7 +436,9 @@ class MNPOTrainer(SimPOTrainer):
             prev_chosen, prev_rejected = history_logps_list[0]
             prev_chosen = torch.as_tensor(prev_chosen, device=device, dtype=torch.float32)
             prev_rejected = torch.as_tensor(prev_rejected, device=device, dtype=torch.float32)
-            target = self.eta * nbpo_target.to(device=device, dtype=torch.float32)
+            target = nbpo_regression_target(
+                nbpo_target.to(device=device), self.eta,
+                getattr(self, "nbpo_target_mode", "sampled"))
             h = pi_logratios - (prev_chosen - prev_rejected)
             losses = (h - target) ** 2
 
@@ -465,16 +517,38 @@ class MNPOTrainer(SimPOTrainer):
             policy_rejected_logits,
             chosen_labels,
         ) = self.concatenated_forward(model, batch)
+        if self.loss_type in ("nbpo", "nbpo_wbc"):
+            if not hasattr(self, "_nbpo_token_counts"):
+                self._nbpo_token_counts = {}
+            counts = self._nbpo_token_counts.setdefault(train_eval, {
+                "policy_forward_tokens": 0, "policy_response_tokens": 0,
+                "reference_forward_tokens": 0, "reference_response_tokens": 0})
+            input_tokens = int(sum(batch[f"{side}_attention_mask"].sum().item()
+                                   for side in ("chosen", "rejected")))
+            response_tokens = int(sum(batch[f"{side}_labels"].ne(self.label_pad_token_id).sum().item()
+                                      for side in ("chosen", "rejected")))
+            counts["policy_forward_tokens"] += input_tokens
+            counts["policy_response_tokens"] += response_tokens
 
         # 2. Reference / history logps from the precomputed batch columns
-        reference_chosen_logps = batch['reference_chosen_logps'].to(self.accelerator.device)
-        reference_rejected_logps = batch['reference_rejected_logps'].to(self.accelerator.device)
+        reference_chosen_logps = batch.get('reference_chosen_logps')
+        reference_rejected_logps = batch.get('reference_rejected_logps')
+        if reference_chosen_logps is not None:
+            reference_chosen_logps = torch.as_tensor(reference_chosen_logps, device=self.accelerator.device, dtype=torch.float32)
+            reference_rejected_logps = torch.as_tensor(reference_rejected_logps, device=self.accelerator.device, dtype=torch.float32)
 
         # 2b. The proximal centre pi_t. The cached columns and an online forward
         #     disagree in bf16 whenever the batch grouping differs, so when the
         #     online path is enabled the reference is forwarded through THIS
         #     batch and the cached values are kept only as a diagnostic.
-        if self.nbpo_online_reference and self.nbpo_reference_model is not None:
+        eval_reference = train_eval == "eval" and getattr(self.args, "nbpo_eval_online_reference", False)
+        if (self.nbpo_online_reference or eval_reference) and self.nbpo_reference_model is None:
+            raise ValueError("Requested online reference must be a separately loaded frozen model")
+        if self.loss_type == "nbpo_wbc" and not eval_reference:
+            history_logps_list = []
+        elif (self.nbpo_online_reference or eval_reference) and self.nbpo_reference_model is not None:
+            counts["reference_forward_tokens"] += input_tokens
+            counts["reference_response_tokens"] += response_tokens
             with torch.no_grad():
                 ref_c, ref_r, _, _, _ = self.concatenated_forward(
                     self.nbpo_reference_model, batch)
@@ -487,6 +561,36 @@ class MNPOTrainer(SimPOTrainer):
                     (ref_c - cc.to(ref_c.device)) - (ref_r - cr.to(ref_r.device))
                 ).detach()
             history_logps_list = [(ref_c, ref_r)]
+            reference_chosen_logps, reference_rejected_logps = ref_c, ref_r
+            if (getattr(self.args, "nbpo_verify_reference_initialization", False)
+                    and int(self.state.global_step) == 0 and not hasattr(self, "_reference_init_report")):
+                with torch.no_grad():
+                    repeat_c, repeat_r, _, _, _ = self.concatenated_forward(self.nbpo_reference_model, batch)
+                counts["reference_forward_tokens"] += input_tokens
+                counts["reference_response_tokens"] += response_tokens
+                repeat_error = torch.cat((repeat_c.float() - ref_c, repeat_r.float() - ref_r)).abs().max()
+                differences = torch.cat((policy_chosen_logps.float() - ref_c,
+                                         policy_rejected_logps.float() - ref_r)).detach()
+                pair_h = ((policy_chosen_logps.float() - ref_c)
+                          - (policy_rejected_logps.float() - ref_r)).detach()
+                max_error = self.accelerator.gather(differences.abs().max().reshape(1)).max()
+                self._reference_init_report = {
+                    "sequence_max_abs": float(max_error),
+                    "sequence_rms": float(differences.square().mean().sqrt()),
+                    "pair_h_rms": float(pair_h.square().mean().sqrt()),
+                    "absolute_tolerance": float(self.args.nbpo_reference_init_atol),
+                    "reference_frozen": not any(p.requires_grad for p in self.nbpo_reference_model.parameters()),
+                    "repeated_reference_max_abs": float(repeat_error),
+                    "dtypes": getattr(self, "_logp_runtime_dtypes", {}),
+                    "rotary_buffer_restorations": getattr(getattr(self, "_nbpo_rotary_buffer_guard", None), "restorations", []),
+                }
+                import json, os
+                os.makedirs(self.args.output_dir, exist_ok=True)
+                rank = self.accelerator.process_index
+                with open(os.path.join(self.args.output_dir, f"reference_init_rank{rank}.json"), "w") as handle:
+                    json.dump(self._reference_init_report, handle, indent=2)
+                if max_error > self.args.nbpo_reference_init_atol:
+                    raise ValueError(f"Reference initialization mismatch: {self._reference_init_report}")
         else:
             history_logps_list = self.pack_history_logps_from_dataset(batch)
         history_logps_list = [
@@ -540,6 +644,9 @@ class MNPOTrainer(SimPOTrainer):
             ronpo_target,
             ht_target,
             nbpo_target,
+            batch.get("nbpo_weight_a"),
+            batch.get("nbpo_weight_b"),
+            batch.get("nbpo_num_candidates"),
         )
 
         if self.loss_type == "ronpo" and ronpo_weight is not None:
@@ -548,6 +655,7 @@ class MNPOTrainer(SimPOTrainer):
 
         core_loss = losses.mean()
         loss = core_loss
+        self._loss_runtime_dtype = str(loss.dtype)
 
         reference_anchor_loss = None
         if self.reference_anchor_weight > 0.0:
@@ -578,6 +686,24 @@ class MNPOTrainer(SimPOTrainer):
             loss = loss + self.preference_sft_weight * preference_sft_loss
 
         # 4. Metrics
+        if train_eval == "eval" and self.loss_type in ("nbpo", "nbpo_wbc") and history_logps_list and nbpo_target is not None:
+            ref_c, ref_r = history_logps_list[0]
+            delta_a = policy_chosen_logps.float() - ref_c.float()
+            delta_b = policy_rejected_logps.float() - ref_r.float()
+            target = nbpo_regression_target(nbpo_target, self.eta, self.nbpo_target_mode)
+            points = torch.stack((delta_a - delta_b, target, delta_a, delta_b), -1).detach()
+            if hasattr(self, "_nbpo_eval_points"):
+                self._nbpo_eval_points.append(self.accelerator.gather_for_metrics(points).cpu())
+        if self.loss_type == "nbpo_wbc":
+            metrics[f"{prefix}logps/chosen"] = policy_chosen_logps.detach().mean().cpu()
+            metrics[f"{prefix}logps/rejected"] = policy_rejected_logps.detach().mean().cpu()
+            metrics[f"{prefix}tokens/chosen"] = batch["chosen_labels"].ne(self.label_pad_token_id).sum(-1).float().mean().cpu()
+            metrics[f"{prefix}tokens/rejected"] = batch["rejected_labels"].ne(self.label_pad_token_id).sum(-1).float().mean().cpu()
+            metrics[f"{prefix}loss/core"] = core_loss.detach().cpu()
+            metrics[f"{prefix}loss"] = loss.detach().cpu()
+            metrics[f"{prefix}logits/chosen"] = policy_chosen_logits.detach().mean(dtype=torch.float32).cpu()
+            metrics[f"{prefix}logits/rejected"] = policy_rejected_logits.detach().mean(dtype=torch.float32).cpu()
+            return loss, metrics
         reward_accuracies = (chosen_rewards > rejected_rewards).float()
         metrics[f"{prefix}rewards/chosen"] = chosen_rewards.cpu().mean()
         metrics[f"{prefix}rewards/rejected"] = rejected_rewards.cpu().mean()
@@ -594,8 +720,8 @@ class MNPOTrainer(SimPOTrainer):
             reference_chosen_logps.detach().float() - policy_chosen_logps.detach().float()
             + reference_rejected_logps.detach().float() - policy_rejected_logps.detach().float()
         ).mean().cpu()
-        metrics[f"{prefix}logits/rejected"] = policy_rejected_logits.detach().cpu().mean()
-        metrics[f"{prefix}logits/chosen"] = policy_chosen_logits.detach().cpu().mean()
+        metrics[f"{prefix}logits/rejected"] = policy_rejected_logits.detach().mean(dtype=torch.float32).cpu()
+        metrics[f"{prefix}logits/chosen"] = policy_chosen_logits.detach().mean(dtype=torch.float32).cpu()
         metrics[f"{prefix}loss/core"] = core_loss.detach().cpu()
         if reference_anchor_loss is not None:
             metrics[f"{prefix}loss/reference_anchor"] = reference_anchor_loss.detach().cpu()
@@ -638,7 +764,7 @@ class MNPOTrainer(SimPOTrainer):
                 self.accelerator.device, dtype=torch.float32
             )
             nbpo_h = policy_logratios - (prev_chosen - prev_rejected)
-            nbpo_scaled_target = self.eta * nbpo_target
+            nbpo_scaled_target = nbpo_regression_target(nbpo_target, self.eta, self.nbpo_target_mode)
             metrics[f"{prefix}nbpo/h"] = nbpo_h.detach().mean().cpu()
             # The signed batch mean cancels; |h| and its RMS are what say whether
             # the policy MOVED. They also make the zero-step identity checkable:
@@ -681,3 +807,29 @@ class MNPOTrainer(SimPOTrainer):
 
         metrics[f"{prefix}loss"] = loss.detach().cpu()
         return loss, metrics
+
+    def evaluation_loop(self, *args, **kwargs):
+        self._nbpo_eval_points = []
+        result = super().evaluation_loop(*args, **kwargs)
+        if self._nbpo_eval_points:
+            import numpy as np
+            from scipy.stats import pearsonr, spearmanr
+            points = torch.cat(self._nbpo_eval_points).double().numpy()
+            h, target, a, b = points.T
+            denom = float(np.mean(target ** 2))
+            metrics = {
+                "eval_nbpo/nmse": float(np.mean((h - target) ** 2) / denom) if denom > 0 else None,
+                "eval_nbpo/sign_accuracy": float(np.mean(np.sign(h) == np.sign(target))),
+                "eval_nbpo/mean_logratio": float(np.mean((a + b) / 2)),
+                "eval_nbpo/logratio_rms": float(np.sqrt(np.mean((a*a + b*b) / 2))),
+                "eval_nbpo/target_second_moment": denom,
+                "eval_nbpo/h_second_moment": float(np.mean(h*h)),
+                "eval_nbpo/target_h_cross_moment": float(np.mean(target*h)),
+                "eval_nbpo/pair_rows": len(h),
+            }
+            if np.std(h) > 0 and np.std(target) > 0:
+                metrics["eval_nbpo/pearson"] = float(pearsonr(h, target).statistic)
+                metrics["eval_nbpo/spearman"] = float(spearmanr(h, target).statistic)
+            result.metrics.update({key: value for key, value in metrics.items() if value is not None})
+        self._nbpo_eval_points = []
+        return result

@@ -109,6 +109,26 @@ def validate_final_config(cfg: Mapping[str, Any], *, source: str = "<config>",
             "that every artifact this run writes says which solver produced it. "
             "A result whose solver mode cannot be recovered cannot be defended.")
 
+    training_judge = (cfg.get("judge") or {}).get("training", {})
+    if training_judge:
+        model = str(training_judge.get("model_path", ""))
+        backend = str(training_judge.get("backend", ""))
+        if "Qwen3-32B" in model or backend in {"vllm", "openai", "anthropic"}:
+            raise FinalConfigError(
+                f"{source}: retired free-form training judge {backend}:{model}; "
+                "the final recipe requires a frozen preference-model ensemble. "
+                "Solver validation alone does not validate the teacher or recipe.")
+
+    if str((cfg.get("targets") or {}).get("mode")) == "canonical_logratio":
+        targets = cfg["targets"]
+        if (targets.get("target_units") != "final_logratio_change"
+                or targets.get("eta_already_included") is not True):
+            raise FinalConfigError(f"{source}: canonical targets require explicit eta-once units")
+        sampling = cfg.get("sampling") or {}
+        for key in ("policy_responses_per_prompt", "reference_comparators_per_prompt"):
+            if sampling.get(key) != 8:
+                raise FinalConfigError(f"{source}: repaired primary recipe requires sampling.{key}=8")
+
     if solver_artifact is not None:
         art_mode = (((solver_artifact.get("config") or {}).get("inner_solver"))
                     or solver_artifact.get("inner_solver"))

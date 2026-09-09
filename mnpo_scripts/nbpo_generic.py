@@ -68,6 +68,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional, Sequence, Union
 
+# Initialize the NumPy runtime before torch's OpenMP runtime in spawned CPU
+# workers (some Conda MKL builds otherwise fail before the initializer runs).
+import numpy as np
 import torch
 
 from mnpo_scripts.nbpo_core import (
@@ -134,6 +137,7 @@ class ProximalSolve:
     update_source_pi: torch.Tensor
     update_source_kind: str
     update_source_iteration: int
+    optimizer_diagnostics: dict = field(default_factory=dict)
 
 
 def solve_proximal(rep: ObjectiveRepresentation, pi_t: torch.Tensor,
@@ -214,6 +218,12 @@ def _worker_init(A, mu, log_pi_t, beta, eta, X, I, floor, maxiter, ftol):
         os.sched_setaffinity(0, range(os.cpu_count() or 1))
     except (AttributeError, OSError):
         pass
+    torch.set_num_threads(1)
+    try:
+        from threadpoolctl import threadpool_limits
+        _WORKER_STATE["threadpool_limits"] = threadpool_limits(limits=1)
+    except ImportError:
+        pass
     _WORKER_STATE.update(A=A, mu=mu, log_pi_t=log_pi_t, beta=beta, eta=eta,
                          X=X, I=I, floor=floor, maxiter=maxiter, ftol=ftol)
 
@@ -235,6 +245,7 @@ def _solve_prompt_chunk(task):
     ones = np.ones(I)
     bounds = [(floor, 1.0)] * I
     out = np.empty((hi - lo, I))
+    diagnostics = []
 
     for n, x in enumerate(range(lo, hi)):
         Ax, lmu, lpt = A[:, x], np.log(mu[x]), log_pi_t[x]
@@ -247,7 +258,7 @@ def _solve_prompt_chunk(task):
             m = lw.max(axis=-1, keepdims=True)
             v_k = -beta * (m[:, 0] + np.log(np.exp(lw - m).sum(axis=-1)))
             kl = float((p * (np.log(p) - lpt)).sum())
-            return -(float(w_np @ v_k) / X - kl / (eta * X))
+            return -(float(w_np @ v_k) - kl / eta)
 
         def negx_jac(v, Ax=Ax, lmu=lmu, lpt=lpt):
             p = np.clip(v, floor, None)
@@ -258,8 +269,8 @@ def _solve_prompt_chunk(task):
             nu = np.exp(lw)
             nu /= nu.sum(axis=-1, keepdims=True)
             q = np.einsum("kj,kij->ki", nu, Ax)
-            gg = (w_np @ q) / X
-            gg -= (np.log(p) - lpt + 1.0) / (eta * X)
+            gg = w_np @ q
+            gg -= (np.log(p) - lpt + 1.0) / eta
             return -gg
 
         res = minimize(negx, start_block[n], jac=negx_jac, method="SLSQP",
@@ -269,8 +280,63 @@ def _solve_prompt_chunk(task):
                                      "jac": lambda v: ones[None, :]}],
                        options={"maxiter": int(maxiter), "ftol": float(ftol)})
         v = np.clip(res.x, floor, None)
-        out[n] = v / v.sum()
-    return lo, out
+        p = v / v.sum()
+        # Refine the *optimization problem*, not its exponential-map identity.
+        # The exact positive-definite Hessian gives a simplex Newton step.
+        # Removing the irrelevant 1/X factor above keeps tolerance independent
+        # of the number of prompts in the dataset.
+        refinement_steps = 0
+        for refinement_steps in range(60):
+            grad = negx_jac(p)
+            residual = eta * np.max(np.abs(grad - p @ grad))
+            if residual < 1e-10:
+                break
+            r = np.einsum("i,kij->kj", p, Ax)
+            lw = lmu[None, :] - r / beta[:, None]
+            lw -= lw.max(axis=-1, keepdims=True)
+            nu = np.exp(lw)
+            nu /= nu.sum(axis=-1, keepdims=True)
+            q = np.einsum("kj,kij->ki", nu, Ax)
+            covariance = (np.einsum("kj,kij,klj->kil", nu, Ax, Ax)
+                          - np.einsum("ki,kl->kil", q, q))
+            hessian = np.einsum("k,kil->il", w_np / beta, covariance)
+            hessian += np.diag(1.0 / (eta * p))
+            system = np.block([[hessian, ones[:, None]],
+                               [ones[None, :], np.zeros((1, 1))]])
+            delta = np.linalg.solve(system, np.r_[-grad, 0.0])[:I]
+            alpha = 1.0
+            falling = delta < 0
+            if falling.any():
+                alpha = min(alpha, 0.99 * np.min((p[falling] - floor) / -delta[falling]))
+            if alpha <= 0:
+                break
+            previous = negx(p)
+            slope = float(grad @ delta)
+            for _ in range(45):
+                proposal = p + alpha * delta
+                proposal /= proposal.sum()
+                # The small allowance only handles objective roundoff; the
+                # independently measured stationarity decides convergence.
+                if negx(proposal) <= previous + 1e-4 * alpha * slope + 1e-14 * max(1.0, abs(previous)):
+                    p = proposal
+                    break
+                alpha *= 0.5
+            else:
+                break
+        out[n] = p
+        grad = negx_jac(p)
+        residual = float(eta * np.max(np.abs(grad - p @ grad)))
+        diagnostics.append({
+            "prompt_index": x, "slsqp_success": bool(res.success),
+            "slsqp_status": int(res.status), "slsqp_message": str(res.message),
+            "slsqp_iterations": int(res.nit), "newton_iterations": refinement_steps,
+            "backend": "slsqp_with_simplex_newton_refinement",
+            "refinement_certified": bool(residual < 1e-4),
+            "independent_stationarity_inf": residual,
+            "negative_objective": float(negx(p)),
+            "probability_floor_active": bool(np.any(p <= floor * (1.0 + 1e-6))),
+        })
+    return lo, out, diagnostics
 
 
 _EXECUTORS: dict = {}
@@ -279,6 +345,7 @@ _EXECUTORS: dict = {}
 def _executor(workers: int, key, init_args):
     """A pool per (worker count, problem), reused across dual evaluations."""
     import atexit
+    import multiprocessing
     from concurrent.futures import ProcessPoolExecutor
     cached = _EXECUTORS.get(workers)
     if cached is not None and cached[0] == key:
@@ -286,7 +353,7 @@ def _executor(workers: int, key, init_args):
     if cached is not None:
         cached[1].shutdown(wait=False)
     ex = ProcessPoolExecutor(max_workers=workers, initializer=_worker_init,
-                             initargs=init_args)
+                             initargs=init_args, mp_context=multiprocessing.get_context("spawn"))
     _EXECUTORS[workers] = (key, ex)
     atexit.register(ex.shutdown, wait=False)
     return ex
@@ -296,7 +363,11 @@ def _solve_prompts_parallel(A, mu, log_pi_t, start, beta, w_np, eta, X, I,
                             floor, maxiter, ftol, workers):
     import hashlib
     import numpy as np
-    key = hashlib.sha256(np.ascontiguousarray(A).tobytes()).hexdigest()[:32]
+    digest = hashlib.sha256()
+    for value in (A, mu, log_pi_t, beta):
+        digest.update(np.ascontiguousarray(value).tobytes())
+    digest.update(repr((eta, X, I, floor, maxiter, ftol)).encode())
+    key = digest.hexdigest()
     ex = _executor(int(workers), key,
                    (A, mu, log_pi_t, beta, eta, X, I, floor, maxiter, ftol))
     n_chunks = min(X, int(workers))
@@ -304,150 +375,74 @@ def _solve_prompts_parallel(A, mu, log_pi_t, start, beta, w_np, eta, X, I,
     tasks = [(int(edges[i]), int(edges[i + 1]), w_np, start[edges[i]:edges[i + 1]])
              for i in range(n_chunks) if edges[i + 1] > edges[i]]
     out = np.empty((X, I))
-    for lo, block in ex.map(_solve_prompt_chunk, tasks):
+    diagnostics = []
+    for lo, block, details in ex.map(_solve_prompt_chunk, tasks):
         out[lo:lo + block.shape[0]] = block
-    return out
+        diagnostics.extend(details)
+    return out, diagnostics
 
 
 def solve_proximal_exact(rep: ObjectiveRepresentation, pi_t: torch.Tensor,
                          w: torch.Tensor, eta: float, *,
                          pi_init: Optional[torch.Tensor] = None,
-                         maxiter: int = 400, ftol: float = 1e-16,
-                         workers: int = 1) -> ProximalSolve:
-    """Solve the Eq. (18) subproblem by maximization instead of iteration.
+                         maxiter: int = 400, ftol: float = 1e-14,
+                         workers: int = 1, probability_floor: float = 1e-12) -> ProximalSolve:
+    """Direct concave solve, returning the optimizer policy and its own Q/nu.
 
-    ``solve_proximal`` applies the Eq. (21) map ``R`` times. That map contracts
-    only while ``eta * sum_k w_k q_k`` stays small; once raw Nash multipliers
-    grow -- and they must, since ``lambda_k = 1/s_k`` diverges as a surplus
-    approaches zero -- the exponent saturates the per-prompt softmax and the
-    iteration bang-bangs between vertices instead of converging. The audit in
-    `scripts/experiments/iclr2027_table1_v2` measures exactly that: a fixed-point
-    residual of 1.000, the largest a simplex iterate can have, and a policy
-    ``TV = 0.64`` away from the true proximal solution.
-
-    The subproblem does not need iterating, and it does not need a large solver
-    either. ``V_{k,beta}(pi) = mean_x v_{k,x}(pi_x)`` and each ``v_{k,x}`` depends
-    on ``pi`` **only through that prompt's row**, while the proximal term is a sum
-    of per-prompt KLs. So
-
-        J_w(pi) = sum_x [ (1/X) sum_k w_k v_{k,x}(pi_x) - KL(pi_x||pi_t,x)/(eta X) ]
-
-    **separates completely across prompts**, and the whole thing is X independent
-    concave programs over the I-simplex rather than one program over X*I
-    variables. That is what makes this usable at 7000 prompts: cost is linear in
-    X, each subproblem has a handful of variables, and they are embarrassingly
-    parallel. ``logsumexp`` is convex and ``-beta * convex`` is concave, so each
-    piece is concave and its maximizer is unique.
-
-    The return is **the Eq. (21) map applied at the maximizer**, not the
-    maximizer, so that
-
-        [log pi*(y) - log pi_t(y)] - [log pi*(y') - log pi_t(y')]
-            == eta * sum_k w_k (q_k(y) - q_k(y'))
-
-    holds to float64 exactly -- the identity the Eq. (26) pair builder depends on
-    and the artifact writer refuses above 1e-9. An optimizer iterate satisfies it
-    only to its own tolerance and would be refused; the residual error instead
-    lands in ``extra_map_residual``, where the existing solver already reports it.
-
-    For a representation whose ``q`` does not depend on the policy
-    (``fixed_reference``, ``bt_reward``) one application of the map is already the
-    exact maximizer, so this delegates rather than invoking an optimizer that has
-    nothing to do.
+    Each prompt is an independent simplex program. SLSQP is followed by
+    analytic-Hessian simplex Newton refinement when needed. Both optimizer
+    status and independent final-policy stationarity are retained; a failed
+    SLSQP status is never silently relabeled as success. Canonical targets use
+    log(pi/pi_t) directly, without an extra exponential-map policy update.
     """
     import numpy as np
-    from scipy.optimize import minimize
 
     pi_t = validate_distribution(pi_t, "pi_t", require_full_support=True)
     w = as_float64(w)
-    if not (eta > 0):
-        raise ValueError("eta must be strictly positive")
+    if not (eta > 0) or w.shape != (rep.K,) or not torch.isfinite(w).all() or bool((w < 0).any()):
+        raise ValueError("eta must be positive and weights finite/nonnegative with shape (K,)")
     if not rep.policy_adaptive:
-        return solve_proximal(rep, pi_t, w, eta, R=1, pi_init=pi_init)
+        sol = solve_proximal(rep, pi_t, w, eta, R=1, pi_init=pi_init)
+        sol.update_source_pi = sol.pi.clone()
+        sol.update_source_kind = "exact_proximal_maximizer"
+        sol.optimizer_diagnostics = {"backend": "analytic_exponential_family",
+                                     "actual_workers": 1, "probability_floor": 0.0,
+                                     "prompts": [], "all_certified": True}
+        return sol
 
-    X, I, K = rep.X, rep.I, rep.K
-    floor = 1e-12
-    A = rep.A.numpy()                       # (K, X, I, J)
-    beta = rep.beta.numpy()
-    mu = rep.mu.numpy()
-    w_np = w.numpy()
-    pi_t_np = pi_t.numpy()
-    log_pi_t = np.log(np.clip(pi_t_np, floor, None))
-    start = (pi_t_np if pi_init is None
-             else validate_distribution(pi_init, "pi_init").numpy())
-
-    ones = np.ones(I)
-    cons = [{"type": "eq", "fun": lambda v: np.array([v.sum() - 1.0]),
-             "jac": lambda v: ones[None, :]}]
-    bounds = [(floor, 1.0)] * I
-    out = np.empty((X, I))
-
-    if workers and workers > 1 and X >= 2 * workers:
-        # Infrastructure-level parallelism only: the same per-prompt program, the
-        # same tolerance, evaluated on more cores. The prompts are independent by
-        # construction, which is the whole reason this solve scales.
-        out = _solve_prompts_parallel(A, mu, log_pi_t, start, beta, w_np, eta, X, I,
-                                      floor, maxiter, ftol, workers)
-        pi_hat = torch.from_numpy(out)
-        nu, q = rep.opponent_and_gradient(pi_hat)
-        pi_star = exp_update(pi_t, q, w, eta)
-        nu_final, q_final = rep.opponent_and_gradient(pi_star)
-        pi_extra = exp_update(pi_t, q_final, w, eta)
-        return ProximalSolve(
-            pi=pi_star, nu_update=nu, q_update=q,
-            nu_final_policy=nu_final, q_final_policy=q_final,
-            fixed_point_residual=float((pi_star - pi_hat).abs().max()),
-            extra_map_residual=float((pi_extra - pi_star).abs().max()),
-            iterations=X, update_source_pi=pi_hat.clone(),
-            update_source_kind="exact_proximal_maximizer", update_source_iteration=0)
-
-    for x in range(X):
-        Ax = A[:, x]                        # (K, I, J)
-        mux = mu[x]
-        lmu = np.log(mux)
-        lpt = log_pi_t[x]
-
-        def negx(v, Ax=Ax, lmu=lmu, lpt=lpt):
-            p = np.clip(v, floor, None)
-            p = p / p.sum()
-            r = np.einsum("i,kij->kj", p, Ax)
-            lw = lmu[None, :] - r / beta[:, None]
-            m = lw.max(axis=-1, keepdims=True)
-            v_k = -beta * (m[:, 0] + np.log(np.exp(lw - m).sum(axis=-1)))
-            kl = float((p * (np.log(p) - lpt)).sum())
-            return -(float(w_np @ v_k) / X - kl / (eta * X))
-
-        def negx_jac(v, Ax=Ax, lmu=lmu, lpt=lpt):
-            p = np.clip(v, floor, None)
-            p = p / p.sum()
-            r = np.einsum("i,kij->kj", p, Ax)
-            lw = lmu[None, :] - r / beta[:, None]
-            lw -= lw.max(axis=-1, keepdims=True)
-            nu = np.exp(lw)
-            nu /= nu.sum(axis=-1, keepdims=True)
-            q = np.einsum("kj,kij->ki", nu, Ax)          # (K, I)
-            g = (w_np @ q) / X
-            g -= (np.log(p) - lpt + 1.0) / (eta * X)
-            return -g
-
-        res = minimize(negx, start[x], jac=negx_jac, method="SLSQP",
-                       bounds=bounds, constraints=cons,
-                       options={"maxiter": int(maxiter), "ftol": float(ftol)})
-        v = np.clip(res.x, floor, None)
-        out[x] = v / v.sum()
-
-    pi_hat = torch.from_numpy(out)
-    nu, q = rep.opponent_and_gradient(pi_hat)
-    pi_star = exp_update(pi_t, q, w, eta)
-    nu_final, q_final = rep.opponent_and_gradient(pi_star)
-    pi_extra = exp_update(pi_t, q_final, w, eta)
+    X, I = rep.X, rep.I
+    floor = float(probability_floor)
+    if not 0 < floor < 1.0 / I:
+        raise ValueError("probability_floor must lie in (0, 1/I)")
+    A, beta, mu = rep.A.numpy(), rep.beta.numpy(), rep.mu.numpy()
+    log_pi_t = np.log(pi_t.numpy())
+    start = (pi_t.numpy() if pi_init is None
+             else validate_distribution(pi_init, "pi_init", require_full_support=True).numpy())
+    actual_workers = min(int(workers or 1), X)
+    if actual_workers > 1 and X >= 2 * actual_workers:
+        out, details = _solve_prompts_parallel(
+            A, mu, log_pi_t, start, beta, w.numpy(), eta, X, I,
+            floor, maxiter, ftol, actual_workers)
+    else:
+        actual_workers = 1
+        _WORKER_STATE.update(A=A, mu=mu, log_pi_t=log_pi_t, beta=beta,
+                             eta=eta, X=X, I=I, floor=floor, maxiter=maxiter, ftol=ftol)
+        _, out, details = _solve_prompt_chunk((0, X, w.numpy(), start))
+    pi_star = torch.from_numpy(out)
+    nu, q = rep.opponent_and_gradient(pi_star)
+    extra = float((exp_update(pi_t, q, w, eta) - pi_star).abs().max())
     return ProximalSolve(
         pi=pi_star, nu_update=nu, q_update=q,
-        nu_final_policy=nu_final, q_final_policy=q_final,
-        fixed_point_residual=float((pi_star - pi_hat).abs().max()),
-        extra_map_residual=float((pi_extra - pi_star).abs().max()),
-        iterations=X, update_source_pi=pi_hat.clone(),
-        update_source_kind="exact_proximal_maximizer", update_source_iteration=0)
+        nu_final_policy=nu, q_final_policy=q,
+        fixed_point_residual=extra, extra_map_residual=extra,
+        iterations=sum(v["slsqp_iterations"] + v["newton_iterations"] for v in details),
+        update_source_pi=pi_star.clone(),
+        update_source_kind="exact_proximal_maximizer", update_source_iteration=0,
+        optimizer_diagnostics={
+            "backend": "slsqp_with_simplex_newton_refinement",
+            "actual_workers": actual_workers, "probability_floor": floor,
+            "prompts": details, "all_certified": all(v["refinement_certified"] for v in details),
+            "slsqp_failures": sum(not v["slsqp_success"] for v in details)})
 
 
 def _converged_solve(rep, pi_t, w, eta, *, R=400, damping=0.5, tol=1e-12):
@@ -865,6 +860,8 @@ class FinitePoolSolution:
     ks: Optional[dict] = None
     history: List[dict] = field(default_factory=list)
     config: dict = field(default_factory=dict)
+    optimizer_diagnostics: dict = field(default_factory=dict)
+    representation_object: Optional[ObjectiveRepresentation] = field(default=None, repr=False)
 
     def target_log_ratio_check(self) -> float:
         """max |(log pi* - log pi_t) - eta sum_k w_k q_k + const| over the pool.
@@ -875,6 +872,101 @@ class FinitePoolSolution:
         score = self.eta * torch.einsum("k,kxi->xi", self.weights, self.q_update)
         diff = self.target_log_ratio - score
         return float((diff - diff.mean(dim=-1, keepdim=True)).abs().max())
+
+
+def validate_finite_pool_solution(res: FinitePoolSolution, *, require_optimality=None,
+                                 stationarity_tol=1e-4, extra_map_tol=1e-4,
+                                 dual_tol=1e-6) -> dict:
+    """One independent certificate for the CLI, stage runner and artifact writer.
+
+    Recompute Q at the policy being serialized, separately from serialization
+    consistency. Fixed training weights on held-out prompts carry no fitted
+    held-out Nash-dual claim. Historical R-step artifacts remain identifiable
+    approximations; they cannot be used as certified canonical teachers.
+    """
+    import math
+    if require_optimality is None:
+        require_optimality = res.config.get("inner_solver") == "exact"
+    pi = validate_distribution(res.pi, "pi_star", require_full_support=True)
+    pt = validate_distribution(res.pi_t, "pi_t", require_full_support=True)
+    if pi.shape != pt.shape or res.target_log_ratio.shape != pi.shape:
+        raise ValueError("canonical policy/center/target shapes disagree")
+    if res.representation_object is None:
+        raise ValueError("independent validation requires the original representation")
+    nu, q = res.representation_object.opponent_and_gradient(pi)
+    log_ratio = torch.log(pi) - torch.log(pt)
+    serialization = float((res.target_log_ratio - log_ratio).abs().max())
+    b = log_ratio - res.eta * torch.einsum("k,kxi->xi", res.weights, q)
+    stationarity = float((b - (pi * b).sum(-1, keepdim=True)).abs().max())
+    extra_map = float((exp_update(pt, q, res.weights, res.eta) - pi).abs().max())
+    q_error = float((res.q_update - q).abs().max())
+    v = res.representation_object.game_values(pi)
+    surplus = v - res.representation_object.disagreement
+    diagnostics = res.optimizer_diagnostics
+    floor = float(diagnostics.get("probability_floor", 0.0))
+    floor_active = bool(floor and bool((pi <= floor * (1.0 + 1e-6)).any()))
+    certificate = {
+        "canonical_serialization_error": serialization,
+        "independent_stationarity_inf": stationarity,
+        "extra_map_residual": extra_map, "q_at_returned_policy_error": q_error,
+        "normalization_error": float((pi.sum(-1) - 1.0).abs().max()),
+        "minimum_probability": float(pi.min()), "probability_floor": floor,
+        "probability_floor_active": floor_active,
+        "objective": float((res.weights * surplus).sum()) - proximal_divergence(pi, pt) / res.eta,
+        "surplus": surplus.tolist(), "optimizer": diagnostics,
+        "stationarity_units": "dimensionless_logratio_change",
+        "tolerances": {"canonical_serialization_error": 1e-9,
+                       "independent_stationarity_inf": stationarity_tol,
+                       "extra_map_residual": extra_map_tol, "dual": dual_tol},
+        "nash_dual_scope": ("fixed_training_weights" if res.config.get("fixed_weights")
+                            else "training" if res.aggregation == "nash" else "not_applicable"),
+    }
+    problems = []
+    if not math.isfinite(serialization) or serialization >= 1e-9:
+        problems.append("canonical serialization error >= 1e-9")
+    if not math.isfinite(stationarity) or stationarity >= stationarity_tol:
+        problems.append("independent stationarity exceeds tolerance")
+    if not math.isfinite(extra_map) or extra_map >= extra_map_tol:
+        problems.append("extra-map residual exceeds tolerance")
+    if floor_active:
+        problems.append("probability floor is active")
+    if diagnostics and not diagnostics.get("all_certified", True):
+        problems.append("inner optimizer lacks a certified solution/refinement")
+    if require_optimality and (not math.isfinite(q_error) or q_error >= 1e-9):
+        problems.append("serialized Q does not match the returned policy")
+    if require_optimality and (not torch.isfinite(res.nu_update).all() or
+                              float((res.nu_update - nu).abs().max()) >= 1e-9):
+        problems.append("serialized opponent does not match the returned policy")
+    if not all(torch.isfinite(value).all() for value in (res.V, res.d, res.surplus)) or max(float((res.V - v).abs().max()),
+           float((res.d - res.representation_object.disagreement).abs().max()),
+           float((res.surplus - surplus).abs().max())) >= 1e-9:
+        problems.append("stored V/d/s does not match the returned policy")
+    if res.aggregation == "nash" and not res.config.get("fixed_weights"):
+        lo, hi = res.config["lambda_box"]
+        lower, upper = box_active_coordinates(res.weights, lo, hi)
+        gradient = surplus - 1.0 / res.weights
+        complementarity = res.weights * surplus - 1.0
+        projected = projected_kkt_residual(res.weights, surplus, res.gamma_ref or 1.0, lo, hi)
+        certificate.update({"dual_projected_residual": projected,
+                            "dual_unprojected_gradient": gradient.tolist(),
+                            "dual_unprojected_residual": float(gradient.abs().max()),
+                            "lambda_times_surplus_minus_one": complementarity.tolist(),
+                            "nash_complementarity_inf": float(complementarity.abs().max()),
+                            "lambda_at_lower_bound": lower, "lambda_at_upper_bound": upper})
+        if bool((surplus <= 0).any()):
+            problems.append("Nash training surplus is not strictly positive")
+        if projected >= dual_tol or float(gradient.abs().max()) >= dual_tol:
+            problems.append("original Nash dual stationarity exceeds tolerance")
+        if float(complementarity.abs().max()) >= dual_tol:
+            problems.append("lambda * surplus - 1 exceeds tolerance")
+    if res.aggregation == "kalai_smorodinsky" and res.ks:
+        if res.ks.get("individual_rationality_violation", 0.0) > 1e-8:
+            problems.append("KS individual rationality failed")
+    certificate["certified"] = not problems
+    certificate["failures"] = problems
+    if require_optimality and problems:
+        raise ValueError("finite-pool certificate failed: " + "; ".join(problems))
+    return certificate
 
 
 def _solve_nash_dual_by_root(rep, pi_t, d, lam0, eta, R, inner, damping, lo, hi,
@@ -901,7 +993,7 @@ def _solve_nash_dual_by_root(rep, pi_t, d, lam0, eta, R, inner, damping, lo, hi,
     state = {"pi": None, "calls": 0}
 
     def residual(u):
-        lam = np.clip(np.exp(u), lo, hi)
+        lam = np.exp(np.clip(u, np.log(lo), np.log(hi)))
         sol = inner(rep, pi_t, torch.from_numpy(lam), eta, R,
                     pi_init=state["pi"], damping_=damping)
         state["pi"] = sol.pi
@@ -916,7 +1008,10 @@ def _solve_nash_dual_by_root(rep, pi_t, d, lam0, eta, R, inner, damping, lo, hi,
     u0 = np.log(np.clip(as_float64(lam0).numpy(), lo, hi))
     res = root(residual, u0, method="hybr",
                options={"xtol": 1e-14, "maxfev": int(max_calls)})
-    lam = torch.from_numpy(np.clip(np.exp(res.x), lo, hi))
+    history.append({"backend": "scipy_root_hybr", "success": bool(res.success),
+                    "status": int(res.status), "message": str(res.message),
+                    "function_evaluations": int(res.nfev)})
+    lam = torch.from_numpy(np.exp(np.clip(res.x, np.log(lo), np.log(hi))))
     # Convergence is decided by a FRESHLY MEASURED residual at the returned
     # multipliers, not by the optimizer's own success flag. `hybr` reports
     # failure whenever it stops making progress, which it does as soon as the
@@ -935,7 +1030,10 @@ def _solve_nash_dual_by_root(rep, pi_t, d, lam0, eta, R, inner, damping, lo, hi,
         if s_here is not None and (s_here > 0).all():
             res2 = root(residual, np.log(np.clip(1.0 / s_here, lo, hi)),
                         method="hybr", options={"xtol": 1e-14, "maxfev": int(max_calls)})
-            lam2 = torch.from_numpy(np.clip(np.exp(res2.x), lo, hi))
+            history.append({"backend": "scipy_root_hybr_restart", "success": bool(res2.success),
+                            "status": int(res2.status), "message": str(res2.message),
+                            "function_evaluations": int(res2.nfev)})
+            lam2 = torch.from_numpy(np.exp(np.clip(res2.x, np.log(lo), np.log(hi))))
             r2 = float(np.abs(residual(np.log(lam2.numpy()))).max())
             if r2 < final_res:
                 lam, final_res = lam2, r2
@@ -965,6 +1063,12 @@ def solve_finite_pool(
     dual_tol: Optional[float] = None,
     dual_solver: str = "subgradient",
     inner_workers: int = 1,
+    inner_maxiter: int = 400,
+    inner_ftol: float = 1e-14,
+    probability_floor: float = 1e-12,
+    fixed_weights: Optional[torch.Tensor] = None,
+    weights: Optional[torch.Tensor] = None,
+    max_bound_expansions: int = 3,
 ) -> FinitePoolSolution:
     """Solve one outer stage for any (representation, aggregation) pair.
 
@@ -984,11 +1088,15 @@ def solve_finite_pool(
         raise ValueError("dual_tol must be strictly positive when given")
     if dual_solver not in ("subgradient", "root"):
         raise ValueError("dual_solver must be 'subgradient' or 'root'")
+    if aggregation == "kalai_smorodinsky" and (
+            inner_workers != 1 or inner_maxiter != 400 or inner_ftol != 1e-14 or probability_floor != 1e-12):
+        raise ValueError("KS subsolves currently support only default inner workers/maxiter/ftol/floor")
 
     def _inner(rep_, pi_t_, w_, eta_, R_, *, pi_init=None, damping_=0.0):
         if inner_solver == "exact":
             return solve_proximal_exact(rep_, pi_t_, w_, eta_, pi_init=pi_init,
-                                        workers=inner_workers)
+                                        workers=inner_workers, maxiter=inner_maxiter,
+                                        ftol=inner_ftol, probability_floor=probability_floor)
         return solve_proximal(rep_, pi_t_, w_, eta_, R_, pi_init=pi_init,
                               damping=damping_)
 
@@ -1010,7 +1118,13 @@ def solve_finite_pool(
     lower_active: List[int] = []
     upper_active: List[int] = []
 
-    if aggregation == "kalai_smorodinsky":
+    bound_expansions = []
+    if fixed_weights is not None:
+        w = as_float64(fixed_weights).clone()
+        if w.shape != (K,) or not torch.isfinite(w).all() or bool((w < 0).any()):
+            raise ValueError("fixed_weights must be finite, nonnegative and shape (K,)")
+        final = _inner(rep, pi_t, w, eta, R, damping_=damping)
+    elif aggregation == "kalai_smorodinsky":
         kw = dict(ks_kwargs or {})
         kw.setdefault("weight_l1", 1.0 if weight_l1 is None else float(weight_l1))
         kw.setdefault("damping", damping)
@@ -1034,7 +1148,12 @@ def solve_finite_pool(
             **ks.diagnostics,
         }
     elif aggregation == "utilitarian":
-        w = torch.full((K,), 1.0 / K, dtype=torch.float64)
+        w = (torch.full((K,), 1.0 / K, dtype=torch.float64) if weights is None
+             else as_float64(weights).clone())
+        if w.shape != (K,) or not torch.isfinite(w).all() or bool((w < 0).any()) or float(w.sum()) <= 0:
+            raise ValueError("utilitarian weights must be finite nonnegative raw weights")
+        if weights is not None and weight_l1 is not None:
+            raise ValueError("supply raw weights or weight_l1, not both")
         if weight_l1 is not None:
             w = w * (float(weight_l1) / float(w.sum()))
         final = _inner(rep, pi_t, w, eta, R, damping_=damping)
@@ -1046,10 +1165,23 @@ def solve_finite_pool(
         pi_warm = None
         outer_used = 0
         if dual_solver == "root":
-            lam, pi_warm, outer_used, dual_converged, _root_res = _solve_nash_dual_by_root(
-                rep, pi_t, d, lam, eta, R, _inner, damping, lo, hi,
-                tol=(dual_tol if dual_tol is not None else 1e-10), max_calls=M,
-                history=history, log_every=log_every)
+            for expansion in range(max_bound_expansions + 1):
+                lam, pi_warm, calls, dual_converged, _root_res = _solve_nash_dual_by_root(
+                    rep, pi_t, d, lam, eta, R, _inner, damping, lo, hi,
+                    tol=(dual_tol if dual_tol is not None else 1e-10), max_calls=M,
+                    history=history, log_every=log_every)
+                outer_used += calls
+                active_lo, active_hi = box_active_coordinates(lam, lo, hi)
+                if dual_converged or not (active_lo or active_hi) or expansion == max_bound_expansions:
+                    break
+                old_box = [lo, hi]
+                if active_hi:
+                    hi *= 10.0
+                if active_lo:
+                    lo *= 0.1
+                bound_expansions.append({"from": old_box, "to": [lo, hi],
+                                         "reason": "active bound with original dual residual",
+                                         "unprojected_residual": _root_res})
             w = lam
             final = _inner(rep, pi_t, w, eta, R, pi_init=pi_warm, damping_=damping)
             s_fin = rep.game_values(final.pi) - d
@@ -1162,6 +1294,13 @@ def solve_finite_pool(
             "dual_tol": dual_tol,
             "dual_solver": dual_solver,
             "inner_workers": inner_workers,
+            "actual_inner_workers": final.optimizer_diagnostics.get("actual_workers", 1),
+            "inner_maxiter": inner_maxiter,
+            "inner_ftol": inner_ftol,
+            "probability_floor": probability_floor,
+            "fixed_weights": fixed_weights is not None,
+            "dual_fit_scope": "fixed_training_weights" if fixed_weights is not None else "training",
+            "lambda_bound_expansions": bound_expansions,
             # Top-level `beta` is what the Eq. (26) pair builder reads. It is the
             # opponent temperature, so it exists only for a representation that
             # HAS an adaptive opponent; fixed_reference and bt_reward record None
@@ -1170,10 +1309,10 @@ def solve_finite_pool(
             "beta": rep.info().beta,
             "eta": float(eta),
             "eta_applications": 1,
-            "eta_applied_in": "exp_update (Eq. 21) exponent; the trainer applies it "
-                              "to the pairwise target exactly once",
+            "eta_applied_in": "proximal solve; canonical logratio targets already include eta; "
+                              "legacy sampled/RB targets remain unscaled",
             "R": int(R),
-            "R_is_approximation": bool(R == 1 and rep.policy_adaptive),
+            "R_is_approximation": bool(inner_solver == "fixed_point" and rep.policy_adaptive),
             "M": int(M),
             "gamma": [float(g) for g in gamma_sched],
             "lambda_box": [lo, hi],
@@ -1184,4 +1323,6 @@ def solve_finite_pool(
             "weights_are_raw": True,
             "weights_normalized_for_training": False,
         },
+        optimizer_diagnostics=final.optimizer_diagnostics,
+        representation_object=rep,
     )

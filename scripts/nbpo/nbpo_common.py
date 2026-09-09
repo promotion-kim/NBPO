@@ -523,17 +523,24 @@ def check_reproduction_invariants(solver_cfg: dict, trainer_cfg: dict,
     # eta appears in exactly one place: the trainer multiplies the stored target
     # by it. If the pair builder had also scaled the target, eta would enter
     # twice and the realized step would be eta^2.
+    canonical = trainer_cfg.get("nbpo_target_mode") == "canonical_logratio"
     if target_summary is not None:
-        note = str(target_summary.get("note", ""))
-        if "unscaled" not in note:
-            problems.append(
-                "pair artifact does not declare its target UNSCALED; eta must be applied "
-                "exactly once, by the trainer")
-        scope = target_summary.get("opponent_sampling_scope")
-        if scope != "pair_objective":
-            problems.append(
-                f"opponent_sampling_scope must be 'pair_objective', got {scope!r} "
-                "(one z_k per response pair AND objective, Eq. (26))")
+        if canonical:
+            if (target_summary.get("target_mode") != "canonical_logratio"
+                    or target_summary.get("target_units") != "final_logratio_change"
+                    or target_summary.get("eta_already_included") is not True):
+                problems.append("canonical pair artifact must declare final logratio units with eta included")
+        else:
+            note = str(target_summary.get("note", ""))
+            if "unscaled" not in note:
+                problems.append(
+                    "pair artifact does not declare its target UNSCALED; eta must be applied "
+                    "exactly once, by the trainer")
+            scope = target_summary.get("opponent_sampling_scope")
+            if scope != "pair_objective":
+                problems.append(
+                    f"opponent_sampling_scope must be 'pair_objective', got {scope!r} "
+                    "(one z_k per response pair AND objective, Eq. (26))")
     if problems:
         raise ValueError("reproduction_mode invariant violation: " + "; ".join(problems))
     return {
@@ -545,5 +552,6 @@ def check_reproduction_invariants(solver_cfg: dict, trainer_cfg: dict,
         "reference_anchor_weight": 0.0,
         "preference_sft_weight": 0.0,
         "eta_applications": 1,
-        "opponent_sampling_scope": "pair_objective",
+        "opponent_sampling_scope": "canonical_candidate_artifact" if canonical else "pair_objective",
+        "eta_applied_in": "solver" if canonical else "trainer",
     }
