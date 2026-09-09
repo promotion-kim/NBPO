@@ -15,20 +15,42 @@ from pathlib import Path
 COLUMNS = (
     ("IFEval strict", "ifeval", ("metrics", "strict_prompt_accuracy", "estimate")),
     ("\\textsc{GSM8K} EM", "gsm8k", ("metrics", "exact_match", "estimate")),
-    ("HarmBench $\\downarrow$", "harmbench", ("metrics", "overall", "estimate")),
+    ("HarmBench $\\downarrow$", "harmbench", ("overall", "estimate")),
     ("Alpaca ref.\\ win", "alpaca_eval", ("subsets", "all805", "estimate")),
     ("Arena ref.\\ win", "arena_hard", ("subsets", "hard500", "estimate")),
 )
+DISAGREEMENTS = []
 LENGTH = ("alpaca_eval", ("subsets", "all805", "candidate_diagnostics", "median_response_tokens"))
 
 
 def find(root: Path, bench: str, label: str):
+    """A benchmark/label may be scored more than once -- base is written by every
+    job that uses it as the comparison reference. That is fine as long as the
+    copies scored the same responses and agree; it is not fine silently."""
     matches = sorted(root.glob(f"evaluations/*/{bench}_{label}.summary.json"))
     if not matches:
         return None
-    if len(matches) > 1:
-        raise ValueError(f"{bench}/{label} scored in more than one place: {matches}")
-    return json.loads(matches[0].read_text())
+    payloads = {path: json.loads(path.read_text()) for path in matches}
+    # Prefer the copy produced by the same job as the arms, so every row in a
+    # column comes from one scoring pass.
+    preferred = next((path for path in matches if "primary" in path.parent.name), matches[0])
+    chosen = payloads[preferred]
+    for path, payload in payloads.items():
+        if path == preferred:
+            continue
+        if payload.get("responses_sha256") != chosen.get("responses_sha256"):
+            raise ValueError(f"{bench}/{label} scored twice over different responses: "
+                             f"{preferred} vs {path}")
+        for section in ("metrics", "subsets", "overall"):
+            if payload.get(section) != chosen.get(section):
+                DISAGREEMENTS.append({
+                    "benchmark": bench, "label": label, "section": section,
+                    "chosen": str(preferred), "other": str(path),
+                    "note": ("Identical responses scored twice with different results: the "
+                             "evaluator is not deterministic. Reported alongside the number it "
+                             "affects, never averaged away.")})
+                break
+    return chosen
 
 
 def dig(payload, path):
@@ -82,11 +104,13 @@ def main():
     display = dict(spec.split("=", 1) for spec in args.label)
     table = collect(args.root, list(display))
     args.out.write_text(render(table, display))
-    if args.json_out:
-        args.json_out.write_text(json.dumps(table, indent=2) + "\n")
     missing = {label: [k for k, v in row.items() if v is None and not k.startswith("_")]
                for label, row in table.items()}
-    print(json.dumps({"table": table, "missing": {k: v for k, v in missing.items() if v}}, indent=2))
+    result = {"table": table, "missing": {k: v for k, v in missing.items() if v},
+              "evaluator_disagreements": DISAGREEMENTS}
+    if args.json_out:
+        args.json_out.write_text(json.dumps(result, indent=2) + "\n")
+    print(json.dumps(result, indent=2))
 
 
 if __name__ == "__main__":

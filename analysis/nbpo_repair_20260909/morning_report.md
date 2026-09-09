@@ -215,6 +215,17 @@ MSE is at or above base on every IFEval variant and 0.23 points below on GSM8K.
 The pre-repair arms lost 15.7 GSM8K points and 9–11 IFEval points on the same
 kind of panel. That collapse is gone.
 
+**IFEval's strict checker is not deterministic, by about one prompt.** The same
+541 base responses (identical `responses_sha256`) were scored twice by the
+official evaluator and disagree: strict prompt accuracy 0.754159 against
+0.752311, strict instruction accuracy 0.824940 against 0.823741. That is exactly
+one prompt of 541 and one instruction of 834; the loose variants are bit-identical
+across both runs. The strict path uses language detection, which is seeded
+per-process. So the MSE-over-base strict gap of +0.006 is three prompts against
+one prompt of evaluator jitter — real but thin — while the loose gap of +0.015 is
+eight prompts and rests on a deterministic check. Both are reported; neither is
+averaged away.
+
 **An independent reward model disagrees, and it disagrees with the arm that won
 above.** On general-purpose prompts scored by `Skywork-Reward-V2-Qwen3-8B` — a
 scalar reward model that took no part in training — the same-prompt win rate
