@@ -55,3 +55,7 @@ Base capability,"XSTest\,450",\textrm{unadjudicated},adjudication gated; estimat
 Capability retention,"ARC-C 25-shot, base / NBPO / util: acc\_norm",0.6049 / 0.6058 / 0.6032,"evaluation/capability, lm-eval 0.4.9, stderr 0.0143"
 Capability retention,"HellaSwag 10-shot, base / NBPO / util: acc\_norm",0.8008 / 0.7984 / 0.7978,"evaluation/capability, lm-eval 0.4.9, stderr 0.0040"
 Capability retention,"MMLU 5-shot, base / NBPO: acc (util pending)",0.6823 / 0.6816,"evaluation/capability, lm-eval 0.4.9, stderr 0.0038"
+Audit confirmation,Cyclic triangles found in panel A,24,analysis/audit/cycles_audit_100.json
+Audit confirmation,Cycle edges holding in both orders,15 / 72 = 0.208,audit/v1/witness_manifest.json
+Audit confirmation,Eligible witness triangles selected,0 \textrm{ of 4 rubrics},audit/v1/witness_manifest.json
+Audit confirmation,"Confirmation judgments spent of the 2{,}280 budget",0,audit/v1/witness_manifest.json

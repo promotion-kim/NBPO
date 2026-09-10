@@ -1235,7 +1235,7 @@ Table~\ref{tab:data-audit} records the empirical role of each released dataset. 
 
 \subsection{Within-objective cyclic-preference audit}
 \label{app:within-rubric-audit}
-\textbf{Partly measured.} Table~\ref{tab:within-rubric-cycles} reports the completed core audit: $60{,}000$ judgments over the $100$ reserved prompts, collected under the protocol below. The coverage/prediction and independent-confirmation tables that follow it are still unmeasured, and every cell in them is a template.
+\textbf{Measured, with one table still open.} The core audit and the confirmation stage are complete: $60{,}000$ judgments over the $100$ reserved prompts found no repeated-cycle excess over a fitted sampling-noise null, and no rubric produced a cyclic triangle whose three directions survive both presentation orders, so no witness was eligible and none of the $2{,}280$ confirmation judgments was spent. The coverage and prediction table (Table~\ref{tab:within-rubric-quality}) is still unmeasured. This audit does not show that the judge's preferences are transitive; it shows that this budget found no cyclicity separable from sampling noise and from the judge's position bias.
 We test whether directly elicited preferences remain cyclic within each training rubric. PROSPER reports residual cycles when LLM judges evaluate checklist items separately \citep{zhang2026prosper}; we adapt this comparison to our fixed objectives and add independent repeat judgments and a fitted sampling-noise control. This audit concerns new pairwise feedback on natural prompts, not cycles in UltraFeedback's score-induced labels.
 
 \paragraph{Prompts and responses.}
@@ -1313,16 +1313,16 @@ Hoeffding's bound gives a conservative edge test under independent judgments \ci
 \begin{table}[htbp]
 \centering\footnotesize
 \setlength{\tabcolsep}{4pt}
-\caption{Independent cycle-confirmation template. Select the triangle and orientation using A; use $200$ B judgments per edge for confirmation. All results are unmeasured. ``Not confirmed'' does not mean transitive.}
+\caption{Independent cycle confirmation, measured. No rubric yielded an eligible witness: the selection rule requires all three cycle directions to hold in each presentation order separately, and only $15$ of the $72$ cycle edges observed in panel A do, $20.8\%$. Every cyclic triangle A produced is therefore an artefact of order averaging rather than an order-robust cycle, consistent with the judge's strong first-position preference. No confirmation judgments were spent, and the protocol assigns $p=1$ where no witness is selected. ``Not confirmed'' does not mean transitive: it means this budget produced nothing to test.}
 \label{tab:within-rubric-example}
 \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccccccl}
 \toprule
 Rubric & Triangle ID & $m$ & $\widehat p_{ab}$ & $\widehat p_{bc}$ & $\widehat p_{ca}$ & $p_{\mathrm{Holm}}$ & Confirmed?\\
 \midrule
-IF           & -- & -- & -- & -- & -- & -- & --\\
-Truthfulness & -- & -- & -- & -- & -- & -- & --\\
-Honesty      & -- & -- & -- & -- & -- & -- & --\\
-Helpfulness  & -- & -- & -- & -- & -- & -- & --\\
+IF           & none selected & -- & -- & -- & -- & $1.00$ & Not confirmed\\
+Truthfulness & none selected & -- & -- & -- & -- & $1.00$ & Not confirmed\\
+Honesty      & none selected & -- & -- & -- & -- & $1.00$ & Not confirmed\\
+Helpfulness  & none selected & -- & -- & -- & -- & $1.00$ & Not confirmed\\
 \bottomrule
 \end{tabular*}
 
