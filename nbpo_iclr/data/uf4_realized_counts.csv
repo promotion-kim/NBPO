@@ -52,3 +52,6 @@ Base capability,"XSTest\,450",\textrm{unadjudicated},adjudication gated; estimat
 "Audit pilot, 20 prompts",Throughput / mean output tokens,"\textrm{33.3 per s, one H200; 99.5 tokens}",audit/v1/judgments/pilot_20/complete.json
 "Audit pilot, 20 prompts",First-shown verdicts: A / B / tie,"6{,}943 / 2{,}345 / 2{,}663",audit/v1/judgments/pilot_20/complete.json
 "Audit pilot, 20 prompts",Judge inputs truncated at 8192 tokens,0,audit/v1/judgments/pilot_20/complete.json
+Capability retention,"ARC-C 25-shot, base / NBPO / util: acc\_norm",0.6049 / 0.6058 / 0.6032,"evaluation/capability, lm-eval 0.4.9, stderr 0.0143"
+Capability retention,"HellaSwag 10-shot, base / NBPO / util: acc\_norm",0.8008 / 0.7984 / 0.7978,"evaluation/capability, lm-eval 0.4.9, stderr 0.0040"
+Capability retention,"MMLU 5-shot, base / NBPO: acc (util pending)",0.6823 / 0.6816,"evaluation/capability, lm-eval 0.4.9, stderr 0.0038"

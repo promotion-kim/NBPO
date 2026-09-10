@@ -1,0 +1,100 @@
+{
+  "base": {
+    "arc_challenge": {
+      "num_fewshot": 25,
+      "metrics": {
+        "acc,none": 0.5674,
+        "acc_stderr,none": 0.0145,
+        "acc_norm,none": 0.6049,
+        "acc_norm_stderr,none": 0.0143
+      },
+      "n": 1172,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 248.7
+    },
+    "hellaswag": {
+      "num_fewshot": 10,
+      "metrics": {
+        "acc,none": 0.5927,
+        "acc_stderr,none": 0.0049,
+        "acc_norm,none": 0.8008,
+        "acc_norm_stderr,none": 0.004
+      },
+      "n": 10042,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 1169.5
+    },
+    "mmlu": {
+      "num_fewshot": 5,
+      "metrics": {
+        "acc,none": 0.6823,
+        "acc_stderr,none": 0.0038
+      },
+      "n": null,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 1452.2
+    }
+  },
+  "nbpo_mse_s42": {
+    "arc_challenge": {
+      "num_fewshot": 25,
+      "metrics": {
+        "acc,none": 0.5683,
+        "acc_stderr,none": 0.0145,
+        "acc_norm,none": 0.6058,
+        "acc_norm_stderr,none": 0.0143
+      },
+      "n": 1172,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 303.5
+    },
+    "hellaswag": {
+      "num_fewshot": 10,
+      "metrics": {
+        "acc,none": 0.5914,
+        "acc_stderr,none": 0.0049,
+        "acc_norm,none": 0.7984,
+        "acc_norm_stderr,none": 0.004
+      },
+      "n": 10042,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 1247.6
+    },
+    "mmlu": {
+      "num_fewshot": 5,
+      "metrics": {
+        "acc,none": 0.6816,
+        "acc_stderr,none": 0.0037
+      },
+      "n": null,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 1397.4
+    }
+  },
+  "util_mse_s42": {
+    "arc_challenge": {
+      "num_fewshot": 25,
+      "metrics": {
+        "acc,none": 0.5666,
+        "acc_stderr,none": 0.0145,
+        "acc_norm,none": 0.6032,
+        "acc_norm_stderr,none": 0.0143
+      },
+      "n": 1172,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 260.6
+    },
+    "hellaswag": {
+      "num_fewshot": 10,
+      "metrics": {
+        "acc,none": 0.5921,
+        "acc_stderr,none": 0.0049,
+        "acc_norm,none": 0.7978,
+        "acc_norm_stderr,none": 0.004
+      },
+      "n": 10042,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 1148.9
+    }
+  }
+}
