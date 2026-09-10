@@ -52,7 +52,17 @@ def main():
             if current_dataset is not None:
                 body.append(r'\midrule')
             current_dataset = r['dataset']
-            suffix = 'planned; no measurements' if r['status'] == 'planned' else 'reported three-seed study'
+            # Describe the block by what its rows actually contain. A single
+            # reused base row must not make a block of unmeasured policy rows
+            # read as a completed three-seed study.
+            block = [q for q in data if q['dataset'] == current_dataset]
+            policy = [q for q in block if q['policy_train_prompts'] not in ('', '0')]
+            if all(q['status'] == 'planned' for q in policy):
+                suffix = ('base measurements reused; policy rows planned, no measurements'
+                          if any(q['status'] != 'planned' for q in block)
+                          else 'planned; no measurements')
+            else:
+                suffix = 'reported three-seed study'
             body.append(r'\multicolumn{9}{l}{\textit{' + current_dataset + ': ' + suffix + r'}}\\')
         body.append([r['method_tex'], spread(r['ifeval_strict_prompt'], r['ifeval_seed_sd'], 3)] +
                     [num(r[k], 3) for k in ['gsm8k_em', 'mmlu_accuracy', 'harmbench_harmful',

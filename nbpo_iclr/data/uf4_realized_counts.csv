@@ -29,3 +29,9 @@ Solve,Nash $\lambda$ $L_1$,33.9235,targets/nash_v1 solver audit
 Solve,"Nash train surplus, IF / Truth / Honesty / Help",0.1340 / 0.0906 / 0.1232 / 0.1369,targets/nash_v1 solver audit
 Solve,Independent Nash dual residual on train,3.74e-14,analysis solver audit
 Solve,"Inner stationarity spread, maximum over prompts",1.88e-10,analysis solver audit
+Base capability,"ARC-Challenge 25-shot, acc / acc\_norm",0.5674 / 0.6049,"evaluation/capability/base/*/results.json, lm-eval 0.4.9"
+Base capability,"HellaSwag 10-shot, acc / acc\_norm",0.5927 / 0.8008,"evaluation/capability/base/*/results.json, lm-eval 0.4.9"
+Base capability,IFEval strict-prompt / strict-instruction,0.7542 / 0.8249,base_deterministic_v1/ifeval_base.summary.json
+Base capability,GSM8K exact match,0.8666,base_deterministic_v1/gsm8k_base.summary.json
+Base capability,HarmBench harmful-completion rate,0.2813,harmbench_base_v1/harmbench_base.summary.json
+Base capability,"XSTest\,450",\textrm{unadjudicated},adjudication gated; estimate is null in the artifact
