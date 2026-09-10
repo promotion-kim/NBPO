@@ -1,0 +1,221 @@
+{
+  "objectives": [
+    "instruction_following",
+    "truthfulness",
+    "honesty",
+    "helpfulness"
+  ],
+  "split": "train",
+  "K": 4,
+  "X": 10000,
+  "pool": 8,
+  "beta": 0.25,
+  "eta": 1.0,
+  "definitions": {
+    "J": "F(pi) - D(pi||pi_t)/eta, Eq. (14) with u_k = s_k at the optimum",
+    "F": "sum_k log s_k(pi)",
+    "D": "mean_x KL(pi_x || pi_t,x)"
+  },
+  "artifacts": {
+    "nash_v1": {
+      "solution_sha256": "0ed544c0d57ece4d6a5155dd3298dfed4fac1f974e48f455acc553e67573eaaa",
+      "tensor_policy_sha256": "1201547931ab5c1574b2a034cb2088fa6b0870f33aa2df5845a8cca659e35770",
+      "aggregation": "nash",
+      "lambda_raw": [
+        7.462711518404318,
+        11.04263520349436,
+        8.113841779521296,
+        7.304342329055354
+      ],
+      "lambda_l1": 33.92353083047533
+    },
+    "util_l1matched_v1": {
+      "solution_sha256": "9db8db254e216947e39019dcd9d9b8dc2c0dace38e40976e24570a940c8d41cf",
+      "tensor_policy_sha256": "1201547931ab5c1574b2a034cb2088fa6b0870f33aa2df5845a8cca659e35770",
+      "aggregation": "utilitarian",
+      "lambda_raw": [
+        8.480882707618832,
+        8.480882707618832,
+        8.480882707618832,
+        8.480882707618832
+      ],
+      "lambda_l1": 33.92353083047533
+    }
+  },
+  "construction_invariants": {
+    "A_ref_skew_residual": 0.0,
+    "A_ref_diagonal_residual": 0.0,
+    "reading": "imposed by construction; an invariant, not evidence of correctness"
+  },
+  "independent_evaluation": {
+    "nash": {
+      "V": [
+        0.1070057307361671,
+        0.0757952390484119,
+        0.10064275831220518,
+        0.10841648318728307
+      ],
+      "d": [
+        -0.026993821240862872,
+        -0.014762855244475438,
+        -0.02260342113929991,
+        -0.02848838174794593
+      ],
+      "surplus": [
+        0.13399955197702998,
+        0.09055809429288733,
+        0.1232461794515051,
+        0.136904864935229
+      ],
+      "min_surplus": 0.09055809429288733,
+      "all_surplus_positive": true,
+      "F_sum_log_surplus": -8.493723006635,
+      "D_mean_prompt_kl": 1.080071681041913,
+      "J_objective": -9.573794687676912
+    },
+    "utilitarian": {
+      "V": [
+        0.10804659991239361,
+        0.07570710498319484,
+        0.10117427912178457,
+        0.1102574236999746
+      ],
+      "d": [
+        -0.026993821240862872,
+        -0.014762855244475438,
+        -0.02260342113929991,
+        -0.02848838174794593
+      ],
+      "surplus": [
+        0.13504042115325648,
+        0.09046996022767029,
+        0.12377770026108448,
+        0.13874580544792053
+      ],
+      "min_surplus": 0.09046996022767029,
+      "all_surplus_positive": true,
+      "F_sum_log_surplus": -8.469298363880046,
+      "D_mean_prompt_kl": 1.1064233613605443,
+      "J_objective": -9.57572172524059
+    }
+  },
+  "J_gap_utilitarian_minus_nash": -0.0019270375636786241,
+  "F_gap_utilitarian_minus_nash": 0.02442464275495304,
+  "D_gap_utilitarian_minus_nash": 0.02635168031863122,
+  "verdict_J": "Nash attains the larger J",
+  "stationarity": {
+    "nash": {
+      "stationarity_spread_max": 1.8801482593033825e-10,
+      "stationarity_spread_mean": 2.9578101489249885e-11,
+      "fixed_point_step_linf": 4.066325054452591e-11,
+      "fixed_point_step_tv_mean": 2.304998922291458e-12
+    },
+    "utilitarian": {
+      "stationarity_spread_max": 1.47191148158754e-10,
+      "stationarity_spread_mean": 5.333105075958078e-12,
+      "fixed_point_step_linf": 1.1867867799608689e-11,
+      "fixed_point_step_tv_mean": 5.0333189508319435e-15
+    }
+  },
+  "feasibility": {
+    "nash": {
+      "simplex_max_abs_deviation": 2.220446049250313e-16,
+      "min_probability": 2.2515194527623834e-11,
+      "target_identity_max_abs": 0.0
+    },
+    "utilitarian": {
+      "simplex_max_abs_deviation": 4.440892098500626e-16,
+      "min_probability": 1.0665220269305373e-11,
+      "target_identity_max_abs": 0.0
+    }
+  },
+  "nash_dual_certificate_independent": {
+    "iterations": 41,
+    "final_map_delta": 6.161737786669619e-15,
+    "surplus_at_pi_of_lambda": [
+      0.13399955197699331,
+      0.090558094292885,
+      0.12324617945154231,
+      0.13690486493526124
+    ],
+    "reciprocal_lambda": [
+      0.13399955197703,
+      0.09055809429288739,
+      0.12324617945150496,
+      0.1369048649352291
+    ],
+    "dual_residual_inf": 3.735900477863652e-14,
+    "dual_residual_relative": 4.1254186133609654e-13,
+    "pi_of_lambda_vs_stored_note": "compared separately",
+    "pi_of_lambda_vs_stored_linf": 4.011080356747243e-11,
+    "pi_of_lambda_vs_stored_tv_mean": 2.2724323568383017e-12,
+    "reading": "pi is rebuilt from lambda by the exponential map with no reference to the stored policy, so s_k = 1/lambda_k here is a real dual condition rather than the identity that defines lambda.",
+    "applies_on_this_split": true,
+    "dual_residual_interpretation": "lambda is fitted on this split, so this is the dual optimality condition."
+  },
+  "solver_reported": {
+    "nash": {
+      "V": [
+        0.1070057307361671,
+        0.0757952390484119,
+        0.10064275831220518,
+        0.1084164831872831
+      ],
+      "d": [
+        -0.026993821240862876,
+        -0.014762855244475438,
+        -0.02260342113929991,
+        -0.028488381747945938
+      ],
+      "surplus": [
+        0.13399955197702998,
+        0.09055809429288733,
+        0.1232461794515051,
+        0.13690486493522905
+      ],
+      "kkt_residual": 1.3877787807814457e-16,
+      "projected_kkt_residual": 0.0,
+      "lambda_at_lower_bound": [],
+      "lambda_at_upper_bound": [],
+      "fixed_point_residual": 4.0663472589130834e-11
+    },
+    "utilitarian": {
+      "V": [
+        0.10804659991239364,
+        0.07570710498319483,
+        0.10117427912178457,
+        0.1102574236999746
+      ],
+      "d": [
+        -0.026993821240862876,
+        -0.014762855244475438,
+        -0.02260342113929991,
+        -0.028488381747945938
+      ],
+      "surplus": [
+        0.1350404211532565,
+        0.09046996022767026,
+        0.12377770026108448,
+        0.13874580544792053
+      ],
+      "kkt_residual": null,
+      "projected_kkt_residual": null,
+      "lambda_at_lower_bound": [],
+      "lambda_at_upper_bound": [],
+      "fixed_point_residual": 1.1867895555184305e-11
+    }
+  },
+  "distances_nash_vs_utilitarian": {
+    "target_tv_mean": 0.01950525900351047,
+    "target_tv_median": 0.017422770486214732,
+    "target_tv_p95": 0.04508486560797898,
+    "target_tv_max": 0.1257950848236888,
+    "symmetric_kl_mean": 0.0035929373419721585,
+    "symmetric_kl_max": 0.07022609023623833,
+    "pair_target_diff_rms": 0.1856926540110253,
+    "pair_target_rms_a": 5.402409348668332,
+    "pair_target_rms_b": 5.52200800671831,
+    "pair_target_diff_rms_over_rms_a": 0.03437219248422885,
+    "n_prompts": 10000
+  }
+}

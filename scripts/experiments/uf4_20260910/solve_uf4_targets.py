@@ -195,8 +195,11 @@ def main():
         split_start = time.monotonic()
         scores, score_manifests = load_scores(score_root, args.shards)
         pool, pool_settings = load_pool(pool_root, args.shards)
-        pids = [json.loads(line)["prompt_id"]
-                for line in (split_dir / f"{split_file}.jsonl").read_text().splitlines() if line]
+        # Read with the file iterator, never str.splitlines(). JSON does not escape
+        # U+2028/U+2029/U+0085, splitlines() breaks on them, and 31 of the 10,000
+        # policy_train instructions contain U+2028.
+        with (split_dir / f"{split_file}.jsonl").open() as stream:
+            pids = [json.loads(line)["prompt_id"] for line in stream if line.strip()]
         missing = [pid for pid in pids if pid not in scores or pid not in pool]
         if missing:
             raise ValueError(f"{split}: {len(missing)} prompts have no scores or no pool")
@@ -217,8 +220,23 @@ def main():
         np.savez_compressed(tensor_dir / "tensor_policy.npz", A=A)
         np.savez_compressed(tensor_dir / "tensor_ref.npz", A=Aref)
         if shared_meta is None:
+            # The trainer recomputes tokenizer_content_hashes on the tokenizer it
+            # loads and refuses a dataset whose provenance disagrees. Compute the
+            # real pair here, with the same pad-token fallback the trainer applies,
+            # instead of putting a neighbouring hash in the field.
+            from transformers import AutoTokenizer
+            from mnpo_scripts.precompute_provenance import tokenizer_content_hashes
+            tokenizer = AutoTokenizer.from_pretrained(pool_settings["model"],
+                                                      local_files_only=True)
+            pad_fallback = tokenizer.pad_token_id is None
+            if pad_fallback:
+                tokenizer.pad_token_id = tokenizer.eos_token_id
+            token_hashes = tokenizer_content_hashes(tokenizer)
+            if token_hashes["chat_template_hash"] != pool_settings["chat_template_sha256"]:
+                raise ValueError("Pool chat template does not match the training tokenizer's")
             shared_meta = {"model_revision": pool_settings["model_revision"],
-                           "chat_template_hash": pool_settings["chat_template_sha256"],
+                           **token_hashes,
+                           "training_pad_token_fallback_to_eos": pad_fallback,
                            "pool_settings_sha256": object_hash(pool_settings),
                            "teacher_manifest_sha256": object_hash(score_manifests),
                            "gpm_teacher": score_manifests[0]["gpm_teacher"],
@@ -325,8 +343,7 @@ def main():
                   "aggregation": args.aggregation, "beta": args.beta, "eta": args.eta,
                   "weight_l1": args.weight_l1, "splits": outputs,
                   "train_pool_sha256": object_hash(sorted(outputs)),
-                  "dev_pool_sha256": object_hash(sorted(outputs)),
-                  "tokenizer_hash": shared_meta["chat_template_hash"]}
+                  "dev_pool_sha256": object_hash(sorted(outputs))}
     write_json(out / "dataset_provenance.json", provenance)
 
     dataset_manifest = None

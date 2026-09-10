@@ -184,7 +184,8 @@ class Controller:
         # cards: two specs naming the same index is exactly how two jobs end up
         # on one GPU while the slot count still looks free.
         env["CUDA_VISIBLE_DEVICES"] = ",".join(str(d) for d in devices)
-        env["VLLM_CACHE_ROOT"] = f"{self.root}/logs/vllm_cache_gpu{devices[0]}"
+        if devices:
+            env["VLLM_CACHE_ROOT"] = f"{self.root}/logs/vllm_cache_gpu{devices[0]}"
         # The wrapper writes the exit record even if the payload is killed, so a
         # missing record always means the wrapper itself died.
         inner = " ".join(shlex.quote(part) for part in spec["command"])
@@ -235,8 +236,15 @@ class Controller:
                             failure="requests more GPUs than this controller owns")
                 continue
             if spec["gpus"] > len(free_devices):
+                # Hold what is free for this job instead of letting a smaller,
+                # lower-priority job take it. Without this a 1-GPU job keeps
+                # claiming the card a 4-GPU job is waiting for and the big job
+                # never runs.
                 self.record(job_id, state="READY", gpus=0,
-                            waiting_on=[f"{spec['gpus']} GPUs, free devices {free_devices}"])
+                            reserved_for_start=list(free_devices),
+                            waiting_on=[f"{spec['gpus']} GPUs, free devices {free_devices}, "
+                                        f"held for this job"])
+                free_devices = []
                 continue
             devices = free_devices[:spec["gpus"]]
             self.launch(spec, devices)
@@ -245,8 +253,24 @@ class Controller:
     def run(self, once=False):
         while True:
             specs = self.load_specs()
+            # A spec whose id was requeued under a new name, or whose bytes
+            # changed, is a different job: drop the stale terminal record so it
+            # is scheduled again instead of being skipped forever as FAILED.
+            for job_id, spec in specs.items():
+                entry = self.state.get(job_id)
+                if (entry and entry.get("state") in ("FAILED", "BLOCKED")
+                        and entry.get("spec_sha256") not in (None, spec["spec_sha256"])):
+                    self.log_event(job_id, "REQUEUED",
+                                   "spec changed since the recorded failure")
+                    self.state.pop(job_id)
             self.poll_running()
-            self.schedule(specs)
+            try:
+                self.schedule(specs)
+            except Exception as error:                      # noqa: BLE001
+                # One bad spec must not stop the queue: record it and keep the
+                # jobs that are fine moving.
+                self.log_event("_controller", "SCHEDULER_ERROR",
+                               f"{type(error).__name__}: {error}"[:400])
             self.flush(specs)
             if once:
                 return

@@ -1,0 +1,119 @@
+{
+  "dataset": "openbmb/UltraFeedback",
+  "revision": "40b436560ca83a8dba36114c22ab3c66e43f6d5e",
+  "source_files": {
+    "ultrachat": {
+      "path": "/work/hf_cache/hub/datasets--openbmb--UltraFeedback/snapshots/40b436560ca83a8dba36114c22ab3c66e43f6d5e/ultrachat.jsonl",
+      "sha256": "1955e9268ae30eeb414068c2fe482def21a76cbfa6b0a63f4319a8ab19f900ff",
+      "rows": 9929
+    },
+    "sharegpt": {
+      "path": "/work/hf_cache/hub/datasets--openbmb--UltraFeedback/snapshots/40b436560ca83a8dba36114c22ab3c66e43f6d5e/sharegpt.jsonl",
+      "sha256": "f0b7ef2bf54d100acb056646c2993c5f66429ee6d621e2e19105041aa271ef4c",
+      "rows": 19949
+    },
+    "evol_instruct": {
+      "path": "/work/hf_cache/hub/datasets--openbmb--UltraFeedback/snapshots/40b436560ca83a8dba36114c22ab3c66e43f6d5e/evol_instruct.jsonl",
+      "sha256": "1845a636816a6e713ca8f508372d4386cb82c8864b047da89c57ed9d1e3fa76a",
+      "rows": 10000
+    }
+  },
+  "objectives": [
+    "instruction_following",
+    "truthfulness",
+    "honesty",
+    "helpfulness"
+  ],
+  "split_seed": 20260910,
+  "normalization": "NFKC, curly quotes folded, whitespace collapsed, lowercased",
+  "near_duplicate_rule": {
+    "shingle_words": 5,
+    "num_perm": 128,
+    "bands": 16,
+    "rows_per_band": 8,
+    "verified_jaccard_threshold": 0.9
+  },
+  "raw_rows": {
+    "ultrachat": 9929,
+    "sharegpt": 19949,
+    "evol_instruct": 10000
+  },
+  "usable_rows": 39878,
+  "exact_normalized_prompts": 39846,
+  "prompt_groups": 39743,
+  "decontaminated_groups": 9,
+  "saferlhf_overlap_groups": 0,
+  "eligible_groups": 38240,
+  "eligibility_rule": "at least two completions with a valid ordinal 1..5 rating for EVERY objective",
+  "worst_objective_valid_count_histogram": {
+    "0": 1237,
+    "1": 257,
+    "2": 282,
+    "3": 1896,
+    "4": 36062
+  },
+  "regime": "target",
+  "sizes": {
+    "pm_train": 20000,
+    "pm_dev": 2000,
+    "policy_train": 10000,
+    "policy_dev": 1000,
+    "final_eval": 2000
+  },
+  "eval_bank_sha256": "0c47d418186d2123c0e53456912a0a24cd7aaf89618a3142fb8f541738e54b7f",
+  "source_sha256": "c11744ea808c01e8d5050d0b92b714c37c0f567c03ce9b6910fbc03b9647dbc9",
+  "splits": {
+    "pm_train": {
+      "n": 20000,
+      "path": "/work/uf4_20260910/splits/v1/pm_train.jsonl",
+      "sha256": "df2f2ad154af4c3befde9fdc1c6a3a9c9ff85d40c3e06ec12ae8acdb766169e0",
+      "by_source": {
+        "sharegpt": 9895,
+        "evol_instruct": 5056,
+        "ultrachat": 5049
+      }
+    },
+    "pm_dev": {
+      "n": 2000,
+      "path": "/work/uf4_20260910/splits/v1/pm_dev.jsonl",
+      "sha256": "d5d004b7c9f2c520ece1dcfbc40d6bf1496829e2280f0d5371d707778648eb66",
+      "by_source": {
+        "ultrachat": 505,
+        "sharegpt": 989,
+        "evol_instruct": 506
+      }
+    },
+    "policy_train": {
+      "n": 10000,
+      "path": "/work/uf4_20260910/splits/v1/policy_train.jsonl",
+      "sha256": "f0235169e538738645bc5770ad45c32f14cc82906eb778f4667aeadcb78c0ce1",
+      "by_source": {
+        "sharegpt": 4948,
+        "ultrachat": 2525,
+        "evol_instruct": 2527
+      }
+    },
+    "policy_dev": {
+      "n": 1000,
+      "path": "/work/uf4_20260910/splits/v1/policy_dev.jsonl",
+      "sha256": "d11a2d21dfa71aa9ab57eb1fc295124b333c3eb59193f83fb810f7d0fc3441a2",
+      "by_source": {
+        "evol_instruct": 253,
+        "sharegpt": 495,
+        "ultrachat": 252
+      }
+    },
+    "final_eval": {
+      "n": 2000,
+      "path": "/work/uf4_20260910/splits/v1/final_eval.jsonl",
+      "sha256": "40b1b4c386acea8ae11a224d53358732e4178def5a0e7a599c49f94aaa973d42",
+      "by_source": {
+        "evol_instruct": 506,
+        "ultrachat": 505,
+        "sharegpt": 989
+      }
+    }
+  },
+  "unassigned_eligible": 3240,
+  "seconds": 92.22428012266755
+}

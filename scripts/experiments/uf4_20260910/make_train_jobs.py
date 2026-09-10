@@ -66,8 +66,8 @@ def main():
         applied.append({"from": old, "to": new})
     config_path = ROOT / "configs" / f"{args.arm}.yaml"
     config_path.parent.mkdir(parents=True, exist_ok=True)
-    if config_path.exists():
-        raise ValueError(f"Refusing to overwrite {config_path}")
+    if config_path.exists() and config_path.read_text() != config:
+        raise ValueError(f"Refusing to overwrite {config_path} with different content")
     config_path.write_text(config)
 
     spec = {
@@ -84,6 +84,12 @@ def main():
                     "--nproc_per_node=4", "-m", "mnpo_scripts.run_mnpo", str(config_path)],
         "timeout_s": 86400,
         "artifacts": [f"{ROOT}/arms/{args.arm}/config.json"],
+        # The spec names the config by path, so without this a changed recipe
+        # leaves the spec byte-identical and a queue keyed on spec bytes would
+        # never notice that this is a different run.
+        "config_sha256": file_hash(config_path),
+        "dataset_manifest_sha256": manifest,
+        "solver_artifact_sha256": solver,
     }
     queue_path = ROOT / "jobs" / "queue" / f"{args.priority}_train_{args.arm}.json"
     queue_path.write_text(json.dumps(spec, indent=2) + "\n")

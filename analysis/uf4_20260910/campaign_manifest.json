@@ -1,0 +1,115 @@
+{
+  "campaign": "UF-4 general-instruction four-objective panel",
+  "created_kst": "2026-09-10 10:41:04",
+  "objectives": [
+    "instruction_following",
+    "truthfulness",
+    "honesty",
+    "helpfulness"
+  ],
+  "objective_naming": "honesty is a UltraFeedback criterion; it is never renamed to safety",
+  "dataset": {
+    "id": "openbmb/UltraFeedback",
+    "revision": "40b436560ca83a8dba36114c22ab3c66e43f6d5e",
+    "sources": [
+      "ultrachat",
+      "sharegpt",
+      "evol_instruct"
+    ],
+    "raw_rows": {
+      "ultrachat": 9929,
+      "sharegpt": 19949,
+      "evol_instruct": 10000
+    },
+    "prompt_groups": 39743,
+    "decontaminated_groups": 9,
+    "saferlhf_overlap_groups": 0,
+    "eligible_groups": 38240,
+    "regime": "target",
+    "splits": {
+      "pm_train": {
+        "n": 20000,
+        "sha256": "df2f2ad154af4c3befde9fdc1c6a3a9c9ff85d40c3e06ec12ae8acdb766169e0"
+      },
+      "pm_dev": {
+        "n": 2000,
+        "sha256": "d5d004b7c9f2c520ece1dcfbc40d6bf1496829e2280f0d5371d707778648eb66"
+      },
+      "policy_train": {
+        "n": 10000,
+        "sha256": "f0235169e538738645bc5770ad45c32f14cc82906eb778f4667aeadcb78c0ce1"
+      },
+      "policy_dev": {
+        "n": 1000,
+        "sha256": "d11a2d21dfa71aa9ab57eb1fc295124b333c3eb59193f83fb810f7d0fc3441a2"
+      },
+      "final_eval": {
+        "n": 2000,
+        "sha256": "40b1b4c386acea8ae11a224d53358732e4178def5a0e7a599c49f94aaa973d42"
+      }
+    }
+  },
+  "decontamination": {
+    "benchmarks": {
+      "ifeval": 541,
+      "gsm8k_test": 1319,
+      "alpaca_eval": 805,
+      "arena_hard": 750,
+      "harmbench": 320,
+      "xstest": 450,
+      "mmlu": 14042,
+      "arc_challenge": 1172,
+      "hellaswag": 10042
+    },
+    "unique_normalized_prompts": 29236,
+    "limit": "Only these evaluation prompt sets are checked. Pretraining-corpus overlap cannot be checked here and remains a stated limitation."
+  },
+  "pm_pairs": {
+    "train_pairs": 120000,
+    "dev_pairs": 12000,
+    "masked_per_objective_train": {
+      "instruction_following": 0,
+      "truthfulness": 0,
+      "honesty": 3668,
+      "helpfulness": 0
+    },
+    "tie_fraction_train": {
+      "instruction_following": 0.2526,
+      "truthfulness": 0.4811,
+      "honesty": 0.3082,
+      "helpfulness": 0.2618
+    },
+    "sha256": {
+      "pm_train": "c873eba2f51f0a602773d3553b6262efb8c6a950c02decbef4f823e389dee264",
+      "pm_dev": "e943160f2265cc027b90782a133ec86b46e4975d6c24b84a1793145ce56fbd03"
+    }
+  },
+  "assets": {
+    "answerdotai/ModernBERT-base": {
+      "revision": "8949b909ec900327062f0ebf497f51aef5e6f0c8",
+      "path": "/work/uf4_20260910/assets/ModernBERT-base",
+      "seconds": 0.0,
+      "bytes": 600803654
+    },
+    "Qwen/Qwen3-14B": {
+      "revision": "40c069824f4251a91eefaf281ebe4c544efd3e18",
+      "path": "/work/uf4_20260910/assets/Qwen3-14B",
+      "seconds": 0.0,
+      "bytes": 29552606702
+    }
+  },
+  "code_sha256": {
+    "build_eval_prompt_bank.py": "f21777c8a778a1b92aeb923d9af095fc7f75898704575c89ce4ba03e49e98fe4",
+    "build_pm_pairs.py": "8cd426c964f1e98f5f2fd7a8e32e47d6d6db3373ba20fafc25a72e437a469a5a",
+    "build_uf4_splits.py": "c11744ea808c01e8d5050d0b92b714c37c0f567c03ce9b6910fbc03b9647dbc9",
+    "download_assets.py": "80ade52e7e187d31c813a4410da72edf4c339d3ebdf476860b13041697aafe55",
+    "heartbeat.py": "5fe41df57aedf80b21746a1b70f2519da77714674c9a8c6589c998887ab2c399",
+    "queue_controller.py": "c28b0a8a98862f03fc36e085e9ee2c85a40d3063ade699a97c735f5d224e4799",
+    "test_uf4_teacher.py": "8477ba48cb6b0d9400c307c963163a75bb4bb93fbef9d04a30bb6d3616fca34d",
+    "train_uf4_teacher.py": "b5fcc6ac0fab2005a6691d0bd0712be0c6435504d3eb5dbf06916c0d68a884d0"
+  },
+  "paid_api_calls": 0,
+  "paid_api_scope": "no OpenAI/Anthropic/Gemini/OpenRouter call; the two model downloads are public weight fetches",
+  "created_utc": "2026-09-10T01:41:04Z",
+  "timestamp_note": "container local time is not KST; both fields are derived from UTC"
+}
