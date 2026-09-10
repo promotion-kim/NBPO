@@ -32,6 +32,9 @@ def main():
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--max-steps", type=int, default=1250)
     ap.add_argument("--priority", type=int, default=60)
+    ap.add_argument("--eval-steps", type=int, default=250,
+                    help="Diagnostic dev-eval cadence. Must be identical across arms "
+                         "that are compared with each other.")
     args = ap.parse_args()
 
     target_dir = ROOT / "targets" / args.targets
@@ -56,6 +59,12 @@ def main():
         "seed: 42": f"seed: {args.seed}",
         "data_seed: 42": f"data_seed: {args.seed}",
         "save_steps: 250": f"save_steps: {args.max_steps}",
+        # Diagnostic eval only: load_best_model_at_end is false and save_steps
+        # equals max_steps, so nothing selects on it. Measured cost is 15 min 45 s
+        # per pass on the 28,000-pair dev set at eval batch 1, so eval_steps=50 on
+        # a 1250-update run spends 82% of wall time and 26 GPU-hours on logging.
+        # 250 restores the five evaluations the validated 250-update recipe ran.
+        "eval_steps: 50": f"eval_steps: {args.eval_steps}",
     }
     config = base
     applied = []
