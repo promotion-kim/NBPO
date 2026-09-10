@@ -80,6 +80,8 @@ class Controller:
     def flush(self, specs):
         payload = {"updated": now(), "total_gpus": self.total_gpus,
                    "gpus_in_use": self.gpus_in_use(),
+                   "busy_devices": sorted(self.busy_devices()),
+                   "reserved_devices": sorted(self.reserved_devices()),
                    "jobs": self.state,
                    "queued_specs": sorted(specs)}
         tmp = self.state_path.with_suffix(".tmp")
@@ -90,20 +92,34 @@ class Controller:
         return sum(entry.get("gpus", 0) for entry in self.state.values()
                    if entry.get("state") == "RUNNING")
 
-    def gpus_busy_on_device(self):
-        """GPUs with a live compute process, whoever owns it.
+    def busy_devices(self, threshold_mib=1024):
+        """Device indices the driver reports as occupied, whoever owns them.
 
-        The controller's own bookkeeping cannot see a job someone else started,
-        or one this controller did not launch, so ask the driver as well and
-        take the pessimistic answer. Nothing here signals another process.
+        Counting free slots is not enough: two jobs can be scheduled into the
+        same slot count and land on the same card. Allocation is therefore by
+        device index, and the driver is the authority because this controller
+        cannot see a job it did not launch. Nothing here signals another process.
         """
         try:
             output = subprocess.check_output(
-                ["nvidia-smi", "--query-compute-apps=gpu_uuid", "--format=csv,noheader"],
-                text=True, timeout=30)
+                ["nvidia-smi", "--query-gpu=index,memory.used",
+                 "--format=csv,noheader,nounits"], text=True, timeout=30)
         except Exception:                                  # noqa: BLE001
-            return self.total_gpus                         # unknown: assume none free
-        return len({line.strip() for line in output.splitlines() if line.strip()})
+            return set(range(self.total_gpus))             # unknown: assume none free
+        busy = set()
+        for line in output.strip().splitlines():
+            index, memory = (part.strip() for part in line.split(","))
+            if int(memory) >= threshold_mib:
+                busy.add(int(index))
+        return busy
+
+    def reserved_devices(self):
+        """Devices this controller has handed to jobs it still believes are running."""
+        out = set()
+        for entry in self.state.values():
+            if entry.get("state") == "RUNNING":
+                out.update(entry.get("devices", []))
+        return out
 
     # ------------------------------------------------------------- lifecycle
     def alive(self, pid):
@@ -154,7 +170,7 @@ class Controller:
             stream.write(json.dumps({"time": now(), "job_id": job_id, "state": state,
                                      "detail": detail}) + "\n")
 
-    def launch(self, spec):
+    def launch(self, spec, devices):
         job_id = spec["job_id"]
         run = self.run_dir / job_id
         run.mkdir(parents=True, exist_ok=True)
@@ -164,6 +180,11 @@ class Controller:
             exit_path.unlink()
         env = dict(os.environ)
         env.update({str(k): str(v) for k, v in spec["env"].items()})
+        # The controller owns device allocation. A spec may not pin its own
+        # cards: two specs naming the same index is exactly how two jobs end up
+        # on one GPU while the slot count still looks free.
+        env["CUDA_VISIBLE_DEVICES"] = ",".join(str(d) for d in devices)
+        env["VLLM_CACHE_ROOT"] = f"{self.root}/logs/vllm_cache_gpu{devices[0]}"
         # The wrapper writes the exit record even if the payload is killed, so a
         # missing record always means the wrapper itself died.
         inner = " ".join(shlex.quote(part) for part in spec["command"])
@@ -178,18 +199,21 @@ class Controller:
                                        start_new_session=True)
         (run / "launch.json").write_text(json.dumps(
             {"job_id": job_id, "command": spec["command"], "cwd": spec["cwd"],
-             "env_overrides": spec["env"], "gpus": spec["gpus"], "pid": process.pid,
+             "env_overrides": spec["env"], "gpus": spec["gpus"],
+             "devices": devices, "pid": process.pid,
              "spec_sha256": spec["spec_sha256"], "started": now()}, indent=2) + "\n")
         self.record(job_id, state="RUNNING", pid=process.pid, gpus=spec["gpus"],
+                    devices=devices,
                     log=str(log_path), exit_path=str(exit_path),
                     artifacts=spec["artifacts"], timeout_s=spec["timeout_s"],
                     started=now(), started_epoch=time.time(),
                     spec_sha256=spec["spec_sha256"])
-        self.log_event(job_id, "RUNNING", f"pid={process.pid} gpus={spec['gpus']}")
+        self.log_event(job_id, "RUNNING", f"pid={process.pid} devices={devices}")
         return process.pid
 
     def schedule(self, specs):
-        free = self.total_gpus - max(self.gpus_in_use(), self.gpus_busy_on_device())
+        taken = self.busy_devices() | self.reserved_devices()
+        free_devices = [d for d in range(self.total_gpus) if d not in taken]
         for job_id in sorted(specs, key=lambda j: (specs[j].get("priority", 100), j)):
             spec = specs[job_id]
             entry = self.state.get(job_id, {})
@@ -210,12 +234,13 @@ class Controller:
                 self.record(job_id, state="BLOCKED", gpus=0,
                             failure="requests more GPUs than this controller owns")
                 continue
-            if spec["gpus"] > free:
+            if spec["gpus"] > len(free_devices):
                 self.record(job_id, state="READY", gpus=0,
-                            waiting_on=[f"{spec['gpus']} GPUs, {free} free"])
+                            waiting_on=[f"{spec['gpus']} GPUs, free devices {free_devices}"])
                 continue
-            self.launch(spec)
-            free -= spec["gpus"]
+            devices = free_devices[:spec["gpus"]]
+            self.launch(spec, devices)
+            free_devices = free_devices[spec["gpus"]:]
 
     def run(self, once=False):
         while True:
