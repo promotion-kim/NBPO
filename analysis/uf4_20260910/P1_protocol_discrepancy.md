@@ -1,4 +1,26 @@
-# Discrepancy: the handoff's "Appendix C" audit protocol is not in this manuscript
+# RESOLVED: the audit protocol was missing from an older manuscript, now installed
+
+**Resolution, 2026-09-10 18:38 KST.** The user identified the cause: an older
+version of the paper had been placed in `nbpo_iclr/main_v6.tex`. They updated
+`NBPO_v6_review_response_20260910/main_v6.tex` at 18:21 (101,075 bytes, sha256
+`2398c57287ea987b2591de26a04fe8bf3ea63ceb4c8d57776bacdb4234bec42b`), and that
+file does contain the protocol, as
+`\subsection{Within-objective cyclic-preference audit}`, label
+`app:within-rubric-audit`, inside Appendix C. It is installed and compiles to 31
+pages with 0 undefined references and 0 overfull boxes.
+
+The handoff's specification and the manuscript agree, so the resolution recorded
+below no longer applies: the audit will be written up in the manuscript's own
+`app:within-rubric-audit`, not in a separately named appendix. The record is kept
+because it documents that no judgment was collected while the protocol was in
+doubt, and because it states exactly which manuscript claims were checked.
+
+The manuscript marks that subsection **"Planned experiment; all result cells
+below are unmeasured."** That is still accurate: zero judgments exist.
+
+---
+
+# Original record: the handoff's "Appendix C" audit protocol is not in this manuscript
 
 Recorded 2026-09-10 18:05 KST, **before any audit judgment was collected**, as the
 handoff requires: "If the local manuscript differs from the specification below,

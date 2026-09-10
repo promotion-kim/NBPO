@@ -63,6 +63,14 @@ def main():
     g=rows('aggregation_targets.csv')
     table('aggregation_targets.tex','lr',['Diagnostic','Value'],
           [[x['metric_tex'],value(x['value'])] for x in g])
+    u=rows('uf4_realized_counts.csv')
+    # Stage repeats only on its first row, so the table reads as grouped blocks.
+    seen=set(); body=[]
+    for x in u:
+        stage = x['stage'] if x['stage'] not in seen else ''
+        seen.add(x['stage'])
+        body.append([stage, x['quantity_tex'], value(x['value'])])
+    table('uf4_realized_counts.tex','llr',['Stage','Realized quantity','Value'], body)
     table('evaluation_contract.tex','lp{8.9cm}', ['Set / target count','Metric and completion contract'], [
           ['SafeRLHF / 1000','Teacher-defined objective values; comparator and disagreement hashes; greedy and stochastic evaluations kept separate.'],
           ['IFEval / 541','Official strict prompt and instruction accuracy; loose scores secondary. Verify the reported strict column against evaluator output.'],

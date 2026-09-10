@@ -1,7 +1,22 @@
 metric_tex,value,source
-Mean target TV,0.0008,attached TeX and user report; raw artifact unavailable
-Maximum target TV,0.0075,attached TeX and user report; raw artifact unavailable
-Pairwise target difference RMS,0.0034,attached TeX and user report; raw artifact unavailable
-Target RMS on the aggregation panel,1.125,attached TeX and user report; raw artifact unavailable
-Nash $\lambda_{\rm help}$,6.325,attached TeX and user report; raw artifact unavailable
-Nash $\lambda_{\rm safe}$,6.186,attached TeX and user report; raw artifact unavailable
+SafeRLHF-2k: mean target TV,0.0008,attached TeX and user report; raw artifact unavailable
+SafeRLHF-2k: maximum target TV,0.0075,attached TeX and user report; raw artifact unavailable
+SafeRLHF-2k: pairwise target difference RMS,0.0034,attached TeX and user report; raw artifact unavailable
+SafeRLHF-2k: target RMS on the aggregation panel,1.125,attached TeX and user report; raw artifact unavailable
+SafeRLHF-2k: Nash $\lambda_{\rm help}$,6.325,attached TeX and user report; raw artifact unavailable
+SafeRLHF-2k: Nash $\lambda_{\rm safe}$,6.186,attached TeX and user report; raw artifact unavailable
+UF-4: mean target TV,0.0195,"measured, analysis/uf4_20260910/solver_audit_train.json"
+UF-4: maximum target TV,0.1258,"measured, analysis/uf4_20260910/solver_audit_train.json"
+UF-4: pairwise target difference RMS,0.1857,"measured, analysis/uf4_20260910/solver_audit_train.json"
+UF-4: target RMS on the aggregation panel,5.4024,"measured, analysis/uf4_20260910/solver_audit_train.json"
+UF-4: relative pairwise target RMS,0.0344,"measured, analysis/uf4_20260910/solver_audit_train.json"
+UF-4: Nash $\lambda$ $L_1$,33.9235,"measured, analysis/uf4_20260910/solver_audit_train.json"
+UF-4: largest / smallest Nash $\lambda$,11.0426 / 7.3043,"measured, analysis/uf4_20260910/solver_audit_train.json"
+UF-4: Nash $F=\sum_k\log s_k$,-8.493723,"measured, analysis/uf4_20260910/solver_audit_train.json"
+UF-4: utilitarian $F$,-8.469298,"measured, analysis/uf4_20260910/solver_audit_train.json"
+UF-4: Nash realized $D(\pi\|\pi_t)$,1.080072,"measured, analysis/uf4_20260910/solver_audit_train.json"
+UF-4: utilitarian realized $D(\pi\|\pi_t)$,1.106423,"measured, analysis/uf4_20260910/solver_audit_train.json"
+UF-4: Nash $J=F-D/\eta$,-9.573795,"measured, analysis/uf4_20260910/solver_audit_train.json"
+UF-4: utilitarian $J$,-9.575722,"measured, analysis/uf4_20260910/solver_audit_train.json"
+"UF-4: $J$ gap, utilitarian minus Nash",-0.001927,"measured, analysis/uf4_20260910/solver_audit_train.json"
+UF-4: independent Nash dual residual on train,3.74e-14,"measured, analysis/uf4_20260910/solver_audit_train.json"

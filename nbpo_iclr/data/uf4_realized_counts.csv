@@ -1,0 +1,31 @@
+stage,quantity_tex,value,source
+Data,"Raw rows, UltraChat / ShareGPT / Evol-Instruct","9{,}929 / 19{,}949 / 10{,}000",splits/v1/report.json
+Data,Exact normalized prompts,"39{,}846",splits/v1/report.json
+Data,Prompt groups after verified near-duplicate merge,"39{,}743",splits/v1/report.json
+Data,Groups removed as benchmark overlap (all AlpacaEval),9,splits/v1/report.json
+Data,Groups overlapping the SafeRLHF panel,0,splits/v1/report.json
+Data,Eligible groups (two rated completions on every objective),"38{,}240",splits/v1/report.json
+Data,Realized regime,"\textrm{target sizes, no fallback}",splits/v1/report.json
+Data,Eligible groups left unassigned,"3{,}240",splits/v1/report.json
+Data,Groups short on the binding objective (honesty),"1{,}494",splits/v1/report.json
+Supervision,"Preference-model pairs, train / dev",120000 / 12000,data/pm_pairs_v1/report.json
+Supervision,"Tie fraction, IF / Truth / Honesty / Help",0.253 / 0.481 / 0.308 / 0.262,data/pm_pairs_v1/report.json
+Supervision,Masked train pairs (honesty only),"3{,}668",data/pm_pairs_v1/report.json
+Teacher,GPM selected step / mean dev NLL / worst NLL,3750 / 0.5601 / 0.6305,teacher/gpm_s42/report.json
+Teacher,"GPM dev accuracy excluding ties, IF / Truth / Honesty / Help",0.7958 / 0.7469 / 0.7677 / 0.8346,teacher/gpm_s42/report.json
+Teacher,BT selected step / mean dev NLL / worst NLL,3500 / 0.5589 / 0.6283,teacher/bt_s42/report.json
+Teacher,"BT dev accuracy excluding ties, IF / Truth / Honesty / Help",0.7995 / 0.7527 / 0.7599 / 0.8403,teacher/bt_s42/report.json
+Teacher,Oversize / total serialized pair sequences,"216 / 240{,}000",teacher/gpm_s42/report.json
+Teacher,Response truncations / maximum serialized tokens,"0 / 4{,}323",teacher/gpm_s42/report.json
+Pool,Sampled occurrences (learner 8 + comparator 8),"160{,}000",pools/v1/*/chunk*.manifest.json
+Pool,Responses stopped by the 1024-token cap,20.00\%,pools/v1/*/chunk*.manifest.json
+Pool,Duplicate occurrences retained with multiplicity,725,pools/v1/*/chunk*.manifest.json
+Scoring,"GPM encoder examples, realized versus predicted","1{,}840{,}000 / 1{,}840{,}000",scores/v1/*/complete_shard*.json
+Scoring,Aggregate throughput on four H200s,\textrm{577.6 sequences/s},scores/v1/*/complete_shard*.json
+Scoring,Oversize / total serialized scoring sequences,"0 / 500{,}000",scores/v1/*/complete_shard*.json
+Scoring,Reference-tensor skew and diagonal residual (imposed by construction),0.0 / 0.0,scores/v1/*/chunk*.manifest.json
+Solve,"Nash $\lambda$, IF / Truth / Honesty / Help",7.4627 / 11.0426 / 8.1138 / 7.3043,targets/nash_v1 solver audit
+Solve,Nash $\lambda$ $L_1$,33.9235,targets/nash_v1 solver audit
+Solve,"Nash train surplus, IF / Truth / Honesty / Help",0.1340 / 0.0906 / 0.1232 / 0.1369,targets/nash_v1 solver audit
+Solve,Independent Nash dual residual on train,3.74e-14,analysis solver audit
+Solve,"Inner stationarity spread, maximum over prompts",1.88e-10,analysis solver audit

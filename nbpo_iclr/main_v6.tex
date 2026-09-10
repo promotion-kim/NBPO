@@ -45,28 +45,29 @@
 \maketitle
 
 \begin{abstract}
-Multi-objective alignment requires both a representation of preferences and a rule for selecting a compromise. We introduce Nash Bargaining Preference Optimization (\NBPO{}), which evaluates each objective through a regularized preference game and applies Nash bargaining to improvement over a common reference policy. A constrained KL-proximal formulation handles zero surplus at the reference; a prompt-separable finite-pool solver accounts for adaptive opponents; and pairwise log-ratio regression transfers its target to an LLM without evaluating a language-model normalizer. Exact population updates admit an $O(1/T)$ last-iterate guarantee. Controlled experiments support adaptive game values as preference nontransitivity increases. In an 8B model, three policy seeds reproduce positive teacher-defined surpluses on SafeRLHF, but do not resolve a difference between Nash and mass-matched utilitarian aggregation. We separate this focused comparison from broader instruction-following, capability, and empirical trade-off evaluations, whose unmeasured entries remain explicitly marked. The current evidence does not establish an aggregation advantage or empirical Pareto optimality.
+Aligning a large language model (LLM) with multiple objectives requires choosing a compromise while accounting for gains and losses on each objective. Even under a fixed helpfulness criterion, annotators who favor worked examples, explanations, or guided practice can form cyclic majority preferences despite individually consistent rankings. Such preferences cannot be represented by a single scalar ranking, and evaluation against a fixed reference can miss weaknesses exposed by other responses. We introduce Nash Bargaining Preference Optimization (\NBPO{}), which evaluates each objective against an opponent that adapts to the policy and maximizes the product of improvements over a shared reference policy. This gives an explicit compromise rule for general pairwise preferences. The main computational challenge is that the policy and its opponents depend on one another. We address it by directly optimizing the probabilities of sampled responses, then training the LLM to reproduce their relative probability changes. Under the stated assumptions, the population optimum improves each objective's game value over the reference and is Pareto efficient in these values. For exact population updates with a constant step size, we prove an $O(1/T)$ gap in the bargaining objective.
+\textbf{TO-DO:} Summarize preference-model adequacy, numerical and neural update accuracy, and independently evaluated 8B trade-offs and capability against fixed-reference Nash and matched multi-objective baselines.
 \end{abstract}
 
 \section{Introduction}
 \label{sec:intro}
-Reinforcement Learning from Human Feedback (RLHF) commonly learns scalar rewards from pairwise comparisons \citep{christiano2017deep,ouyang2022training}. Direct Preference Optimization removes the separate reward model but retains a Bradley--Terry (BT) preference model \citep{rafailov2023direct,bradley1952rank}. For a fixed prompt and objective, BT represents population probabilities as $P_k(y\succ z\mid x)=\sigma(r_k(x,y)-r_k(x,z))$. This permits noisy, contradictory sampled labels, but cannot represent a cyclic strict majority relation.
+Reinforcement Learning from Human Feedback (RLHF) commonly learns scalar rewards from pairwise comparisons \citep{christiano2017deep,ouyang2022training}. Direct Preference Optimization removes the separate reward model but retains a Bradley--Terry (BT) preference model \citep{rafailov2023direct,bradley1952rank}. For each prompt and objective, BT assigns one scalar score to each response and models preference probabilities through score differences. It permits noisy, contradictory individual labels, but its population preferences cannot have a cyclic strict majority relation.
 
-For example, under one fixed rubric, suppose $P_k(A\succ B)=P_k(B\succ C)=P_k(C\succ A)=0.75$. No scalar scores can represent these three probabilities. This hypothetical within-rubric cycle differs from comparing relevance on one edge and safety on another. Whether such misspecification remains after defining separate objectives is an empirical question; sparse human comparison graphs and scalar-rating-induced labels do not establish it.
+Consider the prompt ``How can I learn Python loops?'' and three correct responses: A gives a short worked example, B a detailed conceptual explanation, and C a guided practice exercise. All annotators use the same overall-helpfulness rubric but differ in how they prefer to learn. Suppose three equally sized groups have fixed rankings: those seeking an immediate example prefer A, then B, then C; those seeking conceptual understanding prefer B, then C, then A; and those preferring practice prefer C, then A, then B. Two thirds therefore prefer A to B, two thirds B to C, and two thirds C to A. Every group's ranking is transitive, yet the population majority cycles. This hypothetical construction illustrates how annotator heterogeneity within one rubric can produce probabilities that no shared BT reward can represent. PROSPER reports that LLM-judge comparisons on WildChecklists can remain cyclic even when each checklist item is evaluated separately \citep{zhang2026prosper}. An audit of our own training feedback remains pending (Appendix~\ref{app:within-rubric-audit}).
 
 Nash Learning from Human Feedback (NLHF) retains general pairwise payoffs, and INPO, SPPO, and related methods provide scalable equilibrium-seeking updates \citep{munos2024nash,zhang2025iterative,wu2025sppo,calandriello2024online,rosset2024direct,zhou2025egpo}. Multiple objectives additionally require a compromise rule. Existing methods use scalarization, constraints, policy interpolation, preference conditioning, or Blackwell criteria \citep{zhou2024beyond,rame2023rewarded,zhong2024panacea,agnihotri2026mopo,zhang2026prosper}.
 
-We use classical Nash bargaining with equal bargaining weight for the specified objectives \citep{nash1950}. It maximizes their surplus product over a common fallback without user-specified scalarization weights. Equal treatment is a choice: duplicating or splitting an objective changes its influence, and the fallback affects the result. Prior work already studies disagreement-adjusted Nash welfare over learned party rewards and bargaining over task-gradient improvements \citep{zhong2024nashwelfare,navon2022nashmtl}.
+We use classical Nash bargaining to maximize the product of improvements over a common fallback \citep{nash1950}. The bargaining parties are objective rubrics, with annotators supplying comparisons for each rubric. We give these objectives equal bargaining weight to study a compromise without externally specified priorities. Equal weight is a modeling choice: duplicating or splitting a rubric changes its influence. Prior work already studies disagreement-adjusted Nash welfare over learned party rewards and bargaining over task-gradient improvements \citep{zhong2024nashwelfare,navon2022nashmtl}.
 
-Nash Bargaining Preference Optimization (\NBPO{}) instead bargains over reference-relative \emph{policy game values}. Each objective evaluates the learner against an adaptive, KL-regularized comparator. Improvement means a larger robustness-adjusted game value, not necessarily a direct win over the reference. Population bargaining guarantees concern these specified utilities and do not imply per-prompt improvement.
+Nash Bargaining Preference Optimization (\NBPO{}) bargains over reference-relative \emph{policy game values}. Each objective evaluates the learner against an adaptive opponent that emphasizes responses exposing its weaknesses, while a KL penalty keeps the opponent near the reference policy. The reference thus serves both as the fallback for measuring improvement and as the anchor restricting the opponent. These roles can be varied separately (Appendix~\ref{app:rubric-reference-sensitivity}). Improvement concerns this adaptive game evaluation, not necessarily direct win rate against the reference; population guarantees do not imply that every prompt improves.
 
-The technical difficulty is the coupled proximal problem: surplus is zero at the reference, and each opponent depends on the policy being optimized. Pairwise normalizer cancellation and regression fitting are inherited tools \citep{zhang2025iterative,zhang2026prosper}. Our optimizer derives the surplus dual, solves its prompt-separable finite-pool subproblems directly, and then fits their target to an LLM. This replaces an undamped best-response alternation that can be unstable even when its fixed point is optimal. Numerical target accuracy, neural realization, and independent policy quality are evaluated separately.
+INPO already eliminates the policy normalizer through pairwise log-ratios \citep{zhang2025iterative}, and PROSPER combines KL-regularized adversarial comparisons, exponential reweighting, and regression-based policy fitting \citep{zhang2026prosper}. NBPO adds a logarithmic bargaining objective that is undefined at the unchanged reference and couples each policy update to its adaptive opponents. We derive a constrained proximal formulation and its dual, yielding objective weights shared across prompts. At fixed weights, we directly optimize sampled-response probabilities while accounting for the opponents' dependence on them, then fit the LLM after freezing the target. This replaces an undamped policy--opponent alternation that can be unstable even when its fixed point is optimal. Numerical solution accuracy, neural fitting error, and independent policy quality require separate checks.
 
 Our contributions are:
 \begin{itemize}
     \item We formulate multi-objective alignment as Nash bargaining over objective-wise regularized preference-game values, separating within-objective preference representation from across-objective compromise selection.
-    \item We derive a practical optimizer that handles the zero-surplus boundary and policy-dependent opponents. For each dual iterate, the sampled finite-pool problem separates into small strictly concave prompt-wise programs; their target policy is expressed for the LLM as a pairwise log-ratio regression objective, without fitting a scalar reward or evaluating a language-model partition function. We evaluate both held-out target fit and downstream generation.
-    \item We prove $O(1/T)$ last-iterate convergence for exact population proximal updates. Feasibility-preserving controlled experiments isolate the benefit of adaptive game values under increasing nontransitivity, while a human-labeled \textsc{SafeRLHF} panel evaluates neural transfer, objective-wise outcomes, and capability retention. Released natural datasets are not treated as evidence of within-objective cycles unless their comparison graphs identify such cycles.
+    \item We derive the dual of the coupled bargaining update and implement its inner solve as small strictly concave optimization problems over sampled responses. The resulting target is fitted through pairwise log-ratio regression, with numerical accuracy distinguished from neural realization error.
+    \item For exact population updates with a constant step size, we prove that the gap in the bargaining objective at the final iterate decreases inversely with the number of updates. Controlled experiments examine adaptive game values as nontransitivity increases, while the human-labeled \textsc{SafeRLHF} panel evaluates neural transfer, objective-wise outcomes, and capability retention. Natural feedback is not treated as evidence of within-objective cycles unless its comparison structure supports that conclusion.
 \end{itemize}
 
 \section{Background}
@@ -750,6 +751,10 @@ Exact dual multipliers transform as $\lambda'_k=\lambda_k/c_k$, leaving $\lambda
 
 A Pareto-refining tie-break can remove the dominated-optimum failure of raw maxmin. Relative-improvement bargaining provides another scale-invariant choice but requires objective-wise ideal values and, in general, an appropriate refinement \citep{kalai1975,han2026fair}. These alternatives do not make Nash uniquely admissible. Here the bargaining parties are objective rubrics: duplicating a rubric duplicates its log-surplus term. The fixed reference also plays two distinct roles, disagreement policy and opponent anchor; changing both changes the utilities as well as disagreement.
 
+\paragraph{Rubric and reference sensitivity (pending).}
+\label{app:rubric-reference-sensitivity}
+\textbf{TO-DO:} Prespecify a duplication or merge of an overlapping rubric and report its effect on the selected game values and policy outcomes. Separately vary the disagreement policy while holding the opponent anchor fixed, and vary the opponent anchor while holding the disagreement policy fixed. Recompute the disagreement values under each corresponding game definition; a fixed disagreement policy need not have fixed game values when the anchor changes. These checks assess modeling choices that affine invariance does not remove.
+
 \subsection{Counterexamples for Alternative Aggregation Rules}
 \label{app:rule-witnesses}
 
@@ -1228,6 +1233,119 @@ Table~\ref{tab:data-audit} records the empirical role of each released dataset. 
 \input{generated/data_audit}
 \end{table*}
 
+\subsection{Within-objective cyclic-preference audit}
+\label{app:within-rubric-audit}
+\textbf{Planned experiment; all result cells below are unmeasured.}
+We test whether directly elicited preferences remain cyclic within each training rubric. PROSPER reports residual cycles when LLM judges evaluate checklist items separately \citep{zhang2026prosper}; we adapt this comparison to our fixed objectives and add independent repeat judgments and a fitted sampling-noise control. This audit concerns new pairwise feedback on natural prompts, not cycles in UltraFeedback's score-induced labels.
+
+\paragraph{Prompts and responses.}
+Reserve $100$ eligible UltraFeedback prompts, stratified across UltraChat, ShareGPT, and Evol-Instruct, from unused prompt groups disjoint from all five frozen training/development/final splits and the benchmark bank. Use a separate $20$-prompt pilot for parser and throughput checks; exclude it from the audit. Freeze prompt IDs, rubrics, model revisions, seeds, and this protocol before viewing judgments. Generate four responses per audit prompt from the unchanged Llama-3.1-8B-Instruct reference, with temperature $0.8$, top-$p=0.9$, and at most $2048$ new tokens. Judge all six unordered pairs. Retain duplicates and truncated generations, flag both, and compare the full recorded texts without preference-based filtering. Thus the audit targets this declared candidate distribution. Extra generators or larger pools require separately labeled results.
+
+\paragraph{Objectives and repeated judgments.}
+Use the same written IF, truthfulness, honesty, and helpfulness rubrics as the UF-4 experiment, one rubric per query. A fifth, joint-rubric condition asks for an overall comparison and serves only as an aggregation control. Run the local Qwen3-14B judge with thinking disabled, temperature $0.8$, top-$p=0.9$, top-$k=20$, and a $256$-token output limit. Unlike a normalized Likert score, the primary response is an explicit choice: A, B, or tie. Require valid structured output, hide model identities, and include the complete prompt and both responses within a declared $8192$-token input budget. Out-of-budget inputs are reported as missing, not silently shortened.
+
+Collect two independent panels, A and B, each with five judgments per presentation order. Use fresh seeds and isolated contexts; correct the response orientation before analysis. The core budget is $100\times6\times5\times20=60{,}000$ judgments, excluding the pilot and confirmation below. Report throughput and GPU-hours. Invalid outputs remain missing without selective retries; a complete prompt--rubric tournament requires all scheduled judgments on all six pairs. Report retained counts and missingness by cause.
+
+\paragraph{Preference graphs and metrics.}
+For each correctly oriented judgment, assign $X=1$ to a win, $X=0$ to a loss, and $X=1/2$ to a tie. For panel $b\in\{A,B\}$, define
+\begin{equation}
+\widehat p^{(b)}_{ij}
+=\tfrac12\left(\overline X^{(b,\,i\text{-first})}_{ij}
++\overline X^{(b,\,j\text{-first})}_{ij}\right).
+\label{eq:audit-preference}
+\end{equation}
+This is a tie-adjusted preference under equal presentation-order sampling, conditional on the fixed judge, rather than a human-population probability. An edge estimate requires all ten scheduled judgments; otherwise it is unresolved. Draw $i\to j$ only when $\widehat p^{(b)}_{ij}>1/2$; exact ties create no edge. Let $C_A$ count prompts containing any directed cycle in panel A, including length-four cycles, and let $R$ count those containing the \emph{same oriented response triangle} in both panels. The latter measures repeatability, not statistical confirmation. Let $W_A$ count prompts where every response has an observed loss; this rules out a strict winner in the observed graph. Otherwise, a graph without an observed strict winner is unresolved. Report all three rates over the $100$ planned prompts, and cyclic-triangle rates over the $400$ planned triangles. Missing comparisons cannot establish an event; report unresolved counts and the corresponding worst-case upper rate, without interpreting unobserved cycles as absent. Let $n$ be the number of tournaments complete in both panels.
+
+\paragraph{BT sampling-noise control.}
+A noisy transitive model can also produce observed cycles. Fit an order-aware BT model with a tie extension to panel A, with one score $r_i$ per response, a rubric-level position coefficient $b$, and tie parameter $\nu>0$:
+\begin{equation}
+\Pr(i,\mathrm{tie},j\mid o)
+\ \propto\ \left(e^{z/2},\,2\nu,\,e^{-z/2}\right),
+\qquad z=r_i-r_j+bo,\quad o\in\{-1,+1\}.
+\label{eq:audit-bt-null}
+\end{equation}
+Here $o=+1$ presents $i$ first; response scores sum to zero within each prompt. Fit by summed negative log likelihood with a fixed $10^{-3}$ squared penalty on scores, $b$, and $\log\nu$ to keep separated fits finite. Under equal-order averaging this null retains a transitive latent ranking. Generate $2000$ synthetic A/B panel pairs under the fitted null, preserving presentation orders, repeat counts, and missingness, and rerun the graph construction. Report its mean repeated-cycle rate $R_{\mathrm{BT}}$, the excess $\Delta R=R-R_{\mathrm{BT}}$, and the upper-tail value $(1+\#\{R^{\mathrm{sim}}\ge R\})/2001$. These are approximate fitted-null checks, not exact composite-null tests. Apply Holm correction across the four individual rubrics; report the joint condition separately. Obtain $95\%$ intervals with $2000$ whole-prompt bootstrap replicates, retaining all judgments and refitting the null. These intervals measure prompt variability, not all uncertainty in the fitted noise model. Pairs and triangles are not independent samples.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\caption{Within-objective cyclicity template. Rates use all $100$ planned prompts; unresolved cases are reported separately. Excess is in percentage points with a $95\%$ prompt-bootstrap interval. All entries are unmeasured.}
+\label{tab:within-rubric-cycles}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrrrrcc}
+\toprule
+Rubric & $n$ & $C_A$ & $R$ & $R_{\mathrm{BT}}$ & $W_A$ & $\Delta R$ [CI] & $p_{\mathrm{Holm}}$\\
+\midrule
+IF           & -- & -- & -- & -- & -- & -- & --\\
+Truthfulness & -- & -- & -- & -- & -- & -- & --\\
+Honesty      & -- & -- & -- & -- & -- & -- & --\\
+Helpfulness  & -- & -- & -- & -- & -- & -- & --\\
+\midrule
+Joint control & -- & -- & -- & -- & -- & -- & --\textsuperscript{a}\\
+\bottomrule
+\end{tabular*}
+
+\smallskip
+\parbox{0.97\linewidth}{\scriptsize $n$: complete tournaments; $C_A$: any cycle in A; $R$: an identical oriented triangle in A and B; $W_A$: every candidate has an observed loss in A. \textsuperscript{a}Unadjusted joint-control value. Pair joint/individual comparisons on common prompts; this control does not establish within-objective cyclicity.}
+\end{table}
+
+\paragraph{Coverage and training relevance.}
+Table~\ref{tab:within-rubric-quality} records coverage, ties, order sensitivity, and whether the frozen GPM predicts the new comparisons better than the frozen scalar BT model. Score both on panel B using the mean per-judgment Brier loss $(P-X)^2$ with paired prompt-bootstrap intervals; neither model is fitted or calibrated on the audit. This predictive comparison does not itself establish cycles. Label any model subsequently trained on the new judgments as a separate experiment. A SafeRLHF extension repeats the audit under helpfulness and harmlessness; a claim about human preferences additionally requires fresh human comparisons on complete response triples under those same rubrics. Human annotations, prompted-judge choices, and teacher predictions must remain separate evidence sources.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\setlength{\tabcolsep}{3.4pt}
+\caption{Audit coverage and prediction template. Intervals resample prompts. A negative Brier difference favors GPM. All entries are unmeasured.}
+\label{tab:within-rubric-quality}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrrrcc}
+\toprule
+Rubric & Missing (\%) & Ties (\%) & Triangles (\%) & Order gap & BT Brier & GPM$-$BT [CI]\\
+\midrule
+IF           & -- & -- & -- & -- & -- & --\\
+Truthfulness & -- & -- & -- & -- & -- & --\\
+Honesty      & -- & -- & -- & -- & -- & --\\
+Helpfulness  & -- & -- & -- & -- & -- & --\\
+Joint control & -- & -- & -- & -- & n/a & n/a\\
+\bottomrule
+\end{tabular*}
+
+\smallskip
+\parbox{0.97\linewidth}{\scriptsize Missing: fraction of scheduled judgments unavailable; ties: fraction of valid judgments labeled tie; triangles: observed cyclic triangles in A divided by $400$; order gap: mean absolute difference between the two correctly oriented order-specific means in A, on complete pairs. Also release unresolved counts, missingness causes, and duplicate/truncation counts. Brier comparisons use identical complete panel-B pairs.}
+\end{table}
+
+\paragraph{Independent confirmation of a cycle.}
+Before opening B, select at most one directed cyclic triangle per individual rubric from A. Require complete A judgments and all three cycle directions to agree across both presentation orders. Among eligible cycles, maximize the minimum edge margin, breaking ties by prompt and response IDs. Fix its orientation and allocate $200$ independent B judgments per selected edge, $100$ per order. This adds at most $4\times3\times190=2280$ judgments; only the first five B judgments per presentation order enter the aggregate tables and their null simulations. For each selected edge $e$, use the full $m=200$ bounded observations to test its order-averaged population mean against $1/2$:
+\begin{equation}
+p_e=\exp\!\left[-2m\left(\max\{\widehat p_e-1/2,0\}\right)^2\right],
+\qquad p_{\mathrm{cycle}}=\max_{e\text{ in triangle}}p_e.
+\label{eq:audit-cycle-test}
+\end{equation}
+Hoeffding's bound gives a conservative edge test under independent judgments \citep{hoeffding1963probability}. The cycle null states that at least one of its three edges has mean at most $1/2$, so the maximum edge $p$-value tests that union null. Apply Holm at $0.05$ across the four rubric witnesses, assigning $p=1$ when no witness is selected or confirmation is incomplete. This establishes a cycle only for the specified judge's order-averaged preference distribution. Require no adaptively chosen extra samples after viewing B. Report both order-specific means, and release the prompt, rubric, response texts, and individual judgments.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{Independent cycle-confirmation template. Select the triangle and orientation using A; use $200$ B judgments per edge for confirmation. All results are unmeasured. ``Not confirmed'' does not mean transitive.}
+\label{tab:within-rubric-example}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccccccl}
+\toprule
+Rubric & Triangle ID & $m$ & $\widehat p_{ab}$ & $\widehat p_{bc}$ & $\widehat p_{ca}$ & $p_{\mathrm{Holm}}$ & Confirmed?\\
+\midrule
+IF           & -- & -- & -- & -- & -- & -- & --\\
+Truthfulness & -- & -- & -- & -- & -- & -- & --\\
+Honesty      & -- & -- & -- & -- & -- & -- & --\\
+Helpfulness  & -- & -- & -- & -- & -- & -- & --\\
+\bottomrule
+\end{tabular*}
+
+\smallskip
+\parbox{0.97\linewidth}{\scriptsize Triangle ID resolves the prompt and response IDs $(a,b,c)$. Add the full prompt, rubric, and three response texts for each selected case. A missing candidate is reported as ``none selected''; it is never replaced using B.}
+\end{table}
+
+\paragraph{Interpretation.}
+The four witness tests are the primary inferential family; the fitted-null checks are secondary diagnostics. Reproducible excess cycles diagnose departure from the fitted transitive noise model; a confirmed witness supports the stronger claim of a population cycle for the fixed judge. BT rejection alone does not establish a cycle, and a null result does not establish transitivity. Neither finding by itself demonstrates that Nash bargaining outperforms another aggregation rule.
+\FloatBarrier
+
+\subsection{Preference-model diagnostics}
 \paragraph{Anti-symmetric general preference model.}
 For objective $k$, a joint encoder produces $a_{\phi,k}(x,y,z)$ and we set
 \[
@@ -1256,7 +1374,14 @@ This guarantees exact swap complementarity and self-ties without constraining th
 
 \subsection{General-instruction data and preference models}
 \label{app:uf-protocol}
-The proposed UltraFeedback panel retains the UltraChat, ShareGPT, and Evol-Instruct sources, excludes TruthfulQA, FalseQA, and FLAN sources, and removes benchmark overlaps before splitting by normalized prompt identity. Target sizes are $20$k/$2$k preference-model train/dev, $10$k/$1$k policy train/dev, and $2$k final evaluation. If filtering leaves $30$k--$35$k eligible unique prompts (excluding $35$k), policy training is reduced to $5$k before training begins; fewer than $30$k requires an explicitly revised data budget; exact retained counts and hashes must be reported. No final prompt is used for preference-model or policy selection.
+The UltraFeedback panel retains the UltraChat, ShareGPT, and Evol-Instruct sources, excludes TruthfulQA, FalseQA, and FLAN sources, and removes benchmark overlaps before splitting by normalized prompt identity. Target sizes are $20$k/$2$k preference-model train/dev, $10$k/$1$k policy train/dev, and $2$k final evaluation. If filtering leaves $30$k--$35$k eligible unique prompts (excluding $35$k), policy training is reduced to $5$k before training begins; fewer than $30$k requires an explicitly revised data budget. No final prompt is used for preference-model or policy selection. Table~\ref{tab:uf4-realized} reports the realized counts of this pipeline against those targets; filtering left $38{,}240$ eligible groups, so the target regime applies and the $5$k fallback was not triggered. Honesty is the binding objective, short of two valid ratings on $1{,}494$ groups against at most one for each of the other three. Retained counts are measured; split file hashes are recorded in the artifacts rather than inline here.
+
+\begin{table}[t]
+\centering\scriptsize
+\caption{Realized UF-4 pipeline counts, measured from the campaign artifacts. Every value is a measurement, not a target. The $20.00\%$ generation cap rate and the zero teacher-encoding truncation have different denominators and measure different problems: the first counts responses that stopped at the $1024$-token horizon, the second counts serialized scoring sequences that exceeded the encoder budget. Reference-tensor antisymmetry is imposed by construction and is an invariant, not evidence of correctness. Policy outcomes are not in this table.}
+\label{tab:uf4-realized}
+\input{generated/uf4_realized_counts}
+\end{table}
 
 Released GPT-4 ratings train four attribute heads. Valid ratings induce $0/1$ pair labels, ties use $0.5$, and missing labels are masked. Four completions produce six unordered pairs per prompt. These labels are transitive by construction and do not demonstrate human preference cycles. Policy-training prompts are disjoint and use new base-policy responses; no new paid judge API is required to reuse the released annotations.
 
@@ -1399,7 +1524,7 @@ The repaired study changed target construction, reference handling, tokenization
 On the reported pool, Nash weights $(6.325,6.186)$ yield targets close to equal weights with the same $\ell_1$ mass. Mean target TV is $0.0008$. Separately, pairwise-target difference RMS is $0.0034$, approximately $0.30\%$ of target RMS $1.125$. These are different diagnostics and must not be conflated. The completed three-seed comparison does not resolve a policy advantage; it does not establish equivalence or infer statistical power from target distance.
 \begin{table}[h]
 \centering\small
-\caption{Nash versus mass-matched utilitarian target diagnostics. TV and relative pairwise-target RMS measure different quantities.}
+\caption{Nash versus mass-matched utilitarian target diagnostics, labelled by panel. TV and relative pairwise-target RMS measure different quantities. The UF-4 rows are recomputed from the stored arrays independently of the solver: the utilitarian solution attains higher unregularized $F$ but pays more proximal KL, so $J$ still favours Nash, and matching the coefficient $L_1$ therefore does not match realized movement. The SafeRLHF rows retain their earlier reported provenance.}
 \label{tab:aggregation-targets}
 \input{generated/aggregation_targets}
 \end{table}
