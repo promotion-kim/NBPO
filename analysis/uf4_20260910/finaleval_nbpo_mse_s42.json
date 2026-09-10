@@ -1,0 +1,67 @@
+{
+  "arm": "nbpo_mse_s42",
+  "judge": "/work/uf4_20260910/assets/Qwen3-14B",
+  "judge_revision": "40c069824f4251a91eefaf281ebe4c544efd3e18",
+  "reference": "learner:0 of final_base_v1, identical for every arm",
+  "decoding": {
+    "temperature": 0.0,
+    "max_tokens": 256
+  },
+  "estimand": "order-averaged win rate against the fixed base response, ties 0.5",
+  "n_judgments": 16000,
+  "seconds": 1265.280116211623,
+  "status_counts": {
+    "ok": 15910,
+    "no_verdict": 59,
+    "multiple_verdicts": 31
+  },
+  "truncated_judge_inputs": 0,
+  "criteria": {
+    "instruction_following": {
+      "win_rate_vs_base": 0.5164723770907248,
+      "ci95": [
+        0.5024043335022809,
+        0.5307906741003547
+      ],
+      "n_prompts_complete": 1973,
+      "n_prompts_planned": 2000,
+      "tie_fraction": 0.45919918905220475,
+      "bootstrap": "2000 whole-prompt replicates; prompt variability only"
+    },
+    "truthfulness": {
+      "win_rate_vs_base": 0.5129639044229791,
+      "ci95": [
+        0.4999968225724454,
+        0.5256799694966954
+      ],
+      "n_prompts_complete": 1967,
+      "n_prompts_planned": 2000,
+      "tie_fraction": 0.5327910523640061,
+      "bootstrap": "2000 whole-prompt replicates; prompt variability only"
+    },
+    "honesty": {
+      "win_rate_vs_base": 0.5007552870090635,
+      "ci95": [
+        0.4851460221550856,
+        0.5159932024169184
+      ],
+      "n_prompts_complete": 1986,
+      "n_prompts_planned": 2000,
+      "tie_fraction": 0.38016112789526685,
+      "bootstrap": "2000 whole-prompt replicates; prompt variability only"
+    },
+    "helpfulness": {
+      "win_rate_vs_base": 0.5577503774534474,
+      "ci95": [
+        0.5450427780573729,
+        0.5709612481127327
+      ],
+      "n_prompts_complete": 1987,
+      "n_prompts_planned": 2000,
+      "tie_fraction": 0.5948666331152491,
+      "bootstrap": "2000 whole-prompt replicates; prompt variability only"
+    }
+  },
+  "worst_criterion_win_rate": 0.5007552870090635,
+  "judgments_sha256": "acbc452a805476ab01cf561ab1ed0ff9e96466d5bf801e76002cd9b1191f264a"
+}

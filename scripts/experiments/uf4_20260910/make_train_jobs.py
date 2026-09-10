@@ -56,8 +56,11 @@ def main():
         "nbpo_expected_solver_artifact_sha256: 4fd522a7891fa7ba4ab3bcfcd82f0d72a5b50de23a8b9239a8e480b74588afc8":
             f"nbpo_expected_solver_artifact_sha256: {solver}",
         "max_steps: 250": f"max_steps: {args.max_steps}",
-        "seed: 42": f"seed: {args.seed}",
-        "data_seed: 42": f"data_seed: {args.seed}",
+        # Newline-anchored: "seed: 42" is a substring of "data_seed: 42", so an
+        # unanchored replacement rewrites both and then loses its own anchor.
+        # At seed 42 that was invisible because the rewrite was a no-op.
+        "\nseed: 42": f"\nseed: {args.seed}",
+        "\ndata_seed: 42": f"\ndata_seed: {args.seed}",
         "save_steps: 250": f"save_steps: {args.max_steps}",
         # Diagnostic eval only: load_best_model_at_end is false and save_steps
         # equals max_steps, so nothing selects on it. Measured cost is 15 min 45 s

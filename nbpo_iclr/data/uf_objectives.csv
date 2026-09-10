@@ -1,7 +1,7 @@
 method_id,method_tex,dataset,policy_train_prompts,planned_seeds,completed_seeds,status,test_hash,judge_id,protocol_id,eval_prompts,if_wr,truth_wr,honesty_wr,help_wr,min_delta
-base,Base,UF-4,0,1,,planned,,,,,,,,,
-nbpo,NBPO,UF-4,10000,3,,planned,,,,,,,,,
-game_util,Game-utilitarian,UF-4,10000,3,,planned,,,,,,,,,
+base,Base,UF-4,0,1,1,reported,final_base_v1 learner:0,local Qwen3-14B rev 40c06982,"self-control against its own cached response is 0.5 by definition, not judged",2000,0.500,0.500,0.500,0.500,0.500
+nbpo,NBPO,UF-4,10000,3,1,reported_one_seed,acbc452a805476ab,local Qwen3-14B rev 40c06982,"order-averaged win rate vs the fixed base response, ties 0.5, both presentation orders",1967,0.5165,0.5130,0.5008,0.5578,0.5008
+game_util,Game-utilitarian,UF-4,10000,3,1,reported_one_seed,da2b51a35d15b203,local Qwen3-14B rev 40c06982,"order-averaged win rate vs the fixed base response, ties 0.5, both presentation orders",1960,0.5092,0.5114,0.5034,0.5480,0.5034
 game_maxmin,Game-maxmin,UF-4,10000,1,,planned,,,,,,,,,
 prosper,PROSPER (adapt.),UF-4,10000,3,,planned,,,,,,,,,
 mopo,MOPO (adapt.),UF-4,10000,3,,planned,,,,,,,,,
