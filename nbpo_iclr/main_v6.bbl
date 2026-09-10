@@ -1,4 +1,4 @@
-\begin{thebibliography}{28}
+\begin{thebibliography}{29}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -35,6 +35,12 @@ Souradip Chakraborty, Jiahao Qiu, Hui Yuan, Alec Koppel, Furong Huang, Dinesh Ma
 \newblock Maxmin-rlhf: Alignment with diverse human preferences.
 \newblock In \emph{Proceedings of the 41st International Conference on Machine Learning}, volume 235 of \emph{Proceedings of Machine Learning Research}, 2024.
 
+\bibitem[Chen et~al.(2026)Chen, Li, Chen, and Lin]{chen2026raco}
+Peter Chen, Xiaopeng Li, Xi~Chen, and Tianyi Lin.
+\newblock Reward-free alignment for conflicting objectives.
+\newblock \emph{arXiv preprint arXiv:2602.02495}, 2026.
+\newblock Accepted to the 43rd International Conference on Machine Learning (Oral).
+
 \bibitem[Christiano et~al.(2017)Christiano, Leike, Brown, Martic, Legg, and Amodei]{christiano2017deep}
 Paul~F. Christiano, Jan Leike, Tom Brown, Miljan Martic, Shane Legg, and Dario Amodei.
 \newblock Deep reinforcement learning from human preferences.
@@ -54,6 +60,16 @@ Ganqu Cui, Lifan Yuan, Ning Ding, Guanming Yao, Bingxiang He, Wei Zhu, Yuan Ni, 
 John~M. Danskin.
 \newblock \emph{The Theory of Max-Min and Its Application to Weapons Allocation Problems}.
 \newblock Springer-Verlag, 1967.
+
+\bibitem[Han et~al.(2026)Han, Banerjee, and Sun]{han2026fair}
+Jiwoo Han, Moulinath Banerjee, and Yuekai Sun.
+\newblock Maximin relative improvement: Fair learning as a bargaining problem, 2026.
+\newblock URL \url{https://arxiv.org/abs/2602.04155}.
+
+\bibitem[Kalai \& Smorodinsky(1975)Kalai and Smorodinsky]{kalai1975}
+Ehud Kalai and Meir Smorodinsky.
+\newblock Other solutions to nash's bargaining problem.
+\newblock \emph{Econometrica}, 43\penalty0 (3):\penalty0 513--518, 1975.
 
 \bibitem[Munos et~al.(2024)Munos, Valko, Calandriello, Azar, Rowland, Guo, Tang, Geist, Mesnard, Michi, et~al.]{munos2024nash}
 R{\'e}mi Munos, Michal Valko, Daniele Calandriello, Mohammad~Gheshlaghi Azar, Mark Rowland, Daniel Guo, Yunhao Tang, Matthieu Geist, Thomas Mesnard, Andrea Michi, et~al.
@@ -95,16 +111,6 @@ Seongho Son, William Bankes, Sangwoong Yoon, Shyam~Sundhar Ramesh, Xiaohang Tang
 \newblock Robust multi-objective controlled decoding of large language models.
 \newblock In \emph{International Conference on Learning Representations}, 2026.
 
-\bibitem[Tversky(1969)]{tversky1969intransitivity}
-Amos Tversky.
-\newblock Intransitivity of preferences.
-\newblock \emph{Psychological Review}, 76\penalty0 (1):\penalty0 31--48, 1969.
-
-\bibitem[Wang et~al.(2024)Wang, Xiong, Xie, Zhao, and Zhang]{wang2024armorm}
-Haoxiang Wang, Wei Xiong, Tengyang Xie, Han Zhao, and Tong Zhang.
-\newblock Interpretable preferences via multi-objective reward modeling and mixture-of-experts.
-\newblock In \emph{Findings of the Association for Computational Linguistics: EMNLP 2024}, pp.\  10582--10592, 2024.
-
 \bibitem[Warner et~al.(2024)Warner, Chaffin, Clavi{\'e}, et~al.]{warner2024modernbert}
 Benjamin Warner, Antoine Chaffin, Benjamin Clavi{\'e}, et~al.
 \newblock Smarter, better, faster, longer: A modern bidirectional encoder for fast, memory efficient, and long context finetuning and inference, 2024.
@@ -126,15 +132,16 @@ Yuheng Zhang, Dian Yu, Baolin Peng, Linfeng Song, Ye~Tian, Mingyue Huo, Nan Jian
 \newblock In \emph{The Thirteenth International Conference on Learning Representations}, 2025.
 \newblock URL \url{https://openreview.net/forum?id=Pujt3ADZgI}.
 
-\bibitem[Zhong et~al.(2024{\natexlab{a}})Zhong, Deng, Su, Wu, and Zhang]{zhong2024nashwelfare}
-Huiying Zhong, Zhun Deng, Weijie~J. Su, Zhiwei~Steven Wu, and Linjun Zhang.
-\newblock Provable multi-party reinforcement learning with diverse human feedback.
-\newblock \emph{arXiv preprint arXiv:2403.05006}, 2024{\natexlab{a}}.
+\bibitem[Zhong et~al.(2026)Zhong, Gao, Wu, Zhang, Su, and Deng]{zhong2024nashwelfare}
+Huiying Zhong, Tianwei Gao, Zhiwei~Steven Wu, Linjun Zhang, Weijie~J. Su, and Zhun Deng.
+\newblock Provable pluralistic alignment: Multi-party rlhf under offline human feedback.
+\newblock \emph{arXiv preprint arXiv:2403.05006v2}, 2026.
+\newblock URL \url{https://arxiv.org/abs/2403.05006v2}.
 
-\bibitem[Zhong et~al.(2024{\natexlab{b}})Zhong, Ma, Zhang, Yang, Chen, Zhang, Qi, and Yang]{zhong2024panacea}
+\bibitem[Zhong et~al.(2024)Zhong, Ma, Zhang, Yang, Chen, Zhang, Qi, and Yang]{zhong2024panacea}
 Yifan Zhong, Chengdong Ma, Xiaoyuan Zhang, Ziran Yang, Haojun Chen, Qingfu Zhang, Siyuan Qi, and Yaodong Yang.
 \newblock Panacea: Pareto alignment via preference adaptation for {LLM}s.
-\newblock In \emph{Advances in Neural Information Processing Systems}, 2024{\natexlab{b}}.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2024.
 
 \bibitem[Zhou et~al.(2025)Zhou, Fazel, and Du]{zhou2025egpo}
 Runlong Zhou, Maryam Fazel, and Simon~S. Du.

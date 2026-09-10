@@ -1,10 +1,10 @@
-# NBPO v6: general-instruction 8B main experiments
+# NBPO v6: response to the 34 professor/GPT review comments
 
-This is a prospective experiment manuscript and a reproducible table/figure template, updated with the reported SafeRLHF three-seed comparison. The latest supplied main_v6(1).tex is the edit base. The core mathematics, algorithm and proof structure are retained. New UF-4 measurements are blank and the trade-off figure is explicitly a draft template.
+This revision applies the comments in the newly supplied older main.tex to the current 8B-main-experiment v6. It preserves the Nash objective, exact population theorem, current result CSVs and general-instruction experiment plan. Read REVIEW_RESPONSE.md for every review's meaning, resolution and remaining evidence.
 
-The compiled manuscript has 26 pages, with the conclusion on page 9. The style is unchanged. The bibliography adds one ModernBERT reference. The main experiment sequence is four-objective policy outcomes, empirical trade-offs, general capability/safety, then the completed SafeRLHF comparison. Historical controlled/realization/trajectory/pool diagnostics remain in the appendix.
+## Files and Overleaf
 
-## Build and populate
+Set the Overleaf Main document to main_v6.tex. Upload this complete directory so generated/, figures/, data/, style and bibliography dependencies remain available. main_v6.patch compares with the immediately preceding v6; main_v6_vs_reviewed_source.patch compares with the older annotated main.tex. The annotated source is an input, not the revised manuscript.
 
 ```bash
 python3 scripts/render_tables.py
@@ -12,27 +12,26 @@ python3 scripts/plot_uf_tradeoffs.py
 latexmk -pdf -interaction=nonstopmode -halt-on-error main_v6.tex
 ```
 
-Use TeX Live and Python NumPy/Matplotlib. Included algorithm/algorithmic files are unmodified CTAN copies with sources under vendor/algorithms.
+The compiled manuscript is 27 pages, with the conclusion on page 9. No undefined-reference/citation or overfull warnings remain. A harmless LaTeX float-placement warning changes h to ht. All pages were inspected through a contact sheet and the changed main/math appendix pages at reading resolution.
 
-Read data/MAIN_EXPERIMENTS_SCHEMA.md before filling the new main inputs. Edit CSVs rather than generated TeX. The compact DPO row always uses uniform weights. The figure evaluates descriptive dominance in all four objective dimensions and displays two projections; it does not draw an unmeasured continuous frontier. Seed counts appear in the legend. All seven prespecified DPO weights must be retained.
+## Changes
 
-- data/uf_objectives.csv: independent four-objective win rates, actual evaluation count and completed seeds.
-- data/new_capability_results.csv: UF-4 main capability template and reported SafeRLHF IFEval aggregates.
-- data/uf_tradeoffs.csv: full four-objective observed policy vectors and uncertainty.
-- data/safe_three_seed_results.csv: supplied mean/spread, with unverified spread convention explicitly labeled.
-- data/aggregation_policy_pairs.csv: supplied paired Nash-minus-utilitarian intervals.
-- data/ifeval_per_seed.csv and refusal_truncation_audit.csv: arithmetic and denominator audit.
+- Move the regression square inside the expectation. Available public e90f2a code already squares each example before averaging; this is a verified manuscript defect, not proof that the current server trainer is wrong.
+- Explain and independently reproduce instability of the old undamped policy/opponent map; give the direct finite-pool objective's gradient and strictly negative Hessian.
+- Separate population, finite-pool and neural policies; shared dual weights remain global across prompts. Refresh learner pools within each outer stage.
+- State failure/feasibility status and unprojected stationarity checks without restoring a separate neural warm-start stage.
+- Qualify BT/cycle motivation, equal bargaining weight, game value versus direct wins, primitive scaling, aggregation order, finite-support identification and exact-solve convergence.
+- Correct MOPO's preference-only classification, discuss RACO, and update Zhong et al.'s September 2026 v2 metadata.
+- Retain completed SafeRLHF null results and pending 8B objective/capability templates. Add a small independent cross-play/common-evaluation protocol; do not turn every review into a new full campaign.
 
-Historical CSVs preserve earlier one-seed snapshots. Do not copy pooled six-arm ranges into separate family means. The old IFEval source variant remains unverified and must be reconciled before final reporting. An empty value means unmeasured, not zero.
+REVISION_NOTES.md and REVIEW_RESPONSE.md contain the review response. EXPERIMENT_PLAN.md preserves the prior early experiment plan with the MOPO classification corrected. CLAUDE_PROMPT.md retains that campaign and appends targeted review checks. Core result CSV bytes are unchanged.
 
-## Execute the revised campaign
+## Reproduce the finite-game checks
 
-CLAUDE_PROMPT.md contains the ready-to-use server instruction. REVISION_NOTES.md explains the evidence, original-paper dataset comparisons and early schedule. UF-4 is the new primary general-instruction panel, not an optional SafeRLHF extension. The plan uses a newly trained native-long-context four-head GPM/BT teacher, disjoint teacher/policy splits, shared new response pools, actual external-method adaptations and independent local policy evaluation.
+```bash
+python3 scripts/verify_direct_solver_counterexamples.py data/verify_direct_solver_counterexamples.json
+```
 
-Internal freezes are September 16 18:00 KST for training/model selection, September 18 18:00 for metrics, and September 20 for the paper. New paid judge API calls remain zero; released GPT-4 labels and local GPU costs are disclosed. Throughput estimates must be replaced by an actual 200-prompt profile.
+Requires NumPy and SciPy. The deterministic R06/R12 calculations are not LLM results. They fix the multiplier for an inner solve; they do not pretend to solve the full Nash dual or establish a neural convergence theorem. Original extracted comments are in review_sources/ for traceability.
 
-## Provenance and limits
-
-The new three-seed numbers are from the user's September 10 execution report; private remote artifacts were not independently recomputed here. Earlier controlled and teacher-validation numbers retain their existing supplied sources. This edit did not launch cluster training or verify the server's latest private commits.
-
-main_v6.patch is the diff against the latest uploaded main_v6(1).tex. Integrate it with current server work rather than resetting the repository to an older public revision. The empty prospective tables/figure must be populated with real observations or removed before submission. This draft does not establish a Nash aggregation advantage, equivalence to base, or global LLM Pareto optimality.
+Remote cluster training was not executed in this manuscript edit, and the newest private run artifacts were not independently verified. UF-4 cells and empty figure remain prospective. Before submission, populate them from real matched artifacts or remove them. See data/MAIN_EXPERIMENTS_SCHEMA.md for source and metric definitions.

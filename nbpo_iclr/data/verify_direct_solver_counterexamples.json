@@ -1,0 +1,92 @@
+{
+  "kind": "deterministic finite-game audit; not LLM evidence",
+  "payoff_matrix": [
+    [
+      0.0,
+      0.5,
+      -0.5
+    ],
+    [
+      -0.5,
+      0.0,
+      0.5
+    ],
+    [
+      0.5,
+      -0.5,
+      0.0
+    ]
+  ],
+  "beta": 0.25,
+  "R06": {
+    "reference": [
+      0.8,
+      0.1,
+      0.1
+    ],
+    "policy": [
+      0.25,
+      0.43,
+      0.32
+    ],
+    "reference_value": -0.051790062661945704,
+    "policy_value": -0.04172929510362945,
+    "surplus": 0.010060767558316253,
+    "direct_margin": -0.0385,
+    "direct_win_probability": 0.4615
+  },
+  "R12": {
+    "reference": [
+      0.34,
+      0.33,
+      0.33
+    ],
+    "eta_times_lambda": 4.0,
+    "fixed_point_root_success": true,
+    "fixed_point": [
+      0.3361825786682223,
+      0.3290717117230966,
+      0.334745709608681
+    ],
+    "fixed_point_residual_linf": 1.1102230246251565e-16,
+    "tangent_jacobian": [
+      [
+        -1.3331630693992753,
+        -2.220446049250313e-16
+      ],
+      [
+        0.0,
+        -1.3331630693992749
+      ]
+    ],
+    "tangent_eigenvalues": [
+      -1.3331630693992753,
+      -1.3331630693992749
+    ],
+    "reference_value": -3.2998922061100444e-05,
+    "fixed_point_value": 1.4194858850125058e-05,
+    "legacy_iterations": 100,
+    "legacy_final_policy": [
+      0.12691860794676224,
+      0.3542202842752743,
+      0.5188611077779635
+    ],
+    "legacy_fixed_point_error_l2": 0.27986128704513186,
+    "legacy_map_residual_l2": 0.6620484985984878,
+    "direct_solver": "scipy.optimize.minimize(SLSQP), analytic gradient",
+    "direct_success": true,
+    "direct_message": "Optimization terminated successfully",
+    "direct_iterations": 5,
+    "direct_policy": [
+      0.33618257868035717,
+      0.32907171170945654,
+      0.3347457096101863
+    ],
+    "direct_fixed_point_error_l2": 1.8318637988366997e-11,
+    "direct_simplex_error": 0.0,
+    "direct_inner_kkt_linf": 9.604295136966812e-11,
+    "scaled_inner_objective_reference": -0.00013199568824440178,
+    "scaled_inner_objective_direct": 8.673617379884035e-19,
+    "scaled_inner_objective_legacy": -0.29758509958123613
+  }
+}
