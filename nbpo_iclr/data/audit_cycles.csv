@@ -1,0 +1,6 @@
+rubric_tex,n,c_a,r,r_bt,w_a,delta_r,ci_low,ci_high,p_holm,p_raw,unresolved_a,cyclic_triangles_a,source
+IF,77,9,1,0.97,7,+0.03,-2.00,1.00,1.00,0.6352,15,13,analysis/audit/cycles_audit_100.json
+Truthfulness,73,2,0,0.43,2,-0.43,-2.00,0.00,1.00,1.0000,19,2,analysis/audit/cycles_audit_100.json
+Honesty,75,5,1,0.63,4,+0.37,-2.00,1.00,1.00,0.4698,18,5,analysis/audit/cycles_audit_100.json
+Helpfulness,96,4,0,0.31,2,-0.31,-2.00,0.00,1.00,1.0000,2,4,analysis/audit/cycles_audit_100.json
+Joint control,90,1,0,0.24,1,-0.24,-1.00,0.00,--,1.0000,4,1,analysis/audit/cycles_audit_100.json

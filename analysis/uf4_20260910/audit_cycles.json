@@ -1,0 +1,160 @@
+{
+  "protocol": "app:within-rubric-audit",
+  "split_file": "audit_100",
+  "n_planned_prompts": 100,
+  "planned_triangles": 400,
+  "judgments_sha256": "c1bd91d2f7a262a132fffe0ea3fa7b5fa5021483a582a499efd16c769172d7e0",
+  "simulations": 2000,
+  "bootstrap_replicates": 2000,
+  "seed": 20260911,
+  "source_sha256": "f2920f1a880f525f609928942772b74493fa83f4e0a83a459254433ef608ddcd",
+  "rubrics": {
+    "instruction_following": {
+      "n_complete_both": 77,
+      "C_A": 9,
+      "C_A_rate": 0.09,
+      "C_A_upper_rate_if_all_unresolved_cycled": 0.24,
+      "unresolved_A": 15,
+      "R": 1,
+      "R_rate": 0.01,
+      "R_BT_mean": 0.966,
+      "R_BT_rate": 0.00966,
+      "W_A": 7,
+      "W_A_rate": 0.07,
+      "cyclic_triangles_A": 13,
+      "cyclic_triangle_rate_over_planned": 0.0325,
+      "delta_R_points": 0.03400000000000003,
+      "delta_R_ci95": [
+        -2.0,
+        1.0
+      ],
+      "p_upper_tail": 0.6351824087956022,
+      "bootstrap_replicates_used": 2000,
+      "bt_fit": {
+        "b": 1.8596534674656127,
+        "nu": 0.4872423505159605,
+        "converged": false,
+        "n_observations": 1200
+      },
+      "p_holm": 1.0
+    },
+    "truthfulness": {
+      "n_complete_both": 73,
+      "C_A": 2,
+      "C_A_rate": 0.02,
+      "C_A_upper_rate_if_all_unresolved_cycled": 0.21,
+      "unresolved_A": 19,
+      "R": 0,
+      "R_rate": 0.0,
+      "R_BT_mean": 0.43,
+      "R_BT_rate": 0.0043,
+      "W_A": 2,
+      "W_A_rate": 0.02,
+      "cyclic_triangles_A": 2,
+      "cyclic_triangle_rate_over_planned": 0.005,
+      "delta_R_points": -0.43,
+      "delta_R_ci95": [
+        -2.0,
+        0.0
+      ],
+      "p_upper_tail": 1.0,
+      "bootstrap_replicates_used": 2000,
+      "bt_fit": {
+        "b": -0.32264280301190856,
+        "nu": 5.030391686096686,
+        "converged": false,
+        "n_observations": 1200
+      },
+      "p_holm": 1.0
+    },
+    "honesty": {
+      "n_complete_both": 75,
+      "C_A": 5,
+      "C_A_rate": 0.05,
+      "C_A_upper_rate_if_all_unresolved_cycled": 0.23,
+      "unresolved_A": 18,
+      "R": 1,
+      "R_rate": 0.01,
+      "R_BT_mean": 0.627,
+      "R_BT_rate": 0.00627,
+      "W_A": 4,
+      "W_A_rate": 0.04,
+      "cyclic_triangles_A": 5,
+      "cyclic_triangle_rate_over_planned": 0.0125,
+      "delta_R_points": 0.373,
+      "delta_R_ci95": [
+        -2.0,
+        1.0
+      ],
+      "p_upper_tail": 0.46976511744127936,
+      "bootstrap_replicates_used": 2000,
+      "bt_fit": {
+        "b": -0.4779342611831333,
+        "nu": 0.7073093883402688,
+        "converged": false,
+        "n_observations": 1200
+      },
+      "p_holm": 1.0
+    },
+    "helpfulness": {
+      "n_complete_both": 96,
+      "C_A": 4,
+      "C_A_rate": 0.04,
+      "C_A_upper_rate_if_all_unresolved_cycled": 0.06,
+      "unresolved_A": 2,
+      "R": 0,
+      "R_rate": 0.0,
+      "R_BT_mean": 0.311,
+      "R_BT_rate": 0.00311,
+      "W_A": 2,
+      "W_A_rate": 0.02,
+      "cyclic_triangles_A": 4,
+      "cyclic_triangle_rate_over_planned": 0.01,
+      "delta_R_points": -0.311,
+      "delta_R_ci95": [
+        -2.0,
+        0.0
+      ],
+      "p_upper_tail": 1.0,
+      "bootstrap_replicates_used": 2000,
+      "bt_fit": {
+        "b": 2.976880038126014,
+        "nu": 0.18565952876747535,
+        "converged": false,
+        "n_observations": 1200
+      },
+      "p_holm": 1.0
+    },
+    "joint_control": {
+      "n_complete_both": 90,
+      "C_A": 1,
+      "C_A_rate": 0.01,
+      "C_A_upper_rate_if_all_unresolved_cycled": 0.05,
+      "unresolved_A": 4,
+      "R": 0,
+      "R_rate": 0.0,
+      "R_BT_mean": 0.2395,
+      "R_BT_rate": 0.002395,
+      "W_A": 1,
+      "W_A_rate": 0.01,
+      "cyclic_triangles_A": 1,
+      "cyclic_triangle_rate_over_planned": 0.0025,
+      "delta_R_points": -0.2395,
+      "delta_R_ci95": [
+        -1.0,
+        0.0
+      ],
+      "p_upper_tail": 1.0,
+      "bootstrap_replicates_used": 2000,
+      "bt_fit": {
+        "b": 2.690987670787997,
+        "nu": 0.0926578359629194,
+        "converged": false,
+        "n_observations": 1199
+      },
+      "p_holm": null
+    }
+  },
+  "joint_control_note": "unadjusted; reported separately and never pooled with the four individual rubrics",
+  "reading": "R measures repeatability across two panels of the same judge, not statistical confirmation. The Hoeffding witness test needs the 200-draw confirmation stage and is not in this file."
+}

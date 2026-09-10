@@ -1235,7 +1235,7 @@ Table~\ref{tab:data-audit} records the empirical role of each released dataset. 
 
 \subsection{Within-objective cyclic-preference audit}
 \label{app:within-rubric-audit}
-\textbf{Planned experiment; all result cells below are unmeasured.}
+\textbf{Partly measured.} Table~\ref{tab:within-rubric-cycles} reports the completed core audit: $60{,}000$ judgments over the $100$ reserved prompts, collected under the protocol below. The coverage/prediction and independent-confirmation tables that follow it are still unmeasured, and every cell in them is a template.
 We test whether directly elicited preferences remain cyclic within each training rubric. PROSPER reports residual cycles when LLM judges evaluate checklist items separately \citep{zhang2026prosper}; we adapt this comparison to our fixed objectives and add independent repeat judgments and a fitted sampling-noise control. This audit concerns new pairwise feedback on natural prompts, not cycles in UltraFeedback's score-induced labels.
 
 \paragraph{Prompts and responses.}
@@ -1269,23 +1269,12 @@ Here $o=+1$ presents $i$ first; response scores sum to zero within each prompt. 
 \begin{table}[htbp]
 \centering\footnotesize
 \setlength{\tabcolsep}{3.5pt}
-\caption{Within-objective cyclicity template. Rates use all $100$ planned prompts; unresolved cases are reported separately. Excess is in percentage points with a $95\%$ prompt-bootstrap interval. All entries are unmeasured.}
+\caption{Within-objective cyclicity, measured. Rates use all $100$ planned prompts and $n$ counts tournaments complete in both panels; requiring all ten scheduled judgments per edge leaves $2$--$19$ prompts unresolved per rubric, and those are not read as cycle-free. Excess is in percentage points with a $95\%$ prompt-bootstrap interval from $2000$ replicates, against $2000$ fitted-null simulations. Observed repeated cycles $R$ are $0$--$1$ against a fitted sampling-noise expectation $R_{\mathrm{BT}}$ of $0.24$--$0.97$, so no rubric shows an excess and every Holm-adjusted $p$ is $1.00$. $C_A$ counts prompts with any cycle in panel A, including length-four cycles: $9$, $2$, $5$, $4$ and $1$ over the four rubrics and the control, from $13$, $2$, $5$, $4$ and $1$ cyclic triangles against $400$ planned. This does not establish that the judge's preferences are transitive; it establishes that this budget found no cyclicity separable from sampling noise.}
 \label{tab:within-rubric-cycles}
-\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrrrrcc}
-\toprule
-Rubric & $n$ & $C_A$ & $R$ & $R_{\mathrm{BT}}$ & $W_A$ & $\Delta R$ [CI] & $p_{\mathrm{Holm}}$\\
-\midrule
-IF           & -- & -- & -- & -- & -- & -- & --\\
-Truthfulness & -- & -- & -- & -- & -- & -- & --\\
-Honesty      & -- & -- & -- & -- & -- & -- & --\\
-Helpfulness  & -- & -- & -- & -- & -- & -- & --\\
-\midrule
-Joint control & -- & -- & -- & -- & -- & -- & --\textsuperscript{a}\\
-\bottomrule
-\end{tabular*}
+\input{generated/audit_cycles}
 
 \smallskip
-\parbox{0.97\linewidth}{\scriptsize $n$: complete tournaments; $C_A$: any cycle in A; $R$: an identical oriented triangle in A and B; $W_A$: every candidate has an observed loss in A. \textsuperscript{a}Unadjusted joint-control value. Pair joint/individual comparisons on common prompts; this control does not establish within-objective cyclicity.}
+\parbox{0.97\linewidth}{\scriptsize $n$: complete tournaments; $C_A$: any cycle in A; $R$: an identical oriented triangle in A and B; $W_A$: every candidate has an observed loss in A. The joint control carries no Holm adjustment and is reported separately; pair joint and individual comparisons on common prompts. This control does not establish within-objective cyclicity, and neither does the absence of an excess establish transitivity.}
 \end{table}
 
 \paragraph{Coverage and training relevance.}

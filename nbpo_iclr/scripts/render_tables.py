@@ -63,6 +63,14 @@ def main():
     g=rows('aggregation_targets.csv')
     table('aggregation_targets.tex','lr',['Diagnostic','Value'],
           [[x['metric_tex'],value(x['value'])] for x in g])
+    a=rows('audit_cycles.csv')
+    table('audit_cycles.tex', 'lrrrrrcc',
+          ['Rubric', '$n$', '$C_A$', '$R$', r'$R_{\mathrm{BT}}$', '$W_A$',
+           r'$\Delta R$ [CI]', r'$p_{\mathrm{Holm}}$'],
+          [[x['rubric_tex'], value(x['n']), value(x['c_a']), value(x['r']), value(x['r_bt']),
+            value(x['w_a']),
+            '$' + x['delta_r'] + '$ [$' + x['ci_low'] + ',' + x['ci_high'] + '$]',
+            (x['p_holm'] if x['p_holm'] == '--' else '$' + x['p_holm'] + '$')] for x in a])
     u=rows('uf4_realized_counts.csv')
     # Stage repeats only on its first row, so the table reads as grouped blocks.
     seen=set(); body=[]

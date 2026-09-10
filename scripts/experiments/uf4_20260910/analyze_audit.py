@@ -22,8 +22,9 @@ worst-case upper rate are reported beside every rate.
 """
 from __future__ import annotations
 
-import argparse, hashlib, itertools, json
+import argparse, hashlib, itertools, json, os
 from collections import defaultdict
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import numpy as np
@@ -199,6 +200,35 @@ def panel_metrics(data, rubric, prompts):
             "cyclic_triangles_A": tri}
 
 
+_SHARED = {}
+
+
+def _init(data, prompts):
+    _SHARED["data"] = data
+    _SHARED["prompts"] = prompts
+
+
+def _sim_R(job):
+    """One synthetic A/B panel pair under the fitted null; returns its R."""
+    rubric, fit, seed = job
+    rng = np.random.default_rng(seed)
+    sim = simulate(fit, _SHARED["data"], rubric, _SHARED["prompts"], rng)
+    return panel_metrics(sim, rubric, _SHARED["prompts"])["R"]
+
+
+def _boot_excess(job):
+    """One whole-prompt bootstrap replicate: observed R minus its own refitted null."""
+    rubric, seed, n_planned = job
+    rng = np.random.default_rng(seed)
+    pick = list(rng.choice(_SHARED["prompts"], size=len(_SHARED["prompts"]), replace=True))
+    mb = panel_metrics(_SHARED["data"], rubric, pick)
+    fb = fit_bt_null(_SHARED["data"], rubric, pick)
+    if fb is None:
+        return None
+    sb = panel_metrics(simulate(fb, _SHARED["data"], rubric, pick, rng), rubric, pick)["R"]
+    return (mb["R"] - sb) / max(n_planned, 1) * 100.0
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--audit-name", default="v1")
@@ -206,6 +236,7 @@ def main():
     ap.add_argument("--simulations", type=int, default=2000)
     ap.add_argument("--bootstrap", type=int, default=2000)
     ap.add_argument("--seed", type=int, default=20260911)
+    ap.add_argument("--workers", type=int, default=min(32, len(os.sched_getaffinity(0))))
     args = ap.parse_args()
 
     base = ROOT / "audit" / args.audit_name
@@ -224,21 +255,19 @@ def main():
     for rubric in RUBRICS:
         m = panel_metrics(data, rubric, prompts)
         fit = fit_bt_null(data, rubric, prompts)
-        sims = []
-        for _ in range(args.simulations):
-            sim = simulate(fit, data, rubric, prompts, rng)
-            sims.append(panel_metrics(sim, rubric, prompts)["R"])
-        sims = np.array(sims, dtype=float)
+        base_seed = int(rng.integers(1, 2**62))
+        with ProcessPoolExecutor(max_workers=args.workers, initializer=_init,
+                                 initargs=(data, prompts)) as pool:
+            sims = np.array(list(pool.map(
+                _sim_R, [(rubric, fit, base_seed + k) for k in range(args.simulations)],
+                chunksize=8)), dtype=float)
+            boot = [v for v in pool.map(
+                _boot_excess,
+                [(rubric, base_seed + 10**7 + k, len(prompts)) for k in range(args.bootstrap)],
+                chunksize=4) if v is not None]
+        boot = np.array(boot, dtype=float)
         R = m["R"]
         p_upper = (1 + int((sims >= R).sum())) / (args.simulations + 1)
-        boot = []
-        for _ in range(args.bootstrap):
-            pick = rng.choice(prompts, size=len(prompts), replace=True)
-            mb = panel_metrics(data, rubric, list(pick))
-            fb = fit_bt_null(data, rubric, list(pick))
-            sb = panel_metrics(simulate(fb, data, rubric, list(pick), rng), rubric, list(pick))["R"]
-            boot.append((mb["R"] - sb) / max(len(prompts), 1) * 100.0)
-        boot = np.array(boot, dtype=float)
         n = len(prompts)
         report["rubrics"][rubric] = {
             "n_complete_both": m["n_complete_both"],
@@ -253,6 +282,7 @@ def main():
             "delta_R_points": (R - float(sims.mean())) / n * 100.0,
             "delta_R_ci95": [float(np.quantile(boot, 0.025)), float(np.quantile(boot, 0.975))],
             "p_upper_tail": p_upper,
+            "bootstrap_replicates_used": int(boot.size),
             "bt_fit": {"b": fit["b"], "nu": fit["nu"], "converged": fit["converged"],
                        "n_observations": fit["n_obs"]}}
         raw_p[rubric] = p_upper
