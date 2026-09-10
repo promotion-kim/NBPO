@@ -71,6 +71,16 @@ def main():
             value(x['w_a']),
             '$' + x['delta_r'] + '$ [$' + x['ci_low'] + ',' + x['ci_high'] + '$]',
             (x['p_holm'] if x['p_holm'] == '--' else '$' + x['p_holm'] + '$')] for x in a])
+    q=rows('audit_coverage.csv')
+    table('audit_coverage.tex', 'lrrrrcc',
+          ['Rubric', r'Missing (\%)', r'Ties (\%)', r'Triangles (\%)', 'Order gap',
+           'BT Brier', r'GPM$-$BT [CI]'],
+          [[x['rubric_tex'], value(x['missing_pct']), value(x['tie_pct']),
+            value(x['triangle_pct']), value(x['order_gap']),
+            ('n/a' if x['bt_brier'] == 'n/a' else value(x['bt_brier'])),
+            ('n/a' if x['gpm_minus_bt'] == 'n/a'
+             else '$' + x['gpm_minus_bt'] + '$ [$' + x['ci_low'] + ',' + x['ci_high'] + '$]')]
+           for x in q])
     u=rows('uf4_realized_counts.csv')
     # Stage repeats only on its first row, so the table reads as grouped blocks.
     seen=set(); body=[]

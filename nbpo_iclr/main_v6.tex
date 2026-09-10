@@ -1235,7 +1235,7 @@ Table~\ref{tab:data-audit} records the empirical role of each released dataset. 
 
 \subsection{Within-objective cyclic-preference audit}
 \label{app:within-rubric-audit}
-\textbf{Measured, with one table still open.} The core audit and the confirmation stage are complete: $60{,}000$ judgments over the $100$ reserved prompts found no repeated-cycle excess over a fitted sampling-noise null, and no rubric produced a cyclic triangle whose three directions survive both presentation orders, so no witness was eligible and none of the $2{,}280$ confirmation judgments was spent. The coverage and prediction table (Table~\ref{tab:within-rubric-quality}) is still unmeasured. This audit does not show that the judge's preferences are transitive; it shows that this budget found no cyclicity separable from sampling noise and from the judge's position bias.
+\textbf{Measured, with one table still open.} The core audit and the confirmation stage are complete: $60{,}000$ judgments over the $100$ reserved prompts found no repeated-cycle excess over a fitted sampling-noise null, and no rubric produced a cyclic triangle whose three directions survive both presentation orders, so no witness was eligible and none of the $2{,}280$ confirmation judgments was spent. This audit does not show that the judge's preferences are transitive; it shows that this budget found no cyclicity separable from sampling noise and from the judge's position bias.
 We test whether directly elicited preferences remain cyclic within each training rubric. PROSPER reports residual cycles when LLM judges evaluate checklist items separately \citep{zhang2026prosper}; we adapt this comparison to our fixed objectives and add independent repeat judgments and a fitted sampling-noise control. This audit concerns new pairwise feedback on natural prompts, not cycles in UltraFeedback's score-induced labels.
 
 \paragraph{Prompts and responses.}
@@ -1283,19 +1283,9 @@ Table~\ref{tab:within-rubric-quality} records coverage, ties, order sensitivity,
 \begin{table}[htbp]
 \centering\footnotesize
 \setlength{\tabcolsep}{3.4pt}
-\caption{Audit coverage and prediction template. Intervals resample prompts. A negative Brier difference favors GPM. All entries are unmeasured.}
+\caption{Audit coverage and prediction, measured. Missingness is below $0.6\%$ everywhere, so the unresolved tournaments come from requiring all ten scheduled judgments per edge rather than from parse failures. The order gap is the mean absolute difference between the two correctly oriented order-specific means, and at $0.53$--$0.69$ for IF, helpfulness and the joint control it is the size of the judge's position dependence: it is why no cyclic triangle survives both presentation orders. Truthfulness behaves differently, with $64.9\%$ ties and the smallest order gap, so it yields the fewest edges and the fewest triangles. On identical complete panel-B pairs the frozen GPM has the lower Brier loss on all four rubrics, by $.0016$ to $.0038$, but every paired prompt-bootstrap interval contains zero; the consistent sign across four rubrics is worth noting and is not a significant difference. Neither teacher was fitted or calibrated on the audit, and this predictive comparison establishes nothing about cycles.}
 \label{tab:within-rubric-quality}
-\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrrrcc}
-\toprule
-Rubric & Missing (\%) & Ties (\%) & Triangles (\%) & Order gap & BT Brier & GPM$-$BT [CI]\\
-\midrule
-IF           & -- & -- & -- & -- & -- & --\\
-Truthfulness & -- & -- & -- & -- & -- & --\\
-Honesty      & -- & -- & -- & -- & -- & --\\
-Helpfulness  & -- & -- & -- & -- & -- & --\\
-Joint control & -- & -- & -- & -- & n/a & n/a\\
-\bottomrule
-\end{tabular*}
+\input{generated/audit_coverage}
 
 \smallskip
 \parbox{0.97\linewidth}{\scriptsize Missing: fraction of scheduled judgments unavailable; ties: fraction of valid judgments labeled tie; triangles: observed cyclic triangles in A divided by $400$; order gap: mean absolute difference between the two correctly oriented order-specific means in A, on complete pairs. Also release unresolved counts, missingness causes, and duplicate/truncation counts. Brier comparisons use identical complete panel-B pairs.}

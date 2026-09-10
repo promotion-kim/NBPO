@@ -1,0 +1,116 @@
+{
+  "coverage": {
+    "instruction_following": {
+      "missing_pct": 0.6000000000000005,
+      "tie_pct": 20.80818242790074,
+      "triangle_pct": 3.25,
+      "order_gap": 0.5347222222222222,
+      "scheduled": 12000,
+      "valid": 11928,
+      "complete_pairs_used_for_gap": 576
+    },
+    "truthfulness": {
+      "missing_pct": 0.4833333333333356,
+      "tie_pct": 64.85513314352704,
+      "triangle_pct": 0.5,
+      "order_gap": 0.12526132404181184,
+      "scheduled": 12000,
+      "valid": 11942,
+      "complete_pairs_used_for_gap": 574
+    },
+    "honesty": {
+      "missing_pct": 0.3583333333333383,
+      "tie_pct": 29.279919712302416,
+      "triangle_pct": 1.25,
+      "order_gap": 0.30483592400690845,
+      "scheduled": 12000,
+      "valid": 11957,
+      "complete_pairs_used_for_gap": 579
+    },
+    "helpfulness": {
+      "missing_pct": 0.12499999999999734,
+      "tie_pct": 6.942010846891948,
+      "triangle_pct": 1.0,
+      "order_gap": 0.69463986599665,
+      "scheduled": 12000,
+      "valid": 11985,
+      "complete_pairs_used_for_gap": 597
+    },
+    "joint_control": {
+      "missing_pct": 0.40833333333333277,
+      "tie_pct": 3.8574177893063344,
+      "triangle_pct": 0.25,
+      "order_gap": 0.6922165820642977,
+      "scheduled": 12000,
+      "valid": 11951,
+      "complete_pairs_used_for_gap": 591
+    }
+  },
+  "prediction": {
+    "instruction_following": {
+      "bt_brier": 0.20774394273757935,
+      "gpm_brier": 0.20614701509475708,
+      "gpm_minus_bt": -0.0015969276428222656,
+      "ci95": [
+        -0.007530715316534042,
+        0.004570977389812468
+      ],
+      "complete_B_pairs": 576,
+      "prompts_with_data": 100
+    },
+    "truthfulness": {
+      "bt_brier": 0.09994237869977951,
+      "gpm_brier": 0.09614115953445435,
+      "gpm_minus_bt": -0.003801219165325165,
+      "ci95": [
+        -0.008719420060515404,
+        0.0011987054720520908
+      ],
+      "complete_B_pairs": 581,
+      "prompts_with_data": 100
+    },
+    "honesty": {
+      "bt_brier": 0.19326385855674744,
+      "gpm_brier": 0.19033709168434143,
+      "gpm_minus_bt": -0.002926766872406006,
+      "ci95": [
+        -0.00999598167836666,
+        0.0036663152277469587
+      ],
+      "complete_B_pairs": 582,
+      "prompts_with_data": 100
+    },
+    "helpfulness": {
+      "bt_brier": 0.2341393232345581,
+      "gpm_brier": 0.23110346496105194,
+      "gpm_minus_bt": -0.0030358582735061646,
+      "ci95": [
+        -0.007885709032416343,
+        0.001435662806034082
+      ],
+      "complete_B_pairs": 595,
+      "prompts_with_data": 100
+    }
+  },
+  "gpm_teacher": {
+    "dir": "/work/uf4_20260910/teacher/gpm_s42",
+    "head": "gpm",
+    "step": 3750,
+    "checkpoint_sha256": "5f5c8ac6fa044e71cc063b836ed234db5971321e9e7f9e0632c11bc07cc09f15",
+    "report_sha256": "710d518ffcc41734b2e15ca6aacdffe13a520ab68b7af0542b57369802f2c5c2",
+    "selected_mean_nll": 0.560148638532354,
+    "selected_worst_nll": 0.6304829919834932
+  },
+  "bt_teacher": {
+    "dir": "/work/uf4_20260910/teacher/bt_s42",
+    "head": "bt",
+    "step": 3500,
+    "checkpoint_sha256": "a28e95eabcb28267f5a63a29feaaad601db816818c16682a9c09933ebe6fd7e4",
+    "report_sha256": "66e305024fdb5ea9fb245c189b11678b53438745be2cf885be8f44251cdc037f",
+    "selected_mean_nll": 0.5589467655611942,
+    "selected_worst_nll": 0.6283061581353346
+  },
+  "note": "Brier uses identical complete panel-B pairs for both teachers; neither is fitted or calibrated on the audit. A predictive comparison, not evidence about cycles.",
+  "judgments_sha256": "c1bd91d2f7a262a132fffe0ea3fa7b5fa5021483a582a499efd16c769172d7e0",
+  "source_sha256": "747d9a75ddac3d68609e05b58342dd815c78c5247f6f21055473f5e7476ec816"
+}

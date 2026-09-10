@@ -1,0 +1,6 @@
+rubric_tex,missing_pct,tie_pct,triangle_pct,order_gap,bt_brier,gpm_minus_bt,ci_low,ci_high,source
+IF,0.60,20.8,3.25,0.535,0.2077,-0.0016,-0.0075,+0.0046,analysis/audit/coverage_quality.json
+Truthfulness,0.48,64.9,0.50,0.125,0.0999,-0.0038,-0.0087,+0.0012,analysis/audit/coverage_quality.json
+Honesty,0.36,29.3,1.25,0.305,0.1933,-0.0029,-0.0100,+0.0037,analysis/audit/coverage_quality.json
+Helpfulness,0.12,6.9,1.00,0.695,0.2341,-0.0030,-0.0079,+0.0014,analysis/audit/coverage_quality.json
+Joint control,0.41,3.9,0.25,0.692,n/a,n/a,,,analysis/audit/coverage_quality.json
