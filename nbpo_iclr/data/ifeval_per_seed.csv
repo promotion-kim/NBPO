@@ -1,0 +1,7 @@
+method_id,seed,dataset,ifeval_reported,metric_scope,source
+nbpo,42,SafeRLHF-2k,0.76,IFEval: strict subtype not independently verified,User-provided Claude report 2026-09-10 09:13 KST
+nbpo,43,SafeRLHF-2k,0.75,IFEval: strict subtype not independently verified,User-provided Claude report 2026-09-10 09:13 KST
+nbpo,44,SafeRLHF-2k,0.734,IFEval: strict subtype not independently verified,User-provided Claude report 2026-09-10 09:13 KST
+game_util,42,SafeRLHF-2k,0.721,IFEval: strict subtype not independently verified,User-provided Claude report 2026-09-10 09:13 KST
+game_util,43,SafeRLHF-2k,0.771,IFEval: strict subtype not independently verified,User-provided Claude report 2026-09-10 09:13 KST
+game_util,44,SafeRLHF-2k,0.743,IFEval: strict subtype not independently verified,User-provided Claude report 2026-09-10 09:13 KST

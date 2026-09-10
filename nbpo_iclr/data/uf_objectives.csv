@@ -1,0 +1,8 @@
+method_id,method_tex,dataset,policy_train_prompts,planned_seeds,completed_seeds,status,test_hash,judge_id,protocol_id,eval_prompts,if_wr,truth_wr,honesty_wr,help_wr,min_delta
+base,Base,UF-4,0,1,,planned,,,,,,,,,
+nbpo,NBPO,UF-4,10000,3,,planned,,,,,,,,,
+game_util,Game-utilitarian,UF-4,10000,3,,planned,,,,,,,,,
+game_maxmin,Game-maxmin,UF-4,10000,1,,planned,,,,,,,,,
+prosper,PROSPER (adapt.),UF-4,10000,3,,planned,,,,,,,,,
+mopo,MOPO (adapt.),UF-4,10000,3,,planned,,,,,,,,,
+dpo,Scalarized DPO,UF-4,10000,3,,planned,,,,,,,,,

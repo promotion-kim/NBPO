@@ -1,0 +1,9 @@
+metric,numerator,denominator,unit,conditional_value,note
+exact_same_refusal_string,247,1000,evaluation responses,,Do not equate with all refusals.
+short_response,450,1000,evaluation responses,,Shortness threshold must be recorded from source code.
+refusal_prefix,621,1000,evaluation responses,,Prefix classifier; not identical-string count.
+refusal_among_short,448,450,short evaluation responses,,99.56% conditional on short responses.
+teacher_candidate_truncation,26790,84000,candidate occurrences,,Not a prompt-level rate and not unique responses.
+teacher_prompt_truncation,1,84000,candidate occurrences,,User report uses candidate-occurrence denominator.
+median_lost_response_tokens_given_truncation,,,tokens,232,Conditional on truncation.
+response_fraction_observed_given_truncation,,,fraction,0.61,Reported fraction; aggregation convention requires raw-artifact confirmation.

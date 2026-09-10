@@ -1,0 +1,8 @@
+method_id,method_label,dataset,test_hash,protocol_id,judge_id,n_prompts,n_seeds,seed_ids,status,uncertainty_type,if_mean,if_ci_low,if_ci_high,truth_mean,truth_ci_low,truth_ci_high,honesty_mean,honesty_ci_low,honesty_ci_high,help_mean,help_ci_low,help_ci_high
+base,Base,UF-4,,,,,,,planned,,,,,,,,,,,,,
+nbpo,NBPO,UF-4,,,,,,,planned,,,,,,,,,,,,,
+game_util,Game-utilitarian,UF-4,,,,,,,planned,,,,,,,,,,,,,
+game_maxmin,Game-maxmin,UF-4,,,,,,,planned,,,,,,,,,,,,,
+prosper,PROSPER (adapt.),UF-4,,,,,,,planned,,,,,,,,,,,,,
+mopo,MOPO (adapt.),UF-4,,,,,,,planned,,,,,,,,,,,,,
+dpo,Scalarized DPO,UF-4,,,,,,,planned,,,,,,,,,,,,,

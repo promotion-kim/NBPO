@@ -1,4 +1,4 @@
-\begin{thebibliography}{26}
+\begin{thebibliography}{28}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -44,6 +44,11 @@ Paul~F. Christiano, Jan Leike, Tom Brown, Miljan Martic, Shane Legg, and Dario A
 Vincent Conitzer, Rachel Freedman, Jobst Heitzig, Wesley~H. Holliday, Bob~M. Jacobs, Nathan Lambert, Milan Moss{\'e}, Eric Pacuit, Stuart Russell, Hailey Schoelkopf, Emanuel Tewolde, and William~S. Zwicker.
 \newblock Position: Social choice should guide {AI} alignment in dealing with diverse human feedback.
 \newblock In \emph{Proceedings of the 41st International Conference on Machine Learning}, volume 235 of \emph{Proceedings of Machine Learning Research}, 2024.
+
+\bibitem[Cui et~al.(2024)Cui, Yuan, Ding, Yao, He, Zhu, Ni, Xie, Lin, and Sun]{cui2024ultrafeedback}
+Ganqu Cui, Lifan Yuan, Ning Ding, Guanming Yao, Bingxiang He, Wei Zhu, Yuan Ni, Guotong Xie, Yankai Lin, and Maosong Sun.
+\newblock Ultrafeedback: Boosting language models with scaled ai feedback.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
 
 \bibitem[Danskin(1967)]{danskin1967theory}
 John~M. Danskin.
@@ -99,6 +104,11 @@ Amos Tversky.
 Haoxiang Wang, Wei Xiong, Tengyang Xie, Han Zhao, and Tong Zhang.
 \newblock Interpretable preferences via multi-objective reward modeling and mixture-of-experts.
 \newblock In \emph{Findings of the Association for Computational Linguistics: EMNLP 2024}, pp.\  10582--10592, 2024.
+
+\bibitem[Warner et~al.(2024)Warner, Chaffin, Clavi{\'e}, et~al.]{warner2024modernbert}
+Benjamin Warner, Antoine Chaffin, Benjamin Clavi{\'e}, et~al.
+\newblock Smarter, better, faster, longer: A modern bidirectional encoder for fast, memory efficient, and long context finetuning and inference, 2024.
+\newblock URL \url{https://arxiv.org/abs/2412.13663}.
 
 \bibitem[Wu et~al.(2025)Wu, Sun, Yuan, Ji, Yang, and Gu]{wu2025sppo}
 Yue Wu, Zhiqing Sun, Huizhuo Yuan, Kaixuan Ji, Yiming Yang, and Quanquan Gu.

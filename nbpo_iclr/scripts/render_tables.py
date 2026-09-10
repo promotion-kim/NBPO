@@ -75,3 +75,5 @@ def main():
 
 if __name__=='__main__':
     main()
+    from render_new_main_tables import main as render_new_main
+    render_new_main()

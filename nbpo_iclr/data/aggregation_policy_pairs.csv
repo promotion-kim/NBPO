@@ -1,0 +1,7 @@
+seed,criterion,delta_nash_minus_util,ci_low,ci_high,n_prompts,ci_method,source
+42,help,-0.0003,-0.0067,+0.0058,1000,reported CI; confirm bootstrap configuration from raw artifacts,User-provided Claude report 2026-09-10 09:13 KST
+42,safe,-0.0010,-0.0074,+0.0050,1000,reported CI; confirm bootstrap configuration from raw artifacts,User-provided Claude report 2026-09-10 09:13 KST
+43,help,+0.0019,-0.0038,+0.0076,1000,reported CI; confirm bootstrap configuration from raw artifacts,User-provided Claude report 2026-09-10 09:13 KST
+43,safe,+0.0004,-0.0052,+0.0061,1000,reported CI; confirm bootstrap configuration from raw artifacts,User-provided Claude report 2026-09-10 09:13 KST
+44,help,-0.0033,-0.0086,+0.0023,1000,reported CI; confirm bootstrap configuration from raw artifacts,User-provided Claude report 2026-09-10 09:13 KST
+44,safe,-0.0037,-0.0095,+0.0017,1000,reported CI; confirm bootstrap configuration from raw artifacts,User-provided Claude report 2026-09-10 09:13 KST

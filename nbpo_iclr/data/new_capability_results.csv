@@ -1,0 +1,11 @@
+method_id,method_tex,dataset,policy_train_prompts,planned_seeds,completed_seeds,status,test_hash,judge_id,protocol_id,ifeval_strict_prompt,ifeval_seed_sd,gsm8k_em,mmlu_accuracy,harmbench_harmful,xstest_safe_refusal,alpaca_local_wr,arena_hard_local_wr,arena_creative_local_wr
+base,Base,UF-4,0,1,,planned,,,,,,,,,,,,
+nbpo,NBPO,UF-4,10000,3,,planned,,,,,,,,,,,,
+game_util,Game-utilitarian,UF-4,10000,3,,planned,,,,,,,,,,,,
+game_maxmin,Game-maxmin,UF-4,10000,1,,planned,,,,,,,,,,,,
+prosper,PROSPER (adapt.),UF-4,10000,3,,planned,,,,,,,,,,,,
+mopo,MOPO (adapt.),UF-4,10000,3,,planned,,,,,,,,,,,,
+dpo,Scalarized DPO,UF-4,10000,3,,planned,,,,,,,,,,,,
+base,Base,SafeRLHF-2k,0,1,1,reported,,,,.752,,.867,,.281,,.500,,
+nbpo,NBPO,SafeRLHF-2k,2000,3,3,reported,,,,0.748,0.0131,,,,,,,
+game_util,Game-utilitarian,SafeRLHF-2k,2000,3,3,reported,,,,0.745,0.0251,,,,,,,
