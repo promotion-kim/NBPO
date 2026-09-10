@@ -35,3 +35,10 @@ Base capability,IFEval strict-prompt / strict-instruction,0.7542 / 0.8249,base_d
 Base capability,GSM8K exact match,0.8666,base_deterministic_v1/gsm8k_base.summary.json
 Base capability,HarmBench harmful-completion rate,0.2813,harmbench_base_v1/harmbench_base.summary.json
 Base capability,"XSTest\,450",\textrm{unadjudicated},adjudication gated; estimate is null in the artifact
+"Policy projection, NBPO-MSE seed 42",Optimizer updates completed / planned,"1{,}250 / 1{,}250","arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"
+"Policy projection, NBPO-MSE seed 42",Held-out dev pairs scored at each evaluation,"28{,}000","arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"
+"Policy projection, NBPO-MSE seed 42","Dev nMSE $\downarrow$, first $\to$ last of five evaluations",0.6083 \to 0.5823,"arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"
+"Policy projection, NBPO-MSE seed 42","Dev sign accuracy $\uparrow$, first $\to$ last",0.6605 \to 0.6694,"arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"
+"Policy projection, NBPO-MSE seed 42",Dev Pearson / Spearman at the final evaluation,0.6515 / 0.5479,"arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"
+"Policy projection, NBPO-MSE seed 42",Dev target RMS / fitted log-ratio RMS,5.4711 / 3.8409,"arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"
+"Policy projection, NBPO-MSE seed 42",Training wall time / GPU-hours,"\textrm{2.79 h on four H200s, 11.2 GPU-h}","arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"

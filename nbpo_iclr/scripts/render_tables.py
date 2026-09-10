@@ -70,7 +70,9 @@ def main():
         stage = x['stage'] if x['stage'] not in seen else ''
         seen.add(x['stage'])
         body.append([stage, x['quantity_tex'], value(x['value'])])
-    table('uf4_realized_counts.tex','llr',['Stage','Realized quantity','Value'], body)
+    # Long quantity labels wrap rather than run past the text block.
+    table('uf4_realized_counts.tex', r'p{2.9cm}p{6.0cm}r',
+          ['Stage','Realized quantity','Value'], body)
     table('evaluation_contract.tex','lp{8.9cm}', ['Set / target count','Metric and completion contract'], [
           ['SafeRLHF / 1000','Teacher-defined objective values; comparator and disagreement hashes; greedy and stochastic evaluations kept separate.'],
           ['IFEval / 541','Official strict prompt and instruction accuracy; loose scores secondary. Verify the reported strict column against evaluator output.'],

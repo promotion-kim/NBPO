@@ -1378,7 +1378,7 @@ The UltraFeedback panel retains the UltraChat, ShareGPT, and Evol-Instruct sourc
 
 \begin{table}[t]
 \centering\scriptsize
-\caption{Realized UF-4 pipeline counts, measured from the campaign artifacts. Every value is a measurement, not a target. The $20.00\%$ generation cap rate and the zero teacher-encoding truncation have different denominators and measure different problems: the first counts responses that stopped at the $1024$-token horizon, the second counts serialized scoring sequences that exceeded the encoder budget. Reference-tensor antisymmetry is imposed by construction and is an invariant, not evidence of correctness. Policy outcomes are not in this table.}
+\caption{Realized UF-4 pipeline counts, measured from the campaign artifacts. Every value is a measurement, not a target. The $20.00\%$ generation cap rate and the zero teacher-encoding truncation have different denominators and measure different problems: the first counts responses that stopped at the $1024$-token horizon, the second counts serialized scoring sequences that exceeded the encoder budget. Reference-tensor antisymmetry is imposed by construction and is an invariant, not evidence of correctness. The final block reports development diagnostics of the neural projection, which measure how well the fitted log-ratio tracks the frozen target and are not generated-policy outcomes; no independent evaluation of generated responses is in this table. For scale, the SafeRLHF panel's three seeds reached nMSE $.6845\pm.0048$ and sign accuracy $.7009\pm.0016$ against a target RMS of $1.125$, so the two panels' nMSE are comparable at very different target scales and neither is a policy result.}
 \label{tab:uf4-realized}
 \input{generated/uf4_realized_counts}
 \end{table}
