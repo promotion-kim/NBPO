@@ -1,8 +1,8 @@
 # Main-body result manifest
 
-Generated 2026-09-11 21:00:24 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-11 21:43:11 KST. DONE requires the proving artifact on disk.
 
-State counts: DONE 15, NOT_STARTED 80, PENDING 10, READY 9, RUNNING 1
+State counts: DONE 15, NOT_STARTED 88, PENDING 12, READY 11, RUNNING 1
 
 | exhibit | method | seed/weight | checkpoint | job | state | progress | ETA (min) |
 |---|---|---|---|---|---|---|---|
@@ -20,10 +20,14 @@ State counts: DONE 15, NOT_STARTED 80, PENDING 10, READY 9, RUNNING 1
 | tab:uf-objectives | game_utilitarian | seed 44 (train) | util_mse_s44 | uf4_train_util_mse_s44 | DONE | - | 184 |
 | tab:uf-objectives | fixed_reference_nash | seed 42 | fixedref_mse_s42 | uf4_finaleval_judge_fixedref_mse_s42 | DONE | - | 24 |
 | tab:uf-objectives | fixed_reference_nash | seed 42 (train) | fixedref_mse_s42 | uf4_train_fixedref_mse_s42 | DONE | - | 184 |
+| tab:uf-objectives | fixed_reference_nash | seed 43 | fixedref_mse_s43 | uf4_finaleval_judge_fixedref_mse_s43 | PENDING | - | 24 |
+| tab:uf-objectives | fixed_reference_nash | seed 43 (train) | fixedref_mse_s43 | uf4_train_fixedref_mse_s43 | READY | - | 184 |
+| tab:uf-objectives | fixed_reference_nash | seed 44 | fixedref_mse_s44 | uf4_finaleval_judge_fixedref_mse_s44 | PENDING | - | 24 |
+| tab:uf-objectives | fixed_reference_nash | seed 44 (train) | fixedref_mse_s44 | uf4_train_fixedref_mse_s44 | READY | - | 184 |
 | tab:uf-objectives | bt_rm_nash | seed 42 | btrm_mse_s42 | uf4_finaleval_judge_btrm_mse_s42 | PENDING | - | 24 |
 | tab:uf-objectives | bt_rm_nash | seed 42 (train) | btrm_mse_s42 | uf4_train_btrm_mse_s42 | READY | - | 184 |
 | tab:uf-objectives | game_maxmin | seed 42 | maxmin_mse_s42 | uf4_finaleval_judge_maxmin_mse_s42 | PENDING | - | 24 |
-| tab:uf-objectives | game_maxmin | seed 42 (train) | maxmin_mse_s42 | uf4_train_maxmin_mse_s42 | RUNNING | step 306/1250 | 184 |
+| tab:uf-objectives | game_maxmin | seed 42 (train) | maxmin_mse_s42 | uf4_train_maxmin_mse_s42 | RUNNING | step 682/1250 | 184 |
 | tab:uf-objectives | dpo_uniform | seed 42 | dpo_uniform_mse_s42 | uf4_finaleval_judge_dpo_uniform_mse_s42 | PENDING | - | 24 |
 | tab:uf-objectives | dpo_uniform | seed 42 (train) | dpo_uniform_mse_s42 | uf4_train_dpo_uniform_mse_s42 | READY | - | 184 |
 | tab:uf-objectives | prosper_adapt | seed 42 | prosper_mse_s42 | uf4_finaleval_judge_prosper_mse_s42 | NOT_STARTED | - | 24 |
@@ -85,6 +89,14 @@ State counts: DONE 15, NOT_STARTED 80, PENDING 10, READY 9, RUNNING 1
 | tab:general-capability | fixed_reference_nash | seed 42 / gsm8k | fixedref_mse_s42 | uf4_bench_fixedref_mse_s42_gsm8k | NOT_STARTED | - | 17 |
 | tab:general-capability | fixed_reference_nash | seed 42 / harmbench | fixedref_mse_s42 | uf4_bench_fixedref_mse_s42_harmbench | NOT_STARTED | - | 17 |
 | tab:general-capability | fixed_reference_nash | seed 42 / xstest | fixedref_mse_s42 | uf4_bench_fixedref_mse_s42_xstest | NOT_STARTED | - | 17 |
+| tab:general-capability | fixed_reference_nash | seed 43 / ifeval | fixedref_mse_s43 | uf4_bench_fixedref_mse_s43_ifeval | NOT_STARTED | - | 17 |
+| tab:general-capability | fixed_reference_nash | seed 43 / gsm8k | fixedref_mse_s43 | uf4_bench_fixedref_mse_s43_gsm8k | NOT_STARTED | - | 17 |
+| tab:general-capability | fixed_reference_nash | seed 43 / harmbench | fixedref_mse_s43 | uf4_bench_fixedref_mse_s43_harmbench | NOT_STARTED | - | 17 |
+| tab:general-capability | fixed_reference_nash | seed 43 / xstest | fixedref_mse_s43 | uf4_bench_fixedref_mse_s43_xstest | NOT_STARTED | - | 17 |
+| tab:general-capability | fixed_reference_nash | seed 44 / ifeval | fixedref_mse_s44 | uf4_bench_fixedref_mse_s44_ifeval | NOT_STARTED | - | 17 |
+| tab:general-capability | fixed_reference_nash | seed 44 / gsm8k | fixedref_mse_s44 | uf4_bench_fixedref_mse_s44_gsm8k | NOT_STARTED | - | 17 |
+| tab:general-capability | fixed_reference_nash | seed 44 / harmbench | fixedref_mse_s44 | uf4_bench_fixedref_mse_s44_harmbench | NOT_STARTED | - | 17 |
+| tab:general-capability | fixed_reference_nash | seed 44 / xstest | fixedref_mse_s44 | uf4_bench_fixedref_mse_s44_xstest | NOT_STARTED | - | 17 |
 | tab:general-capability | bt_rm_nash | seed 42 / ifeval | btrm_mse_s42 | uf4_bench_btrm_mse_s42_ifeval | NOT_STARTED | - | 17 |
 | tab:general-capability | bt_rm_nash | seed 42 / gsm8k | btrm_mse_s42 | uf4_bench_btrm_mse_s42_gsm8k | NOT_STARTED | - | 17 |
 | tab:general-capability | bt_rm_nash | seed 42 / harmbench | btrm_mse_s42 | uf4_bench_btrm_mse_s42_harmbench | NOT_STARTED | - | 17 |

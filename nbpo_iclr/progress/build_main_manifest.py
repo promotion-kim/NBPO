@@ -86,7 +86,9 @@ def progress_of(job_id, entry):
 ARMS = {
     "nbpo": ("nbpo_mse_s%d", [42, 43, 44]),
     "game_utilitarian": ("util_mse_s%d", [42, 43, 44]),
-    "fixed_reference_nash": ("fixedref_mse_s%d", [42]),
+    # amended 2026-09-11 20:22: this control became the pivotal comparison, so
+    # the matrix was widened from one seed to three (see execution_matrix.json).
+    "fixed_reference_nash": ("fixedref_mse_s%d", [42, 43, 44]),
     "bt_rm_nash": ("btrm_mse_s%d", [42]),
     "game_maxmin": ("maxmin_mse_s%d", [42]),
     "dpo_uniform": ("dpo_uniform_mse_s%d", [42]),

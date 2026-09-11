@@ -331,16 +331,29 @@ def train_bar(log, total):
 
 
 def running_train_remaining(snap):
-    """Minutes left on the training that is on the cards, from its own step rate."""
+    """Minutes left on the training that is on the cards.
+
+    Computed from steps completed and wall time elapsed, NOT from tqdm's own
+    remaining estimate. The trainer pauses every 250 updates for a ~16 minute
+    dev pass, and when it resumes tqdm folds that pause into its rate and prints
+    a wildly inflated estimate for a few steps -- once as 15 hours on a run with
+    40 minutes left. Amortising the real elapsed time over the real steps is
+    monotone, and it already includes the remaining dev passes.
+    """
     for job_id, entry in snap["jobs"].items():
         if entry.get("state") != "RUNNING" or "train" not in job_id:
             continue
-        bar = train_bar(entry.get("log", ""), max_steps_of(job_id))
-        m = re.search(r"<(\d+):(\d+)(?::(\d+))?", bar or "")
-        if m:
-            a, b, c = m.group(1), m.group(2), m.group(3)
-            # tqdm writes H:MM:SS once past an hour, MM:SS below it.
-            return (int(a) * 60 + int(b) + int(c or 0) / 60) if c else (int(a) + int(b) / 60)
+        total = max_steps_of(job_id)
+        bar = train_bar(entry.get("log", ""), total)
+        started = entry.get("started")
+        m = re.match(r"(\d+)/(\d+)", bar or "")
+        if m and started and total:
+            done = int(m.group(1))
+            if done <= 0:
+                return COST["train"]
+            t0 = datetime.strptime(started, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+            elapsed = (datetime.now(timezone.utc) - t0).total_seconds() / 60.0
+            return max(0.0, (total - done) * (elapsed / done))
         return COST["train"] / 2
     return 0
 
@@ -353,11 +366,22 @@ def etas(man, snap):
     def undone(pred):
         return [r for r in rows if pred(r) and r["state"] != "DONE"]
     live = running_train_remaining(snap)
+    running_arm = next((j[len("uf4_train_"):] for j, e in snap["jobs"].items()
+                        if e.get("state") == "RUNNING" and j.startswith("uf4_train_")), None)
 
-    def span(trains, judges, label, note=None):
+    def span(trains, judges, label, note=None, counts_live=False):
+        """Minutes of remaining work, as a range.
+
+        `counts_live` says whether the training currently on the cards is one of
+        this milestone's own trainings. When it is, it must not be charged twice
+        -- once in `live` and again in `trains`. When it is not (the cards are
+        busy with some other arm) the live time still has to elapse first, so it
+        is added and no training is discounted.
+        """
         if note:
             return "%s [산정 대기: %s]" % (label, note)
-        lo = live + trains * COST["train"] + judges * (COST["gen"] + COST["judge"])
+        chargeable = max(0, trains - 1) if counts_live else trains
+        lo = live + chargeable * COST["train"] + judges * (COST["gen"] + COST["judge"])
         hi = lo * 1.35 + 10                       # manuscript edit and PDF build
         return "%s [%.1f-%.1fh]" % (label, lo / 60, hi / 60)
 
@@ -365,11 +389,15 @@ def etas(man, snap):
     # Only the objectives table: the capability and cross-play rows for the same
     # checkpoint are separate milestones and must not inflate this one.
     def fixedref(r):
+        # the whole declared family, not seed 42 alone: the matrix was amended to
+        # three seeds because this control became the pivotal comparison, and a
+        # milestone that still asks only about seed 42 reads as already finished.
         return (r["exhibit_label"] == "tab:uf-objectives"
-                and r["checkpoint_id"] == "fixedref_mse_s42")
+                and r["checkpoint_id"].startswith("fixedref_mse_s"))
     m1_tr = undone(lambda r: fixedref(r) and "(train)" in r["seed_or_weight"])
     m1_ju = undone(lambda r: fixedref(r) and "(train)" not in r["seed_or_weight"])
-    one = span(max(0, len(m1_tr) - 1), len(m1_ju), "핵심 기전")
+    one = span(len(m1_tr), len(m1_ju), "핵심 기전",
+               counts_live=bool(running_arm and running_arm.startswith("fixedref_mse")))
 
     # milestone 2: one evaluated seed for every declared main-body method
     first = {}
@@ -383,7 +411,7 @@ def etas(man, snap):
         two = span(0, 0, "본문 첫 전체 평가",
                    "%s 충실 구현 미완" % "/".join(sorted(unimplemented)))
     else:
-        two = span(len(m2_missing), len(m2_missing), "본문 첫 전체 평가")
+        two = span(len(m2_missing), len(m2_missing), "본문 첫 전체 평가", counts_live=True)
 
     # milestone 3: every declared method, seed and weight, with the paired CI
     tr = undone(lambda r: "(train)" in r["seed_or_weight"])
@@ -393,7 +421,7 @@ def etas(man, snap):
         three = span(0, 0, "본문 최종",
                      "PROSPER/MOPO 구현 + cross-play bank 미확정")
     else:
-        three = span(max(0, len(tr) - 1), len(ju), "본문 최종")
+        three = span(len(tr), len(ju), "본문 최종", counts_live=True)
     return " / ".join([one, two, three])
 
 

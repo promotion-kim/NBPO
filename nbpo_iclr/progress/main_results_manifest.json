@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-11 21:00:24",
+  "generated_kst": "2026-09-11 21:43:11",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -120,10 +120,10 @@
   },
   "state_counts": {
     "DONE": 15,
-    "PENDING": 10,
-    "READY": 9,
+    "PENDING": 12,
+    "READY": 11,
     "RUNNING": 1,
-    "NOT_STARTED": 80
+    "NOT_STARTED": 88
   },
   "rows": [
     {
@@ -310,6 +310,58 @@
     },
     {
       "exhibit_label": "tab:uf-objectives",
+      "method": "fixed_reference_nash",
+      "seed_or_weight": "seed 43",
+      "checkpoint_id": "fixedref_mse_s43",
+      "config_hash": "",
+      "dependency": "uf4_train_fixedref_mse_s43",
+      "job_id": "uf4_finaleval_judge_fixedref_mse_s43",
+      "state": "PENDING",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/final_eval/fixedref_mse_s43/complete.json",
+      "eta_min": 24
+    },
+    {
+      "exhibit_label": "tab:uf-objectives",
+      "method": "fixed_reference_nash",
+      "seed_or_weight": "seed 43 (train)",
+      "checkpoint_id": "fixedref_mse_s43",
+      "config_hash": "",
+      "dependency": "target solve",
+      "job_id": "uf4_train_fixedref_mse_s43",
+      "state": "READY",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/arms/fixedref_mse_s43/config.json",
+      "eta_min": 184
+    },
+    {
+      "exhibit_label": "tab:uf-objectives",
+      "method": "fixed_reference_nash",
+      "seed_or_weight": "seed 44",
+      "checkpoint_id": "fixedref_mse_s44",
+      "config_hash": "",
+      "dependency": "uf4_train_fixedref_mse_s44",
+      "job_id": "uf4_finaleval_judge_fixedref_mse_s44",
+      "state": "PENDING",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/final_eval/fixedref_mse_s44/complete.json",
+      "eta_min": 24
+    },
+    {
+      "exhibit_label": "tab:uf-objectives",
+      "method": "fixed_reference_nash",
+      "seed_or_weight": "seed 44 (train)",
+      "checkpoint_id": "fixedref_mse_s44",
+      "config_hash": "",
+      "dependency": "target solve",
+      "job_id": "uf4_train_fixedref_mse_s44",
+      "state": "READY",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/arms/fixedref_mse_s44/config.json",
+      "eta_min": 184
+    },
+    {
+      "exhibit_label": "tab:uf-objectives",
       "method": "bt_rm_nash",
       "seed_or_weight": "seed 42",
       "checkpoint_id": "btrm_mse_s42",
@@ -356,7 +408,7 @@
       "dependency": "target solve",
       "job_id": "uf4_train_maxmin_mse_s42",
       "state": "RUNNING",
-      "progress": "step 306/1250",
+      "progress": "step 682/1250",
       "artifact_path": "/work/uf4_20260910/arms/maxmin_mse_s42/config.json",
       "eta_min": 184
     },
@@ -1151,6 +1203,110 @@
       "state": "NOT_STARTED",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/capability/fixedref_mse_s42/xstest/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "fixed_reference_nash",
+      "seed_or_weight": "seed 43 / ifeval",
+      "checkpoint_id": "fixedref_mse_s43",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_fixedref_mse_s43",
+      "job_id": "uf4_bench_fixedref_mse_s43_ifeval",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/fixedref_mse_s43/ifeval/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "fixed_reference_nash",
+      "seed_or_weight": "seed 43 / gsm8k",
+      "checkpoint_id": "fixedref_mse_s43",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_fixedref_mse_s43",
+      "job_id": "uf4_bench_fixedref_mse_s43_gsm8k",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/fixedref_mse_s43/gsm8k/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "fixed_reference_nash",
+      "seed_or_weight": "seed 43 / harmbench",
+      "checkpoint_id": "fixedref_mse_s43",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_fixedref_mse_s43",
+      "job_id": "uf4_bench_fixedref_mse_s43_harmbench",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/fixedref_mse_s43/harmbench/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "fixed_reference_nash",
+      "seed_or_weight": "seed 43 / xstest",
+      "checkpoint_id": "fixedref_mse_s43",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_fixedref_mse_s43",
+      "job_id": "uf4_bench_fixedref_mse_s43_xstest",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/fixedref_mse_s43/xstest/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "fixed_reference_nash",
+      "seed_or_weight": "seed 44 / ifeval",
+      "checkpoint_id": "fixedref_mse_s44",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_fixedref_mse_s44",
+      "job_id": "uf4_bench_fixedref_mse_s44_ifeval",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/fixedref_mse_s44/ifeval/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "fixed_reference_nash",
+      "seed_or_weight": "seed 44 / gsm8k",
+      "checkpoint_id": "fixedref_mse_s44",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_fixedref_mse_s44",
+      "job_id": "uf4_bench_fixedref_mse_s44_gsm8k",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/fixedref_mse_s44/gsm8k/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "fixed_reference_nash",
+      "seed_or_weight": "seed 44 / harmbench",
+      "checkpoint_id": "fixedref_mse_s44",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_fixedref_mse_s44",
+      "job_id": "uf4_bench_fixedref_mse_s44_harmbench",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/fixedref_mse_s44/harmbench/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "fixed_reference_nash",
+      "seed_or_weight": "seed 44 / xstest",
+      "checkpoint_id": "fixedref_mse_s44",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_fixedref_mse_s44",
+      "job_id": "uf4_bench_fixedref_mse_s44_xstest",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/fixedref_mse_s44/xstest/results.json",
       "eta_min": 17
     },
     {
