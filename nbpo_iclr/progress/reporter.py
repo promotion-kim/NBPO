@@ -109,7 +109,12 @@ def completion():
     m = json.loads((PROG / "execution_matrix.json").read_text())
     done = pod("ls -d /work/uf4_20260910/evaluation/final_eval/*/complete.json 2>/dev/null")
     evaluated = {Path(p).parent.name for p in done.split() if p.strip()}
-    arms_to_method = {"nbpo_mse": "nbpo", "util_mse": "game_utilitarian"}
+    # Every declared main-body method, so a finished arm is actually counted.
+    # A prefix missing here silently freezes the objective-row numerator.
+    arms_to_method = {"nbpo_mse": "nbpo", "util_mse": "game_utilitarian",
+                      "fixedref_mse": "fixed_reference_nash", "btrm_mse": "bt_rm_nash",
+                      "maxmin_mse": "game_maxmin", "dpo_uniform_mse": "dpo_uniform",
+                      "prosper_mse": "prosper_adapt", "mopo_mse": "mopo_adapt"}
     obj_methods = set()
     if evaluated:
         obj_methods.add("base")
@@ -117,6 +122,11 @@ def completion():
         for pref, meth in arms_to_method.items():
             if arm.startswith(pref):
                 obj_methods.add(meth)
+    # Cross-play and DPO rows are counted from the artifacts that would prove
+    # them, so the counters cannot stay at zero after the results land.
+    cp = pod("ls -d /work/uf4_20260910/evaluation/crossplay/*/complete.json 2>/dev/null; true")
+    crossplay_done = len([p for p in cp.split() if p.strip()])
+    dpo_done = len([a for a in evaluated if a.startswith("dpo_")])
     lm_cells = pod("ls -d /work/uf4_20260910/evaluation/capability/*/*/results.json 2>/dev/null")
     lm_cells = len([p for p in lm_cells.split() if p.strip()])
     cap_cells = capability_cells_in_manuscript()
@@ -126,8 +136,9 @@ def completion():
         "objective_rows_done": len(obj_methods),
         "objective_rows_total": len(m["objective_rows"]["methods"]),
         "objective_arms_evaluated": sorted(evaluated),
-        "crossplay_done": 0, "crossplay_total": len(m["crossplay"]["entries"]),
-        "dpo_done": 0, "dpo_total": len(m["dpo_weights"]["weights"]),
+        "crossplay_done": crossplay_done,
+        "crossplay_total": len(m["crossplay"]["entries"]),
+        "dpo_done": dpo_done, "dpo_total": len(m["dpo_weights"]["weights"]),
         "capability_cells_done": cap_cells,
         "capability_cells_total": len(m["capability"]["methods"]) * len(m["capability"]["benchmarks"]),
         "lm_eval_cells_done": lm_cells,
@@ -154,6 +165,9 @@ def status_block(snap, comp, pdf_note):
     t = now().strftime("%Y-%m-%d %H:%M KST")
     rows = []
     for g in snap["gpus"]:
+        # Escape once, here. The joined line is inserted verbatim below: running
+        # esc() over it again turns every \_ into \textbackslash{}\_ and prints
+        # the escapes instead of the job name.
         rows.append("GPU%d: %s, %d\\%%, %d/%d MiB" %
                     (g["gpu"], esc(g["job"]), g["util"], g["used_mib"], g["total_mib"]))
     counts = ", ".join("%s %d" % (k, v) for k, v in sorted(snap["state_counts"].items()))
@@ -170,7 +184,7 @@ def status_block(snap, comp, pdf_note):
          comp["capability_cells_done"], comp["capability_cells_total"],
          comp["lm_eval_cells_done"]),
         "\\\\[2pt]",
-        esc(" | ".join(rows)),
+        " | ".join(rows),
         "\\\\[2pt]",
         "Queue: %s. %s" % (esc(counts), esc(pdf_note)),
         "}}\\end{center}",
@@ -276,16 +290,161 @@ def korean_summary(snap, comp, build, extra):
     ])
 
 
+MANIFEST = PROG / "main_results_manifest.json"
+# Measured medians (minutes) from logs/queue_report.jsonl. Training is exclusive
+# on all four cards; generation fans out over them; the judge takes one card but
+# the controller holds the rest for the next 4-GPU training, so it serialises too.
+COST = {"train": 184, "gen": 9, "judge": 24}
+
+
+def refresh_manifest():
+    """Rebuild the main-body manifest; returns it, or None if the build failed."""
+    try:
+        subprocess.run([sys.executable, str(PROG / "build_main_manifest.py")],
+                       capture_output=True, text=True, timeout=600, check=True)
+        return json.loads(MANIFEST.read_text())
+    except Exception:
+        return json.loads(MANIFEST.read_text()) if MANIFEST.exists() else None
+
+
+def max_steps_of(job_id):
+    """The arm's declared max_steps, read from the config the job actually runs."""
+    arm = job_id[len("uf4_train_"):] if job_id.startswith("uf4_train_") else job_id
+    out = pod("grep -m1 '^max_steps:' /work/uf4_20260910/configs/%s.yaml 2>/dev/null; true" % arm)
+    m = re.search(r"max_steps:\s*(\d+)", out)
+    return int(m.group(1)) if m else None
+
+
+def train_bar(log, total):
+    """The training progress bar, never the periodic evaluation's.
+
+    The trainer runs a dev pass every 250 updates and tqdm prints a second bar
+    for it, with a larger denominator. Taking the last bar therefore reports the
+    eval's minutes remaining as the training's, which understates the ETA by
+    about an hour. Match the denominator instead.
+    """
+    if not total:
+        return None
+    out = pod(r"tr '\r' '\n' < %s | grep -oE '[0-9]+/%d \[[0-9:]+<[0-9:]+' | tail -1"
+              % (log, total))
+    return out.strip() or None
+
+
+def running_train_remaining(snap):
+    """Minutes left on the training that is on the cards, from its own step rate."""
+    for job_id, entry in snap["jobs"].items():
+        if entry.get("state") != "RUNNING" or "train" not in job_id:
+            continue
+        bar = train_bar(entry.get("log", ""), max_steps_of(job_id))
+        m = re.search(r"<(\d+):(\d+)(?::(\d+))?", bar or "")
+        if m:
+            a, b, c = m.group(1), m.group(2), m.group(3)
+            # tqdm writes H:MM:SS once past an hour, MM:SS below it.
+            return (int(a) * 60 + int(b) + int(c or 0) / 60) if c else (int(a) + int(b) / 60)
+        return COST["train"] / 2
+    return 0
+
+
+def etas(man, snap):
+    """Three milestone ranges, built from real remaining work, not from a past run."""
+    if not man:
+        return "산정 대기: manifest 생성 실패"
+    rows = man["rows"]
+    def undone(pred):
+        return [r for r in rows if pred(r) and r["state"] != "DONE"]
+    live = running_train_remaining(snap)
+
+    def span(trains, judges, label, note=None):
+        if note:
+            return "%s [산정 대기: %s]" % (label, note)
+        lo = live + trains * COST["train"] + judges * (COST["gen"] + COST["judge"])
+        hi = lo * 1.35 + 10                       # manuscript edit and PDF build
+        return "%s [%.1f-%.1fh]" % (label, lo / 60, hi / 60)
+
+    # milestone 1: the fixed-reference row, the matched mechanism control
+    # Only the objectives table: the capability and cross-play rows for the same
+    # checkpoint are separate milestones and must not inflate this one.
+    def fixedref(r):
+        return (r["exhibit_label"] == "tab:uf-objectives"
+                and r["checkpoint_id"] == "fixedref_mse_s42")
+    m1_tr = undone(lambda r: fixedref(r) and "(train)" in r["seed_or_weight"])
+    m1_ju = undone(lambda r: fixedref(r) and "(train)" not in r["seed_or_weight"])
+    one = span(max(0, len(m1_tr) - 1), len(m1_ju), "핵심 기전")
+
+    # milestone 2: one evaluated seed for every declared main-body method
+    first = {}
+    for r in rows:
+        if r["exhibit_label"] != "tab:uf-objectives" or "(train)" in r["seed_or_weight"]:
+            continue
+        first.setdefault(r["method"], []).append(r)
+    m2_missing = [m for m, rs in first.items() if not any(x["state"] == "DONE" for x in rs)]
+    unimplemented = [m for m in m2_missing if m in ("prosper_adapt", "mopo_adapt")]
+    if unimplemented:
+        two = span(0, 0, "본문 첫 전체 평가",
+                   "%s 충실 구현 미완" % "/".join(sorted(unimplemented)))
+    else:
+        two = span(len(m2_missing), len(m2_missing), "본문 첫 전체 평가")
+
+    # milestone 3: every declared method, seed and weight, with the paired CI
+    tr = undone(lambda r: "(train)" in r["seed_or_weight"])
+    ju = undone(lambda r: r["exhibit_label"] in ("tab:uf-objectives", "fig:uf-tradeoffs")
+                and "(train)" not in r["seed_or_weight"])
+    if unimplemented:
+        three = span(0, 0, "본문 최종",
+                     "PROSPER/MOPO 구현 + cross-play bank 미확정")
+    else:
+        three = span(max(0, len(tr) - 1), len(ju), "본문 최종")
+    return " / ".join([one, two, three])
+
+
+def next_ready(ready):
+    """The job the controller will actually dispatch next: lowest (priority, id).
+
+    Sorting READY names alphabetically names a different job than the one that
+    runs, which is exactly the kind of status line that stops being believed.
+    """
+    if not ready:
+        return "없음"
+    out = pod("python3 -c \"import json,glob;"
+              "print(json.dumps({json.load(open(p))['job_id']: json.load(open(p)).get('priority',100)"
+              " for p in glob.glob('/work/uf4_20260910/jobs/queue/*.json')}))\"")
+    try:
+        prio = json.loads(out)
+    except Exception:
+        return sorted(ready)[0] + " (우선순위 조회 실패)"
+    best = sorted(ready, key=lambda j: (prio.get(j, 100), j))[0]
+    return "%s (prio %s)" % (best, prio.get(best, "?"))
+
+
+def newly_done(man):
+    """Rows that became DONE since the previous cycle, read off status.jsonl."""
+    if not man:
+        return "새 완료 결과 없음"
+    now_done = {"%s|%s|%s" % (r["exhibit_label"], r["method"], r["seed_or_weight"])
+                for r in man["rows"] if r["state"] == "DONE"}
+    path = PROG / "done_set.json"
+    was = set(json.loads(path.read_text())) if path.exists() else None
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(sorted(now_done)))
+    os.replace(tmp, path)
+    if was is None:
+        return "기준선 기록 (%d개 완료 상태)" % len(now_done)
+    new = sorted(now_done - was)
+    return ", ".join(new) if new else "새 완료 결과 없음"
+
+
 def cycle():
     snap = snapshot()
     comp = completion()
+    man = refresh_manifest()
     pdf_note = "PDF rebuilt each cycle."
     update_manuscript(status_block(snap, comp, pdf_note))
     build = build_pdf()
     ready = [j for j, e in snap["jobs"].items() if e.get("state") == "READY"]
-    extra = {"next": (sorted(ready)[0] if ready else "없음"),
-             "eta": "핵심 기전 [산정 대기: fixed-ref UF 학습 미착수] / 본문 첫 전체 평가 [17:30-18:30] / 본문 최종 [산정 대기: DPO·PROSPER·MOPO 미착수]",
-             "done": "-", "blocker": "없음" if not snap["unreachable"] else "클러스터 조회 실패"}
+    extra = {"next": next_ready(ready),
+             "eta": etas(man, snap),
+             "done": newly_done(man),
+             "blocker": "없음" if not snap["unreachable"] else "클러스터 조회 실패"}
     text = korean_summary(snap, comp, build, extra)
     stamp = now().strftime("%Y%m%d_%H%M_KST")
     (PROG / "latest.md").write_text(text + "\n")

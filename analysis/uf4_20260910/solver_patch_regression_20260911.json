@@ -1,0 +1,254 @@
+{
+  "nash_v1": {
+    "aggregation": "nash",
+    "weight_l1": null,
+    "dataset_manifest_sha256": "7828032ecac9563fdd39d3e7ab8f75871e1eb18706a4261d940bb7c18cbd567e",
+    "source_sha256": "ba2cbc6a52b868923d22aaea23dd848719d8a77a1ceebc479deeb8f253734a97",
+    "train_certificate": {
+      "certified": true,
+      "independent_stationarity_inf": 9.877021422965981e-11,
+      "unprojected_kkt_residual": 1.3877787807814457e-16,
+      "projected_kkt_residual": 0.0,
+      "lambda_at_lower_bound": [],
+      "lambda_at_upper_bound": [],
+      "box_active": false,
+      "fixed_point_residual": 4.0663472589130834e-11,
+      "control_residual": null,
+      "lambda_raw": [
+        7.462711518404318,
+        11.04263520349436,
+        8.113841779521296,
+        7.304342329055354
+      ],
+      "lambda_l1": 33.92353083047533,
+      "surplus_per_objective": {
+        "instruction_following": 0.13399955197702998,
+        "truthfulness": 0.09055809429288733,
+        "honesty": 0.1232461794515051,
+        "helpfulness": 0.13690486493522905
+      },
+      "min_surplus": 0.09055809429288733,
+      "all_surplus_positive": true,
+      "V": [
+        0.1070057307361671,
+        0.0757952390484119,
+        0.10064275831220518,
+        0.1084164831872831
+      ],
+      "d": [
+        -0.026993821240862876,
+        -0.014762855244475438,
+        -0.02260342113929991,
+        -0.028488381747945938
+      ],
+      "reading": "A projected residual of zero while the dual box is active does not certify the original problem; read box_active with unprojected_kkt_residual before calling this solved."
+    },
+    "dev_certificate": {
+      "certified": true,
+      "independent_stationarity_inf": 9.621947683058352e-11,
+      "unprojected_kkt_residual": null,
+      "projected_kkt_residual": null,
+      "lambda_at_lower_bound": [],
+      "lambda_at_upper_bound": [],
+      "box_active": false,
+      "fixed_point_residual": 3.191370778754532e-14,
+      "control_residual": null,
+      "lambda_raw": [
+        7.462711518404318,
+        11.04263520349436,
+        8.113841779521296,
+        7.304342329055354
+      ],
+      "lambda_l1": 33.92353083047533,
+      "surplus_per_objective": {
+        "instruction_following": 0.13469573486891886,
+        "truthfulness": 0.09116149310786732,
+        "honesty": 0.12422871297749483,
+        "helpfulness": 0.13783199284168246
+      },
+      "min_surplus": 0.09116149310786732,
+      "all_surplus_positive": true,
+      "V": [
+        0.10780945125567773,
+        0.07632341873929281,
+        0.1015806970846125,
+        0.10944264390470336
+      ],
+      "d": [
+        -0.02688628361324113,
+        -0.014838074368574507,
+        -0.022648015892882335,
+        -0.028389348936979114
+      ],
+      "reading": "A projected residual of zero while the dual box is active does not certify the original problem; read box_active with unprojected_kkt_residual before calling this solved."
+    }
+  },
+  "regress_nash_check": {
+    "aggregation": "nash",
+    "weight_l1": null,
+    "dataset_manifest_sha256": null,
+    "source_sha256": "2ff97b1b496099c83e41155cd5c60a551125768e8ca2aa3170531be12905acb9",
+    "train_certificate": {
+      "certified": true,
+      "independent_stationarity_inf": 9.877021422965981e-11,
+      "unprojected_kkt_residual": 1.3877787807814457e-16,
+      "projected_kkt_residual": 0.0,
+      "lambda_at_lower_bound": [],
+      "lambda_at_upper_bound": [],
+      "box_active": false,
+      "fixed_point_residual": 4.0663472589130834e-11,
+      "control_residual": null,
+      "lambda_raw": [
+        7.462711518404318,
+        11.04263520349436,
+        8.113841779521296,
+        7.304342329055354
+      ],
+      "lambda_l1": 33.92353083047533,
+      "surplus_per_objective": {
+        "instruction_following": 0.13399955197702998,
+        "truthfulness": 0.09055809429288733,
+        "honesty": 0.1232461794515051,
+        "helpfulness": 0.13690486493522905
+      },
+      "min_surplus": 0.09055809429288733,
+      "all_surplus_positive": true,
+      "V": [
+        0.1070057307361671,
+        0.0757952390484119,
+        0.10064275831220518,
+        0.1084164831872831
+      ],
+      "d": [
+        -0.026993821240862876,
+        -0.014762855244475438,
+        -0.02260342113929991,
+        -0.028488381747945938
+      ],
+      "reading": "A projected residual of zero while the dual box is active does not certify the original problem; read box_active with unprojected_kkt_residual before calling this solved."
+    },
+    "dev_certificate": {
+      "certified": true,
+      "independent_stationarity_inf": 9.621947683058352e-11,
+      "unprojected_kkt_residual": null,
+      "projected_kkt_residual": null,
+      "lambda_at_lower_bound": [],
+      "lambda_at_upper_bound": [],
+      "box_active": false,
+      "fixed_point_residual": 3.191370778754532e-14,
+      "control_residual": null,
+      "lambda_raw": [
+        7.462711518404318,
+        11.04263520349436,
+        8.113841779521296,
+        7.304342329055354
+      ],
+      "lambda_l1": 33.92353083047533,
+      "surplus_per_objective": {
+        "instruction_following": 0.13469573486891886,
+        "truthfulness": 0.09116149310786732,
+        "honesty": 0.12422871297749483,
+        "helpfulness": 0.13783199284168246
+      },
+      "min_surplus": 0.09116149310786732,
+      "all_surplus_positive": true,
+      "V": [
+        0.10780945125567773,
+        0.07632341873929281,
+        0.1015806970846125,
+        0.10944264390470336
+      ],
+      "d": [
+        -0.02688628361324113,
+        -0.014838074368574507,
+        -0.022648015892882335,
+        -0.028389348936979114
+      ],
+      "reading": "A projected residual of zero while the dual box is active does not certify the original problem; read box_active with unprojected_kkt_residual before calling this solved."
+    }
+  },
+  "maxmin_l1m_v1": {
+    "aggregation": "absolute_maxmin",
+    "weight_l1": 33.92353083047533,
+    "dataset_manifest_sha256": "dd05b04a2fe0f19d1a99edf524f56fb31da18b0202cd432c7e052e970ebd6be1",
+    "source_sha256": "2ff97b1b496099c83e41155cd5c60a551125768e8ca2aa3170531be12905acb9",
+    "train_certificate": {
+      "certified": true,
+      "independent_stationarity_inf": 9.969070013937653e-11,
+      "unprojected_kkt_residual": null,
+      "projected_kkt_residual": null,
+      "lambda_at_lower_bound": [],
+      "lambda_at_upper_bound": [],
+      "box_active": false,
+      "fixed_point_residual": 1.3703704837553232e-11,
+      "control_residual": 0.017806140753042987,
+      "lambda_raw": [
+        7.029769510427717,
+        12.200964443620483,
+        7.847332957799137,
+        6.845463918627986
+      ],
+      "lambda_l1": 33.92353083047532,
+      "surplus_per_objective": {
+        "instruction_following": 0.13350351079023842,
+        "truthfulness": 0.09056813780843156,
+        "honesty": 0.12296320122869042,
+        "helpfulness": 0.13605376555845677
+      },
+      "min_surplus": 0.09056813780843156,
+      "all_surplus_positive": true,
+      "V": [
+        0.10650968954937555,
+        0.07580528256395612,
+        0.1003597800893905,
+        0.10756538381051084
+      ],
+      "d": [
+        -0.026993821240862876,
+        -0.014762855244475438,
+        -0.02260342113929991,
+        -0.028488381747945938
+      ],
+      "reading": "A projected residual of zero while the dual box is active does not certify the original problem; read box_active with unprojected_kkt_residual before calling this solved."
+    },
+    "dev_certificate": {
+      "certified": true,
+      "independent_stationarity_inf": 9.377021381595796e-11,
+      "unprojected_kkt_residual": null,
+      "projected_kkt_residual": null,
+      "lambda_at_lower_bound": [],
+      "lambda_at_upper_bound": [],
+      "box_active": false,
+      "fixed_point_residual": 3.497202527569243e-14,
+      "control_residual": null,
+      "lambda_raw": [
+        7.029769510427717,
+        12.200964443620483,
+        7.847332957799137,
+        6.845463918627986
+      ],
+      "lambda_l1": 33.92353083047532,
+      "surplus_per_objective": {
+        "instruction_following": 0.1341849142092456,
+        "truthfulness": 0.09117042364033999,
+        "honesty": 0.12393598967001358,
+        "helpfulness": 0.1369501579986341
+      },
+      "min_surplus": 0.09117042364033999,
+      "all_surplus_positive": true,
+      "V": [
+        0.10729863059600447,
+        0.07633234927176548,
+        0.10128797377713125,
+        0.108560809061655
+      ],
+      "d": [
+        -0.02688628361324113,
+        -0.014838074368574507,
+        -0.022648015892882335,
+        -0.028389348936979114
+      ],
+      "reading": "A projected residual of zero while the dual box is active does not certify the original problem; read box_active with unprojected_kkt_residual before calling this solved."
+    }
+  }
+}
