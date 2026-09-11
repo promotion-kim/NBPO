@@ -433,10 +433,29 @@ def newly_done(man):
     return ", ".join(new) if new else "새 완료 결과 없음"
 
 
+def fill_exhibits():
+    """Write any newly measured UF-4 numbers into Table 1's marked region.
+
+    Runs before the build so a judge that finished since the last cycle appears
+    in this cycle's PDF. It only rewrites the marker regions, and it reports
+    which attributes clear 0.5 so a stale interpretive caption is visible rather
+    than silently rewritten.
+    """
+    try:
+        r = subprocess.run([sys.executable, str(PROG / "fill_exhibits.py")],
+                           capture_output=True, text=True, timeout=2400)
+        if r.returncode != 0:
+            return {"ok": False, "detail": (r.stderr or r.stdout)[-300:]}
+        return {"ok": True, "detail": (r.stdout or "").strip()[-300:]}
+    except Exception as error:                               # noqa: BLE001
+        return {"ok": False, "detail": repr(error)[-300:]}
+
+
 def cycle():
     snap = snapshot()
     comp = completion()
     man = refresh_manifest()
+    filled = fill_exhibits()
     pdf_note = "PDF rebuilt each cycle."
     update_manuscript(status_block(snap, comp, pdf_note))
     build = build_pdf()
@@ -444,7 +463,9 @@ def cycle():
     extra = {"next": next_ready(ready),
              "eta": etas(man, snap),
              "done": newly_done(man),
-             "blocker": "없음" if not snap["unreachable"] else "클러스터 조회 실패"}
+             "blocker": ("클러스터 조회 실패" if snap["unreachable"]
+                         else ("표 자동기입 실패: " + filled["detail"]) if not filled["ok"]
+                         else "없음")}
     text = korean_summary(snap, comp, build, extra)
     stamp = now().strftime("%Y%m%d_%H%M_KST")
     (PROG / "latest.md").write_text(text + "\n")
@@ -452,7 +473,8 @@ def cycle():
     with (PROG / "status.jsonl").open("a") as f:
         f.write(json.dumps({"kst": now().strftime("%Y-%m-%d %H:%M:%S"),
                             "gpus": snap["gpus"], "state_counts": snap["state_counts"],
-                            "completion": comp, "build": build}) + "\n")
+                            "completion": comp, "build": build,
+                            "exhibit_fill": filled}) + "\n")
     print(text, flush=True)
     print("-" * 60, flush=True)
 

@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-11 17:23:53",
+  "generated_kst": "2026-09-11 18:30:24",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -115,8 +115,8 @@
     "DONE": 12,
     "PENDING": 2,
     "RUNNING": 1,
-    "NOT_STARTED": 99,
-    "READY": 1
+    "NOT_STARTED": 98,
+    "READY": 2
   },
   "rows": [
     {
@@ -297,7 +297,7 @@
       "dependency": "target solve",
       "job_id": "uf4_train_fixedref_mse_s42",
       "state": "RUNNING",
-      "progress": "step 500/1250",
+      "progress": "step 1000/1250",
       "artifact_path": "/work/uf4_20260910/arms/fixedref_mse_s42/config.json",
       "eta_min": 184
     },
@@ -322,7 +322,7 @@
       "config_hash": "",
       "dependency": "target solve",
       "job_id": "uf4_train_btrm_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "READY",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/btrm_mse_s42/config.json",
       "eta_min": 184

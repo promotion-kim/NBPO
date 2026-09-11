@@ -84,16 +84,24 @@
 \begin{document}
 \maketitle
 
+% BEGIN AUTO EXHIBIT NUMBERS
+% Factual counts written by progress/fill_exhibits.py. The caption prose reads
+% these macros, so the table body and the sentence describing it cannot drift
+% apart. Interpretive sentences are NOT auto-written.
+\newcommand{\tabonecommon}{1{,}719}
+\newcommand{\tabonevalidrange}{$1{,}916$--$1{,}935$}
+% END AUTO EXHIBIT NUMBERS
+
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-11 17:23 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-11 18:30 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 3/9; cross-play 0/4; DPO weights 0/7; capability cells 7/36; lm-eval cells 12.
 \\[2pt]
-GPU0: uf4\_train\_fixedref\_mse\_s42, 96\%, 96355/143771 MiB | GPU1: uf4\_train\_fixedref\_mse\_s42, 95\%, 96191/143771 MiB | GPU2: uf4\_train\_fixedref\_mse\_s42, 99\%, 97831/143771 MiB | GPU3: uf4\_train\_fixedref\_mse\_s42, 98\%, 96197/143771 MiB
+GPU0: uf4\_train\_fixedref\_mse\_s42, 99\%, 96357/143771 MiB | GPU1: uf4\_train\_fixedref\_mse\_s42, 96\%, 96191/143771 MiB | GPU2: uf4\_train\_fixedref\_mse\_s42, 99\%, 97831/143771 MiB | GPU3: uf4\_train\_fixedref\_mse\_s42, 99\%, 96201/143771 MiB
 \\[2pt]
-Queue: DONE 98, FAILED 5, PENDING 7, READY 12, RUNNING 2. PDF rebuilt each cycle.
+Queue: DONE 100, FAILED 5, PENDING 6, READY 13, RUNNING 2. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -581,12 +589,13 @@ Fixed-reference Nash changes opponent adaptation; BT-RM--Nash changes preference
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
-\caption{UF-4 win rates against the common base, with order averaging and ties worth $0.5$. Every entry is computed on the $1{,}719$ prompts of the planned $2{,}000$ for which \emph{all} arms reported here have both presentation orders parsed on all four attributes, so the arms are compared on identical prompts; each method's own valid count is larger ($1{,}916$--$1{,}935$) and is reported in Appendix~\ref{app:evaluation} rather than used here. The common set shrinks as arms are added and is recomputed whenever a row is filled, so these numbers are tied to the set of rows present. $\min_k W_k$ is the minimum attribute mean. Only helpfulness has a whole-prompt bootstrap interval excluding $0.5$ for all five evaluated seeds; truthfulness excludes it for two of the three NBPO seeds, and instruction following, honesty and the minimum objective do not for any seed. Honesty sits at or just below $0.5$ for both families on this common set, and its utilitarian seed spread ($0.0139$) is an order of magnitude wider than the others. Dashes are unmeasured.}
+\caption{UF-4 win rates against the common base, with order averaging and ties worth $0.5$. Every entry is computed on the $\tabonecommon$ prompts of the planned $2{,}000$ for which \emph{all} arms reported here have both presentation orders parsed on all four attributes, so the arms are compared on identical prompts; each method's own valid count is larger (\tabonevalidrange) and is reported in Appendix~\ref{app:evaluation} rather than used here. The common set shrinks as arms are added and is recomputed whenever a row is filled, so these numbers are tied to the set of rows present. $\min_k W_k$ is the minimum attribute mean. Only helpfulness has a whole-prompt bootstrap interval excluding $0.5$ for all five evaluated seeds; truthfulness excludes it for two of the three NBPO seeds, and instruction following, honesty and the minimum objective do not for any seed. Honesty sits at or just below $0.5$ for both families on this common set, and its utilitarian seed spread ($0.0139$) is an order of magnitude wider than the others. Dashes are unmeasured.}
 \label{tab:uf-objectives}
 \begin{tabular}{lrrrrrr}
 \toprule
 Method & Seeds & IF & Truth & Honesty & Help & $\min_k W_k$\\
 \midrule
+% BEGIN AUTO TAB1 BODY
 Base (defined reference) & -- & $0.500$ & $0.500$ & $0.500$ & $0.500$ & $0.500$\\
 \addlinespace
 \multicolumn{7}{l}{\textit{Matched mechanism controls}}\\
@@ -602,6 +611,7 @@ Global game-maxmin & \pending & \pending & \pending & \pending & \pending & \pen
 Scalarized DPO (uniform) & \pending & \pending & \pending & \pending & \pending & \pending\\
 PROSPER (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending\\
 MOPO (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending\\
+% END AUTO TAB1 BODY
 \bottomrule
 \end{tabular}
 \end{table}

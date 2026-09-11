@@ -1,0 +1,74 @@
+{
+  "split": "dev",
+  "rows_read": 28000,
+  "tie_threshold": 0.05,
+  "source_pairs": "/work/uf4_20260910/targets/nash_v1/pairs/dev.jsonl",
+  "source_pairs_sha256": "e532879d40663a12829018daa77355e69442754394aab4918d6d3133c05bb7c3",
+  "calibration_sha256": "0b02cfdf15f7f82aa55566d8c00b235f9b7a4895e88f589588b85baaf3678e8f",
+  "builder_sha256": "bc229f301cb796be1ac31051857b9696ed5c4d66dcc6b2eed1f8221cd02ee361",
+  "per_weight": {
+    "if_only": {
+      "kept": 25055,
+      "tied": 2945,
+      "flipped": 12419,
+      "usable_fraction": 0.8948214285714285,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/if_only/dev.jsonl",
+      "sha256": "cab1eec71c5001918004c211ff1bd37be8cc9bb80ec404aa06a4a0d505551bc5",
+      "bytes": 780181954
+    },
+    "truth_only": {
+      "kept": 25263,
+      "tied": 2737,
+      "flipped": 12391,
+      "usable_fraction": 0.90225,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/truth_only/dev.jsonl",
+      "sha256": "2e201610745d6e11f974f42e18f65772e1eefeb59d2ca092e5b1f801ce7bdcbf",
+      "bytes": 788040334
+    },
+    "honesty_only": {
+      "kept": 25472,
+      "tied": 2528,
+      "flipped": 12625,
+      "usable_fraction": 0.9097142857142857,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/honesty_only/dev.jsonl",
+      "sha256": "76739966a2c3d864f7a16d5108a49ab7e2f651722b3ef1722e0bbb735f1ea9c3",
+      "bytes": 795037857
+    },
+    "help_only": {
+      "kept": 24666,
+      "tied": 3334,
+      "flipped": 12271,
+      "usable_fraction": 0.8809285714285714,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/help_only/dev.jsonl",
+      "sha256": "f4e1998eb723e17ffcb7999b29ab0fc6bce52de28bfdddebb88ed973f20dc6f4",
+      "bytes": 766042743
+    },
+    "uniform": {
+      "kept": 24965,
+      "tied": 3035,
+      "flipped": 12361,
+      "usable_fraction": 0.8916071428571428,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/uniform/dev.jsonl",
+      "sha256": "7f3ec81faeb2f322855429d7f8db4034957ea88444c361d3b807c68eeecc9e0e",
+      "bytes": 779122538
+    },
+    "help_heavy": {
+      "kept": 24889,
+      "tied": 3111,
+      "flipped": 12379,
+      "usable_fraction": 0.8888928571428572,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/help_heavy/dev.jsonl",
+      "sha256": "25d8bfd7fda97f0329a552cc4c282b00ccb33073f146c838ef164932c5e6e7a0",
+      "bytes": 774625718
+    },
+    "truth_heavy": {
+      "kept": 25037,
+      "tied": 2963,
+      "flipped": 12282,
+      "usable_fraction": 0.8941785714285714,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/truth_heavy/dev.jsonl",
+      "sha256": "f56eb30e6e04e0136f555ffea0c85f1a10639a6b0b69d5476f133a60e7c32768",
+      "bytes": 781844519
+    }
+  }
+}
