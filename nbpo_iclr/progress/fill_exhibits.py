@@ -59,6 +59,8 @@ CROSSPLAY_ROWS = [("Base", "base", "--"), ("NBPO", "nbpo_mse_s42", "$1$"),
                   ("Fixed-reference Nash", "fixedref_mse_s42", "$1$")]
 RUBRIC_LABEL = {"instruction_following": "IF", "truthfulness": "Truth",
                 "honesty": "Honesty", "helpfulness": "Help"}
+# Declared floor for writing any cross-play cell into the manuscript.
+MIN_CROSSPLAY_PROMPTS = 100
 
 
 def pod(cmd, timeout=1800):
@@ -97,6 +99,12 @@ def render_crossplay(cp):
     r"""Both cross-play exhibits. A policy the aggregator has no row for stays \pending."""
     stats, mats = cp["statistics"], cp["matrices"]
     n = cp["n_common_prompts"]
+    # A statistic resting on a handful of prompts is not a measurement, and an
+    # N=2 intersection renders as exactly 0.5000 everywhere -- which reads to
+    # anyone skimming the table as a clean "no difference" result rather than as
+    # an absence of data. Refuse below the declared floor.
+    if n < MIN_CROSSPLAY_PROMPTS:
+        return None, None
     competitor = next((p for p in cp["policies"]
                        if p not in {k for _, k, _ in CROSSPLAY_ROWS}), None)
     rows = list(CROSSPLAY_ROWS)
@@ -134,8 +142,18 @@ def render_crossplay(cp):
 
 
 def evaluated_arms():
+    """Main-body arms only.
+
+    The dev-selection runs write under evaluation/final_eval/devsel_<arm> so
+    they sit beside these results, but they are judged on policy_dev, which is
+    disjoint from the final 2,000. Including them makes the common-prompt
+    intersection empty, so they must be excluded here rather than filtered
+    downstream: the aggregator would otherwise be asked for a common set that
+    cannot exist.
+    """
     out = pod(f"ls -d {ROOT}/evaluation/final_eval/*/complete.json 2>/dev/null; true")
-    return sorted(Path(p).parent.name for p in out.split() if p.strip())
+    names = sorted(Path(p).parent.name for p in out.split() if p.strip())
+    return [n for n in names if not n.startswith("devsel_")]
 
 
 def aggregate(arms):
@@ -243,6 +261,7 @@ def main():
 
     cp = crossplay_summary()
     cp_body, cp_matrices = render_crossplay(cp) if cp else (None, None)
+    cp_withheld = bool(cp) and cp_body is None
 
     # Re-read immediately before writing: the reporter and a human may both be
     # editing, and only these marked regions may change.
@@ -262,6 +281,8 @@ def main():
     sig = {c: [lab for lab, ok in v if ok] for c, v in bold.items()}
     out = {"written_kst": datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S"),
            "arms": arms, "common_prompts": common,
+           "crossplay_withheld_below_floor": cp_withheld,
+           "crossplay_prompt_floor": MIN_CROSSPLAY_PROMPTS,
            "crossplay": ({"n_common_prompts": cp["n_common_prompts"],
                           "policies": cp["policies"],
                           "pairs_missing_for_full_bank": cp["pairs_missing_for_full_bank"],
@@ -279,6 +300,7 @@ def main():
     os.replace(tmp, PROG / "exhibit_fill.json")
     print(json.dumps({"arms": len(arms), "common_prompts": common,
                       "significant": sig,
+                      "crossplay_withheld_below_floor": cp_withheld,
                       "crossplay": (("%d policies, %d common prompts, %d pairs missing"
                                      % (len(cp["policies"]), cp["n_common_prompts"],
                                         len(cp["pairs_missing_for_full_bank"])))

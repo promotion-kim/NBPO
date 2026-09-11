@@ -95,13 +95,13 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-12 07:13 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-12 08:13 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 5/9; cross-play 0/4; DPO weights 0/7; capability cells 7/36; lm-eval cells 21.
 \\[2pt]
-GPU0: uf4\_devsel\_judge\_maxmin\_mse\_s42, 98\%, 130845/143771 MiB | GPU1: -, 0\%, 0/143771 MiB | GPU2: uf4\_devsel\_gen\_util\_mse\_s42, 80\%, 122245/143771 MiB | GPU3: -, 0\%, 0/143771 MiB
+GPU0: uf4\_train\_maxmin\_mse\_s43, 97\%, 96865/143771 MiB | GPU1: uf4\_train\_maxmin\_mse\_s43, 95\%, 95063/143771 MiB | GPU2: uf4\_train\_maxmin\_mse\_s43, 95\%, 96295/143771 MiB | GPU3: uf4\_train\_maxmin\_mse\_s43, 96\%, 98687/143771 MiB
 \\[2pt]
-Queue: BLOCKED 1, DONE 172, FAILED 6, PENDING 56, READY 12, RUNNING 2. PDF rebuilt each cycle.
+Queue: BLOCKED 1, DONE 178, FAILED 6, PENDING 55, READY 14, RUNNING 1. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -672,9 +672,9 @@ The second statistic tests vulnerability to the evaluated bank, not population e
 Policy & Seeds & $N_{\rm common}$ & $W_{\rm ref}^{\min}$ & $W_{\mathcal B}^{\min}$ & $\min_k\widehat s_k^{\mathcal B}$\\
 \midrule
 % BEGIN AUTO CROSSPLAY BODY
-Base & -- & $2$ & $0.5000$ & $0.5000$ & $+0.0000$\\
-NBPO & $1$ & $2$ & $0.5000$ & $0.5000$ & $+0.0000$\\
-Fixed-reference Nash & $1$ & $2$ & $0.5000$ & $0.5000$ & $+0.0000$\\
+Base & \pending & \pending & \pending & \pending & \pending\\
+NBPO & \pending & \pending & \pending & \pending & \pending\\
+Fixed-reference Nash & \pending & \pending & \pending & \pending & \pending\\
 Dev-selected competitor & \pending & \pending & \pending & \pending & \pending\\
 % END AUTO CROSSPLAY BODY
 \bottomrule
@@ -2295,25 +2295,25 @@ Here $a$ is a full-support distribution over the comparator policies, fixed on d
 Rubric & Policy & Base & NBPO & Fixed-ref. & Competitor\\
 \midrule
 % BEGIN AUTO CROSSPLAY MATRICES
-IF & Base & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
- & NBPO & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
- & Fixed-reference Nash & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
- & Dev-selected competitor & \pending & \pending & \pending & \pending\\
+IF & Base & \pending & \pending & \pending & \pending\\
+ & NBPO & \pending & \pending & \pending & \pending\\
+ & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
+ & Competitor & \pending & \pending & \pending & \pending\\
 \midrule
-Truth & Base & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
- & NBPO & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
- & Fixed-reference Nash & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
- & Dev-selected competitor & \pending & \pending & \pending & \pending\\
+Truth & Base & \pending & \pending & \pending & \pending\\
+ & NBPO & \pending & \pending & \pending & \pending\\
+ & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
+ & Competitor & \pending & \pending & \pending & \pending\\
 \midrule
-Honesty & Base & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
- & NBPO & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
- & Fixed-reference Nash & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
- & Dev-selected competitor & \pending & \pending & \pending & \pending\\
+Honesty & Base & \pending & \pending & \pending & \pending\\
+ & NBPO & \pending & \pending & \pending & \pending\\
+ & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
+ & Competitor & \pending & \pending & \pending & \pending\\
 \midrule
-Help & Base & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
- & NBPO & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
- & Fixed-reference Nash & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
- & Dev-selected competitor & \pending & \pending & \pending & \pending\\
+Help & Base & \pending & \pending & \pending & \pending\\
+ & NBPO & \pending & \pending & \pending & \pending\\
+ & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
+ & Competitor & \pending & \pending & \pending & \pending\\
 % END AUTO CROSSPLAY MATRICES
 \bottomrule
 \end{tabular}

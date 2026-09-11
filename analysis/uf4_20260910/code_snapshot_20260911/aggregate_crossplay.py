@@ -57,6 +57,10 @@ def bank_value(J, a, beta):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--reference", default="base")
+    ap.add_argument("--declared-bank", nargs="+",
+                    default=["base", "nbpo_mse_s42", "fixedref_mse_s42", "util_mse_s42"],
+                    help="the bank the protocol declares, so an absent pair is reported "
+                         "against the intended bank rather than against whatever is judged")
     ap.add_argument("--beta", type=float, default=0.25)
     ap.add_argument("--bootstrap", type=int, default=2000)
     ap.add_argument("--out", default=str(ROOT / "analysis/crossplay_summary.json"))
@@ -66,6 +70,11 @@ def main():
     per_prompt = defaultdict(dict)          # (criterion, pid) -> {(a,b): value_for_a}
     policies, pair_reports = set(), {}
     for d in sorted(PAIRS.glob("*__vs__*")):
+        if "." in d.name:
+            # a retired run, kept for inspection: "<pair>.max_tokens256_parse3pct".
+            # Reading these mixes token budgets for the same pair, with whichever
+            # sorts last silently winning.
+            continue
         complete = d / "complete.json"
         if not complete.exists():
             continue
@@ -86,16 +95,37 @@ def main():
         print(json.dumps({"status": "no judged pairs yet"})); return 0
 
     order = sorted(policies)
-    needed = set(itertools.combinations(order, 2))
-    missing = sorted(needed - set(pair_reports))
-    # a prompt counts only when every judged pair and every rubric has it
-    prompts = sorted({pid for (_, pid) in per_prompt}
-                     - {pid for (c, pid), v in per_prompt.items()
-                        if len(v) != len(pair_reports)}
-                     - {pid for pid in {p for (_, p) in per_prompt}
-                        if any((c, pid) not in per_prompt for c in CRITERIA)})
-    if not prompts:
-        print(json.dumps({"status": "no prompt is complete across every judged pair"})); return 0
+    # Comparing against the policies present would always report nothing
+    # missing, which is precisely the case where a reader needs to be told the
+    # bank is incomplete.
+    declared = sorted(set(args.declared_bank))
+    missing = ["%s__vs__%s" % q for q in itertools.combinations(declared, 2)
+               if q not in pair_reports]
+    # The intersection is declared PER STATISTIC. W_ref_min needs only a
+    # policy's pair against the reference across the four rubrics; the bank
+    # statistics need every pair that policy appears in, and the surplus also
+    # needs the reference's own row. One global intersection over every pair and
+    # rubric is stricter than any statistic requires, and with imperfect judge
+    # parsing it discards nearly everything: at 82% per judgment the twelve-cell
+    # intersection over three pairs left two prompts out of five hundred.
+    all_pairs = set(pair_reports)
+
+    def complete_for(pairs_needed):
+        return [pid for pid in sorted({q for (_, q) in per_prompt})
+                if all((c, pid) in per_prompt and pairs_needed <= set(per_prompt[(c, pid)])
+                       for c in CRITERIA)]
+
+    prompts = complete_for(all_pairs)
+    scope = {}
+    for name in order:
+        own = {q for q in all_pairs if name in q}
+        ref_own = {q for q in all_pairs if args.reference in q}
+        ref_pair = own & ref_own
+        scope[name] = {"W_ref_min": complete_for(ref_pair or set()),
+                       "W_bank_min": complete_for(own or ref_own),
+                       "min_s_bank": complete_for(own | ref_own)}
+    if not any(v for s in scope.values() for v in s.values()):
+        print(json.dumps({"status": "no prompt is complete for any statistic"})); return 0
 
     # ---- per-prompt tensor: (P, K, N, N) win rate of row over column -----
     idx = {p: i for i, p in enumerate(order)}
@@ -160,7 +190,8 @@ def main():
         "policies": order, "reference": args.reference,
         "n_common_prompts": len(prompts),
         "pairs_judged": ["%s__vs__%s" % p for p in sorted(pair_reports)],
-        "pairs_missing_for_full_bank": ["%s__vs__%s" % p for p in missing],
+        "declared_bank": declared,
+        "pairs_missing_for_full_bank": missing,
         "bank_prior": "uniform over all %d bank policies, shared by every evaluated policy" % N,
         "beta_k": args.beta,
         "diagonal": ("0.5, forced by the recorded antisymmetry convention W(B,A)=1-W(A,B) "

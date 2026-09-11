@@ -1,5 +1,5 @@
 {
-  "written_kst": "2026-09-12 07:13:12",
+  "written_kst": "2026-09-12 08:13:37",
   "arms": [
     "fixedref_mse_s42",
     "fixedref_mse_s43",
@@ -13,89 +13,9 @@
     "util_mse_s44"
   ],
   "common_prompts": 1569,
-  "crossplay": {
-    "n_common_prompts": 2,
-    "policies": [
-      "base",
-      "fixedref_mse_s42",
-      "nbpo_mse_s42"
-    ],
-    "pairs_missing_for_full_bank": [],
-    "statistics": {
-      "base": {
-        "W_ref_min": 0.5,
-        "W_bank_min": 0.5,
-        "min_s_bank": 0.0,
-        "s_bank_per_objective": {
-          "instruction_following": 0.0,
-          "truthfulness": 0.0,
-          "honesty": 0.0,
-          "helpfulness": 0.0
-        },
-        "min_s_bank_excluding_self": 0.0,
-        "W_ref_min_ci95": [
-          0.5,
-          0.5
-        ],
-        "W_bank_min_ci95": [
-          0.5,
-          0.5
-        ],
-        "min_s_bank_ci95": [
-          0.0,
-          0.0
-        ]
-      },
-      "fixedref_mse_s42": {
-        "W_ref_min": 0.5,
-        "W_bank_min": 0.5,
-        "min_s_bank": 0.0,
-        "s_bank_per_objective": {
-          "instruction_following": 0.0,
-          "truthfulness": 0.0,
-          "honesty": 0.0,
-          "helpfulness": 0.0
-        },
-        "min_s_bank_excluding_self": 0.0,
-        "W_ref_min_ci95": [
-          0.5,
-          0.5
-        ],
-        "W_bank_min_ci95": [
-          0.5,
-          0.5
-        ],
-        "min_s_bank_ci95": [
-          0.0,
-          0.0
-        ]
-      },
-      "nbpo_mse_s42": {
-        "W_ref_min": 0.5,
-        "W_bank_min": 0.5,
-        "min_s_bank": 0.0,
-        "s_bank_per_objective": {
-          "instruction_following": 0.0,
-          "truthfulness": 0.0,
-          "honesty": 0.0,
-          "helpfulness": 0.0
-        },
-        "min_s_bank_excluding_self": 0.0,
-        "W_ref_min_ci95": [
-          0.5,
-          0.5
-        ],
-        "W_bank_min_ci95": [
-          0.5,
-          0.5
-        ],
-        "min_s_bank_ci95": [
-          0.0,
-          0.0
-        ]
-      }
-    }
-  },
+  "crossplay_withheld_below_floor": false,
+  "crossplay_prompt_floor": 100,
+  "crossplay": "not measured yet",
   "per_method_own_denominator": {
     "fixedref_mse_s42": 1914,
     "fixedref_mse_s43": 1927,
