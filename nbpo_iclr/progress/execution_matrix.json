@@ -1,0 +1,28 @@
+{
+  "frozen_at_kst": "2026-09-11 15:40",
+  "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
+  "objective_rows": {
+    "exhibit": "tab:uf-objectives",
+    "methods": ["base", "nbpo", "fixed_reference_nash", "bt_rm_nash", "game_utilitarian",
+                "game_maxmin", "dpo_uniform", "prosper_adapt", "mopo_adapt"],
+    "planned_seeds": {"base": 1, "nbpo": 3, "game_utilitarian": 3,
+                      "fixed_reference_nash": 1, "bt_rm_nash": 1, "game_maxmin": 1,
+                      "dpo_uniform": 1, "prosper_adapt": 3, "mopo_adapt": 3}
+  },
+  "crossplay": {
+    "exhibit": "tab:independent-crossplay",
+    "entries": ["base", "nbpo", "fixed_reference_nash", "dev_selected_competitor"]
+  },
+  "dpo_weights": {
+    "exhibit": "fig:uf-tradeoffs",
+    "order": ["instruction_following", "truthfulness", "honesty", "helpfulness"],
+    "weights": [[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1],
+                [0.25,0.25,0.25,0.25], [0.1,0.1,0.1,0.7], [0.1,0.7,0.1,0.1]]
+  },
+  "capability": {
+    "exhibit": "tab:general-capability",
+    "benchmarks": ["ifeval", "gsm8k", "harmbench", "xstest"],
+    "methods": ["base", "nbpo", "game_utilitarian", "fixed_reference_nash", "bt_rm_nash",
+                "game_maxmin", "dpo_uniform", "prosper_adapt", "mopo_adapt"]
+  }
+}

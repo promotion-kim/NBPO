@@ -1,0 +1,8 @@
+[KST 15:42] 본문 완료: objective 3/9, cross-play 0/4, DPO weights 0/7, capability 10/36
+진행/다음: 큐 DONE 81, FAILED 5, PENDING 1, READY 13, RUNNING 4 → uf4_cap_nbpo_mse_s44_arc_challenge
+GPU0: uf4_finaleval_judge_nbpo_mse_s44, 93%, 130761/143771 MiB | GPU1: uf4_cap_nbpo_mse_s43_mmlu, 0%, 122963/143771 MiB
+GPU2: uf4_finaleval_gen_util_mse_s44_shard0, 83%, 122615/143771 MiB | GPU3: uf4_cap_nbpo_mse_s43_hellaswag, 100%, 125075/143771 MiB
+ETA: 핵심 기전 [산정 대기: fixed-ref UF 학습 미착수] / 본문 첫 전체 평가 [17:30-18:30] / 본문 최종 [산정 대기: DPO·PROSPER·MOPO 미착수]
+이번 완료: -
+PDF: 성공 15:42, 44쪽, nbpo_iclr/main_v6.pdf
+Blocker/복구: 없음
