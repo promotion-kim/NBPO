@@ -2325,15 +2325,15 @@ We record unique semantic comparisons separately from order-swapped calls, gener
 \begin{table}[htbp]
 \centering\scriptsize
 \setlength{\tabcolsep}{3pt}
-\caption{Cost-accounting template. Teacher, policy, generation/evaluation, and total costs use GPU-hours; total includes declared tuning. Solver CPU time is reported separately. Only UF seed-42 projection cost is populated.}
+\caption{Cost-accounting template. Teacher, policy, generation/evaluation, and total costs use GPU-hours; total includes declared tuning. Solver CPU time is reported separately. Policy cost is per policy seed and is the trainer-reported runtime times the four devices held. On this measure the seven completed UF arms agree to within $0.02$ GPU-hours ($11.17$--$11.19$), so the fixed-reference and utilitarian entries are the same $11.2$ as NBPO rather than an independent coincidence; three policy seeds are trained for NBPO and for game-utilitarian, one for fixed-reference Nash. The controller-side wall cost, which also covers model loading and checkpointing, is $12.25$ GPU-hours per seed, and NBPO seed $42$ additionally consumed $10.1$ GPU-hours in two failed attempts before the run that is reported. Remaining columns are unmeasured; unique labels in particular await the declared convention separating unique semantic comparisons from order-swapped calls.}
 \label{tab:feedback-cost}
 \begin{tabular}{lrrrrrr}
 \toprule
 Method & Unique labels & Teacher & Policy & Gen./eval. & Total & Trials\\
 \midrule
 NBPO, seed 42 & \pending & \pending & $11.2$ & \pending & \pending & \pending\\
-Fixed-reference Nash & \pending & \pending & \pending & \pending & \pending & \pending\\
-Game-utilitarian & \pending & \pending & \pending & \pending & \pending & \pending\\
+Fixed-reference Nash & \pending & \pending & $11.2$ & \pending & \pending & \pending\\
+Game-utilitarian & \pending & \pending & $11.2$ & \pending & \pending & \pending\\
 BT-RM--Nash & \pending & \pending & \pending & \pending & \pending & \pending\\
 Global game-maxmin & \pending & \pending & \pending & \pending & \pending & \pending\\
 PROSPER (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending\\
