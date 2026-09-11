@@ -1,0 +1,63 @@
+{
+  "splits": {
+    "train": {
+      "n_prompts": 10000,
+      "n_pairs": 280000,
+      "pairs_path": "/work/uf4_20260910/targets/prosper_v1/pairs/train.jsonl",
+      "pairs_sha256": "eb96ecec374003016d96098b76eb9960043ed6b8c5bfd9086c3f0c013c30a9dd",
+      "per_prompt_weight_mean": [
+        6.968602300540998,
+        12.033003822116276,
+        7.563029655377042,
+        7.358895052441015
+      ],
+      "per_prompt_weight_sd": [
+        1.930571183338579,
+        4.085320056392121,
+        1.6260678947821745,
+        3.141849162157642
+      ],
+      "effective_objectives_mean": 3.5001104300112966,
+      "min_surplus_mean": 0.08557571712726096,
+      "min_surplus_negative_prompts": 642,
+      "max_identity_residual": 9.851719440234774e-11,
+      "all_certified": true,
+      "solver_solution_sha256": "d0eae4d8e25b72ff91dbd5a1b04f2aac8cb0e127a69c871a2eb323d2ef9dfc59",
+      "seconds": 298.51170010864735
+    },
+    "dev": {
+      "n_prompts": 1000,
+      "n_pairs": 28000,
+      "pairs_path": "/work/uf4_20260910/targets/prosper_v1/pairs/dev.jsonl",
+      "pairs_sha256": "42b7d89d61a6baa8f91f9e89dbb57424340119ec5cf49702ce8a2d9832438aa5",
+      "per_prompt_weight_mean": [
+        6.975625967703825,
+        12.089992514233098,
+        7.546902494186453,
+        7.311009854351957
+      ],
+      "per_prompt_weight_sd": [
+        1.9063138096239571,
+        4.045135594955689,
+        1.6009633338443796,
+        3.025840443717266
+      ],
+      "effective_objectives_mean": 3.5044123281514166,
+      "min_surplus_mean": 0.08641466298723043,
+      "min_surplus_negative_prompts": 49,
+      "max_identity_residual": 8.37196978409338e-11,
+      "all_certified": true,
+      "solver_solution_sha256": "b9d67d1a35a79f668b01517ce4c706fba2107e4a05b931a729e0ebcea4f7174a",
+      "seconds": 42.91662349551916
+    }
+  },
+  "aggregation": "prompt_wise_absolute_maxmin",
+  "beta": 0.25,
+  "eta": 1.0,
+  "weight_l1": 33.92353083047533,
+  "dataset_path": "/work/uf4_20260910/datasets/prosper_v1",
+  "dataset_manifest_sha256": "35073a053c8416b4483fefbc97ff84b75812438554b9a31df9d3ee03bff1f8d0",
+  "faithfulness_note": "PROSPER's inner minimisation over w in Delta_K is the per-prompt worst objective, so this is absolute_maxmin solved per prompt with no shared dual. It is NOT the global game-maxmin control.",
+  "seconds": 726.2710848040879,
+  "source_sha256": "1809a5f5b63019c3d85842e6e3246db3e7a22a2e03c50944f1a8510ff4d2a1bb"
+}

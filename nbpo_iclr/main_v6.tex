@@ -95,13 +95,13 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-12 00:43 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-12 01:43 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 5/9; cross-play 0/4; DPO weights 0/7; capability cells 7/36; lm-eval cells 21.
 \\[2pt]
-GPU0: uf4\_train\_fixedref\_mse\_s43, 100\%, 96865/143771 MiB | GPU1: uf4\_train\_fixedref\_mse\_s43, 96\%, 95063/143771 MiB | GPU2: uf4\_train\_fixedref\_mse\_s43, 99\%, 96295/143771 MiB | GPU3: uf4\_train\_fixedref\_mse\_s43, 97\%, 98687/143771 MiB
+GPU0: uf4\_train\_fixedref\_mse\_s43, 100\%, 96865/143771 MiB | GPU1: uf4\_train\_fixedref\_mse\_s43, 99\%, 95065/143771 MiB | GPU2: uf4\_train\_fixedref\_mse\_s43, 96\%, 96295/143771 MiB | GPU3: uf4\_train\_fixedref\_mse\_s43, 96\%, 98687/143771 MiB
 \\[2pt]
-Queue: DONE 144, FAILED 5, PENDING 50, READY 10, RUNNING 1. PDF rebuilt each cycle.
+Queue: BLOCKED 1, DONE 145, FAILED 6, PENDING 52, READY 10, RUNNING 2. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -1876,7 +1876,7 @@ NBPO applies $\sum_k\log(V_k(\pi)-d_k)$ to prompt-averaged objective values. In 
 \]
 where $J_{k,x}$ is the conditional pairwise payoff. Constant shifts from centered payoffs do not change its optimizer. Prompt-dependent weights cannot be replaced by a shared weight without changing this criterion. Prompt-direct optimization decomposes only the inner computation; NBPO's $\lambda$ remains shared across prompts.
 
-To illustrate aggregation order alone, take two equally likely prompts. A policy with surplus vectors $(.2,0)$ and $(0,.2)$ has average $(.1,.1)$; another with $(.08,.08)$ on both prompts has average $(.08,.08)$. Global Nash prefers the first, whereas the average prompt-wise minimum is $0$ versus $.08$ and prefers the second. This schematic example omits opponent regularization and is not a numerical PROSPER result. We therefore distinguish a faithful PROSPER adaptation from global game-maxmin over NBPO values.
+To illustrate aggregation order alone, take two equally likely prompts. A policy with surplus vectors $(.2,0)$ and $(0,.2)$ has average $(.1,.1)$; another with $(.08,.08)$ on both prompts has average $(.08,.08)$. Global Nash prefers the first, whereas the average prompt-wise minimum is $0$ versus $.08$ and prefers the second. This schematic example omits opponent regularization and is not a numerical PROSPER result. We therefore distinguish a faithful PROSPER adaptation from global game-maxmin over NBPO values. The faithful adaptation is now solved on the UF-4 pool: absolute-maxmin aggregation applied once per prompt on the same adaptive-game values, at the same opponent temperature $\beta=0.25$, with the multiplier norm matched to the Nash dual ($33.92$) as the other non-Nash controls are. Every one of the $11{,}000$ policy-train and policy-dev prompts returns a certified solution, with a worst target-log-ratio identity residual of $9.9\times10^{-11}$. Two measurements from that solve bear on claims made elsewhere in this paper. First, the adversarial weights are genuinely prompt-dependent and a shared vector cannot stand in for them: over policy-train their per-objective means are $(6.97, 12.03, 7.56, 7.36)$ with standard deviations $(1.93, 4.09, 1.63, 3.14)$, and the mean effective number of active objectives is $3.50$ of $4$. Second, the per-prompt criterion measures what the prompt-averaged one cannot: on $642$ of $10{,}000$ policy-train prompts ($6.42\%$; $49$ of $1{,}000$ on policy-dev, $4.90\%$) the worst objective's surplus at the solved policy is negative, meaning no feasible policy on that prompt's pool improves all four objectives over the reference. This is a direct quantification of the scope limit stated for individual rationality: the guarantee concerns prompt-averaged objective game values, and it does not hold prompt by prompt here. The trained PROSPER policy is not yet evaluated.
 
 \section{Training Protocol and Baselines}
 \label{app:hyperparameters}

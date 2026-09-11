@@ -1,0 +1,55 @@
+{
+  "arm": "prosper_mse_s42",
+  "targets": "prosper_v1",
+  "dataset": "/work/uf4_20260910/datasets/prosper_v1",
+  "dataset_manifest_sha256": "35073a053c8416b4483fefbc97ff84b75812438554b9a31df9d3ee03bff1f8d0",
+  "solver_artifact_sha256": "d0eae4d8e25b72ff91dbd5a1b04f2aac8cb0e127a69c871a2eb323d2ef9dfc59",
+  "config_path": "/work/uf4_20260910/configs/prosper_mse_s42.yaml",
+  "config_sha256": "b3bd1989162888d6f0bd6d22ef74c133507fc64eae9a0352ded33680fd5b4035",
+  "base_config": "/work/nbpo_repair_20260909/configs/mse_short_primary_v1.yaml",
+  "base_config_sha256": "cdee48702a3ffeec7017a9d187c37672c11898eb6374100fc16628aabe245fa8",
+  "recipe_diff_vs_resolved_base": [
+    {
+      "from": "/work/nbpo_repair_20260909/datasets/nash_repair_v2: 1.0",
+      "to": "/work/uf4_20260910/datasets/prosper_v1: 1.0"
+    },
+    {
+      "from": "output_dir: /work/nbpo_repair_20260909/arms/mse_short_primary_v1",
+      "to": "output_dir: /work/uf4_20260910/arms/prosper_mse_s42"
+    },
+    {
+      "from": "run_name: mse_short_primary_v1",
+      "to": "run_name: prosper_mse_s42"
+    },
+    {
+      "from": "nbpo_expected_dataset_manifest_sha256: 856ba968818f4672eace40d2794a1889a99ebd7e866da0531e64d57e01564fac",
+      "to": "nbpo_expected_dataset_manifest_sha256: 35073a053c8416b4483fefbc97ff84b75812438554b9a31df9d3ee03bff1f8d0"
+    },
+    {
+      "from": "nbpo_expected_solver_artifact_sha256: 4fd522a7891fa7ba4ab3bcfcd82f0d72a5b50de23a8b9239a8e480b74588afc8",
+      "to": "nbpo_expected_solver_artifact_sha256: d0eae4d8e25b72ff91dbd5a1b04f2aac8cb0e127a69c871a2eb323d2ef9dfc59"
+    },
+    {
+      "from": "max_steps: 250",
+      "to": "max_steps: 1250"
+    },
+    {
+      "from": "\nseed: 42",
+      "to": "\nseed: 42"
+    },
+    {
+      "from": "\ndata_seed: 42",
+      "to": "\ndata_seed: 42"
+    },
+    {
+      "from": "save_steps: 250",
+      "to": "save_steps: 1250"
+    },
+    {
+      "from": "eval_steps: 50",
+      "to": "eval_steps: 250"
+    }
+  ],
+  "horizon_note": "1250 updates at 32 pairs is the planned exposure of about four pairs per prompt over 10,000 prompts. It is the plan's starting horizon, not a horizon shown to be optimal on this data.",
+  "queue_spec": "/work/uf4_20260910/jobs/queue/75_train_prosper_mse_s42.json"
+}
