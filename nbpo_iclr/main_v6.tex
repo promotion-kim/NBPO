@@ -95,13 +95,13 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-11 20:00 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-11 20:30 KST.} Not part of the reported results.
 \\[2pt]
-Main-body objective rows 4/9; cross-play 0/4; DPO weights 0/7; capability cells 7/36; lm-eval cells 17.
+Main-body objective rows 4/9; cross-play 0/4; DPO weights 0/7; capability cells 7/36; lm-eval cells 18.
 \\[2pt]
-GPU0: -, 0\%, 0/143771 MiB | GPU1: uf4\_cap\_util\_mse\_s44\_hellaswag, 100\%, 125013/143771 MiB | GPU2: -, 0\%, 0/143771 MiB | GPU3: -, 0\%, 0/143771 MiB
+GPU0: uf4\_train\_maxmin\_mse\_s42, 84\%, 96355/143771 MiB | GPU1: uf4\_train\_maxmin\_mse\_s42, 88\%, 96187/143771 MiB | GPU2: uf4\_train\_maxmin\_mse\_s42, 99\%, 97831/143771 MiB | GPU3: uf4\_train\_maxmin\_mse\_s42, 91\%, 96195/143771 MiB
 \\[2pt]
-Queue: DONE 130, FAILED 6, READY 12, RUNNING 1. PDF rebuilt each cycle.
+Queue: DONE 135, FAILED 5, PENDING 55, READY 14, RUNNING 1. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -624,7 +624,7 @@ Every measured policy uses the same planned $2000$ final prompts and cached base
 
 \subsection{Bargaining and empirical trade-offs}
 \label{sec:tradeoffs}
-On the $1{,}644$ prompts common to all seven evaluated arms, \NBPO{} and the utilitarian control, each over three seeds, obtain helpfulness win rates of $0.5514$ and $0.5517$; helpfulness is the only attribute whose whole-prompt interval excludes $0.5$ for every seed of both. Their minimum attribute means are $0.4969$ and $0.4960$, with intervals containing $0.5$, so neither adaptive-game family improves all four attributes. The matched fixed-reference control, at one seed, is higher on all four attributes and is the only arm whose minimum-attribute point estimate exceeds $0.5$ ($0.5073$), although that interval also contains $0.5$ (Table~\ref{tab:uf-objectives}). Restricting to the common prompts matters, and so does which arms are in it: adding the fixed-reference and third utilitarian arms shrank the common set from $1{,}719$ to $1{,}644$ and moved the same NBPO and utilitarian runs from $0.5535$ and $0.5527$ to $0.5514$ and $0.5517$. Their mean target TV is $0.0195$; the corresponding SafeRLHF value is $0.0008$ (Appendix~\ref{app:solver-neural}). These target diagnostics do not establish policy equivalence. The matched fixed-reference control is now measured; global game-maxmin is in training, and the BT-RM, scalarized-DPO, PROSPER and MOPO rows remain unmeasured.
+On the $1{,}644$ prompts common to all seven evaluated arms, \NBPO{} and the utilitarian control, each over three seeds, obtain helpfulness win rates of $0.5514$ and $0.5517$; helpfulness is the only attribute whose whole-prompt interval excludes $0.5$ for every seed of both. Their minimum attribute means are $0.4969$ and $0.4960$, with intervals containing $0.5$, so neither adaptive-game family improves all four attributes. The matched fixed-reference control, at one seed, is higher than both three-seed means on all four attributes and is the only arm whose minimum-attribute point estimate exceeds $0.5$ ($0.5073$), although that interval also contains $0.5$ (Table~\ref{tab:uf-objectives}). Measured against the policy-seed spread of the families it is compared with, that lead is uneven: it sits $3.1$ and $3.2$ NBPO seed standard deviations above the NBPO mean on truthfulness and honesty, $1.6$ on instruction following, and $0.5$ on helpfulness, where it does not beat NBPO's best seed ($0.5550$ against $0.5531$). A one-seed lead of one to three standard deviations, where the standard deviation is itself estimated from three points, is what seeds $43$ and $44$ of this control are being run to resolve. Restricting to the common prompts matters, and so does which arms are in it: adding the fixed-reference and third utilitarian arms shrank the common set from $1{,}719$ to $1{,}644$ and moved the same NBPO and utilitarian runs from $0.5535$ and $0.5527$ to $0.5514$ and $0.5517$. Their mean target TV is $0.0195$; the corresponding SafeRLHF value is $0.0008$ (Appendix~\ref{app:solver-neural}). These target diagnostics do not establish policy equivalence. The matched fixed-reference control is now measured; global game-maxmin is in training, and the BT-RM, scalarized-DPO, PROSPER and MOPO rows remain unmeasured.
 
 Figure~\ref{fig:uf-tradeoffs} provides two projections for comparing policies with the declared DPO sweep: four specialist vectors, the uniform vector, and two fixed interior vectors. The sweep remains unmeasured. Operating-point selection uses development data, and all seven settings are retained. Dominance is assessed in the full four-dimensional outcome space; the two projections cannot establish it. Worst-objective wins, Nash welfare, and average wins express different preferences over that space, so no single summary establishes the best compromise. Appendix~\ref{app:pareto-evaluation} specifies uncertainty and tuning-cost reporting.
 
