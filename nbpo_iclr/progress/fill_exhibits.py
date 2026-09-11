@@ -52,12 +52,85 @@ LAYOUT = [
 ]
 BEGIN_BODY, END_BODY = "% BEGIN AUTO TAB1 BODY", "% END AUTO TAB1 BODY"
 BEGIN_NUM, END_NUM = "% BEGIN AUTO EXHIBIT NUMBERS", "% END AUTO EXHIBIT NUMBERS"
+BEGIN_CP, END_CP = "% BEGIN AUTO CROSSPLAY BODY", "% END AUTO CROSSPLAY BODY"
+BEGIN_CPM, END_CPM = "% BEGIN AUTO CROSSPLAY MATRICES", "% END AUTO CROSSPLAY MATRICES"
+# How the manuscript names each bank policy, and the seeds behind it.
+CROSSPLAY_ROWS = [("Base", "base", "--"), ("NBPO", "nbpo_mse_s42", "$1$"),
+                  ("Fixed-reference Nash", "fixedref_mse_s42", "$1$")]
+RUBRIC_LABEL = {"instruction_following": "IF", "truthfulness": "Truth",
+                "honesty": "Honesty", "helpfulness": "Help"}
 
 
 def pod(cmd, timeout=1800):
     env = dict(os.environ, KUBECONFIG=KUBECONFIG)
     r = subprocess.run(POD + [cmd], capture_output=True, text=True, timeout=timeout, env=env)
     return r.stdout if r.returncode == 0 else ""
+
+
+def tex_escape(text):
+    """Escape an arm name for LaTeX: these contain underscores (maxmin_mse_s42)."""
+    out = []
+    for ch in str(text):
+        if ch in "#$%&_{}":
+            out.append("\\" + ch)
+        elif ch == "\\":
+            out.append("\\textbackslash{}")
+        elif ch in "~^":
+            out.append("\\char`\\" + ch + "{}")
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
+def crossplay_summary():
+    """The aggregator's output, or None when no pair has been judged yet."""
+    raw = pod("cat %s/analysis/crossplay_summary.json 2>/dev/null; true" % ROOT)
+    if not raw.strip():
+        return None
+    try:
+        return json.loads(raw)
+    except Exception:
+        return None
+
+
+def render_crossplay(cp):
+    r"""Both cross-play exhibits. A policy the aggregator has no row for stays \pending."""
+    stats, mats = cp["statistics"], cp["matrices"]
+    n = cp["n_common_prompts"]
+    competitor = next((p for p in cp["policies"]
+                       if p not in {k for _, k, _ in CROSSPLAY_ROWS}), None)
+    rows = list(CROSSPLAY_ROWS)
+    rows.append(("Dev-selected competitor" + (" (%s)" % tex_escape(competitor) if competitor else ""),
+                 competitor, "$1$" if competitor else "\\pending"))
+
+    body = []
+    for label, key, seeds in rows:
+        s = stats.get(key) if key else None
+        if s is None:
+            body.append("%s & \\pending & \\pending & \\pending & \\pending & "
+                        "\\pending\\\\" % label)
+            continue
+        body.append("%s & %s & $%s$ & $%.4f$ & $%.4f$ & $%+.4f$\\\\"
+                    % (label, seeds, _tex_thousands(n), s["W_ref_min"], s["W_bank_min"],
+                       s["min_s_bank"]))
+
+    order = [k for _, k, _ in CROSSPLAY_ROWS] + ([competitor] if competitor else [])
+    mrows = []
+    for ci, crit in enumerate(("instruction_following", "truthfulness",
+                               "honesty", "helpfulness")):
+        if ci:
+            mrows.append("\\midrule")
+        for ri, (label, key, _) in enumerate(rows):
+            cells = []
+            for q in order + [None] * (4 - len(order)):
+                if key is None or q is None or key not in mats.get(crit, {}) \
+                        or q not in mats[crit].get(key, {}):
+                    cells.append("\\pending")
+                else:
+                    cells.append("$%.4f$" % mats[crit][key][q])
+            name = RUBRIC_LABEL[crit] if ri == 0 else ""
+            mrows.append("%s & %s & %s\\\\" % (name, label, " & ".join(cells)))
+    return "\n".join(body), "\n".join(mrows)
 
 
 def evaluated_arms():
@@ -168,10 +241,16 @@ def main():
             else "$%s$--$%s$" % (_tex_thousands(own[0]), _tex_thousands(own[-1]))),
     ])
 
+    cp = crossplay_summary()
+    cp_body, cp_matrices = render_crossplay(cp) if cp else (None, None)
+
     # Re-read immediately before writing: the reporter and a human may both be
-    # editing, and only these two regions may change.
+    # editing, and only these marked regions may change.
     text = TEX.read_text(encoding="utf-8")
-    for begin, end, payload in ((BEGIN_BODY, END_BODY, body), (BEGIN_NUM, END_NUM, numbers)):
+    regions = [(BEGIN_BODY, END_BODY, body), (BEGIN_NUM, END_NUM, numbers)]
+    if cp_body is not None:
+        regions += [(BEGIN_CP, END_CP, cp_body), (BEGIN_CPM, END_CPM, cp_matrices)]
+    for begin, end, payload in regions:
         if begin not in text or end not in text:
             print(json.dumps({"status": "markers missing", "marker": begin}), file=sys.stderr)
             return 1
@@ -183,6 +262,10 @@ def main():
     sig = {c: [lab for lab, ok in v if ok] for c, v in bold.items()}
     out = {"written_kst": datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S"),
            "arms": arms, "common_prompts": common,
+           "crossplay": ({"n_common_prompts": cp["n_common_prompts"],
+                          "policies": cp["policies"],
+                          "pairs_missing_for_full_bank": cp["pairs_missing_for_full_bank"],
+                          "statistics": cp["statistics"]} if cp else "not measured yet"),
            "per_method_own_denominator": report["per_method_own_denominator"],
            "attributes_whose_interval_excludes_half": sig,
            "caption_prose_note": ("The caption's interpretive sentences are hand-written. "
@@ -195,7 +278,12 @@ def main():
     tmp.write_text(json.dumps(out, indent=2) + "\n")
     os.replace(tmp, PROG / "exhibit_fill.json")
     print(json.dumps({"arms": len(arms), "common_prompts": common,
-                      "significant": sig}, ensure_ascii=False))
+                      "significant": sig,
+                      "crossplay": (("%d policies, %d common prompts, %d pairs missing"
+                                     % (len(cp["policies"]), cp["n_common_prompts"],
+                                        len(cp["pairs_missing_for_full_bank"])))
+                                    if cp else "not measured yet")},
+                     ensure_ascii=False))
     return 0
 
 

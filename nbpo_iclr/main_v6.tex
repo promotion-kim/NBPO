@@ -95,13 +95,13 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-12 03:43 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-12 05:43 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 5/9; cross-play 0/4; DPO weights 0/7; capability cells 7/36; lm-eval cells 21.
 \\[2pt]
-GPU0: uf4\_train\_fixedref\_mse\_s44, 0\%, 32385/143771 MiB | GPU1: uf4\_train\_fixedref\_mse\_s44, 0\%, 1497/143771 MiB | GPU2: uf4\_train\_fixedref\_mse\_s44, 0\%, 1497/143771 MiB | GPU3: uf4\_train\_fixedref\_mse\_s44, 0\%, 1497/143771 MiB
+GPU0: uf4\_train\_fixedref\_mse\_s44, 98\%, 96401/143771 MiB | GPU1: uf4\_train\_fixedref\_mse\_s44, 98\%, 98085/143771 MiB | GPU2: uf4\_train\_fixedref\_mse\_s44, 99\%, 95161/143771 MiB | GPU3: uf4\_train\_fixedref\_mse\_s44, 99\%, 96271/143771 MiB
 \\[2pt]
-Queue: BLOCKED 1, DONE 154, FAILED 6, PENDING 52, READY 10, RUNNING 3. PDF rebuilt each cycle.
+Queue: BLOCKED 1, DONE 158, FAILED 6, PENDING 66, READY 17, RUNNING 1. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -671,10 +671,12 @@ The second statistic tests vulnerability to the evaluated bank, not population e
 \toprule
 Policy & Seeds & $N_{\rm common}$ & $W_{\rm ref}^{\min}$ & $W_{\mathcal B}^{\min}$ & $\min_k\widehat s_k^{\mathcal B}$\\
 \midrule
+% BEGIN AUTO CROSSPLAY BODY
 Base & \pending & \pending & \pending & \pending & \pending\\
 NBPO & \pending & \pending & \pending & \pending & \pending\\
 Fixed-reference Nash & \pending & \pending & \pending & \pending & \pending\\
 Dev-selected competitor & \pending & \pending & \pending & \pending & \pending\\
+% END AUTO CROSSPLAY BODY
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2292,6 +2294,7 @@ Here $a$ is a full-support distribution over the comparator policies, fixed on d
 \toprule
 Rubric & Policy & Base & NBPO & Fixed-ref. & Competitor\\
 \midrule
+% BEGIN AUTO CROSSPLAY MATRICES
 IF & Base & \pending & \pending & \pending & \pending\\
  & NBPO & \pending & \pending & \pending & \pending\\
  & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
@@ -2311,6 +2314,7 @@ Help & Base & \pending & \pending & \pending & \pending\\
  & NBPO & \pending & \pending & \pending & \pending\\
  & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
  & Competitor & \pending & \pending & \pending & \pending\\
+% END AUTO CROSSPLAY MATRICES
 \bottomrule
 \end{tabular}
 \end{table}
