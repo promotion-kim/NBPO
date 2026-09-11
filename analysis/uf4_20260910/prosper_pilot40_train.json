@@ -1,0 +1,24 @@
+{
+  "n_prompts": 40,
+  "n_pairs": 1120,
+  "pairs_path": "/work/uf4_20260910/targets/prosper_pilot40/pairs/train.jsonl",
+  "pairs_sha256": "9fe4ba8ffc983e6c1f5487630b1aaf95540fd5e3a98d8d807bc3077e6b340bd5",
+  "per_prompt_weight_mean": [
+    7.747780474468783,
+    10.933541360607794,
+    7.512146651824972,
+    7.73006234357378
+  ],
+  "per_prompt_weight_sd": [
+    2.003307559247148,
+    2.713576365387867,
+    1.3253168045972124,
+    2.8168472815881644
+  ],
+  "effective_objectives_mean": 3.657712976780265,
+  "min_surplus_mean": 0.06994421713975318,
+  "min_surplus_negative_prompts": 3,
+  "max_identity_residual": 5.863221019808407e-11,
+  "all_certified": true,
+  "seconds": 62.403804786503315
+}
