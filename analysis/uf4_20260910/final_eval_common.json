@@ -1,0 +1,261 @@
+{
+  "planned_final_prompts": 2000,
+  "arms": [
+    "nbpo_mse_s42",
+    "nbpo_mse_s43",
+    "nbpo_mse_s44",
+    "util_mse_s42"
+  ],
+  "common_prompts": 1763,
+  "per_method_own_denominator": {
+    "nbpo_mse_s42": 1924,
+    "nbpo_mse_s43": 1916,
+    "nbpo_mse_s44": 1935,
+    "util_mse_s42": 1920
+  },
+  "judgment_status": {
+    "nbpo_mse_s42": {
+      "ok": 15910,
+      "no_verdict": 59,
+      "multiple_verdicts": 31
+    },
+    "nbpo_mse_s43": {
+      "ok": 15909,
+      "no_verdict": 61,
+      "multiple_verdicts": 30
+    },
+    "nbpo_mse_s44": {
+      "ok": 15921,
+      "multiple_verdicts": 26,
+      "no_verdict": 53
+    },
+    "util_mse_s42": {
+      "ok": 15901,
+      "no_verdict": 65,
+      "multiple_verdicts": 34
+    }
+  },
+  "judgments_sha256": {
+    "nbpo_mse_s42": "acbc452a805476ab01cf561ab1ed0ff9e96466d5bf801e76002cd9b1191f264a",
+    "nbpo_mse_s43": "5336fccc3aa9040c380991a0c66e25cc29f18de386dfb5631ae7463ed25bc498",
+    "nbpo_mse_s44": "58a95797eb968a05ab85bd2d0a5a395c65141da142659002cb24b4bd4fea7391",
+    "util_mse_s42": "da2b51a35d15b2032389fb8d0487cbf89849c0af79f09bd9257de4a7e2592b0d"
+  },
+  "denominator_note": "per_method_own_denominator is each arm's own valid count; common_prompts is the intersection used for every number below, so the arms are compared on identical prompts",
+  "bootstrap": "2000 whole-prompt paired replicates; every method, rubric and order for a prompt is resampled together and the minimum objective is recomputed inside each replicate",
+  "results": {
+    "nbpo_mse_s42": {
+      "n_common": 1763,
+      "instruction_following": {
+        "win_rate": 0.5131877481565513,
+        "ci95": [
+          0.49872376630743054,
+          0.5276517300056721
+        ]
+      },
+      "truthfulness": {
+        "win_rate": 0.5063811684628474,
+        "ci95": [
+          0.4926262053318208,
+          0.5201361315938741
+        ]
+      },
+      "honesty": {
+        "win_rate": 0.49716392512762336,
+        "ci95": [
+          0.4815619682359614,
+          0.5144639818491208
+        ]
+      },
+      "helpfulness": {
+        "win_rate": 0.5544526375496313,
+        "ci95": [
+          0.5401304594441293,
+          0.5679239931934204
+        ]
+      },
+      "min_objective": {
+        "point": 0.49716392512762336,
+        "ci95": [
+          0.4815619682359614,
+          0.512620533182076
+        ]
+      }
+    },
+    "nbpo_mse_s43": {
+      "n_common": 1763,
+      "instruction_following": {
+        "win_rate": 0.5079410096426545,
+        "ci95": [
+          0.4930480714690868,
+          0.5226885989790131
+        ]
+      },
+      "truthfulness": {
+        "win_rate": 0.5141803743618831,
+        "ci95": [
+          0.5004254112308565,
+          0.5282224900737379
+        ]
+      },
+      "honesty": {
+        "win_rate": 0.4973057288712422,
+        "ci95": [
+          0.4815619682359614,
+          0.5130459444129325
+        ]
+      },
+      "helpfulness": {
+        "win_rate": 0.550482132728304,
+        "ci95": [
+          0.5364258366420874,
+          0.5639570334656835
+        ]
+      },
+      "min_objective": {
+        "point": 0.4973057288712422,
+        "ci95": [
+          0.4814201644923426,
+          0.511769710720363
+        ]
+      }
+    },
+    "nbpo_mse_s44": {
+      "n_common": 1763,
+      "instruction_following": {
+        "win_rate": 0.5043959160521838,
+        "ci95": [
+          0.489502977878616,
+          0.5195689166193987
+        ]
+      },
+      "truthfulness": {
+        "win_rate": 0.5144639818491208,
+        "ci95": [
+          0.5007090187180941,
+          0.5276552750992626
+        ]
+      },
+      "honesty": {
+        "win_rate": 0.4968803176403857,
+        "ci95": [
+          0.48043108338060125,
+          0.5130459444129325
+        ]
+      },
+      "helpfulness": {
+        "win_rate": 0.5497731140102099,
+        "ci95": [
+          0.5350255246738513,
+          0.5639570334656835
+        ]
+      },
+      "min_objective": {
+        "point": 0.4968803176403857,
+        "ci95": [
+          0.48042399319342033,
+          0.5102098695405559
+        ]
+      }
+    },
+    "util_mse_s42": {
+      "n_common": 1763,
+      "instruction_following": {
+        "win_rate": 0.5096426545660806,
+        "ci95": [
+          0.4941860465116279,
+          0.5248156551332955
+        ]
+      },
+      "truthfulness": {
+        "win_rate": 0.5093590470788428,
+        "ci95": [
+          0.4951786727169597,
+          0.5235394214407261
+        ]
+      },
+      "honesty": {
+        "win_rate": 0.503403289846852,
+        "ci95": [
+          0.4866669030062394,
+          0.5194306579693704
+        ]
+      },
+      "helpfulness": {
+        "win_rate": 0.5497731140102099,
+        "ci95": [
+          0.5354473908111175,
+          0.5632444696539989
+        ]
+      },
+      "min_objective": {
+        "point": 0.503403289846852,
+        "ci95": [
+          0.486528644356211,
+          0.5158820192853091
+        ]
+      }
+    }
+  },
+  "seed_spread": {
+    "nbpo_mse": {
+      "instruction_following": {
+        "seeds": [
+          "nbpo_mse_s42",
+          "nbpo_mse_s43",
+          "nbpo_mse_s44"
+        ],
+        "values": [
+          0.5131877481565513,
+          0.5079410096426545,
+          0.5043959160521838
+        ],
+        "mean": 0.5085082246171299,
+        "sample_sd": 0.004423276789699988
+      },
+      "truthfulness": {
+        "seeds": [
+          "nbpo_mse_s42",
+          "nbpo_mse_s43",
+          "nbpo_mse_s44"
+        ],
+        "values": [
+          0.5063811684628474,
+          0.5141803743618831,
+          0.5144639818491208
+        ],
+        "mean": 0.5116751748912838,
+        "sample_sd": 0.004586936488545317
+      },
+      "honesty": {
+        "seeds": [
+          "nbpo_mse_s42",
+          "nbpo_mse_s43",
+          "nbpo_mse_s44"
+        ],
+        "values": [
+          0.49716392512762336,
+          0.4973057288712422,
+          0.4968803176403857
+        ],
+        "mean": 0.4971166572130838,
+        "sample_sd": 0.00021660879632046516
+      },
+      "helpfulness": {
+        "seeds": [
+          "nbpo_mse_s42",
+          "nbpo_mse_s43",
+          "nbpo_mse_s44"
+        ],
+        "values": [
+          0.5544526375496313,
+          0.550482132728304,
+          0.5497731140102099
+        ],
+        "mean": 0.551569294762715,
+        "sample_sd": 0.0025220876483179936
+      }
+    }
+  },
+  "seed_spread_note": "sample SD across policy seeds under one frozen teacher; it is not prompt uncertainty and the two are never combined"
+}

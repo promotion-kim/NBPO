@@ -583,7 +583,7 @@ Fixed-reference Nash changes opponent adaptation; BT-RM--Nash changes preference
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
-\caption{UF-4 win rates against the common base, with order averaging and ties worth $0.5$. Entries are source-reported point estimates; $\min_k W_k$ is the minimum attribute mean. Dashes are unmeasured.}
+\caption{UF-4 win rates against the common base, with order averaging and ties worth $0.5$. Every entry is computed on the $1{,}763$ prompts of the planned $2{,}000$ for which all evaluated methods have both presentation orders parsed on all four attributes, so the arms are compared on identical prompts; each method's own valid count is larger ($1{,}916$--$1{,}935$) and is reported in Appendix~\ref{app:evaluation} rather than used here. $\min_k W_k$ is the minimum attribute mean. Only helpfulness has a whole-prompt bootstrap interval excluding $0.5$ for every arm; truthfulness excludes it for two of the three NBPO seeds, and instruction following, honesty and the minimum objective do not for any arm. NBPO's honesty mean sits just below $0.5$ on this common set. Dashes are unmeasured.}
 \label{tab:uf-objectives}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -592,10 +592,11 @@ Method & Seeds & IF & Truth & Honesty & Help & $\min_k W_k$\\
 Base (defined reference) & -- & $0.500$ & $0.500$ & $0.500$ & $0.500$ & $0.500$\\
 \addlinespace
 \multicolumn{7}{l}{\textit{Matched mechanism controls}}\\
-NBPO & $1$ & $0.516$ & $0.513$ & $0.501$ & $0.558$ & $0.501$\\
+NBPO & $3$ & $0.5085$ & $0.5117$ & $0.4971$ & $\mathbf{0.5516}$ & $0.4971$\\
+\quad\textit{sample SD over seeds} & & $0.0044$ & $0.0046$ & $0.0002$ & $0.0025$ & $0.0002$\\
 Fixed-reference Nash & \pending & \pending & \pending & \pending & \pending & \pending\\
 BT-RM--Nash & \pending & \pending & \pending & \pending & \pending & \pending\\
-Game-utilitarian & $1$ & $0.509$ & $0.511$ & $0.503$ & $0.548$ & $0.503$\\
+Game-utilitarian & $1$ & $0.5096$ & $0.5094$ & $0.5034$ & $\mathbf{0.5498}$ & $0.5034$\\
 Global game-maxmin & \pending & \pending & \pending & \pending & \pending & \pending\\
 \addlinespace
 \multicolumn{7}{l}{\textit{External baselines}}\\
@@ -614,7 +615,7 @@ Both measured policies use the same planned $2000$ final prompts and cached base
 
 \subsection{Bargaining and empirical trade-offs}
 \label{sec:tradeoffs}
-NBPO and the utilitarian control obtain helpfulness win rates of $0.558$ and $0.548$, with minimum attribute means of $0.501$ and $0.503$ (Table~\ref{tab:uf-objectives}). Their mean target TV is $0.0195$; the corresponding SafeRLHF value is $0.0008$ (Appendix~\ref{app:solver-neural}). These target diagnostics do not establish policy equivalence. The matched aggregation controls and external-baseline rows remain unmeasured.
+On the $1{,}763$ prompts common to every evaluated arm, \NBPO{} over three seeds and the utilitarian control at one seed obtain helpfulness win rates of $0.5516$ and $0.5498$, the only attribute whose whole-prompt bootstrap interval excludes $0.5$ for every arm. Their minimum attribute means are $0.4971$ and $0.5034$, both with intervals containing $0.5$, so neither arm improves all four attributes (Table~\ref{tab:uf-objectives}). Restricting to the common prompts matters: on each method's own larger valid set the same runs read $0.558$ and $0.548$ for helpfulness with minima of $0.501$ and $0.503$, which compares the arms on slightly different prompts. Their mean target TV is $0.0195$; the corresponding SafeRLHF value is $0.0008$ (Appendix~\ref{app:solver-neural}). These target diagnostics do not establish policy equivalence. The matched aggregation controls and external-baseline rows remain unmeasured.
 
 Figure~\ref{fig:uf-tradeoffs} provides two projections for comparing policies with the declared DPO sweep: four specialist vectors, the uniform vector, and two fixed interior vectors. The sweep remains unmeasured. Operating-point selection uses development data, and all seven settings are retained. Dominance is assessed in the full four-dimensional outcome space; the two projections cannot establish it. Worst-objective wins, Nash welfare, and average wins express different preferences over that space, so no single summary establishes the best compromise. Appendix~\ref{app:pareto-evaluation} specifies uncertainty and tuning-cost reporting.
 
@@ -2134,6 +2135,10 @@ $44$ & $-0.0033$ & $[-0.0086,+0.0023]$ & $-0.0037$ & $[-0.0095,+0.0017]$\\
 
 \section{Evaluation Protocol}
 \label{app:evaluation}
+
+\paragraph{Common-prompt denominators for the UF-4 final evaluation.}
+The planned final split is $2{,}000$ prompts. A prompt enters the reported table only when every evaluated method has both presentation orders parsed on all four attributes, which leaves $1{,}763$. Each method's own valid count is larger, because the losses are not on the same prompts: $1{,}924$, $1{,}916$ and $1{,}935$ for \NBPO{} seeds $42/43/44$ and $1{,}920$ for the utilitarian control. Reporting those per-method counts side by side would compare arms on slightly different prompts, so the common set is used throughout and the difference is recorded here. Invalid judgments are left missing; none is recoded as a tie or a loss and none is selectively retried.
+
 
 \subsection{Complete capability results}
 \label{app:capability-complete}

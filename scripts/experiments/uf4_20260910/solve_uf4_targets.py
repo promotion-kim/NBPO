@@ -30,7 +30,9 @@ import torch
 
 from mnpo_scripts.nbpo_core import uniform_policy
 from mnpo_scripts.nbpo_generic import solve_finite_pool, validate_finite_pool_solution
-from mnpo_scripts.nbpo_representations import AdaptiveGameRepresentation
+from mnpo_scripts.nbpo_representations import (
+    AdaptiveGameRepresentation, FixedReferenceRepresentation,
+)
 from scripts.nbpo.build_nbpo_pairs import build_rows, load_canonical_artifact
 from scripts.nbpo.solve_nbpo_dual import write_generic_solution_artifact
 
@@ -160,6 +162,11 @@ def main():
     ap.add_argument("--weight-l1-from", type=Path,
                     help="Read the matched norm from this UF-4 Nash targets/<name>/complete.json. "
                          "Safer than typing the number: it cannot pick up the SafeRLHF panel's.")
+    ap.add_argument("--representation", default="adaptive_game",
+                    choices=("adaptive_game", "fixed_reference"),
+                    help="fixed_reference freezes the comparator at mu: the beta -> infinity "
+                         "limit, where q carries no learner dependence and the proximal solve "
+                         "is exact in one map.")
     ap.add_argument("--beta", type=float, default=0.25)
     ap.add_argument("--eta", type=float, default=1.0)
     ap.add_argument("--workers", type=int, default=min(32, len(os.sched_getaffinity(0))))
@@ -248,11 +255,17 @@ def main():
                 "split": split, **shared_meta}
         write_json(tensor_dir / "meta.json", meta)
 
-        rep = AdaptiveGameRepresentation(
-            torch.from_numpy(A), torch.from_numpy(Aref),
-            uniform_policy(len(pids), POOL),
-            torch.full((len(OBJECTIVES),), args.beta, dtype=torch.float64),
-            reference_construction="shared_pool")
+        if args.representation == "adaptive_game":
+            rep = AdaptiveGameRepresentation(
+                torch.from_numpy(A), torch.from_numpy(Aref),
+                uniform_policy(len(pids), POOL),
+                torch.full((len(OBJECTIVES),), args.beta, dtype=torch.float64),
+                reference_construction="shared_pool")
+        else:
+            rep = FixedReferenceRepresentation(
+                torch.from_numpy(A), torch.from_numpy(Aref),
+                uniform_policy(len(pids), POOL),
+                reference_construction="shared_pool")
         print(json.dumps({"phase": "solve", "split": split, "prompts": len(pids),
                           "objectives": len(OBJECTIVES), "workers": args.workers,
                           "dual_fit": training is None}), flush=True)
@@ -281,7 +294,8 @@ def main():
         extra = {"split": split, **shared_meta,
                  "lambda_source": ("policy_train only" if split == "train"
                                    else "fixed policy_train solution"),
-                 "beta": args.beta, "eta": args.eta,
+                 "beta": (args.beta if args.representation == "adaptive_game" else None),
+                 "representation": args.representation, "eta": args.eta,
                  "dual_weights_scope": "global across prompts",
                  "certificate_reading": record["reading"]}
         if training is not None:
@@ -294,10 +308,11 @@ def main():
         if training is None:
             training = result
         canonical = load_canonical_artifact(solver_dir, solution, expected_prompt_ids=pids,
-                                            expected_representation="adaptive_game",
+                                            expected_representation=args.representation,
                                             expected_aggregation=args.aggregation)
         solver_hash = file_hash(solver_dir / "solution.json")
-        betas = np.full(len(OBJECTIVES), args.beta)
+        betas = (np.full(len(OBJECTIVES), args.beta)
+                 if args.representation == "adaptive_game" else None)
 
         def pair_rows():
             for x, pid in enumerate(pids):
@@ -310,7 +325,7 @@ def main():
                     np.random.default_rng(42), "canonical_logratio", meta,
                     {"solver_artifact_sha256": solver_hash, "solver_hash": solver_hash,
                      "target_artifact_hash": solution["artifact_hashes"]["target_log_ratio.npz"],
-                     "representation": "adaptive_game", "aggregation": args.aggregation,
+                     "representation": args.representation, "aggregation": args.aggregation,
                      "split": split, "panel": "UF-4", **shared_meta},
                     canonical_data={key: values[x:x + 1] for key, values in canonical.items()})
                 for row in rows:
