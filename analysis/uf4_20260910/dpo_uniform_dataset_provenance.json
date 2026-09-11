@@ -1,0 +1,64 @@
+{
+  "dataset": "/work/uf4_20260910/datasets/dpo_uniform_v1",
+  "weighting": "uniform",
+  "weight_vector": [
+    0.25,
+    0.25,
+    0.25,
+    0.25
+  ],
+  "weights_order": [
+    "instruction_following",
+    "truthfulness",
+    "honesty",
+    "helpfulness"
+  ],
+  "label": "scalarized frozen BT reward, train-pool standardization, ties dropped",
+  "tie_threshold_standardized": 0.05,
+  "calibration_sha256": "0b02cfdf15f7f82aa55566d8c00b235f9b7a4895e88f589588b85baaf3678e8f",
+  "loss": "loss_type=dpo; the Eq. (26) target columns are absent by construction",
+  "pool": "identical prompts, occurrences and token ids as the NBPO arms",
+  "model_revision": "0e9e39f249a16976918f6564b8830bc894c89659",
+  "tokenizer_hash": "568f60c858827ae2a775bcd0f906040bd74ed8054f000f538eb78237273b0a8b",
+  "chat_template_hash": "e10ca381b1ccc5cf9db52e371f3b6651576caee0a630b452e2816b2d404d4b65",
+  "checks": "weight name, tie threshold, model revision and chat-template hash checked exhaustively over every row; weight vector checked on eight rows spread across each split, since Arrow cannot take unique() of a list column and a constant name already implies a constant vector; row chat-template hash recomputed from the training tokenizer",
+  "splits": {
+    "train": {
+      "rows": 249712,
+      "dropped_columns": [
+        "target_artifact_hash"
+      ],
+      "weight_name": "uniform",
+      "weight_vector": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "model_revision": "0e9e39f249a16976918f6564b8830bc894c89659",
+      "chat_template_hash": "e10ca381b1ccc5cf9db52e371f3b6651576caee0a630b452e2816b2d404d4b65",
+      "tie_threshold": 0.05,
+      "pair_file": "/work/uf4_20260910/dpo/v1/pairs/uniform/train.jsonl",
+      "pair_file_sha256": "3648c9c1bf99883e74bf2c63cd193be83fd68ed02171efcd993e2d92e26591e1"
+    },
+    "dev": {
+      "rows": 24965,
+      "dropped_columns": [
+        "target_artifact_hash"
+      ],
+      "weight_name": "uniform",
+      "weight_vector": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "model_revision": "0e9e39f249a16976918f6564b8830bc894c89659",
+      "chat_template_hash": "e10ca381b1ccc5cf9db52e371f3b6651576caee0a630b452e2816b2d404d4b65",
+      "tie_threshold": 0.05,
+      "pair_file": "/work/uf4_20260910/dpo/v1/pairs/uniform/dev.jsonl",
+      "pair_file_sha256": "7f3ec81faeb2f322855429d7f8db4034957ea88444c361d3b807c68eeecc9e0e"
+    }
+  },
+  "builder_sha256": "6bc6ee3268eae27fcaa7e828c34f7acdcd60177d9c8082e8f76a0847e092e2c6"
+}

@@ -1,0 +1,94 @@
+{
+  "arm": "dpo_uniform_mse_s42",
+  "weighting": "uniform",
+  "seed": 42,
+  "dpo_beta": 0.01,
+  "dpo_beta_note": "library default for this trainer, paired with sequence-sum log-ratios; not tuned, so tuning trials for this baseline are zero",
+  "dataset": "/work/uf4_20260910/datasets/dpo_uniform_v1",
+  "config_path": "/work/uf4_20260910/configs/dpo_uniform_mse_s42.yaml",
+  "config_sha256": "9aa96b9dfeec762308032f74276a9c0958c48fa7ba4eb2e9d554d75d88263109",
+  "base_config": "/work/nbpo_repair_20260909/configs/mse_short_primary_v1.yaml",
+  "base_config_sha256": "cdee48702a3ffeec7017a9d187c37672c11898eb6374100fc16628aabe245fa8",
+  "removed_keys": [
+    "nbpo_target_mode",
+    "nbpo_target_column",
+    "nbpo_target_units",
+    "nbpo_eta_already_included",
+    "nbpo_require_immutable_tokens",
+    "nbpo_num_candidates",
+    "nbpo_expected_dataset_manifest_sha256",
+    "nbpo_expected_solver_artifact_sha256"
+  ],
+  "recipe_diff_vs_resolved_base": {
+    "dataset_mixer": {
+      "base": {
+        "/work/nbpo_repair_20260909/datasets/nash_repair_v2": 1.0
+      },
+      "dpo": {
+        "/work/uf4_20260910/datasets/dpo_uniform_v1": 1.0
+      }
+    },
+    "dpo_beta": {
+      "base": "<absent>",
+      "dpo": 0.01
+    },
+    "eval_steps": {
+      "base": 50,
+      "dpo": 250
+    },
+    "loss_type": {
+      "base": "nbpo",
+      "dpo": "dpo"
+    },
+    "max_steps": {
+      "base": 250,
+      "dpo": 1250
+    },
+    "nbpo_eta_already_included": {
+      "base": true,
+      "dpo": "<absent>"
+    },
+    "nbpo_expected_dataset_manifest_sha256": {
+      "base": "856ba968818f4672eace40d2794a1889a99ebd7e866da0531e64d57e01564fac",
+      "dpo": "<absent>"
+    },
+    "nbpo_expected_solver_artifact_sha256": {
+      "base": "4fd522a7891fa7ba4ab3bcfcd82f0d72a5b50de23a8b9239a8e480b74588afc8",
+      "dpo": "<absent>"
+    },
+    "nbpo_num_candidates": {
+      "base": 8,
+      "dpo": "<absent>"
+    },
+    "nbpo_require_immutable_tokens": {
+      "base": true,
+      "dpo": "<absent>"
+    },
+    "nbpo_target_column": {
+      "base": "nbpo_logratio_target",
+      "dpo": "<absent>"
+    },
+    "nbpo_target_mode": {
+      "base": "canonical_logratio",
+      "dpo": "<absent>"
+    },
+    "nbpo_target_units": {
+      "base": "final_logratio_change",
+      "dpo": "<absent>"
+    },
+    "output_dir": {
+      "base": "/work/nbpo_repair_20260909/arms/mse_short_primary_v1",
+      "dpo": "/work/uf4_20260910/arms/dpo_uniform_mse_s42"
+    },
+    "run_name": {
+      "base": "mse_short_primary_v1",
+      "dpo": "dpo_uniform_mse_s42"
+    },
+    "save_steps": {
+      "base": 250,
+      "dpo": 1250
+    }
+  },
+  "queue_spec": "/work/uf4_20260910/jobs/queue/80_train_dpo_uniform_mse_s42.json",
+  "smoke": false
+}

@@ -33,6 +33,7 @@ SIDE_FIELDS = ("", "_input_ids", "_attention_mask", "_labels", "_response_id",
 # Columns that describe the NBPO teacher, not the data. Dropped for DPO.
 DROP_PREFIX = ("nbpo_", "solver_", "opponent_", "lambda_")
 DROP_EXACT = ("aggregation", "representation", "target_column", "target_units",
+              "target_artifact_hash",
               "target_mode", "eta_already_included", "nbpo_z")
 
 

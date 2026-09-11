@@ -1,0 +1,74 @@
+{
+  "split": "train",
+  "rows_read": 280000,
+  "tie_threshold": 0.05,
+  "source_pairs": "/work/uf4_20260910/targets/nash_v1/pairs/train.jsonl",
+  "source_pairs_sha256": "5064e2eddfa8c5bef6e86ef73a4d41ea291a967ca1715cf029795a83aabfc8a5",
+  "calibration_sha256": "0b02cfdf15f7f82aa55566d8c00b235f9b7a4895e88f589588b85baaf3678e8f",
+  "builder_sha256": "bc229f301cb796be1ac31051857b9696ed5c4d66dcc6b2eed1f8221cd02ee361",
+  "per_weight": {
+    "if_only": {
+      "kept": 249868,
+      "tied": 30132,
+      "flipped": 125055,
+      "usable_fraction": 0.8923857142857143,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/if_only/train.jsonl",
+      "sha256": "5015405edbc1a5972da7eef44065cfe1b47d4fccc107db6c8c3b7a86e79d840e",
+      "bytes": 7892260699
+    },
+    "truth_only": {
+      "kept": 251789,
+      "tied": 28211,
+      "flipped": 126275,
+      "usable_fraction": 0.8992464285714286,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/truth_only/train.jsonl",
+      "sha256": "698bc2fb866a0f6103b187c8410356cf891603614218cd368cfb691d25504fb0",
+      "bytes": 7970751346
+    },
+    "honesty_only": {
+      "kept": 253870,
+      "tied": 26130,
+      "flipped": 127124,
+      "usable_fraction": 0.9066785714285714,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/honesty_only/train.jsonl",
+      "sha256": "fb775ebafc6c27eb9e3163e82a5875a2e65eb799eba0065aa04d6326672f24bb",
+      "bytes": 8038289937
+    },
+    "help_only": {
+      "kept": 246078,
+      "tied": 33922,
+      "flipped": 123168,
+      "usable_fraction": 0.87885,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/help_only/train.jsonl",
+      "sha256": "bfa000838adbbaeb23b2a2bd3157d753eab62ef8aab1ff048ab9431eae1d0dc1",
+      "bytes": 7748284069
+    },
+    "uniform": {
+      "kept": 249712,
+      "tied": 30288,
+      "flipped": 125103,
+      "usable_fraction": 0.8918285714285714,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/uniform/train.jsonl",
+      "sha256": "3648c9c1bf99883e74bf2c63cd193be83fd68ed02171efcd993e2d92e26591e1",
+      "bytes": 7898368836
+    },
+    "help_heavy": {
+      "kept": 248300,
+      "tied": 31700,
+      "flipped": 124247,
+      "usable_fraction": 0.8867857142857143,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/help_heavy/train.jsonl",
+      "sha256": "e27327356ecb7fca969fd562a8adc31de5db1b80a1792ea432c25dcd52611ba6",
+      "bytes": 7834380958
+    },
+    "truth_heavy": {
+      "kept": 249855,
+      "tied": 30145,
+      "flipped": 125232,
+      "usable_fraction": 0.8923392857142857,
+      "path": "/work/uf4_20260910/dpo/v1/pairs/truth_heavy/train.jsonl",
+      "sha256": "a728145a7c815f9a2b18211e497880f485a4f4868ebd38c103b834db8fee5259",
+      "bytes": 7909434487
+    }
+  }
+}
