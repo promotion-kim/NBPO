@@ -59,3 +59,7 @@ Audit confirmation,Cyclic triangles found in panel A,24,analysis/audit/cycles_au
 Audit confirmation,Cycle edges holding in both orders,15 / 72 = 0.208,audit/v1/witness_manifest.json
 Audit confirmation,Eligible witness triangles selected,0 \textrm{ of 4 rubrics},audit/v1/witness_manifest.json
 Audit confirmation,"Confirmation judgments spent of the 2{,}280 budget",0,audit/v1/witness_manifest.json
+"Policy projection, NBPO-MSE three seeds","Final dev nMSE $\downarrow$, mean $\pm$ sample SD",0.5861 \pm 0.0033,"arms/nbpo_mse_s4{2,3,4}, trainer held-out diagnostics"
+"Policy projection, NBPO-MSE three seeds","Final dev sign accuracy $\uparrow$, mean $\pm$ sample SD",0.6698 \pm 0.0017,"arms/nbpo_mse_s4{2,3,4}, trainer held-out diagnostics"
+"Policy projection, NBPO-MSE three seeds","Final dev Pearson, mean $\pm$ sample SD",0.6490 \pm 0.0023,"arms/nbpo_mse_s4{2,3,4}, trainer held-out diagnostics"
+"Policy projection, NBPO-MSE three seeds","Per-seed final nMSE, s42 / s43 / s44",0.5823 / 0.5881 / 0.5878,"arms/nbpo_mse_s4{2,3,4}, trainer held-out diagnostics"
