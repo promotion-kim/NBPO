@@ -80,6 +80,30 @@ def snapshot():
             "unreachable": not bool(out.strip())}
 
 
+def capability_cells_in_manuscript():
+    """Count measured cells in tab:general-capability, the exhibit the matrix scores.
+
+    The denominator is methods x benchmarks in execution_matrix.json, so the
+    numerator must come from the same table: a data cell is filled when it is
+    not \\pending. Sub-rows carrying a seed dispersion are not separate cells.
+    """
+    text = TEX.read_text(encoding="utf-8")
+    start = text.find("\\label{tab:general-capability}")
+    if start < 0:
+        return 0
+    body = text[text.find("\\midrule", start):text.find("\\bottomrule", start)]
+    filled = 0
+    for line in body.splitlines():
+        line = line.strip()
+        if not line.endswith("\\\\") or line.startswith("\\midrule"):
+            continue
+        cells = line[:-2].split("&")
+        if len(cells) < 6 or "sample SD over seeds" in cells[0]:
+            continue
+        filled += sum(1 for c in cells[2:6] if "\\pending" not in c and c.strip())
+    return filled
+
+
 def completion():
     """Count filled main-body cells from the artifacts the cluster actually has."""
     m = json.loads((PROG / "execution_matrix.json").read_text())
@@ -93,8 +117,9 @@ def completion():
         for pref, meth in arms_to_method.items():
             if arm.startswith(pref):
                 obj_methods.add(meth)
-    cap = pod("ls -d /work/uf4_20260910/evaluation/capability/*/*/results.json 2>/dev/null")
-    cap_cells = len([p for p in cap.split() if p.strip()])
+    lm_cells = pod("ls -d /work/uf4_20260910/evaluation/capability/*/*/results.json 2>/dev/null")
+    lm_cells = len([p for p in lm_cells.split() if p.strip()])
+    cap_cells = capability_cells_in_manuscript()
     bench = pod("ls -d /work/nbpo_repair_20260909/responses/uf4_*/ifeval.jsonl 2>/dev/null")
     bench_arms = len([p for p in bench.split() if p.strip()])
     return {
@@ -105,6 +130,7 @@ def completion():
         "dpo_done": 0, "dpo_total": len(m["dpo_weights"]["weights"]),
         "capability_cells_done": cap_cells,
         "capability_cells_total": len(m["capability"]["methods"]) * len(m["capability"]["benchmarks"]),
+        "lm_eval_cells_done": lm_cells,
         "bench_arms_generated": bench_arms,
     }
 
@@ -137,11 +163,12 @@ def status_block(snap, comp, pdf_note):
         "\\begin{center}\\small\\fbox{\\parbox{0.95\\linewidth}{%",
         "\\textbf{Draft status, auto-updated %s.} Not part of the reported results." % esc(t),
         "\\\\[2pt]",
-        "Main-body objective rows %d/%d; cross-play %d/%d; DPO weights %d/%d; capability cells %d/%d." %
+        "Main-body objective rows %d/%d; cross-play %d/%d; DPO weights %d/%d; capability cells %d/%d; lm-eval cells %d." %
         (comp["objective_rows_done"], comp["objective_rows_total"],
          comp["crossplay_done"], comp["crossplay_total"],
          comp["dpo_done"], comp["dpo_total"],
-         comp["capability_cells_done"], comp["capability_cells_total"]),
+         comp["capability_cells_done"], comp["capability_cells_total"],
+         comp["lm_eval_cells_done"]),
         "\\\\[2pt]",
         esc(" | ".join(rows)),
         "\\\\[2pt]",
@@ -237,7 +264,8 @@ def korean_summary(snap, comp, build, extra):
         "[KST %s] 본문 완료: objective %d/%d, cross-play %d/%d, DPO weights %d/7, capability %d/%d"
         % (t, comp["objective_rows_done"], comp["objective_rows_total"],
            comp["crossplay_done"], comp["crossplay_total"], comp["dpo_done"],
-           comp["capability_cells_done"], comp["capability_cells_total"]),
+           comp["capability_cells_done"], comp["capability_cells_total"])
+        + " (lm-eval %d)" % comp["lm_eval_cells_done"],
         "진행/다음: 큐 %s → %s" % (counts, extra.get("next", "READY 최상위")),
         gl(0) + " | " + gl(1),
         gl(2) + " | " + gl(3),
