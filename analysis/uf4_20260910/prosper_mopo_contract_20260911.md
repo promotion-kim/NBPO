@@ -29,12 +29,54 @@ the current solver already computes; what changes is that no global dual is fit
 on top of it.
 
 So a faithful adaptation is **per-prompt absolute_maxmin on the adaptive-game
-values at the same beta**, not a new algorithm. Planned implementation reuses
-the verified machinery at X=1 per prompt rather than writing a second solver:
-11,000 independent tiny solves (10k policy_train + 1k policy_dev), each fitting
-its own weights. The existing global solve does 10k per-prompt inner solves in
-about 6 minutes on 32 workers, so a per-prompt outer fit is expected in the tens
-of minutes on CPU, running beside training.
+values at the same beta**, not a new algorithm.
+
+### Correction, 22:45 KST: this is not a flag on the existing solver
+
+The earlier note said the per-prompt solve could reuse the existing pipeline at
+X=1. The solve itself can. The *artifact* pipeline cannot, and the obstacle is
+structural rather than cosmetic:
+
+    FinitePoolSolution.weights: torch.Tensor   # (K,)
+
+is one global weight vector, and `write_generic_solution_artifact` records it as
+`"lambda_raw": [float(v) for v in res.weights]`. `load_canonical_artifact`
+validates against that record and `build_rows` is handed `result.weights`
+as (K,). Per-prompt weights are (K, X), so four places on the write path would
+have to change, all of them shared with the arms already published.
+
+What rescues the design is that **the training target does not depend on the
+objective weights at all**. The canonical target is
+
+    log(w_a / c_a) - log(w_b / c_b)
+
+over the solved candidate masses against the uniform 1/8 centre. Checked against
+a released row: recorded target -0.150054122, recomputed from the masses
+-0.150054122, exact. The weights determine *which* policy is solved; they do not
+enter the target once it is solved.
+
+So the implementation is a separate `solve_prosper_targets.py` that:
+
+  * calls the verified `solve_finite_pool` once per prompt on a one-prompt
+    representation, with `absolute_maxmin` and the L1 norm matched to the Nash
+    dual, exactly as the utilitarian and global-maxmin controls are matched;
+  * assembles the canonical target itself from the per-prompt solved masses,
+    which is the same closed form the released rows satisfy;
+  * writes per-prompt weights as a (K, X) array in its own provenance file
+    rather than forcing them through a field shaped for one vector;
+  * leaves `solve_uf4_targets.py` and every published artifact untouched.
+
+Before it is trusted it has to reproduce a global-weight case: run the same code
+path with one shared weight vector and check the targets match
+`targets/nash_v1/pairs` row for row. Reimplementing the target formula is the
+one place this design can silently diverge from the arms it is compared with, so
+that check is not optional.
+
+One honest consequence of no shared dual: policy_dev is no longer a held-out
+measurement of a fit made on policy_train, because each prompt fits its own
+weights on whichever split it is in. The dev split still measures generalisation
+of the *neural* fit, but not of a dual. That difference belongs in the row's
+description.
 
 It must NOT be labelled as replacing global game-maxmin. Global maxmin changes
 the compromise over shared prompt-averaged values; PROSPER also changes the
