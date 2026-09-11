@@ -95,13 +95,13 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-11 18:30 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-11 19:30 KST.} Not part of the reported results.
 \\[2pt]
-Main-body objective rows 3/9; cross-play 0/4; DPO weights 0/7; capability cells 7/36; lm-eval cells 12.
+Main-body objective rows 3/9; cross-play 0/4; DPO weights 0/7; capability cells 7/36; lm-eval cells 13.
 \\[2pt]
-GPU0: uf4\_train\_fixedref\_mse\_s42, 99\%, 96357/143771 MiB | GPU1: uf4\_train\_fixedref\_mse\_s42, 96\%, 96191/143771 MiB | GPU2: uf4\_train\_fixedref\_mse\_s42, 99\%, 97831/143771 MiB | GPU3: uf4\_train\_fixedref\_mse\_s42, 99\%, 96201/143771 MiB
+GPU0: uf4\_finaleval\_judge\_util\_mse\_s44, 100\%, 130761/143771 MiB | GPU1: uf4\_cap\_nbpo\_mse\_s44\_hellaswag, 0\%, 123027/143771 MiB | GPU2: uf4\_cap\_util\_mse\_s43\_arc\_challenge, 0\%, 122963/143771 MiB | GPU3: uf4\_finaleval\_judge\_fixedref\_mse\_s42, 0\%, 28963/143771 MiB
 \\[2pt]
-Queue: DONE 100, FAILED 5, PENDING 6, READY 13, RUNNING 2. PDF rebuilt each cycle.
+Queue: DONE 124, FAILED 5, READY 16, RUNNING 4. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -687,7 +687,7 @@ Dev-selected competitor & \pending & \pending & \pending & \pending & \pending\\
 \subsection{Capability, realization, and supporting results}
 \label{sec:general-capability}
 \paragraph{Capability retention.}
-Table~\ref{tab:general-capability} reserves core capability and safety outcomes for the same UF-trained checkpoints. IFEval and GSM8K are now measured on all three seeds of NBPO and of game-utilitarian. GSM8K is unchanged: every seed is within $0.008$ of the base, and no per-seed paired prompt-bootstrap interval on the base-relative difference excludes zero. IFEval declines for both methods, by $0.0277$ for NBPO and $0.0290$ for game-utilitarian at the seed mean, with the per-seed paired intervals excluding zero for two of three NBPO seeds and for none of the game-utilitarian seeds. The decline is therefore a property of this $250$-update training regime rather than of the aggregation rule, and it does not separate the two rules. The safety columns remain pending. The completed ARC-C/HellaSwag changes are at most $0.0030$ from the base, and NBPO's MMLU change is $-0.0007$; these point estimates do not establish equivalence. The full capability table, including the separate historical SafeRLHF protocol, remains in Appendix~\ref{app:capability-complete}.
+Table~\ref{tab:general-capability} reserves core capability and safety outcomes for the same UF-trained checkpoints. IFEval and GSM8K are now measured on all three seeds of NBPO and of game-utilitarian. GSM8K is unchanged: every seed is within $0.008$ of the base, and no per-seed paired prompt-bootstrap interval on the base-relative difference excludes zero. IFEval declines for both methods, by $0.0277$ for NBPO and $0.0290$ for game-utilitarian at the seed mean, with the per-seed paired intervals excluding zero for two of three NBPO seeds and for none of the game-utilitarian seeds. The decline is therefore a property of this $250$-update training regime rather than of the aggregation rule, and it does not separate the two rules. The safety columns remain pending. The completed ARC-C/HellaSwag changes are at most $0.0030$ from the base, and the MMLU changes are $-0.0007$ for NBPO and $-0.0006$ for game-utilitarian; these point estimates do not establish equivalence. The full capability table, including the separate historical SafeRLHF protocol, remains in Appendix~\ref{app:capability-complete}.
 
 \begin{table}[t]
 \centering\small
@@ -2160,7 +2160,7 @@ The planned final split is $2{,}000$ prompts. A prompt enters the reported table
 
 \subsection{Complete capability results}
 \label{app:capability-complete}
-This table retains the full reported capability panel. The UF and historical SafeRLHF base rows use different recorded protocols and are not pooled. Table~\ref{tab:general-capability} in the main text isolates the core outcomes to complete on the UF checkpoints.
+This table retains the full reported capability panel. The UF and historical SafeRLHF base rows use different recorded protocols and are not pooled. The UF rows are policy seed $42$. Further seeds are complete for some columns but not all, and the completed sets differ by column, so they are reported here rather than averaged into the table: ARC-C is measured on three NBPO seeds ($0.6058$, $0.6075$, $0.6058$) and two game-utilitarian seeds ($0.6032$, $0.6041$); HellaSwag and MMLU on two NBPO seeds ($0.7984$, $0.8005$ and $0.6816$, $0.6827$). Every one of these is within $0.0030$ of the base, and none of them is an equivalence test. Table~\ref{tab:general-capability} in the main text isolates the core outcomes to complete on the UF checkpoints.
 
 \begin{table}[t]
 \centering\scriptsize
@@ -2174,7 +2174,7 @@ Method & ARC-C & HellaSwag & MMLU & IFEval & GSM8K & HB$\downarrow$\\
 \multicolumn{7}{l}{\textit{UltraFeedback: one policy seed}}\\
 Base & $0.6049$ & $0.8008$ & $0.6823$ & $0.7542$ & $0.8666$ & $0.2813$\\
 NBPO & $0.6058$ & $0.7984$ & $0.6816$ & $0.7227$ & $0.8605$ & \pending\\
-Game-utilitarian & $0.6032$ & $0.7978$ & \pending & $0.7209$ & $0.8658$ & \pending\\
+Game-utilitarian & $0.6032$ & $0.7978$ & $0.6817$ & $0.7209$ & $0.8658$ & \pending\\
 \midrule
 \multicolumn{7}{l}{\textit{SafeRLHF: reported three-seed study}}\\
 Base & \pending & \pending & \pending & $0.752$ & $0.867$ & $0.281$\\

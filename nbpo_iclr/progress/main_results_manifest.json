@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-11 18:30:24",
+  "generated_kst": "2026-09-11 19:30:23",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -112,11 +112,10 @@
     }
   },
   "state_counts": {
-    "DONE": 12,
-    "PENDING": 2,
-    "RUNNING": 1,
-    "NOT_STARTED": 98,
-    "READY": 2
+    "DONE": 13,
+    "RUNNING": 2,
+    "NOT_STARTED": 90,
+    "READY": 10
   },
   "rows": [
     {
@@ -254,11 +253,11 @@
       "method": "game_utilitarian",
       "seed_or_weight": "seed 44",
       "checkpoint_id": "util_mse_s44",
-      "config_hash": "",
+      "config_hash": "69aa1b00e191e963590aebacc105169348561194f19d6b51b121e60d0680bd94",
       "dependency": "uf4_train_util_mse_s44",
       "job_id": "uf4_finaleval_judge_util_mse_s44",
-      "state": "PENDING",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "elapsed 8m",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/util_mse_s44/complete.json",
       "eta_min": 24
     },
@@ -280,11 +279,11 @@
       "method": "fixed_reference_nash",
       "seed_or_weight": "seed 42",
       "checkpoint_id": "fixedref_mse_s42",
-      "config_hash": "",
+      "config_hash": "9b9392aa249d4800b9fd7112b3d832dd976614d64c374150f10b19447dcb83d4",
       "dependency": "uf4_train_fixedref_mse_s42",
       "job_id": "uf4_finaleval_judge_fixedref_mse_s42",
-      "state": "PENDING",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "elapsed 1m",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/fixedref_mse_s42/complete.json",
       "eta_min": 24
     },
@@ -296,8 +295,8 @@
       "config_hash": "1adb6db4f67c2b968d1ffccdfff2aa43aded14357c33607841be48ca5ffa6c9e",
       "dependency": "target solve",
       "job_id": "uf4_train_fixedref_mse_s42",
-      "state": "RUNNING",
-      "progress": "step 1000/1250",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/fixedref_mse_s42/config.json",
       "eta_min": 184
     },
@@ -374,7 +373,7 @@
       "config_hash": "",
       "dependency": "target solve",
       "job_id": "uf4_train_dpo_uniform_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "READY",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/dpo_uniform_mse_s42/config.json",
       "eta_min": 184
@@ -569,7 +568,7 @@
       "config_hash": "",
       "dependency": "uf4_build_dpo_datasets",
       "job_id": "uf4_train_dpo_if_only_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "READY",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/dpo_if_only_mse_s42/config.json",
       "eta_min": 184
@@ -595,7 +594,7 @@
       "config_hash": "",
       "dependency": "uf4_build_dpo_datasets",
       "job_id": "uf4_train_dpo_truth_only_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "READY",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/dpo_truth_only_mse_s42/config.json",
       "eta_min": 184
@@ -621,7 +620,7 @@
       "config_hash": "",
       "dependency": "uf4_build_dpo_datasets",
       "job_id": "uf4_train_dpo_honesty_only_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "READY",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/dpo_honesty_only_mse_s42/config.json",
       "eta_min": 184
@@ -647,7 +646,7 @@
       "config_hash": "",
       "dependency": "uf4_build_dpo_datasets",
       "job_id": "uf4_train_dpo_help_only_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "READY",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/dpo_help_only_mse_s42/config.json",
       "eta_min": 184
@@ -673,7 +672,7 @@
       "config_hash": "",
       "dependency": "uf4_build_dpo_datasets",
       "job_id": "uf4_train_dpo_uniform_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "READY",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/dpo_uniform_mse_s42/config.json",
       "eta_min": 184
@@ -699,7 +698,7 @@
       "config_hash": "",
       "dependency": "uf4_build_dpo_datasets",
       "job_id": "uf4_train_dpo_help_heavy_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "READY",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/dpo_help_heavy_mse_s42/config.json",
       "eta_min": 184
@@ -725,7 +724,7 @@
       "config_hash": "",
       "dependency": "uf4_build_dpo_datasets",
       "job_id": "uf4_train_dpo_truth_heavy_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "READY",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/dpo_truth_heavy_mse_s42/config.json",
       "eta_min": 184

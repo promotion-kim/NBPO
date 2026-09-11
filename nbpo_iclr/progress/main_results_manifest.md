@@ -1,8 +1,8 @@
 # Main-body result manifest
 
-Generated 2026-09-11 18:30:24 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-11 19:30:23 KST. DONE requires the proving artifact on disk.
 
-State counts: DONE 12, NOT_STARTED 98, PENDING 2, READY 2, RUNNING 1
+State counts: DONE 13, NOT_STARTED 90, READY 10, RUNNING 2
 
 | exhibit | method | seed/weight | checkpoint | job | state | progress | ETA (min) |
 |---|---|---|---|---|---|---|---|
@@ -16,16 +16,16 @@ State counts: DONE 12, NOT_STARTED 98, PENDING 2, READY 2, RUNNING 1
 | tab:uf-objectives | game_utilitarian | seed 42 (train) | util_mse_s42 | uf4_train_util_mse_s42 | DONE | - | 184 |
 | tab:uf-objectives | game_utilitarian | seed 43 | util_mse_s43 | uf4_finaleval_judge_util_mse_s43 | DONE | - | 24 |
 | tab:uf-objectives | game_utilitarian | seed 43 (train) | util_mse_s43 | uf4_train_util_mse_s43 | DONE | - | 184 |
-| tab:uf-objectives | game_utilitarian | seed 44 | util_mse_s44 | uf4_finaleval_judge_util_mse_s44 | PENDING | - | 24 |
+| tab:uf-objectives | game_utilitarian | seed 44 | util_mse_s44 | uf4_finaleval_judge_util_mse_s44 | RUNNING | elapsed 8m | 24 |
 | tab:uf-objectives | game_utilitarian | seed 44 (train) | util_mse_s44 | uf4_train_util_mse_s44 | DONE | - | 184 |
-| tab:uf-objectives | fixed_reference_nash | seed 42 | fixedref_mse_s42 | uf4_finaleval_judge_fixedref_mse_s42 | PENDING | - | 24 |
-| tab:uf-objectives | fixed_reference_nash | seed 42 (train) | fixedref_mse_s42 | uf4_train_fixedref_mse_s42 | RUNNING | step 1000/1250 | 184 |
+| tab:uf-objectives | fixed_reference_nash | seed 42 | fixedref_mse_s42 | uf4_finaleval_judge_fixedref_mse_s42 | RUNNING | elapsed 1m | 24 |
+| tab:uf-objectives | fixed_reference_nash | seed 42 (train) | fixedref_mse_s42 | uf4_train_fixedref_mse_s42 | DONE | - | 184 |
 | tab:uf-objectives | bt_rm_nash | seed 42 | btrm_mse_s42 | uf4_finaleval_judge_btrm_mse_s42 | NOT_STARTED | - | 24 |
 | tab:uf-objectives | bt_rm_nash | seed 42 (train) | btrm_mse_s42 | uf4_train_btrm_mse_s42 | READY | - | 184 |
 | tab:uf-objectives | game_maxmin | seed 42 | maxmin_mse_s42 | uf4_finaleval_judge_maxmin_mse_s42 | NOT_STARTED | - | 24 |
 | tab:uf-objectives | game_maxmin | seed 42 (train) | maxmin_mse_s42 | uf4_train_maxmin_mse_s42 | READY | - | 184 |
 | tab:uf-objectives | dpo_uniform | seed 42 | dpo_uniform_mse_s42 | uf4_finaleval_judge_dpo_uniform_mse_s42 | NOT_STARTED | - | 24 |
-| tab:uf-objectives | dpo_uniform | seed 42 (train) | dpo_uniform_mse_s42 | uf4_train_dpo_uniform_mse_s42 | NOT_STARTED | - | 184 |
+| tab:uf-objectives | dpo_uniform | seed 42 (train) | dpo_uniform_mse_s42 | uf4_train_dpo_uniform_mse_s42 | READY | - | 184 |
 | tab:uf-objectives | prosper_adapt | seed 42 | prosper_mse_s42 | uf4_finaleval_judge_prosper_mse_s42 | NOT_STARTED | - | 24 |
 | tab:uf-objectives | prosper_adapt | seed 42 (train) | prosper_mse_s42 | uf4_train_prosper_mse_s42 | NOT_STARTED | - | 184 |
 | tab:uf-objectives | prosper_adapt | seed 43 | prosper_mse_s43 | uf4_finaleval_judge_prosper_mse_s43 | NOT_STARTED | - | 24 |
@@ -40,19 +40,19 @@ State counts: DONE 12, NOT_STARTED 98, PENDING 2, READY 2, RUNNING 1
 | tab:uf-objectives | mopo_adapt | seed 44 (train) | mopo_mse_s44 | uf4_train_mopo_mse_s44 | NOT_STARTED | - | 184 |
 | tab:uf-objectives | base | reference | Llama-3.1-8B-Instruct | uf4_pool_finaleval_shard0 | DONE | - | 9 |
 | fig:uf-tradeoffs | scalarized_dpo | if_only | dpo_if_only_mse_s42 | uf4_finaleval_judge_dpo_if_only_mse_s42 | NOT_STARTED | - | 24 |
-| fig:uf-tradeoffs | scalarized_dpo | if_only (train) | dpo_if_only_mse_s42 | uf4_train_dpo_if_only_mse_s42 | NOT_STARTED | - | 184 |
+| fig:uf-tradeoffs | scalarized_dpo | if_only (train) | dpo_if_only_mse_s42 | uf4_train_dpo_if_only_mse_s42 | READY | - | 184 |
 | fig:uf-tradeoffs | scalarized_dpo | truth_only | dpo_truth_only_mse_s42 | uf4_finaleval_judge_dpo_truth_only_mse_s42 | NOT_STARTED | - | 24 |
-| fig:uf-tradeoffs | scalarized_dpo | truth_only (train) | dpo_truth_only_mse_s42 | uf4_train_dpo_truth_only_mse_s42 | NOT_STARTED | - | 184 |
+| fig:uf-tradeoffs | scalarized_dpo | truth_only (train) | dpo_truth_only_mse_s42 | uf4_train_dpo_truth_only_mse_s42 | READY | - | 184 |
 | fig:uf-tradeoffs | scalarized_dpo | honesty_only | dpo_honesty_only_mse_s42 | uf4_finaleval_judge_dpo_honesty_only_mse_s42 | NOT_STARTED | - | 24 |
-| fig:uf-tradeoffs | scalarized_dpo | honesty_only (train) | dpo_honesty_only_mse_s42 | uf4_train_dpo_honesty_only_mse_s42 | NOT_STARTED | - | 184 |
+| fig:uf-tradeoffs | scalarized_dpo | honesty_only (train) | dpo_honesty_only_mse_s42 | uf4_train_dpo_honesty_only_mse_s42 | READY | - | 184 |
 | fig:uf-tradeoffs | scalarized_dpo | help_only | dpo_help_only_mse_s42 | uf4_finaleval_judge_dpo_help_only_mse_s42 | NOT_STARTED | - | 24 |
-| fig:uf-tradeoffs | scalarized_dpo | help_only (train) | dpo_help_only_mse_s42 | uf4_train_dpo_help_only_mse_s42 | NOT_STARTED | - | 184 |
+| fig:uf-tradeoffs | scalarized_dpo | help_only (train) | dpo_help_only_mse_s42 | uf4_train_dpo_help_only_mse_s42 | READY | - | 184 |
 | fig:uf-tradeoffs | scalarized_dpo | uniform | dpo_uniform_mse_s42 | uf4_finaleval_judge_dpo_uniform_mse_s42 | NOT_STARTED | - | 24 |
-| fig:uf-tradeoffs | scalarized_dpo | uniform (train) | dpo_uniform_mse_s42 | uf4_train_dpo_uniform_mse_s42 | NOT_STARTED | - | 184 |
+| fig:uf-tradeoffs | scalarized_dpo | uniform (train) | dpo_uniform_mse_s42 | uf4_train_dpo_uniform_mse_s42 | READY | - | 184 |
 | fig:uf-tradeoffs | scalarized_dpo | help_heavy | dpo_help_heavy_mse_s42 | uf4_finaleval_judge_dpo_help_heavy_mse_s42 | NOT_STARTED | - | 24 |
-| fig:uf-tradeoffs | scalarized_dpo | help_heavy (train) | dpo_help_heavy_mse_s42 | uf4_train_dpo_help_heavy_mse_s42 | NOT_STARTED | - | 184 |
+| fig:uf-tradeoffs | scalarized_dpo | help_heavy (train) | dpo_help_heavy_mse_s42 | uf4_train_dpo_help_heavy_mse_s42 | READY | - | 184 |
 | fig:uf-tradeoffs | scalarized_dpo | truth_heavy | dpo_truth_heavy_mse_s42 | uf4_finaleval_judge_dpo_truth_heavy_mse_s42 | NOT_STARTED | - | 24 |
-| fig:uf-tradeoffs | scalarized_dpo | truth_heavy (train) | dpo_truth_heavy_mse_s42 | uf4_train_dpo_truth_heavy_mse_s42 | NOT_STARTED | - | 184 |
+| fig:uf-tradeoffs | scalarized_dpo | truth_heavy (train) | dpo_truth_heavy_mse_s42 | uf4_train_dpo_truth_heavy_mse_s42 | READY | - | 184 |
 | tab:independent-crossplay | base | - | base | uf4_crossplay_base | NOT_STARTED | - | 60 |
 | tab:independent-crossplay | nbpo_mse_s42 | - | nbpo_mse_s42 | uf4_crossplay_nbpo_mse_s42 | NOT_STARTED | - | 60 |
 | tab:independent-crossplay | fixedref_mse_s42 | - | fixedref_mse_s42 | uf4_crossplay_fixedref_mse_s42 | NOT_STARTED | - | 60 |
