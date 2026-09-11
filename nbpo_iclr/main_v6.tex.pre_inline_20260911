@@ -40,17 +40,7 @@
 \author{Anonymous authors}
 %\iclrfinalcopy
 
-% inlined from generated/residual_macros.tex; regenerate with scripts/render_tables.py before editing by hand
-
-% Transcribed from user-supplied main_v6(3).pdf (2026-09-09 attachment); not independently re-evaluated.
-
-% PDF page 8, solver-fidelity paragraph (lines 414--416).
-
-\newcommand{\ControlledMaxKKT}{$6.2\times10^{-9}$}
-
-\newcommand{\ControlledMaxInner}{$5.1\times10^{-5}$}
-
-\newcommand{\ControlledMaxIdentity}{$1.5\times10^{-14}$}
+\input{generated/residual_macros}
 \begin{document}
 \maketitle
 
@@ -462,20 +452,7 @@ The main panel uses Llama-3.1-8B-Instruct and four UltraFeedback attributes: ins
 \setlength{\tabcolsep}{4pt}
 \caption{General-instruction 8B comparison. IF, TF, Hon and Help are independent local-judge win rates against the common base response under four attribute rubrics, averaged over both presentation orders with ties counted $0.5$; $\min_k\Delta_k$ is the smallest of the four. The first three rows are measured at one seed on the frozen $2{,}000$-prompt final split, $16{,}000$ judgments per arm, with the base row equal to $0.5$ by definition rather than judged. $N_{\rm eval}$ is the number of prompts whose judgments parsed in both orders. Only helpfulness moves decisively, $+.058$ for NBPO and $+.048$ for the utilitarian control; honesty sits at parity for both. The two arms are not separated by this evaluation, which is what a target total variation of $.0195$ predicts. Remaining rows and the seed expansion are unmeasured. The DPO row uses uniform weights; the figure retains every scalarization setting.}
 \label{tab:uf-objectives}
-% inlined from generated/uf_objectives_main.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrrrrrr}
-\toprule
-Method & $N_{\rm train}$ & Seeds & $N_{\rm eval}$ & IF & Truth & Honesty & Help & $\min_k\Delta_k$\\
-\midrule
-Base & $0$ & $1$ & $2000$ & $0.500$ & $0.500$ & $0.500$ & $0.500$ & $0.500$\\
-NBPO & $10000$ & $1$ & $1967$ & $0.516$ & $0.513$ & $0.501$ & $0.558$ & $0.501$\\
-Game-utilitarian & $10000$ & $1$ & $1960$ & $0.509$ & $0.511$ & $0.503$ & $0.548$ & $0.503$\\
-Game-maxmin & $10000$ & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
-PROSPER (adapt.) & $10000$ & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
-MOPO (adapt.) & $10000$ & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
-Scalarized DPO & $10000$ & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
-\bottomrule
-\end{tabular}
+\input{generated/uf_objectives_main}
 \end{table}
 
 \paragraph{Objective trade-offs.}
@@ -497,26 +474,7 @@ Table~\ref{tab:general-capability} reports instruction following, reasoning, saf
 \setlength{\tabcolsep}{2.4pt}
 \caption{8B capability and safety template. UF rows are unmeasured. SafeRLHF IFEval means and sample standard deviations are computed from three reported seed values; the source metric variant awaits verification. HB is HarmBench harmful rate; XS is XSTest benign refusal, both lower is better. Alpaca/AH are local proxy win rates. Per-seed values and historical snapshots are in Appendix~\ref{app:evaluation}.}
 \label{tab:general-capability}
-% inlined from generated/new_capability_main.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrrrrrr}
-\toprule
-Method & IFEval & GSM8K & MMLU & HB$\downarrow$ & XS$\downarrow$ & Alpaca & AH-hard & AH-creat.\\
-\midrule
-\multicolumn{9}{l}{\textit{UF-4: base measurements reused; policy rows planned, no measurements}}\\
-Base & $0.754$ & $0.867$ & \pending & $0.281$ & \pending & $0.500$ & \pending & \pending\\
-NBPO & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
-Game-utilitarian & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
-Game-maxmin & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
-PROSPER (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
-MOPO (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
-Scalarized DPO & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
-\midrule
-\multicolumn{9}{l}{\textit{SafeRLHF-2k: reported three-seed study}}\\
-Base & $0.754$ & $0.867$ & \pending & $0.281$ & \pending & $0.500$ & \pending & \pending\\
-NBPO & $0.748\pm0.013$ & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
-Game-utilitarian & $0.745\pm0.025$ & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
-\bottomrule
-\end{tabular}
+\input{generated/new_capability_main}
 \end{table}
 
 \subsection{Completed helpfulness--safety comparison}
@@ -528,15 +486,7 @@ SafeRLHF provides human helpfulness and harmlessness comparisons on the same res
 \setlength{\tabcolsep}{5pt}
 \caption{Completed SafeRLHF comparison, three policy seeds per method. Entries reproduce reported means and spreads; the spread convention and minimum/averaging order require artifact verification. Surplus uses the training teachers and does not certify population individual rationality.}
 \label{tab:saferlhf-main}
-% inlined from generated/safe_three_seed.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrr}
-\toprule
-Family & Seeds & nMSE$\downarrow$ & Sign$\uparrow$ & $\min_k s_k\uparrow$\\
-\midrule
-NBPO-Nash & $3$ & $0.6845\pm0.0048$ & $0.7009\pm0.0016$ & $0.1215\pm0.0028$\\
-Utilitarian (L1-matched) & $3$ & $0.6737\pm0.0242$ & $0.7040\pm0.0058$ & $0.1220\pm0.0029$\\
-\bottomrule
-\end{tabular}
+\input{generated/safe_three_seed}
 \end{table}
 
 The earlier schedule comparison and pool diagnostics justify fixing the short recipe and are retained in Appendix~\ref{app:solver-neural}. They do not substitute for policy-quality comparisons. Teacher truncation affects $26{,}790/84{,}000$ candidate occurrences, motivating a supported longer-context teacher for the new instruction panel. Controlled nontransitivity experiments separately support adaptive-game representations: at the strongest perturbation, normalized worst surplus is $0.931$ for NBPO versus $-0.241$ for fixed-reference Nash; game-utilitarian also remains stable (Appendix~\ref{app:controlled}). Thus those results isolate representation, not Nash superiority. The matched natural-language adaptive-versus-fixed-reference comparison remains pending; Nash versus utilitarian isolates aggregation.
@@ -1248,58 +1198,7 @@ For every seed we form a transitive base matrix and an odd-cardinality circulant
 \setlength{\tabcolsep}{2.1pt}
 \caption{Full controlled results over five seeds under the common adaptive-game evaluator. Residuals are method-specific; the legacy map is a non-convergence ablation.}
 \label{tab:controlled-full}
-% inlined from generated/controlled_full.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrrrr}
-\toprule
-method & min surplus & sd & $\min s/\rho^\star$ & sd & exploitability & inner resid.\\
-\midrule
-\multicolumn{7}{l}{\textit{$\alpha=0.00$, $\rho^\star=0.0300$, BT dev.\ $=0.0003$}}\\
-\quad \NBPO{} direct & $+0.0264$ & $0.0011$ & $0.881$ & $0.037$ & $0.0687$ & $2\times10^{-12}$\\
-\quad Game-KS & $+0.0268$ & $0.0005$ & $0.893$ & $0.017$ & $0.0685$ & $10^{-9}$\\
-\quad Game-util. & $+0.0260$ & $0.0014$ & $0.866$ & $0.048$ & $0.0688$ & $3\times10^{-10}$\\
-\quad Fixed-ref.\ Nash & $+0.0265$ & $0.0011$ & $0.883$ & $0.036$ & $0.0688$ & $0$\\
-\quad BT-RM--Nash & $+0.0265$ & $0.0011$ & $0.883$ & $0.036$ & $0.0688$ & $0$\\
-\quad BT-RM--util. & $+0.0260$ & $0.0014$ & $0.867$ & $0.047$ & $0.0689$ & $0$\\
-\quad legacy $R$-step$^\dagger$ & $+0.0252$ & $0.0012$ & $0.840$ & $0.041$ & $0.0675$ & $5\times10^{-10}$\\
-\addlinespace
-\multicolumn{7}{l}{\textit{$\alpha=0.25$, $\rho^\star=0.0300$, BT dev.\ $=0.0202$}}\\
-\quad \NBPO{} direct & $+0.0269$ & $0.0013$ & $0.897$ & $0.044$ & $0.1091$ & $10^{-7}$\\
-\quad Game-KS & $+0.0272$ & $0.0007$ & $0.905$ & $0.025$ & $0.1088$ & $10^{-7}$\\
-\quad Game-util. & $+0.0265$ & $0.0017$ & $0.883$ & $0.058$ & $0.1094$ & $4\times10^{-8}$\\
-\quad Fixed-ref.\ Nash & $+0.0272$ & $0.0012$ & $0.907$ & $0.040$ & $0.1197$ & $0$\\
-\quad BT-RM--Nash & $+0.0272$ & $0.0012$ & $0.907$ & $0.040$ & $0.1197$ & $0$\\
-\quad BT-RM--util. & $+0.0269$ & $0.0015$ & $0.895$ & $0.049$ & $0.1198$ & $0$\\
-\quad legacy $R$-step$^\dagger$ & $+0.0258$ & $0.0014$ & $0.860$ & $0.046$ & $0.1063$ & $7\times10^{-1}$\\
-\addlinespace
-\multicolumn{7}{l}{\textit{$\alpha=0.50$, $\rho^\star=0.0300$, BT dev.\ $=0.0813$}}\\
-\quad \NBPO{} direct & $+0.0274$ & $0.0013$ & $0.914$ & $0.044$ & $0.1454$ & $2\times10^{-6}$\\
-\quad Game-KS & $+0.0276$ & $0.0007$ & $0.921$ & $0.023$ & $0.1450$ & $2\times10^{-7}$\\
-\quad Game-util. & $+0.0270$ & $0.0017$ & $0.900$ & $0.057$ & $0.1458$ & $2\times10^{-7}$\\
-\quad Fixed-ref.\ Nash & $+0.0243$ & $0.0018$ & $0.809$ & $0.059$ & $0.1945$ & $0$\\
-\quad BT-RM--Nash & $+0.0243$ & $0.0018$ & $0.809$ & $0.058$ & $0.1945$ & $0$\\
-\quad BT-RM--util. & $+0.0240$ & $0.0019$ & $0.800$ & $0.064$ & $0.1947$ & $0$\\
-\quad legacy $R$-step$^\dagger$ & $+0.0025$ & $0.0044$ & $0.082$ & $0.147$ & $0.1981$ & $10\times10^{-1}$\\
-\addlinespace
-\multicolumn{7}{l}{\textit{$\alpha=0.75$, $\rho^\star=0.0300$, BT dev.\ $=0.1882$}}\\
-\quad \NBPO{} direct & $+0.0278$ & $0.0013$ & $0.926$ & $0.042$ & $0.1693$ & $8\times10^{-6}$\\
-\quad Game-KS & $+0.0278$ & $0.0005$ & $0.928$ & $0.018$ & $0.1692$ & $8\times10^{-7}$\\
-\quad Game-util. & $+0.0273$ & $0.0017$ & $0.909$ & $0.056$ & $0.1696$ & $7\times10^{-7}$\\
-\quad Fixed-ref.\ Nash & $+0.0138$ & $0.0027$ & $0.460$ & $0.089$ & $0.2723$ & $0$\\
-\quad BT-RM--Nash & $+0.0138$ & $0.0027$ & $0.460$ & $0.089$ & $0.2723$ & $0$\\
-\quad BT-RM--util. & $+0.0137$ & $0.0028$ & $0.455$ & $0.095$ & $0.2724$ & $0$\\
-\quad legacy $R$-step$^\dagger$ & $-0.0453$ & $0.0060$ & $-1.511$ & $0.201$ & $0.2626$ & $10\times10^{-1}$\\
-\addlinespace
-\multicolumn{7}{l}{\textit{$\alpha=1.00$, $\rho^\star=0.0283$, BT dev.\ $=0.3510$}}\\
-\quad \NBPO{} direct & $+0.0265$ & $0.0033$ & $0.931$ & $0.041$ & $0.1824$ & $5\times10^{-5}$\\
-\quad Game-KS & $+0.0264$ & $0.0027$ & $0.932$ & $0.019$ & $0.1825$ & $3\times10^{-6}$\\
-\quad Game-util. & $+0.0258$ & $0.0037$ & $0.908$ & $0.063$ & $0.1826$ & $2\times10^{-6}$\\
-\quad Fixed-ref.\ Nash & $-0.0063$ & $0.0068$ & $-0.241$ & $0.277$ & $0.3464$ & $0$\\
-\quad BT-RM--Nash & $-0.0063$ & $0.0068$ & $-0.242$ & $0.276$ & $0.3464$ & $0$\\
-\quad BT-RM--util. & $-0.0065$ & $0.0070$ & $-0.248$ & $0.284$ & $0.3465$ & $0$\\
-\quad legacy $R$-step$^\dagger$ & $-0.0949$ & $0.0064$ & $-3.373$ & $0.406$ & $0.3337$ & $10^{0}$\\
-\addlinespace
-\bottomrule
-\end{tabular}
+\input{generated/controlled_full}
 \end{table*}
 
 \begin{table}[t]
@@ -1307,18 +1206,7 @@ method & min surplus & sd & $\min s/\rho^\star$ & sd & exploitability & inner re
 \setlength{\tabcolsep}{3.2pt}
 \caption{Finite-pool solver audit at $\alpha=1$ in the original controlled family. The direct practical solve recovers the positive-surplus proximal target; the deployed legacy map does not.}
 \label{tab:solver-audit}
-% inlined from generated/solver_audit.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrr}
-\toprule
-solution & min surplus & $/\rho^\star$ & inner residual & TV to exact prox.\\
-\midrule
-Exact global Nash & $+0.0158$ & $+0.935$ & -- & $0.007$\\
-Exact proximal Nash & $+0.0158$ & $+0.936$ & -- & $0.000$\\
-\NBPO{} direct inner solve & $+0.0139$ & $+0.821$ & $2\times10^{-6}$ & $0.027$\\
-Legacy $R$-step map & $-0.1851$ & $-10.938$ & $10^{0}$ & $0.643$\\
-BT-RM--Nash & $-0.1001$ & $-5.918$ & $0$ & $0.495$\\
-\bottomrule
-\end{tabular}
+\input{generated/solver_audit}
 \end{table}
 
 \paragraph{Robustness across construction and temperature.}
@@ -1329,17 +1217,7 @@ The primary construction is checked against an independently generated projected
 \setlength{\tabcolsep}{3.0pt}
 \caption{Robustness across construction and temperature. Gaps in normalized worst surplus use paired Student-$t$ $95\%$ intervals across seeds. The temperature sweep uses the projected family.}
 \label{tab:controlled-robustness}
-% inlined from generated/controlled_robustness.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{llrrrrr}
-\toprule
-cycle family & $\beta$ & seeds & \NBPO{}$-$FixedRef ($t_{95}$) & \NBPO{}$-$BT-RM ($t_{95}$) & min $\rho^\star$ & converged\\
-\midrule
-Circulant (primary) & $0.25$ & 5 & $+1.1724$ $[+0.8715,+1.4733]$ & $+1.1733$ $[+0.8735,+1.4731]$ & $0.0283$ & $150/150$\\
-Projected skew-symmetric & $0.25$ & 5 & $+0.1114$ $[+0.0714,+0.1514]$ & $+0.1115$ $[+0.0715,+0.1514]$ & $0.0332$ & $150/150$\\
-Projected skew-symmetric & $0.10$ & 3 & $+0.2381$ $[+0.0880,+0.3883]$ & $+0.2385$ $[+0.0883,+0.3887]$ & $0.0331$ & $90/90$\\
-Projected skew-symmetric & $0.50$ & 3 & $+0.0448$ $[+0.0165,+0.0730]$ & $+0.0449$ $[+0.0167,+0.0730]$ & $0.0334$ & $90/90$\\
-\bottomrule
-\end{tabular}
+\input{generated/controlled_robustness}
 \end{table*}
 
 \section{Natural Supervision and Preference Models}
@@ -1352,15 +1230,7 @@ Table~\ref{tab:data-audit} records the empirical role of each released dataset. 
 \setlength{\tabcolsep}{2.4pt}
 \caption{Released-supervision audit. Zero observed human triangles means cyclicity is unidentifiable, not absent. Human conflict is cross-objective label disagreement on held-out pairs.}
 \label{tab:data-audit}
-% inlined from generated/data_audit.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrrrll}
-\toprule
-dataset & rows & prompts & responses & obs.\ triangles & human conflict & supervision & role\\
-\midrule
-\textsc{SafeRLHF} & $73{,}907$ & $38{,}639$ & $143{,}668$ & $0$ & $24.33\%$ & direct pairwise & objective conflict\\
-\textsc{UltraFeedback} & $63{,}967$ & $63{,}967$ & $4$/prompt & n/a (score-induced) & n/a & ordinal attributes & transitive control\\
-\bottomrule
-\end{tabular}
+\input{generated/data_audit}
 \end{table*}
 
 \subsection{Within-objective cyclic-preference audit}
@@ -1401,18 +1271,8 @@ Here $o=+1$ presents $i$ first; response scores sum to zero within each prompt. 
 \setlength{\tabcolsep}{3.5pt}
 \caption{Within-objective cyclicity, measured. Rates use all $100$ planned prompts and $n$ counts tournaments complete in both panels; requiring all ten scheduled judgments per edge leaves $2$--$19$ prompts unresolved per rubric, and those are not read as cycle-free. Excess is in percentage points with a $95\%$ prompt-bootstrap interval from $2000$ replicates, against $2000$ fitted-null simulations. Observed repeated cycles $R$ are $0$--$1$ against a fitted sampling-noise expectation $R_{\mathrm{BT}}$ of $0.24$--$0.97$, so no rubric shows an excess and every Holm-adjusted $p$ is $1.00$. $C_A$ counts prompts with any cycle in panel A, including length-four cycles: $9$, $2$, $5$, $4$ and $1$ over the four rubrics and the control, from $13$, $2$, $5$, $4$ and $1$ cyclic triangles against $400$ planned. This does not establish that the judge's preferences are transitive; it establishes that this budget found no cyclicity separable from sampling noise.}
 \label{tab:within-rubric-cycles}
-% inlined from generated/audit_cycles.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrrrcc}
-\toprule
-Rubric & $n$ & $C_A$ & $R$ & $R_{\mathrm{BT}}$ & $W_A$ & $\Delta R$ [CI] & $p_{\mathrm{Holm}}$\\
-\midrule
-IF & $77$ & $9$ & $1$ & $0.97$ & $7$ & $+0.03$ [$-2.00,1.00$] & $1.00$\\
-Truthfulness & $73$ & $2$ & $0$ & $0.43$ & $2$ & $-0.43$ [$-2.00,0.00$] & $1.00$\\
-Honesty & $75$ & $5$ & $1$ & $0.63$ & $4$ & $+0.37$ [$-2.00,1.00$] & $1.00$\\
-Helpfulness & $96$ & $4$ & $0$ & $0.31$ & $2$ & $-0.31$ [$-2.00,0.00$] & $1.00$\\
-Joint control & $90$ & $1$ & $0$ & $0.24$ & $1$ & $-0.24$ [$-1.00,0.00$] & --\\
-\bottomrule
-\end{tabular}
+\input{generated/audit_cycles}
+
 \smallskip
 \parbox{0.97\linewidth}{\scriptsize $n$: complete tournaments; $C_A$: any cycle in A; $R$: an identical oriented triangle in A and B; $W_A$: every candidate has an observed loss in A. The joint control carries no Holm adjustment and is reported separately; pair joint and individual comparisons on common prompts. This control does not establish within-objective cyclicity, and neither does the absence of an excess establish transitivity.}
 \end{table}
@@ -1425,18 +1285,8 @@ Table~\ref{tab:within-rubric-quality} records coverage, ties, order sensitivity,
 \setlength{\tabcolsep}{3.4pt}
 \caption{Audit coverage and prediction, measured. Missingness is below $0.6\%$ everywhere, so the unresolved tournaments come from requiring all ten scheduled judgments per edge rather than from parse failures. The order gap is the mean absolute difference between the two correctly oriented order-specific means, and at $0.53$--$0.69$ for IF, helpfulness and the joint control it is the size of the judge's position dependence: it is why no cyclic triangle survives both presentation orders. Truthfulness behaves differently, with $64.9\%$ ties and the smallest order gap, so it yields the fewest edges and the fewest triangles. On identical complete panel-B pairs the frozen GPM has the lower Brier loss on all four rubrics, by $.0016$ to $.0038$, but every paired prompt-bootstrap interval contains zero; the consistent sign across four rubrics is worth noting and is not a significant difference. Neither teacher was fitted or calibrated on the audit, and this predictive comparison establishes nothing about cycles.}
 \label{tab:within-rubric-quality}
-% inlined from generated/audit_coverage.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrrcc}
-\toprule
-Rubric & Missing (\%) & Ties (\%) & Triangles (\%) & Order gap & BT Brier & GPM$-$BT [CI]\\
-\midrule
-IF & $0.60$ & $20.8$ & $3.25$ & $0.535$ & $0.2077$ & $-0.0016$ [$-0.0075,+0.0046$]\\
-Truthfulness & $0.48$ & $64.9$ & $0.50$ & $0.125$ & $0.0999$ & $-0.0038$ [$-0.0087,+0.0012$]\\
-Honesty & $0.36$ & $29.3$ & $1.25$ & $0.305$ & $0.1933$ & $-0.0029$ [$-0.0100,+0.0037$]\\
-Helpfulness & $0.12$ & $6.9$ & $1.00$ & $0.695$ & $0.2341$ & $-0.0030$ [$-0.0079,+0.0014$]\\
-Joint control & $0.41$ & $3.9$ & $0.25$ & $0.692$ & n/a & n/a\\
-\bottomrule
-\end{tabular}
+\input{generated/audit_coverage}
+
 \smallskip
 \parbox{0.97\linewidth}{\scriptsize Missing: fraction of scheduled judgments unavailable; ties: fraction of valid judgments labeled tie; triangles: observed cyclic triangles in A divided by $400$; order gap: mean absolute difference between the two correctly oriented order-specific means in A, on complete pairs. Also release unresolved counts, missingness causes, and duplicate/truncation counts. Brier comparisons use identical complete panel-B pairs.}
 \end{table}
@@ -1490,19 +1340,7 @@ This guarantees exact swap complementarity and self-ties without constraining th
 \setlength{\tabcolsep}{2.7pt}
 \caption{Held-out validation of checkpointed GPM and BT ensembles, seeds $41/42/43$. Calibration uses validation data. Sparse comparison graphs cannot establish a cyclicity advantage.}
 \label{tab:gpm-bt}
-% inlined from generated/gpm_bt.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{llrrrrrrrrr}
-\toprule
-model & objective & \multicolumn{3}{c}{per-seed (mean of 3)} & $T$ & \multicolumn{4}{c}{calibrated 3-seed ensemble} \\
-\cmidrule(lr){3-5}\cmidrule(lr){7-10}
- & & NLL & bal.\ acc & AUC & & NLL & bal.\ acc & AUC & ECE & ens.\ sd\\
-\midrule
-Anti-symmetric GPM & helpfulness & $0.5543$ & $0.7218$ & $0.7999$ & $1.282$ & $0.5512$ & $0.7257$ & $0.8034$ & $0.1228$ & $0.0293$\\
-Anti-symmetric GPM & harmless. & $0.5180$ & $0.7556$ & $0.8464$ & $1.297$ & $0.5131$ & $0.7573$ & $0.8512$ & $0.1782$ & $0.0357$\\
-Scalar BT & helpfulness & $0.5560$ & $0.7214$ & $0.7974$ & $1.270$ & $0.5527$ & $0.7250$ & $0.8009$ & $0.1220$ & $0.0300$\\
-Scalar BT & harmless. & $0.5212$ & $0.7507$ & $0.8431$ & $1.265$ & $0.5163$ & $0.7544$ & $0.8484$ & $0.1779$ & $0.0357$\\
-\bottomrule
-\end{tabular}
+\input{generated/gpm_bt}
 \end{table*}
 
 \begin{table*}[t]
@@ -1510,15 +1348,7 @@ Scalar BT & harmless. & $0.5212$ & $0.7507$ & $0.8431$ & $1.265$ & $0.5163$ & $0
 \setlength{\tabcolsep}{2.6pt}
 \caption{Generated-pool pilot on $200$ development prompts. Conflict and cycles are model predictions, not human-label measurements; cycles use a common comparator tournament.}
 \label{tab:pool-pilot}
-% inlined from generated/pool_pilot.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrrrrrrrrr}
-\toprule
-geom. & dup.\ rate & entropy & ens.\ sd & GPM/BT sign & model conflict & pred.\ cycles & split-half $r$ & $\rho$ & sign agr. & dual evals & solve (s)\\
-\midrule
-4+4 & $0.0073$ & $0.6117$ & $0.0429$ & $0.9102$ & $7.67\%$ & $0/800$ & $0.9172$ & $0.9132$ & $0.8667$ & $42$ & $24.8$\\
-8+8 & $0.0167$ & $0.6120$ & $0.0414$ & $0.9061$ & $7.80\%$ & $10/11200$ & $0.9242$ & $0.9180$ & $0.8925$ & $30$ & $18.4$\\
-\bottomrule
-\end{tabular}
+\input{generated/pool_pilot}
 \end{table*}
 
 \subsection{General-instruction data and preference models}
@@ -1529,77 +1359,7 @@ The UltraFeedback panel retains the UltraChat, ShareGPT, and Evol-Instruct sourc
 \centering\scriptsize
 \caption{Realized UF-4 pipeline counts, measured from the campaign artifacts. Every value is a measurement, not a target. The $20.00\%$ generation cap rate and the zero teacher-encoding truncation have different denominators and measure different problems: the first counts responses that stopped at the $1024$-token horizon, the second counts serialized scoring sequences that exceeded the encoder budget. Reference-tensor antisymmetry is imposed by construction and is an invariant, not evidence of correctness. The final block reports development diagnostics of the neural projection, which measure how well the fitted log-ratio tracks the frozen target and are not generated-policy outcomes; no independent evaluation of generated responses is in this table. For scale, the SafeRLHF panel's three seeds reached nMSE $.6845\pm.0048$ and sign accuracy $.7009\pm.0016$ against a target RMS of $1.125$, so the two panels' nMSE are comparable at very different target scales and neither is a policy result. The Nash and utilitarian arms realize their own targets almost identically, which is what a target total variation of $.0195$ predicts and is not a policy comparison. The audit-pilot block reports only parser and throughput measurements on the $20$ pilot prompts, which are excluded from every audit estimate; the strong first-position skew in its raw verdicts is why the protocol evaluates both presentation orders and reports the order-averaged estimand. The capability block compares the two trained checkpoints with the base under one fixed harness recipe; every difference there is smaller than the harness standard error, which is a statement about retention and not about the four objectives.}
 \label{tab:uf4-realized}
-% inlined from generated/uf4_realized_counts.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{p{2.9cm}p{6.0cm}r}
-\toprule
-Stage & Realized quantity & Value\\
-\midrule
-Data & Raw rows, UltraChat / ShareGPT / Evol-Instruct & $9{,}929 / 19{,}949 / 10{,}000$\\
- & Exact normalized prompts & $39{,}846$\\
- & Prompt groups after verified near-duplicate merge & $39{,}743$\\
- & Groups removed as benchmark overlap (all AlpacaEval) & $9$\\
- & Groups overlapping the SafeRLHF panel & $0$\\
- & Eligible groups (two rated completions on every objective) & $38{,}240$\\
- & Realized regime & \textrm{target sizes, no fallback}\\
- & Eligible groups left unassigned & $3{,}240$\\
- & Groups short on the binding objective (honesty) & $1{,}494$\\
-Supervision & Preference-model pairs, train / dev & $120000 / 12000$\\
- & Tie fraction, IF / Truth / Honesty / Help & $0.253 / 0.481 / 0.308 / 0.262$\\
- & Masked train pairs (honesty only) & $3{,}668$\\
-Teacher & GPM selected step / mean dev NLL / worst NLL & $3750 / 0.5601 / 0.6305$\\
- & GPM dev accuracy excluding ties, IF / Truth / Honesty / Help & $0.7958 / 0.7469 / 0.7677 / 0.8346$\\
- & BT selected step / mean dev NLL / worst NLL & $3500 / 0.5589 / 0.6283$\\
- & BT dev accuracy excluding ties, IF / Truth / Honesty / Help & $0.7995 / 0.7527 / 0.7599 / 0.8403$\\
- & Oversize / total serialized pair sequences & $216 / 240{,}000$\\
- & Response truncations / maximum serialized tokens & $0 / 4{,}323$\\
-Pool & Sampled occurrences (learner 8 + comparator 8) & $160{,}000$\\
- & Responses stopped by the 1024-token cap & $20.00\%$\\
- & Duplicate occurrences retained with multiplicity & $725$\\
-Scoring & GPM encoder examples, realized versus predicted & $1{,}840{,}000 / 1{,}840{,}000$\\
- & Aggregate throughput on four H200s & \textrm{577.6 sequences/s}\\
- & Oversize / total serialized scoring sequences & $0 / 500{,}000$\\
- & Reference-tensor skew and diagonal residual (imposed by construction) & $0.0 / 0.0$\\
-Solve & Nash $\lambda$, IF / Truth / Honesty / Help & $7.4627 / 11.0426 / 8.1138 / 7.3043$\\
- & Nash $\lambda$ $L_1$ & $33.9235$\\
- & Nash train surplus, IF / Truth / Honesty / Help & $0.1340 / 0.0906 / 0.1232 / 0.1369$\\
- & Independent Nash dual residual on train & $3.74e-14$\\
- & Inner stationarity spread, maximum over prompts & $1.88e-10$\\
-Base capability & ARC-Challenge 25-shot, acc / acc\_norm & $0.5674 / 0.6049$\\
- & HellaSwag 10-shot, acc / acc\_norm & $0.5927 / 0.8008$\\
- & IFEval strict-prompt / strict-instruction & $0.7542 / 0.8249$\\
- & GSM8K exact match & $0.8666$\\
- & HarmBench harmful-completion rate & $0.2813$\\
- & XSTest\,450 & \textrm{unadjudicated}\\
-Policy projection, NBPO-MSE seed 42 & Optimizer updates completed / planned & $1{,}250 / 1{,}250$\\
- & Held-out dev pairs scored at each evaluation & $28{,}000$\\
- & Dev nMSE $\downarrow$, first $\to$ last of five evaluations & $0.6083 \to 0.5823$\\
- & Dev sign accuracy $\uparrow$, first $\to$ last & $0.6605 \to 0.6694$\\
- & Dev Pearson / Spearman at the final evaluation & $0.6515 / 0.5479$\\
- & Dev target RMS / fitted log-ratio RMS & $5.4711 / 3.8409$\\
- & Training wall time / GPU-hours & \textrm{2.79 h on four H200s, 11.2 GPU-h}\\
-Policy projection, utilitarian seed 42 & Optimizer updates completed / planned & $1{,}250 / 1{,}250$\\
- & Dev nMSE $\downarrow$, first $\to$ last of five evaluations & $0.6061 \to 0.5862$\\
- & Dev sign accuracy $\uparrow$, first $\to$ last & $0.6603 \to 0.6702$\\
- & Dev Pearson / Spearman at the final evaluation & $0.6488 / 0.5480$\\
- & Dev target second moment, Nash / utilitarian & $29.9332 / 31.2487$\\
-Audit pilot, 20 prompts & Judgments collected / planned & $12{,}000 / 12{,}000$\\
- & Parsed to an explicit verdict & $0.9959 \textrm{ (40 none, 9 several)}$\\
- & Throughput / mean output tokens & \textrm{33.3 per s, one H200; 99.5 tokens}\\
- & First-shown verdicts: A / B / tie & $6{,}943 / 2{,}345 / 2{,}663$\\
- & Judge inputs truncated at 8192 tokens & $0$\\
-Capability retention & ARC-C 25-shot, base / NBPO / util: acc\_norm & $0.6049 / 0.6058 / 0.6032$\\
- & HellaSwag 10-shot, base / NBPO / util: acc\_norm & $0.8008 / 0.7984 / 0.7978$\\
- & MMLU 5-shot, base / NBPO: acc (util pending) & $0.6823 / 0.6816$\\
-Audit confirmation & Cyclic triangles found in panel A & $24$\\
- & Cycle edges holding in both orders & $15 / 72 = 0.208$\\
- & Eligible witness triangles selected & $0 \textrm{ of 4 rubrics}$\\
- & Confirmation judgments spent of the 2{,}280 budget & $0$\\
-Policy projection, NBPO-MSE three seeds & Final dev nMSE $\downarrow$, mean $\pm$ sample SD & $0.5861 \pm 0.0033$\\
- & Final dev sign accuracy $\uparrow$, mean $\pm$ sample SD & $0.6698 \pm 0.0017$\\
- & Final dev Pearson, mean $\pm$ sample SD & $0.6490 \pm 0.0023$\\
- & Per-seed final nMSE, s42 / s43 / s44 & $0.5823 / 0.5881 / 0.5878$\\
-\bottomrule
-\end{tabular}
+\input{generated/uf4_realized_counts}
 \end{table}
 
 Released GPT-4 ratings train four attribute heads. Valid ratings induce $0/1$ pair labels, ties use $0.5$, and missing labels are masked. Four completions produce six unordered pairs per prompt. These labels are transitive by construction and do not demonstrate human preference cycles. Policy-training prompts are disjoint and use new base-policy responses; no new paid judge API is required to reuse the released annotations.
@@ -1679,17 +1439,7 @@ BT-RM--utilitarian & scalar BT reward & equal-weight sum & scalar representation
 \setlength{\tabcolsep}{5pt}
 \caption{Target realization on $500$ development prompts, one seed. Each horizon has its own cosine schedule; $250$-update runs are development-informed follow-ups. Pool KL is $D_{\rm KL}(p^\star\|\widehat p_\theta)$ on sampled support; the reference value is $0.7879$. Full diagnostics are in Appendix~\ref{app:solver-neural}.}
 \label{tab:repaired-realization}
-% inlined from generated/realization_main.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrrrr}
-\toprule
-Projection & Horizon & nMSE & Sign & Pearson & Pool KL$\downarrow$ & GPU-h\\
-\midrule
-MSE & $1750$ & $1.418$ & $0.693$ & $0.415$ & $1.2131$ & $7.48$\\
-WBC & $1750$ & $13.070$ & $0.486$ & $-0.152$ & $6.0634$ & $6.78$\\
-MSE$^\dagger$ & $250$ & $0.690$ & $0.702$ & $0.588$ & $0.6204$ & $2.20$\\
-WBC$^\dagger$ & $250$ & $0.780$ & $0.687$ & $0.492$ & $0.6875$ & $2.08$\\
-\bottomrule
-\end{tabular}
+\input{generated/realization_main}
 \end{table}
 The direct solve concerns a finite pool at a declared tolerance. It does not make the preference model, sampling approximation, or neural fit exact. Solver consistency, held-out regression, and generated-policy evaluation are reported separately.
 
@@ -1718,45 +1468,7 @@ The $1750$-update comparison was specified first. The $250$-update schedules wer
 \centering\scriptsize
 \caption{All recorded development evaluations of the repaired runs. The first column identifies the declared schedule; ``Updates'' is the checkpoint step. Oracle nMSE$^\star$ permits signed rescaling. No trajectory point is substituted for its run's declared final checkpoint.}
 \label{tab:realization-trajectories}
-% inlined from generated/realization_trajectories.tex; regenerate with scripts/render_tables.py before editing by hand
-% Transcribed from user-supplied main_v6(3).pdf (2026-09-09 attachment); not independently re-evaluated.
-% PDF page 25, Table 15. Missing measurements remain \pending.
-\begin{tabular}{lrrrrrrr}
-\toprule
-Projection & Updates & nMSE & nMSE$^\ast$ & Sign acc. & Pearson & Spearman & $\overline{\log(\pi_\theta/\pi_t)}$\\
-\midrule
-NBPO-MSE, 1750 & 250 & 0.839 & 0.734 & 0.692 & 0.516 & 0.499 & -1.13\\
- & 500 & 1.226 & 0.796 & 0.688 & 0.452 & 0.465 & -1.86\\
- & 750 & 1.482 & 0.824 & 0.678 & 0.419 & 0.452 & -2.42\\
- & 1000 & 1.568 & 0.839 & 0.694 & 0.401 & 0.449 & -2.38\\
- & 1250 & 1.517 & 0.836 & 0.688 & 0.404 & 0.450 & -2.27\\
- & 1500 & 1.432 & 0.831 & 0.691 & 0.412 & 0.455 & -2.12\\
- & 1750 & 1.418 & 0.828 & 0.693 & 0.415 & 0.460 & -2.07\\
-
-\midrule
-NBPO-WBC, 1750 & 250 & 0.920 & 0.824 & 0.645 & 0.419 & 0.415 & -0.75\\
- & 500 & 1.932 & 0.938 & 0.623 & 0.250 & 0.297 & -2.04\\
- & 750 & 3.776 & 0.995 & 0.569 & 0.074 & 0.124 & -3.27\\
- & 1000 & 6.121 & 0.999 & 0.535 & -0.028 & 0.018 & -4.39\\
- & 1250 & 11.611 & 0.979 & 0.496 & -0.143 & -0.096 & -6.15\\
- & 1500 & 12.672 & 0.979 & 0.489 & -0.144 & -0.097 & -6.63\\
- & 1750 & 13.070 & 0.977 & 0.486 & -0.152 & -0.105 & -6.68\\
-
-\midrule
-NBPO-MSE, 250$^\dagger$ & 50 & 0.737 & 0.702 & 0.675 & 0.546 & 0.507 & -0.77\\
- & 100 & 0.751 & 0.674 & 0.691 & 0.571 & 0.537 & -1.11\\
- & 150 & 0.710 & 0.659 & 0.695 & 0.584 & 0.548 & -1.03\\
- & 200 & 0.701 & 0.668 & 0.693 & 0.576 & 0.539 & -0.87\\
- & 250 & 0.690 & 0.655 & 0.702 & 0.588 & 0.552 & -0.90\\
-
-\midrule
-NBPO-WBC, 250$^\dagger$ & 50 & 0.866 & 0.839 & 0.628 & 0.401 & 0.388 & -0.39\\
- & 100 & 0.807 & 0.777 & 0.655 & 0.473 & 0.450 & -0.55\\
- & 150 & 0.755 & 0.730 & 0.678 & 0.520 & 0.499 & -0.64\\
- & 200 & 0.770 & 0.743 & 0.682 & 0.507 & 0.497 & -0.57\\
- & 250 & 0.780 & 0.758 & 0.687 & 0.492 & 0.488 & -0.51\\
-\bottomrule
-\end{tabular}
+\input{generated/realization_trajectories}
 \end{table}
 
 \paragraph{Finite-pool distribution fidelity.}
@@ -1772,18 +1484,7 @@ This self-normalized importance distribution is evaluated against the solved tar
 \setlength{\tabcolsep}{4pt}
 \caption{Independent reconstruction on the development pool. Correlation intervals are prompt-clustered. KL improvement is reference minus policy KL. Target-argmax mass is $\widehat p_\theta(i^\star)$, $i^\star\in\arg\max_i p^\star(i)$; tie rules must be fixed. The WBC-1750 improvement is reported at source precision and differs by $10^{-4}$ from subtracting rounded KL entries.}
 \label{tab:pool-drift}
-% inlined from generated/pool_drift_full.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrrr}
-\toprule
-Policy & Pearson [clustered CI] & $D_{\rm KL}\downarrow$ & KL improvement$\uparrow$ & Top-1 & Argmax mass\\
-\midrule
-Base & \pending & $0.7879$ & $+0.0000$ & $0.108$ & $0.1250$\\
-MSE (1750) & $+0.417\;[0.370,0.463]$ & $1.2131$ & $-0.4252$ & $0.420$ & $0.3135$\\
-WBC (1750) & $-0.150\;[-0.205,-0.095]$ & $6.0634$ & $-5.2754$ & $0.124$ & $0.1113$\\
-MSE (250)$^\dagger$ & $+0.589\;[0.554,0.622]$ & $0.6204$ & $+0.1675$ & $0.406$ & $0.2906$\\
-WBC (250)$^\dagger$ & $+0.496\;[0.459,0.531]$ & $0.6875$ & $+0.1004$ & $0.362$ & $0.2283$\\
-\bottomrule
-\end{tabular}
+\input{generated/pool_drift_full}
 \end{table}
 
 \paragraph{Implementation history.}
@@ -1794,22 +1495,7 @@ The repaired study changed target construction, reference handling, tokenization
 \setlength{\tabcolsep}{2.8pt}
 \caption{Measured direct-solver scaling by prompt count, pool size, and CPU workers. Times cover finite-pool solving and artifact generation, not LLM rollout or training.}
 \label{tab:solver-scaling}
-% inlined from generated/solver_scaling.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{rrrrrrrrrr}
-\toprule
-prompts & pool & workers & solve (s) & dual evals & s/eval & proj.\ KKT & inner resid. & peak RSS (MB) & artifact (s)\\
-\midrule
-$200$ & $4{+}4$ & $32$ & $1.5$ & $31$ & $0.047$ & $3\times10^{-14}$ & $3\times10^{-11}$ & $467$ & $0.01$\\
-$200$ & $8{+}8$ & $32$ & $1.7$ & $35$ & $0.049$ & $4\times10^{-15}$ & $5\times10^{-12}$ & $498$ & $0.02$\\
-$200$ & $16{+}16$ & $32$ & $1.8$ & $32$ & $0.055$ & $2\times10^{-14}$ & $10^{-11}$ & $499$ & $0.02$\\
-$1000$ & $4{+}4$ & $96$ & $4.4$ & $33$ & $0.132$ & $7\times10^{-15}$ & $2\times10^{-11}$ & $499$ & $0.03$\\
-$1000$ & $8{+}8$ & $96$ & $3.2$ & $26$ & $0.122$ & $4\times10^{-15}$ & $6\times10^{-12}$ & $504$ & $0.04$\\
-$1000$ & $16{+}16$ & $96$ & $4.4$ & $37$ & $0.119$ & $3\times10^{-13}$ & $10\times10^{-11}$ & $534$ & $0.07$\\
-$7000$ & $4{+}4$ & $96$ & $10.6$ & $28$ & $0.379$ & $7\times10^{-10}$ & $4\times10^{-11}$ & $534$ & $0.11$\\
-$7000$ & $8{+}8$ & $96$ & $10.9$ & $27$ & $0.404$ & $2\times10^{-15}$ & $3\times10^{-11}$ & $544$ & $0.22$\\
-$7000$ & $16{+}16$ & $96$ & $15.3$ & $30$ & $0.508$ & $10^{-14}$ & $7\times10^{-11}$ & $633$ & $0.39$\\
-\bottomrule
-\end{tabular}
+\input{generated/solver_scaling}
 \end{table}
 
 \subsection{Aggregation-target sensitivity}
@@ -1819,49 +1505,13 @@ On the reported pool, Nash weights $(6.325,6.186)$ yield targets close to equal 
 \centering\small
 \caption{Nash versus mass-matched utilitarian target diagnostics, labelled by panel. TV and relative pairwise-target RMS measure different quantities. The UF-4 rows are recomputed from the stored arrays independently of the solver: the utilitarian solution attains higher unregularized $F$ but pays more proximal KL, so $J$ still favours Nash, and matching the coefficient $L_1$ therefore does not match realized movement. The SafeRLHF rows retain their earlier reported provenance.}
 \label{tab:aggregation-targets}
-% inlined from generated/aggregation_targets.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lr}
-\toprule
-Diagnostic & Value\\
-\midrule
-SafeRLHF-2k: mean target TV & $0.0008$\\
-SafeRLHF-2k: maximum target TV & $0.0075$\\
-SafeRLHF-2k: pairwise target difference RMS & $0.0034$\\
-SafeRLHF-2k: target RMS on the aggregation panel & $1.125$\\
-SafeRLHF-2k: Nash $\lambda_{\rm help}$ & $6.325$\\
-SafeRLHF-2k: Nash $\lambda_{\rm safe}$ & $6.186$\\
-UF-4: mean target TV & $0.0195$\\
-UF-4: maximum target TV & $0.1258$\\
-UF-4: pairwise target difference RMS & $0.1857$\\
-UF-4: target RMS on the aggregation panel & $5.4024$\\
-UF-4: relative pairwise target RMS & $0.0344$\\
-UF-4: Nash $\lambda$ $L_1$ & $33.9235$\\
-UF-4: largest / smallest Nash $\lambda$ & $11.0426 / 7.3043$\\
-UF-4: Nash $F=\sum_k\log s_k$ & $-8.493723$\\
-UF-4: utilitarian $F$ & $-8.469298$\\
-UF-4: Nash realized $D(\pi\|\pi_t)$ & $1.080072$\\
-UF-4: utilitarian realized $D(\pi\|\pi_t)$ & $1.106423$\\
-UF-4: Nash $J=F-D/\eta$ & $-9.573795$\\
-UF-4: utilitarian $J$ & $-9.575722$\\
-UF-4: $J$ gap, utilitarian minus Nash & $-0.001927$\\
-UF-4: independent Nash dual residual on train & $3.74e-14$\\
-\bottomrule
-\end{tabular}
+\input{generated/aggregation_targets}
 \end{table}
 \begin{table}[t]
 \centering\small
 \caption{Paired Nash minus utilitarian differences, conditional on each policy seed. The SafeRLHF rows are teacher-defined surplus differences on the same $1{,}000$ prompts, with their reported interval construction retained from the artifacts. The UF-4 rows are a different quantity: per-prompt differences of the independent judge's order-averaged win rate against the identical cached base response, over roughly $1{,}950$ prompts scored in both arms, with $2000$ whole-prompt bootstrap intervals. Pairing removes prompt difficulty and is tighter than comparing the two arms' separately reported win rates; all four UF-4 differences still contain zero and their signs are mixed. Intervals containing zero do not establish equivalence, and these measure prompt variability under one seed, not seed uncertainty.}
 \label{tab:aggregation-policy-pairs}
-% inlined from generated/aggregation_policy_pairs.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrr}
-\toprule
-Seed & $\Delta s_{\rm help}$ & Reported CI & $\Delta s_{\rm safe}$ & Reported CI\\
-\midrule
-$42$ & $-0.0003$ & $[-0.0067,+0.0058]$ & $-0.0010$ & $[-0.0074,+0.0050]$\\
-$43$ & $+0.0019$ & $[-0.0038,+0.0076]$ & $+0.0004$ & $[-0.0052,+0.0061]$\\
-$44$ & $-0.0033$ & $[-0.0086,+0.0023]$ & $-0.0037$ & $[-0.0095,+0.0017]$\\
-\bottomrule
-\end{tabular}
+\input{generated/aggregation_policy_pairs}
 \end{table}
 
 \section{Evaluation Protocol}
@@ -1870,26 +1520,7 @@ $44$ & $-0.0033$ & $[-0.0086,+0.0023]$ & $-0.0037$ & $[-0.0095,+0.0017]$\\
 \centering\small
 \caption{Historical single-checkpoint objective evaluations. Short-run objective entries retain their reported precision. These rows do not replace the completed three-seed comparison in Table~\ref{tab:saferlhf-main}.}
 \label{tab:historical-alignment}
-% inlined from generated/alignment_main.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrr}
-\toprule
-Method & Updates & $s_{\rm help}\uparrow$ & $s_{\rm safe}\uparrow$ & $\min_k s_k\uparrow$\\
-\midrule
-Finite-pool target $p^\star$ & \pending & $+0.1653$ & $+0.1662$ & $+0.1653$\\
-Base (greedy) & \pending & $-0.0405$ & $-0.0320$ & $-0.0405$\\
-NBPO-MSE (1750) & $1750$ & $+0.1339$ & $+0.1337$ & $+0.1337$\\
-NBPO-WBC (1750) & $1750$ & $+0.0738$ & $+0.0808$ & $+0.0738$\\
-NBPO-MSE (250)$^\dagger$ & $250$ & $+0.119$ & $+0.125$ & $+0.1186$\\
-NBPO-WBC (250)$^\dagger$ & $250$ & \pending & \pending & $+0.0569$\\
-Game-utilitarian & $250$ & \pending & \pending & \pending\\
-Fixed-reference Nash & $250$ & \pending & \pending & \pending\\
-BT-RM--Nash & $250$ & \pending & \pending & \pending\\
-PROSPER & \pending & \pending & \pending & \pending\\
-MOPO & \pending & \pending & \pending & \pending\\
-Game-maxmin & $250$ & \pending & \pending & \pending\\
-Scalarized DPO & \pending & \pending & \pending & \pending\\
-\bottomrule
-\end{tabular}
+\input{generated/alignment_main}
 \end{table}
 
 \paragraph{Teacher-defined and independent evaluation.}
@@ -1902,18 +1533,7 @@ IFEval, GSM8K, harmful-completion checks, and benign-refusal evaluation measure 
 \setlength{\tabcolsep}{3.5pt}
 \caption{Completed downstream snapshot supplied by the execution report. Arena is an unassigned local-proxy aggregate; token medians have an unassigned prompt scope. These values are preserved without relabeling them as hard/creative or Alpaca-specific results. This historical snapshot contains one checkpoint per row; it is not the new three-seed aggregate.}
 \label{tab:reported-downstream}
-% inlined from generated/downstream_reported_snapshot.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lrrrrrrr}
-\toprule
-Policy & $\min_k s_k$ & IFEval & GSM8K & Harm$\downarrow$ & Alpaca & Arena (unassigned) & Tokens (unassigned)\\
-\midrule
-Base & $-0.0405$ & $.752$ & $.867$ & $.281$ & $.500$ & $.500$ & $457$\\
-MSE (1750) & $+0.1337$ & $.758$ & $.864$ & $.284$ & $.419$ & $.435$ & $481$\\
-WBC (1750) & $+0.0738$ & $.741$ & $.852$ & $.256$ & $.578$ & $.594$ & $457$\\
-MSE (250)$^\dagger$ & $+0.1186$ & $.760$ & $.870$ & $.269$ & $.497$ & $.516$ & $460$\\
-WBC (250)$^\dagger$ & $+0.0569$ & $.741$ & $.867$ & $.266$ & $.486$ & $.542$ & $463$\\
-\bottomrule
-\end{tabular}
+\input{generated/downstream_reported_snapshot}
 \end{table}
 
 \paragraph{Refusal concentration and teacher truncation.}
@@ -1925,21 +1545,7 @@ Teacher truncation affects $26{,}790/84{,}000=31.89\%$ of candidate occurrences;
 \centering\scriptsize
 \caption{Evaluation contracts and fields to complete from actual artifacts. These counts specify the requested full evaluation sets, not a claim that every job has completed.}
 \label{tab:evaluation-contract}
-% inlined from generated/evaluation_contract.tex; regenerate with scripts/render_tables.py before editing by hand
-\begin{tabular}{lp{8.9cm}}
-\toprule
-Set / target count & Metric and completion contract\\
-\midrule
-SafeRLHF / 1000 & Teacher-defined objective values; comparator and disagreement hashes; greedy and stochastic evaluations kept separate.\\
-IFEval / 541 & Official strict prompt and instruction accuracy; loose scores secondary. Verify the reported strict column against evaluator output.\\
-GSM8K / 1319 & Fixed zero-shot-CoT prompt and answer extractor; exact match and parse-failure count.\\
-HarmBench / text test & Report actual category counts and classifier version. Use category-specific hashing where required.\\
-XSTest / 250 safe, 200 unsafe & Benign refusal and unsafe-request handling separately; report classifier or blinded manual assessment.\\
-Alpaca / 805 & Same-prompt local reward-model win rate versus base, ties half; response length from the same prompt set.\\
-Arena / 500 hard, 250 creative & Report subset-specific local proxy win rates; an unassigned aggregate does not populate these columns.\\
-MT-Bench / 80 & Optional two-turn responses; no official score without the stated judging protocol.\\
-\bottomrule
-\end{tabular}
+\input{generated/evaluation_contract}
 \end{table}
 
 \paragraph{Common evaluation and mechanism comparison.}

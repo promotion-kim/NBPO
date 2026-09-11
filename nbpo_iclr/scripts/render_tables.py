@@ -26,7 +26,11 @@ def table(name, spec, headers, body):
              ' & '.join(headers)+r'\\', r'\midrule']
     lines += [' & '.join(row)+r'\\' for row in body]
     lines += [r'\bottomrule', r'\end{tabular}', '']
-    (ROOT/'generated'/name).write_text('\n'.join(lines))
+    out = ROOT/'generated'
+    # main_v6.tex now carries these tables inline, so this directory is an
+    # optional staging area rather than a build dependency; recreate it on demand.
+    out.mkdir(exist_ok=True)
+    (out/name).write_text('\n'.join(lines))
 
 def main():
     a=rows('alignment_results.csv')
