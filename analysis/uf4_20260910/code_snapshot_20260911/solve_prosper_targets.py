@@ -172,12 +172,36 @@ def main():
             raise ValueError(f"{split}: target log-ratio identity residual "
                              f"{float(np.abs(identity).max())}")
 
-        np.savez_compressed(out / f"{split}_per_prompt.npz", pi=pi, weights=weights, g=g,
+        per_prompt_path = out / f"{split}_per_prompt.npz"
+        np.savez_compressed(per_prompt_path, pi=pi, weights=weights, g=g,
                             min_surplus=min_surplus, identity_residual=identity,
                             prompt_ids=np.array(pids, dtype=object))
-        provenance = {"solver_artifact_sha256": "per_prompt_weights_see_%s_per_prompt.npz" % split,
-                      "solver_hash": base.file_hash(__file__),
-                      "target_artifact_hash": "per_prompt",
+
+        # A hash-bound solution artifact at the path the shared job generator
+        # expects. The global one is not written because per-prompt weights do
+        # not fit its (K,) weight field, but the generator only needs SOME file
+        # whose hash pins the solution, and patching the generator would touch
+        # code the published arms depend on. This file pins the real thing: the
+        # per-prompt npz that every target in this set was built from.
+        solver_dir = out / split / "solver"
+        base.write_json(solver_dir / "solution.json", {
+            "target_mode": "canonical_logratio", "target_column": "nbpo_logratio_target",
+            "target_units": "final_logratio_change", "eta_already_included": True,
+            "representation": "adaptive_game", "aggregation": "prompt_wise_absolute_maxmin",
+            "weights_scope": "per prompt; there is no shared dual",
+            "per_prompt_artifact": str(per_prompt_path),
+            "per_prompt_artifact_sha256": base.file_hash(per_prompt_path),
+            "n_prompts": len(pids), "split": split,
+            "all_certified": bool(certified.all()),
+            "max_identity_residual": float(np.abs(identity).max()),
+            "min_surplus_mean": float(min_surplus.mean()),
+            "min_surplus_negative_prompts": int((min_surplus < 0).sum()),
+            "weight_l1_matched": weight_l1, "beta": args.beta, "eta": args.eta,
+            "solver_source_sha256": base.file_hash(__file__), **shared_meta})
+        solver_hash = base.file_hash(solver_dir / "solution.json")
+        provenance = {"solver_artifact_sha256": solver_hash,
+                      "solver_hash": solver_hash,
+                      "target_artifact_hash": base.file_hash(per_prompt_path),
                       "representation": "adaptive_game", "aggregation": "prompt_wise_absolute_maxmin",
                       "split": split, "panel": "UF-4", **shared_meta}
         betas = np.full(len(OBJECTIVES), args.beta)
@@ -212,6 +236,7 @@ def main():
                           "min_surplus_negative_prompts": int((min_surplus < 0).sum()),
                           "max_identity_residual": float(np.abs(identity).max()),
                           "all_certified": bool(certified.all()),
+                          "solver_solution_sha256": solver_hash,
                           "seconds": time.monotonic() - split_start}
         base.write_json(out / split / "complete.json", outputs[split])
         print(json.dumps({k: v for k, v in outputs[split].items()

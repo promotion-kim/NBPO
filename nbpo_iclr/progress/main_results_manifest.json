@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-12 01:13:10",
+  "generated_kst": "2026-09-12 01:43:10",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -330,7 +330,7 @@
       "dependency": "target solve",
       "job_id": "uf4_train_fixedref_mse_s43",
       "state": "RUNNING",
-      "progress": "step 500/1250",
+      "progress": "step 750/1250",
       "artifact_path": "/work/uf4_20260910/arms/fixedref_mse_s43/config.json",
       "eta_min": 184
     },
@@ -1803,6 +1803,14 @@
       "job_id": "uf4_cap_base_mmlu_retry1",
       "state": "NOT_APPLICABLE",
       "reason": "stopped by operator; superseded by a later retry"
+    },
+    {
+      "job_id": "uf4_make_train_prosper_s42",
+      "state": "FAILED",
+      "reason": "no successful retry found; artifact still missing",
+      "missing": [
+        "/work/uf4_20260910/provenance/train_job_prosper_mse_s42.json"
+      ]
     }
   ]
 }

@@ -1,6 +1,6 @@
 # Main-body result manifest
 
-Generated 2026-09-12 01:13:10 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-12 01:43:10 KST. DONE requires the proving artifact on disk.
 
 State counts: DONE 17, NOT_STARTED 88, PENDING 11, READY 10, RUNNING 1
 
@@ -21,7 +21,7 @@ State counts: DONE 17, NOT_STARTED 88, PENDING 11, READY 10, RUNNING 1
 | tab:uf-objectives | fixed_reference_nash | seed 42 | fixedref_mse_s42 | uf4_finaleval_judge_fixedref_mse_s42 | DONE | - | 24 |
 | tab:uf-objectives | fixed_reference_nash | seed 42 (train) | fixedref_mse_s42 | uf4_train_fixedref_mse_s42 | DONE | - | 184 |
 | tab:uf-objectives | fixed_reference_nash | seed 43 | fixedref_mse_s43 | uf4_finaleval_judge_fixedref_mse_s43 | PENDING | - | 24 |
-| tab:uf-objectives | fixed_reference_nash | seed 43 (train) | fixedref_mse_s43 | uf4_train_fixedref_mse_s43 | RUNNING | step 500/1250 | 184 |
+| tab:uf-objectives | fixed_reference_nash | seed 43 (train) | fixedref_mse_s43 | uf4_train_fixedref_mse_s43 | RUNNING | step 750/1250 | 184 |
 | tab:uf-objectives | fixed_reference_nash | seed 44 | fixedref_mse_s44 | uf4_finaleval_judge_fixedref_mse_s44 | PENDING | - | 24 |
 | tab:uf-objectives | fixed_reference_nash | seed 44 (train) | fixedref_mse_s44 | uf4_train_fixedref_mse_s44 | READY | - | 184 |
 | tab:uf-objectives | bt_rm_nash | seed 42 | btrm_mse_s42 | uf4_finaleval_judge_btrm_mse_s42 | PENDING | - | 24 |
@@ -143,3 +143,4 @@ State counts: DONE 17, NOT_STARTED 88, PENDING 11, READY 10, RUNNING 1
 | uf4_cap_base_mmlu | NOT_APPLICABLE | every declared artifact is on disk from a later successful retry |
 | uf4_cap_base_hellaswag | NOT_APPLICABLE | every declared artifact is on disk from a later successful retry |
 | uf4_cap_base_mmlu_retry1 | NOT_APPLICABLE | stopped by operator; superseded by a later retry |
+| uf4_make_train_prosper_s42 | FAILED | no successful retry found; artifact still missing |
