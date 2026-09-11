@@ -90,7 +90,10 @@ ARMS = {
     # the matrix was widened from one seed to three (see execution_matrix.json).
     "fixed_reference_nash": ("fixedref_mse_s%d", [42, 43, 44]),
     "bt_rm_nash": ("btrm_mse_s%d", [42]),
-    "game_maxmin": ("maxmin_mse_s%d", [42]),
+    # amended 2026-09-12 03:45: this control became the only arm leading the
+    # objectives table, on one seed, right after the fixed-reference control's
+    # one-seed lead dissolved at three seeds. Matrix widened 1 -> 3.
+    "game_maxmin": ("maxmin_mse_s%d", [42, 43, 44]),
     "dpo_uniform": ("dpo_uniform_mse_s%d", [42]),
     "prosper_adapt": ("prosper_mse_s%d", [42, 43, 44]),
     "mopo_adapt": ("mopo_mse_s%d", [42, 43, 44]),

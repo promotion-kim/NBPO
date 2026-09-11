@@ -400,24 +400,33 @@ def etas(man, snap):
         """
         if note:
             return "%s [산정 대기: %s]" % (label, note)
+        if trains == 0 and judges == 0:
+            # Nothing outstanding. Without this the milestone echoes the running
+            # training's remaining time and a finished milestone reads as hours
+            # away -- which it did, showing 2.2-3.1h after the fixed-reference
+            # control completed.
+            return "%s [완료]" % label
         chargeable = max(0, trains - 1) if counts_live else trains
         lo = live + chargeable * COST["train"] + judges * (COST["gen"] + COST["judge"])
         hi = lo * 1.35 + 10                       # manuscript edit and PDF build
         return "%s [%.1f-%.1fh]" % (label, lo / 60, hi / 60)
 
     # milestone 1: the fixed-reference row, the matched mechanism control
-    # Only the objectives table: the capability and cross-play rows for the same
-    # checkpoint are separate milestones and must not inflate this one.
-    def fixedref(r):
-        # the whole declared family, not seed 42 alone: the matrix was amended to
-        # three seeds because this control became the pivotal comparison, and a
-        # milestone that still asks only about seed 42 reads as already finished.
+    # The core-mechanism milestone is both matched controls, not fixed-reference
+    # alone. Fixed-reference answered the opponent-adaptation question at three
+    # seeds; global game-maxmin now carries the aggregation question and is the
+    # arm whose remaining seeds the claim turns on, so the milestone follows the
+    # family that is still incomplete. Capability and cross-play rows for the
+    # same checkpoints are separate milestones and must not inflate this one.
+    MECHANISM = ("fixedref_mse_s", "maxmin_mse_s")
+
+    def mechanism(r):
         return (r["exhibit_label"] == "tab:uf-objectives"
-                and r["checkpoint_id"].startswith("fixedref_mse_s"))
-    m1_tr = undone(lambda r: fixedref(r) and "(train)" in r["seed_or_weight"])
-    m1_ju = undone(lambda r: fixedref(r) and "(train)" not in r["seed_or_weight"])
+                and r["checkpoint_id"].startswith(MECHANISM))
+    m1_tr = undone(lambda r: mechanism(r) and "(train)" in r["seed_or_weight"])
+    m1_ju = undone(lambda r: mechanism(r) and "(train)" not in r["seed_or_weight"])
     one = span(len(m1_tr), len(m1_ju), "핵심 기전",
-               counts_live=bool(running_arm and running_arm.startswith("fixedref_mse")))
+               counts_live=bool(running_arm and running_arm.startswith(MECHANISM)))
 
     # milestone 2: one evaluated seed for every declared main-body method
     first = {}

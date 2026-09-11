@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-12 08:13:09",
+  "generated_kst": "2026-09-12 08:42:22",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -125,9 +125,10 @@
   },
   "state_counts": {
     "DONE": 21,
-    "PENDING": 10,
-    "READY": 10,
-    "NOT_STARTED": 86
+    "PENDING": 12,
+    "READY": 11,
+    "RUNNING": 1,
+    "NOT_STARTED": 94
   },
   "rows": [
     {
@@ -414,6 +415,58 @@
       "state": "DONE",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/maxmin_mse_s42/config.json",
+      "eta_min": 184
+    },
+    {
+      "exhibit_label": "tab:uf-objectives",
+      "method": "game_maxmin",
+      "seed_or_weight": "seed 43",
+      "checkpoint_id": "maxmin_mse_s43",
+      "config_hash": "",
+      "dependency": "uf4_train_maxmin_mse_s43",
+      "job_id": "uf4_finaleval_judge_maxmin_mse_s43",
+      "state": "PENDING",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/final_eval/maxmin_mse_s43/complete.json",
+      "eta_min": 24
+    },
+    {
+      "exhibit_label": "tab:uf-objectives",
+      "method": "game_maxmin",
+      "seed_or_weight": "seed 43 (train)",
+      "checkpoint_id": "maxmin_mse_s43",
+      "config_hash": "1c27fa679e8c52571fb30714ab21777e217b73329e9e55e60b9d7868df835144",
+      "dependency": "target solve",
+      "job_id": "uf4_train_maxmin_mse_s43",
+      "state": "RUNNING",
+      "progress": "step 500/1250",
+      "artifact_path": "/work/uf4_20260910/arms/maxmin_mse_s43/config.json",
+      "eta_min": 184
+    },
+    {
+      "exhibit_label": "tab:uf-objectives",
+      "method": "game_maxmin",
+      "seed_or_weight": "seed 44",
+      "checkpoint_id": "maxmin_mse_s44",
+      "config_hash": "",
+      "dependency": "uf4_train_maxmin_mse_s44",
+      "job_id": "uf4_finaleval_judge_maxmin_mse_s44",
+      "state": "PENDING",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/final_eval/maxmin_mse_s44/complete.json",
+      "eta_min": 24
+    },
+    {
+      "exhibit_label": "tab:uf-objectives",
+      "method": "game_maxmin",
+      "seed_or_weight": "seed 44 (train)",
+      "checkpoint_id": "maxmin_mse_s44",
+      "config_hash": "",
+      "dependency": "target solve",
+      "job_id": "uf4_train_maxmin_mse_s44",
+      "state": "READY",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/arms/maxmin_mse_s44/config.json",
       "eta_min": 184
     },
     {
@@ -1415,6 +1468,110 @@
       "state": "NOT_STARTED",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/capability/maxmin_mse_s42/xstest/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "game_maxmin",
+      "seed_or_weight": "seed 43 / ifeval",
+      "checkpoint_id": "maxmin_mse_s43",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_maxmin_mse_s43",
+      "job_id": "uf4_bench_maxmin_mse_s43_ifeval",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/maxmin_mse_s43/ifeval/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "game_maxmin",
+      "seed_or_weight": "seed 43 / gsm8k",
+      "checkpoint_id": "maxmin_mse_s43",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_maxmin_mse_s43",
+      "job_id": "uf4_bench_maxmin_mse_s43_gsm8k",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/maxmin_mse_s43/gsm8k/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "game_maxmin",
+      "seed_or_weight": "seed 43 / harmbench",
+      "checkpoint_id": "maxmin_mse_s43",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_maxmin_mse_s43",
+      "job_id": "uf4_bench_maxmin_mse_s43_harmbench",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/maxmin_mse_s43/harmbench/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "game_maxmin",
+      "seed_or_weight": "seed 43 / xstest",
+      "checkpoint_id": "maxmin_mse_s43",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_maxmin_mse_s43",
+      "job_id": "uf4_bench_maxmin_mse_s43_xstest",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/maxmin_mse_s43/xstest/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "game_maxmin",
+      "seed_or_weight": "seed 44 / ifeval",
+      "checkpoint_id": "maxmin_mse_s44",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_maxmin_mse_s44",
+      "job_id": "uf4_bench_maxmin_mse_s44_ifeval",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/maxmin_mse_s44/ifeval/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "game_maxmin",
+      "seed_or_weight": "seed 44 / gsm8k",
+      "checkpoint_id": "maxmin_mse_s44",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_maxmin_mse_s44",
+      "job_id": "uf4_bench_maxmin_mse_s44_gsm8k",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/maxmin_mse_s44/gsm8k/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "game_maxmin",
+      "seed_or_weight": "seed 44 / harmbench",
+      "checkpoint_id": "maxmin_mse_s44",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_maxmin_mse_s44",
+      "job_id": "uf4_bench_maxmin_mse_s44_harmbench",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/maxmin_mse_s44/harmbench/results.json",
+      "eta_min": 17
+    },
+    {
+      "exhibit_label": "tab:general-capability",
+      "method": "game_maxmin",
+      "seed_or_weight": "seed 44 / xstest",
+      "checkpoint_id": "maxmin_mse_s44",
+      "config_hash": "",
+      "dependency": "uf4_gen_bench_maxmin_mse_s44",
+      "job_id": "uf4_bench_maxmin_mse_s44_xstest",
+      "state": "NOT_STARTED",
+      "progress": "",
+      "artifact_path": "/work/uf4_20260910/evaluation/capability/maxmin_mse_s44/xstest/results.json",
       "eta_min": 17
     },
     {

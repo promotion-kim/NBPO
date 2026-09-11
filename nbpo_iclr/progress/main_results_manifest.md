@@ -1,8 +1,8 @@
 # Main-body result manifest
 
-Generated 2026-09-12 08:13:09 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-12 08:42:22 KST. DONE requires the proving artifact on disk.
 
-State counts: DONE 21, NOT_STARTED 86, PENDING 10, READY 10
+State counts: DONE 21, NOT_STARTED 94, PENDING 12, READY 11, RUNNING 1
 
 | exhibit | method | seed/weight | checkpoint | job | state | progress | ETA (min) |
 |---|---|---|---|---|---|---|---|
@@ -28,6 +28,10 @@ State counts: DONE 21, NOT_STARTED 86, PENDING 10, READY 10
 | tab:uf-objectives | bt_rm_nash | seed 42 (train) | btrm_mse_s42 | uf4_train_btrm_mse_s42 | READY | - | 184 |
 | tab:uf-objectives | game_maxmin | seed 42 | maxmin_mse_s42 | uf4_finaleval_judge_maxmin_mse_s42 | DONE | - | 24 |
 | tab:uf-objectives | game_maxmin | seed 42 (train) | maxmin_mse_s42 | uf4_train_maxmin_mse_s42 | DONE | - | 184 |
+| tab:uf-objectives | game_maxmin | seed 43 | maxmin_mse_s43 | uf4_finaleval_judge_maxmin_mse_s43 | PENDING | - | 24 |
+| tab:uf-objectives | game_maxmin | seed 43 (train) | maxmin_mse_s43 | uf4_train_maxmin_mse_s43 | RUNNING | step 500/1250 | 184 |
+| tab:uf-objectives | game_maxmin | seed 44 | maxmin_mse_s44 | uf4_finaleval_judge_maxmin_mse_s44 | PENDING | - | 24 |
+| tab:uf-objectives | game_maxmin | seed 44 (train) | maxmin_mse_s44 | uf4_train_maxmin_mse_s44 | READY | - | 184 |
 | tab:uf-objectives | dpo_uniform | seed 42 | dpo_uniform_mse_s42 | uf4_finaleval_judge_dpo_uniform_mse_s42 | PENDING | - | 24 |
 | tab:uf-objectives | dpo_uniform | seed 42 (train) | dpo_uniform_mse_s42 | uf4_train_dpo_uniform_mse_s42 | READY | - | 184 |
 | tab:uf-objectives | prosper_adapt | seed 42 | prosper_mse_s42 | uf4_finaleval_judge_prosper_mse_s42 | PENDING | - | 24 |
@@ -105,6 +109,14 @@ State counts: DONE 21, NOT_STARTED 86, PENDING 10, READY 10
 | tab:general-capability | game_maxmin | seed 42 / gsm8k | maxmin_mse_s42 | uf4_bench_maxmin_mse_s42_gsm8k | NOT_STARTED | - | 17 |
 | tab:general-capability | game_maxmin | seed 42 / harmbench | maxmin_mse_s42 | uf4_bench_maxmin_mse_s42_harmbench | NOT_STARTED | - | 17 |
 | tab:general-capability | game_maxmin | seed 42 / xstest | maxmin_mse_s42 | uf4_bench_maxmin_mse_s42_xstest | NOT_STARTED | - | 17 |
+| tab:general-capability | game_maxmin | seed 43 / ifeval | maxmin_mse_s43 | uf4_bench_maxmin_mse_s43_ifeval | NOT_STARTED | - | 17 |
+| tab:general-capability | game_maxmin | seed 43 / gsm8k | maxmin_mse_s43 | uf4_bench_maxmin_mse_s43_gsm8k | NOT_STARTED | - | 17 |
+| tab:general-capability | game_maxmin | seed 43 / harmbench | maxmin_mse_s43 | uf4_bench_maxmin_mse_s43_harmbench | NOT_STARTED | - | 17 |
+| tab:general-capability | game_maxmin | seed 43 / xstest | maxmin_mse_s43 | uf4_bench_maxmin_mse_s43_xstest | NOT_STARTED | - | 17 |
+| tab:general-capability | game_maxmin | seed 44 / ifeval | maxmin_mse_s44 | uf4_bench_maxmin_mse_s44_ifeval | NOT_STARTED | - | 17 |
+| tab:general-capability | game_maxmin | seed 44 / gsm8k | maxmin_mse_s44 | uf4_bench_maxmin_mse_s44_gsm8k | NOT_STARTED | - | 17 |
+| tab:general-capability | game_maxmin | seed 44 / harmbench | maxmin_mse_s44 | uf4_bench_maxmin_mse_s44_harmbench | NOT_STARTED | - | 17 |
+| tab:general-capability | game_maxmin | seed 44 / xstest | maxmin_mse_s44 | uf4_bench_maxmin_mse_s44_xstest | NOT_STARTED | - | 17 |
 | tab:general-capability | dpo_uniform | seed 42 / ifeval | dpo_uniform_mse_s42 | uf4_bench_dpo_uniform_mse_s42_ifeval | NOT_STARTED | - | 17 |
 | tab:general-capability | dpo_uniform | seed 42 / gsm8k | dpo_uniform_mse_s42 | uf4_bench_dpo_uniform_mse_s42_gsm8k | NOT_STARTED | - | 17 |
 | tab:general-capability | dpo_uniform | seed 42 / harmbench | dpo_uniform_mse_s42 | uf4_bench_dpo_uniform_mse_s42_harmbench | NOT_STARTED | - | 17 |
