@@ -35,18 +35,6 @@ Base capability,IFEval strict-prompt / strict-instruction,0.7542 / 0.8249,base_d
 Base capability,GSM8K exact match,0.8666,base_deterministic_v1/gsm8k_base.summary.json
 Base capability,HarmBench harmful-completion rate,0.2813,harmbench_base_v1/harmbench_base.summary.json
 Base capability,"XSTest\,450",\textrm{unadjudicated},adjudication gated; estimate is null in the artifact
-"Policy projection, NBPO-MSE seed 42",Optimizer updates completed / planned,"1{,}250 / 1{,}250","arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"
-"Policy projection, NBPO-MSE seed 42",Held-out dev pairs scored at each evaluation,"28{,}000","arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"
-"Policy projection, NBPO-MSE seed 42","Dev nMSE $\downarrow$, first $\to$ last of five evaluations",0.6083 \to 0.5823,"arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"
-"Policy projection, NBPO-MSE seed 42","Dev sign accuracy $\uparrow$, first $\to$ last",0.6605 \to 0.6694,"arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"
-"Policy projection, NBPO-MSE seed 42",Dev Pearson / Spearman at the final evaluation,0.6515 / 0.5479,"arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"
-"Policy projection, NBPO-MSE seed 42",Dev target RMS / fitted log-ratio RMS,5.4711 / 3.8409,"arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"
-"Policy projection, NBPO-MSE seed 42",Training wall time / GPU-hours,"\textrm{2.79 h on four H200s, 11.2 GPU-h}","arms/nbpo_mse_s42, jobs/runs/uf4_train_nbpo_mse_s42/stdout.log"
-"Policy projection, utilitarian seed 42",Optimizer updates completed / planned,"1{,}250 / 1{,}250","arms/util_mse_s42, jobs/runs/uf4_train_util_mse_s42/stdout.log"
-"Policy projection, utilitarian seed 42","Dev nMSE $\downarrow$, first $\to$ last of five evaluations",0.6061 \to 0.5862,"arms/util_mse_s42, jobs/runs/uf4_train_util_mse_s42/stdout.log"
-"Policy projection, utilitarian seed 42","Dev sign accuracy $\uparrow$, first $\to$ last",0.6603 \to 0.6702,"arms/util_mse_s42, jobs/runs/uf4_train_util_mse_s42/stdout.log"
-"Policy projection, utilitarian seed 42",Dev Pearson / Spearman at the final evaluation,0.6488 / 0.5480,"arms/util_mse_s42, jobs/runs/uf4_train_util_mse_s42/stdout.log"
-"Policy projection, utilitarian seed 42","Dev target second moment, Nash / utilitarian",29.9332 / 31.2487,"arms/util_mse_s42, jobs/runs/uf4_train_util_mse_s42/stdout.log"
 "Audit pilot, 20 prompts",Judgments collected / planned,"12{,}000 / 12{,}000",audit/v1/judgments/pilot_20/complete.json
 "Audit pilot, 20 prompts",Parsed to an explicit verdict,"0.9959 \textrm{ (40 none, 9 several)}",audit/v1/judgments/pilot_20/complete.json
 "Audit pilot, 20 prompts",Throughput / mean output tokens,"\textrm{33.3 per s, one H200; 99.5 tokens}",audit/v1/judgments/pilot_20/complete.json
@@ -59,7 +47,9 @@ Audit confirmation,Cyclic triangles found in panel A,24,analysis/audit/cycles_au
 Audit confirmation,Cycle edges holding in both orders,15 / 72 = 0.208,audit/v1/witness_manifest.json
 Audit confirmation,Eligible witness triangles selected,0 \textrm{ of 4 rubrics},audit/v1/witness_manifest.json
 Audit confirmation,"Confirmation judgments spent of the 2{,}280 budget",0,audit/v1/witness_manifest.json
-"Policy projection, NBPO-MSE three seeds","Final dev nMSE $\downarrow$, mean $\pm$ sample SD",0.5861 \pm 0.0033,"arms/nbpo_mse_s4{2,3,4}, trainer held-out diagnostics"
-"Policy projection, NBPO-MSE three seeds","Final dev sign accuracy $\uparrow$, mean $\pm$ sample SD",0.6698 \pm 0.0017,"arms/nbpo_mse_s4{2,3,4}, trainer held-out diagnostics"
-"Policy projection, NBPO-MSE three seeds","Final dev Pearson, mean $\pm$ sample SD",0.6490 \pm 0.0023,"arms/nbpo_mse_s4{2,3,4}, trainer held-out diagnostics"
-"Policy projection, NBPO-MSE three seeds","Per-seed final nMSE, s42 / s43 / s44",0.5823 / 0.5881 / 0.5878,"arms/nbpo_mse_s4{2,3,4}, trainer held-out diagnostics"
+"Policy projection, NBPO-Nash, three seeds","Final dev nMSE $\downarrow$, mean $\pm$ sample SD",0.5861 \pm 0.0033,"trainer held-out diagnostics, 28,000 dev pairs at the final evaluation of each run"
+"Policy projection, NBPO-Nash, three seeds","Final dev sign accuracy $\uparrow$, mean $\pm$ sample SD",0.6698 \pm 0.0017,"trainer held-out diagnostics, 28,000 dev pairs at the final evaluation of each run"
+"Policy projection, NBPO-Nash, three seeds","Per-seed final nMSE, s42 / s43 / s44",0.5823 / 0.5881 / 0.5878,"trainer held-out diagnostics, 28,000 dev pairs at the final evaluation of each run"
+"Policy projection, Utilitarian, $L_1$ matched, three seeds","Final dev nMSE $\downarrow$, mean $\pm$ sample SD",0.5800 \pm 0.0054,"trainer held-out diagnostics, 28,000 dev pairs at the final evaluation of each run"
+"Policy projection, Utilitarian, $L_1$ matched, three seeds","Final dev sign accuracy $\uparrow$, mean $\pm$ sample SD",0.6732 \pm 0.0059,"trainer held-out diagnostics, 28,000 dev pairs at the final evaluation of each run"
+"Policy projection, Utilitarian, $L_1$ matched, three seeds","Per-seed final nMSE, s42 / s43 / s44",0.5862 / 0.5778 / 0.5761,"trainer held-out diagnostics, 28,000 dev pairs at the final evaluation of each run"

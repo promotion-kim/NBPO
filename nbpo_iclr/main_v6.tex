@@ -1744,11 +1744,14 @@ NBPO-MSE, three seeds & Final dev nMSE $\downarrow$, mean $\pm$ SD & $0.5861 \pm
  & Final dev sign accuracy $\uparrow$, mean $\pm$ SD & $0.6698 \pm 0.0017$\\
  & Final dev Pearson, mean $\pm$ SD & $0.6490 \pm 0.0023$\\
  & Final nMSE, seeds 42 / 43 / 44 & $0.5823 / 0.5881 / 0.5878$\\
+Utilitarian, three seeds & Final dev nMSE $\downarrow$, mean $\pm$ SD & $0.5800 \pm 0.0054$\\
+ & Final dev sign accuracy $\uparrow$, mean $\pm$ SD & $0.6732 \pm 0.0059$\\
+ & Final nMSE, seeds 42 / 43 / 44 & $0.5862 / 0.5778 / 0.5761$\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:uf4-projection-details} reports neural fitting diagnostics. For comparison, SafeRLHF achieved nMSE $.6845\pm.0048$ and sign accuracy $.7009\pm.0016$ over three seeds, with target RMS $1.125$; normalized errors should be interpreted alongside these different target scales. Nash and utilitarian targets have total variation $.0195$, and the two arms attain similar fitting accuracy. Neither observation establishes a policy-quality difference.
+Table~\ref{tab:uf4-projection-details} reports neural fitting diagnostics. For comparison, SafeRLHF achieved nMSE $.6845\pm.0048$ and sign accuracy $.7009\pm.0016$ over three seeds, with target RMS $1.125$; normalized errors should be interpreted alongside these different target scales. Nash and utilitarian targets have total variation $.0195$, and the two arms attain similar fitting accuracy: over three seeds each, nMSE is $0.5861\pm0.0033$ against $0.5800\pm0.0054$ and sign accuracy $0.6698\pm0.0017$ against $0.6732\pm0.0059$, with seed spreads that overlap on both. Neither observation establishes a policy-quality difference.
 
 \begin{table}[t]
 \centering\small
