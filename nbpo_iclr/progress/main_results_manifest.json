@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-12 03:13:09",
+  "generated_kst": "2026-09-12 03:43:10",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -22,7 +22,7 @@
         "game_utilitarian": 3,
         "fixed_reference_nash": 3,
         "bt_rm_nash": 1,
-        "game_maxmin": 1,
+        "game_maxmin": 3,
         "dpo_uniform": 1,
         "prosper_adapt": 3,
         "mopo_adapt": 3
@@ -115,14 +115,19 @@
         "kst": "2026-09-11 20:22",
         "change": "fixed_reference_nash planned seeds 1 -> 3",
         "why": "on the seven-arm common set this control leads on all four attributes and is the only arm with a minimum-attribute point estimate above 0.5, so the central mechanism comparison rested on one seed against three; the denominator is widened, never narrowed"
+      },
+      {
+        "kst": "2026-09-12 03:45",
+        "change": "game_maxmin planned seeds 1 -> 3",
+        "why": "this control is now the only arm leading the objectives table, and the fixed-reference control just demonstrated that a one-seed lead of this size does not survive a second seed: its honesty moved 0.0126 and its minimum mean fell below 0.5. Widening the denominator, never narrowing it."
       }
     ]
   },
   "state_counts": {
-    "DONE": 18,
-    "RUNNING": 1,
+    "DONE": 19,
     "PENDING": 11,
-    "READY": 11,
+    "RUNNING": 1,
+    "READY": 10,
     "NOT_STARTED": 86
   },
   "rows": [
@@ -316,8 +321,8 @@
       "config_hash": "fd9065078cde0df59c620449f242f70305db919cf436ebed3a0cc1f8348553c8",
       "dependency": "uf4_train_fixedref_mse_s43",
       "job_id": "uf4_finaleval_judge_fixedref_mse_s43",
-      "state": "RUNNING",
-      "progress": "elapsed 4m",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/fixedref_mse_s43/complete.json",
       "eta_min": 24
     },
@@ -352,11 +357,11 @@
       "method": "fixed_reference_nash",
       "seed_or_weight": "seed 44 (train)",
       "checkpoint_id": "fixedref_mse_s44",
-      "config_hash": "",
+      "config_hash": "f7630d1e674e41e7ca2fccbdeacc25b869bc6519e490cab3f64b4b697201dcdc",
       "dependency": "target solve",
       "job_id": "uf4_train_fixedref_mse_s44",
-      "state": "READY",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "elapsed 10m",
       "artifact_path": "/work/uf4_20260910/arms/fixedref_mse_s44/config.json",
       "eta_min": 184
     },

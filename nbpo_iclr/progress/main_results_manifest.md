@@ -1,8 +1,8 @@
 # Main-body result manifest
 
-Generated 2026-09-12 03:13:09 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-12 03:43:10 KST. DONE requires the proving artifact on disk.
 
-State counts: DONE 18, NOT_STARTED 86, PENDING 11, READY 11, RUNNING 1
+State counts: DONE 19, NOT_STARTED 86, PENDING 11, READY 10, RUNNING 1
 
 | exhibit | method | seed/weight | checkpoint | job | state | progress | ETA (min) |
 |---|---|---|---|---|---|---|---|
@@ -20,10 +20,10 @@ State counts: DONE 18, NOT_STARTED 86, PENDING 11, READY 11, RUNNING 1
 | tab:uf-objectives | game_utilitarian | seed 44 (train) | util_mse_s44 | uf4_train_util_mse_s44 | DONE | - | 184 |
 | tab:uf-objectives | fixed_reference_nash | seed 42 | fixedref_mse_s42 | uf4_finaleval_judge_fixedref_mse_s42 | DONE | - | 24 |
 | tab:uf-objectives | fixed_reference_nash | seed 42 (train) | fixedref_mse_s42 | uf4_train_fixedref_mse_s42 | DONE | - | 184 |
-| tab:uf-objectives | fixed_reference_nash | seed 43 | fixedref_mse_s43 | uf4_finaleval_judge_fixedref_mse_s43 | RUNNING | elapsed 4m | 24 |
+| tab:uf-objectives | fixed_reference_nash | seed 43 | fixedref_mse_s43 | uf4_finaleval_judge_fixedref_mse_s43 | DONE | - | 24 |
 | tab:uf-objectives | fixed_reference_nash | seed 43 (train) | fixedref_mse_s43 | uf4_train_fixedref_mse_s43 | DONE | - | 184 |
 | tab:uf-objectives | fixed_reference_nash | seed 44 | fixedref_mse_s44 | uf4_finaleval_judge_fixedref_mse_s44 | PENDING | - | 24 |
-| tab:uf-objectives | fixed_reference_nash | seed 44 (train) | fixedref_mse_s44 | uf4_train_fixedref_mse_s44 | READY | - | 184 |
+| tab:uf-objectives | fixed_reference_nash | seed 44 (train) | fixedref_mse_s44 | uf4_train_fixedref_mse_s44 | RUNNING | elapsed 10m | 184 |
 | tab:uf-objectives | bt_rm_nash | seed 42 | btrm_mse_s42 | uf4_finaleval_judge_btrm_mse_s42 | PENDING | - | 24 |
 | tab:uf-objectives | bt_rm_nash | seed 42 (train) | btrm_mse_s42 | uf4_train_btrm_mse_s42 | READY | - | 184 |
 | tab:uf-objectives | game_maxmin | seed 42 | maxmin_mse_s42 | uf4_finaleval_judge_maxmin_mse_s42 | DONE | - | 24 |
