@@ -1,0 +1,58 @@
+{
+  "left": "nbpo_mse_s42",
+  "right": "util_mse_s42",
+  "left_judgments_sha256": "acbc452a805476ab01cf561ab1ed0ff9e96466d5bf801e76002cd9b1191f264a",
+  "right_judgments_sha256": "da2b51a35d15b2032389fb8d0487cbf89849c0af79f09bd9257de4a7e2592b0d",
+  "estimand": "per-prompt (left - right) of the order-averaged win rate against the same base response",
+  "bootstrap": "2000 whole-prompt replicates; prompt variability under one seed, not seed uncertainty",
+  "criteria": {
+    "instruction_following": {
+      "n_paired_prompts": 1958,
+      "mean_difference": 0.007022471910112359,
+      "ci95": [
+        -0.007150153217568948,
+        0.02093973442288049
+      ],
+      "crosses_zero": true,
+      "fraction_left_better": 0.2017364657814096,
+      "fraction_equal": 0.6133810010214504,
+      "sd_of_differences": 0.3035650387642771
+    },
+    "truthfulness": {
+      "n_paired_prompts": 1933,
+      "mean_difference": 0.0009053285049146404,
+      "ci95": [
+        -0.011251939989653388,
+        0.013709260217278842
+      ],
+      "crosses_zero": true,
+      "fraction_left_better": 0.19141231246766685,
+      "fraction_equal": 0.6125193998965339,
+      "sd_of_differences": 0.2863671900440135
+    },
+    "honesty": {
+      "n_paired_prompts": 1965,
+      "mean_difference": -0.0047073791348600505,
+      "ci95": [
+        -0.020865139949109414,
+        0.01183206106870229
+      ],
+      "crosses_zero": true,
+      "fraction_left_better": 0.24122137404580152,
+      "fraction_equal": 0.5038167938931297,
+      "sd_of_differences": 0.3623680016315138
+    },
+    "helpfulness": {
+      "n_paired_prompts": 1976,
+      "mean_difference": 0.009362348178137652,
+      "ci95": [
+        -0.0031629554655870445,
+        0.02138474190283399
+      ],
+      "crosses_zero": true,
+      "fraction_left_better": 0.1492914979757085,
+      "fraction_equal": 0.7186234817813765,
+      "sd_of_differences": 0.2778322930612971
+    }
+  }
+}

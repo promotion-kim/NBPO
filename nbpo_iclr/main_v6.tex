@@ -1509,7 +1509,7 @@ On the reported pool, Nash weights $(6.325,6.186)$ yield targets close to equal 
 \end{table}
 \begin{table}[t]
 \centering\small
-\caption{Paired Nash minus utilitarian surplus differences on the same $1{,}000$ prompts, conditional on each policy seed. Reported intervals include zero; their exact construction and confidence level must be retained from the artifacts. They do not establish equivalence.}
+\caption{Paired Nash minus utilitarian differences, conditional on each policy seed. The SafeRLHF rows are teacher-defined surplus differences on the same $1{,}000$ prompts, with their reported interval construction retained from the artifacts. The UF-4 rows are a different quantity: per-prompt differences of the independent judge's order-averaged win rate against the identical cached base response, over roughly $1{,}950$ prompts scored in both arms, with $2000$ whole-prompt bootstrap intervals. Pairing removes prompt difficulty and is tighter than comparing the two arms' separately reported win rates; all four UF-4 differences still contain zero and their signs are mixed. Intervals containing zero do not establish equivalence, and these measure prompt variability under one seed, not seed uncertainty.}
 \label{tab:aggregation-policy-pairs}
 \input{generated/aggregation_policy_pairs}
 \end{table}

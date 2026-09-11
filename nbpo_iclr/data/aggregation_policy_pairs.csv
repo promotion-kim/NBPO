@@ -5,3 +5,7 @@ seed,criterion,delta_nash_minus_util,ci_low,ci_high,n_prompts,ci_method,source
 43,safe,+0.0004,-0.0052,+0.0061,1000,reported CI; confirm bootstrap configuration from raw artifacts,User-provided Claude report 2026-09-10 09:13 KST
 44,help,-0.0033,-0.0086,+0.0023,1000,reported CI; confirm bootstrap configuration from raw artifacts,User-provided Claude report 2026-09-10 09:13 KST
 44,safe,-0.0037,-0.0095,+0.0017,1000,reported CI; confirm bootstrap configuration from raw artifacts,User-provided Claude report 2026-09-10 09:13 KST
+42,UF-4 IF,+0.0070,-0.0072,+0.0209,1958,2000 whole-prompt bootstrap of the per-prompt difference; prompt variability under one seed,analysis/paired_nbpo_mse_s42_minus_util_mse_s42.json
+42,UF-4 truth,+0.0009,-0.0113,+0.0137,1933,2000 whole-prompt bootstrap of the per-prompt difference; prompt variability under one seed,analysis/paired_nbpo_mse_s42_minus_util_mse_s42.json
+42,UF-4 honesty,-0.0047,-0.0209,+0.0118,1965,2000 whole-prompt bootstrap of the per-prompt difference; prompt variability under one seed,analysis/paired_nbpo_mse_s42_minus_util_mse_s42.json
+42,UF-4 help,+0.0094,-0.0032,+0.0214,1976,2000 whole-prompt bootstrap of the per-prompt difference; prompt variability under one seed,analysis/paired_nbpo_mse_s42_minus_util_mse_s42.json
