@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-12 01:43:10",
+  "generated_kst": "2026-09-12 03:13:09",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -119,11 +119,11 @@
     ]
   },
   "state_counts": {
-    "DONE": 17,
-    "PENDING": 11,
+    "DONE": 18,
     "RUNNING": 1,
-    "READY": 10,
-    "NOT_STARTED": 88
+    "PENDING": 11,
+    "READY": 11,
+    "NOT_STARTED": 86
   },
   "rows": [
     {
@@ -313,11 +313,11 @@
       "method": "fixed_reference_nash",
       "seed_or_weight": "seed 43",
       "checkpoint_id": "fixedref_mse_s43",
-      "config_hash": "",
+      "config_hash": "fd9065078cde0df59c620449f242f70305db919cf436ebed3a0cc1f8348553c8",
       "dependency": "uf4_train_fixedref_mse_s43",
       "job_id": "uf4_finaleval_judge_fixedref_mse_s43",
-      "state": "PENDING",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "elapsed 4m",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/fixedref_mse_s43/complete.json",
       "eta_min": 24
     },
@@ -329,8 +329,8 @@
       "config_hash": "f3fba8374b53fa2ea7132c284143068b8ef691860ffa462d9e960f45629e6273",
       "dependency": "target solve",
       "job_id": "uf4_train_fixedref_mse_s43",
-      "state": "RUNNING",
-      "progress": "step 750/1250",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/fixedref_mse_s43/config.json",
       "eta_min": 184
     },
@@ -446,7 +446,7 @@
       "config_hash": "",
       "dependency": "uf4_train_prosper_mse_s42",
       "job_id": "uf4_finaleval_judge_prosper_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "PENDING",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/prosper_mse_s42/complete.json",
       "eta_min": 24
@@ -459,7 +459,7 @@
       "config_hash": "",
       "dependency": "target solve",
       "job_id": "uf4_train_prosper_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "READY",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/prosper_mse_s42/config.json",
       "eta_min": 184
@@ -1806,11 +1806,8 @@
     },
     {
       "job_id": "uf4_make_train_prosper_s42",
-      "state": "FAILED",
-      "reason": "no successful retry found; artifact still missing",
-      "missing": [
-        "/work/uf4_20260910/provenance/train_job_prosper_mse_s42.json"
-      ]
+      "state": "NOT_APPLICABLE",
+      "reason": "every declared artifact is on disk from a later successful retry"
     }
   ]
 }
