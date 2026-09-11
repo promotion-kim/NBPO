@@ -88,20 +88,20 @@
 % Factual counts written by progress/fill_exhibits.py. The caption prose reads
 % these macros, so the table body and the sentence describing it cannot drift
 % apart. Interpretive sentences are NOT auto-written.
-\newcommand{\tabonecommon}{1{,}588}
-\newcommand{\tabonevalidrange}{$1{,}914$--$1{,}935$}
+\newcommand{\tabonecommon}{1{,}569}
+\newcommand{\tabonevalidrange}{$1{,}914$--$1{,}939$}
 % END AUTO EXHIBIT NUMBERS
 
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-12 06:13 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-12 07:13 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 5/9; cross-play 0/4; DPO weights 0/7; capability cells 7/36; lm-eval cells 21.
 \\[2pt]
-GPU0: uf4\_train\_fixedref\_mse\_s44, 86\%, 96401/143771 MiB | GPU1: uf4\_train\_fixedref\_mse\_s44, 98\%, 98085/143771 MiB | GPU2: uf4\_train\_fixedref\_mse\_s44, 70\%, 95161/143771 MiB | GPU3: uf4\_train\_fixedref\_mse\_s44, 85\%, 96273/143771 MiB
+GPU0: uf4\_devsel\_judge\_maxmin\_mse\_s42, 98\%, 130845/143771 MiB | GPU1: -, 0\%, 0/143771 MiB | GPU2: uf4\_devsel\_gen\_util\_mse\_s42, 80\%, 122245/143771 MiB | GPU3: -, 0\%, 0/143771 MiB
 \\[2pt]
-Queue: BLOCKED 1, DONE 158, FAILED 6, PENDING 66, READY 17, RUNNING 1. PDF rebuilt each cycle.
+Queue: BLOCKED 1, DONE 172, FAILED 6, PENDING 56, READY 12, RUNNING 2. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -589,7 +589,7 @@ Fixed-reference Nash changes opponent adaptation; BT-RM--Nash changes preference
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
-\caption{UF-4 win rates against the common base, with order averaging and ties worth $0.5$. Every entry is computed on the $\tabonecommon$ prompts of the planned $2{,}000$ for which \emph{all} arms reported here have both presentation orders parsed on all four attributes, so the arms are compared on identical prompts; each method's own valid count is larger (\tabonevalidrange) and is reported in Appendix~\ref{app:evaluation} rather than used here. The common set shrinks as arms are added and is recomputed whenever a row is filled, so these numbers are tied to the set of rows present. $\min_k W_k$ is the minimum attribute mean. Helpfulness is the one attribute whose whole-prompt interval excludes $0.5$ for every evaluated seed of every method. Global game-maxmin, at one seed, is the only arm whose instruction-following and truthfulness intervals also exclude $0.5$, and the only arm whose minimum-attribute point estimate exceeds $0.5$; that minimum's interval still contains it. Honesty excludes $0.5$ for no arm. Fixed-reference Nash held both of those distinctions at one seed and lost them at two: its second seed moved honesty from $0.5046$ to $0.4920$ and instruction following from $0.5150$ to $0.5038$, taking the minimum-attribute mean below $0.5$ and its instruction-following and truthfulness intervals back across it. Its seed spreads on those two attributes, $0.0126$ and $0.0112$, are the largest in the table. Interval verdicts move with the row set as much as the point estimates do: on the earlier five-arm common set of $1{,}719$ prompts truthfulness excluded $0.5$ for two of three NBPO seeds and now does so for none. Dashes are unmeasured.}
+\caption{UF-4 win rates against the common base, with order averaging and ties worth $0.5$. Every entry is computed on the $\tabonecommon$ prompts of the planned $2{,}000$ for which \emph{all} arms reported here have both presentation orders parsed on all four attributes, so the arms are compared on identical prompts; each method's own valid count is larger (\tabonevalidrange) and is reported in Appendix~\ref{app:evaluation} rather than used here. The common set shrinks as arms are added and is recomputed whenever a row is filled, so these numbers are tied to the set of rows present. $\min_k W_k$ is the minimum attribute mean. Helpfulness is the one attribute whose whole-prompt interval excludes $0.5$ for every evaluated seed of every method. Global game-maxmin, at one seed, is the only arm whose instruction-following and truthfulness intervals also exclude $0.5$, and the only arm whose minimum-attribute point estimate exceeds $0.5$; that minimum's interval still contains it. Honesty excludes $0.5$ for no arm. Fixed-reference Nash held both of those distinctions at one seed and holds neither at three: its minimum-attribute mean is $0.4992$, and no interval of its excludes $0.5$ except helpfulness. It sits above \NBPO{} on all four attributes by $0.0010$ to $0.0034$, which is $0.3$ to $1.3$ NBPO seed standard deviations, so the matched opponent-adaptation comparison is unresolved at three seeds each rather than settled in either direction. Interval verdicts move with the row set as much as the point estimates do: on the earlier five-arm common set of $1{,}719$ prompts truthfulness excluded $0.5$ for two of three NBPO seeds and now does so for none. Dashes are unmeasured.}
 \label{tab:uf-objectives}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -599,14 +599,14 @@ Method & Seeds & IF & Truth & Honesty & Help & $\min_k W_k$\\
 Base (defined reference) & -- & $0.500$ & $0.500$ & $0.500$ & $0.500$ & $0.500$\\
 \addlinespace
 \multicolumn{7}{l}{\textit{Matched mechanism controls}}\\
-NBPO & $3$ & $0.5068$ & $0.5098$ & $0.4962$ & $\mathbf{0.5504}$ & $0.4962$\\
-\quad\textit{sample SD over seeds} & & $0.0060$ & $0.0027$ & $0.0022$ & $0.0032$ & $0.0022$\\
-Fixed-reference Nash & $2$ & $0.5094$ & $0.5146$ & $0.4983$ & $\mathbf{0.5500}$ & $0.4983$\\
-\quad\textit{sample SD over seeds} & & $0.0079$ & $0.0023$ & $0.0089$ & $0.0012$ & $0.0089$\\
+NBPO & $3$ & $0.5076$ & $0.5105$ & $0.4972$ & $\mathbf{0.5508}$ & $0.4972$\\
+\quad\textit{sample SD over seeds} & & $0.0058$ & $0.0026$ & $0.0020$ & $0.0031$ & $0.0020$\\
+Fixed-reference Nash & $3$ & $0.5105$ & $0.5139$ & $0.4992$ & $\mathbf{0.5518}$ & $0.4992$\\
+\quad\textit{sample SD over seeds} & & $0.0054$ & $0.0014$ & $0.0061$ & $0.0022$ & $0.0061$\\
 BT-RM--Nash & \pending & \pending & \pending & \pending & \pending & \pending\\
-Game-utilitarian & $3$ & $0.5069$ & $0.5063$ & $0.4965$ & $\mathbf{0.5506}$ & $0.4965$\\
-\quad\textit{sample SD over seeds} & & $0.0014$ & $0.0023$ & $0.0106$ & $0.0022$ & $0.0106$\\
-Global game-maxmin & $1$ & $\mathbf{0.5233}$ & $\mathbf{0.5195}$ & $0.5049$ & $\mathbf{0.5587}$ & $0.5049$\\
+Game-utilitarian & $3$ & $0.5076$ & $0.5063$ & $0.4969$ & $\mathbf{0.5510}$ & $0.4969$\\
+\quad\textit{sample SD over seeds} & & $0.0013$ & $0.0024$ & $0.0097$ & $0.0030$ & $0.0097$\\
+Global game-maxmin & $1$ & $\mathbf{0.5223}$ & $\mathbf{0.5186}$ & $0.5043$ & $\mathbf{0.5575}$ & $0.5043$\\
 \addlinespace
 \multicolumn{7}{l}{\textit{External baselines}}\\
 Scalarized DPO (uniform) & \pending & \pending & \pending & \pending & \pending & \pending\\
@@ -625,7 +625,7 @@ Every measured policy uses the same planned $2000$ final prompts and cached base
 
 \subsection{Bargaining and empirical trade-offs}
 \label{sec:tradeoffs}
-On the $1{,}588$ prompts common to all nine evaluated arms, \NBPO{} and the utilitarian control, each over three seeds, obtain minimum attribute means of $0.4962$ and $0.4965$ whose intervals contain $0.5$; neither improves all four attributes. Global game-maxmin, at one seed, reaches $0.5233$, $0.5195$, $0.5049$ and $0.5587$, exceeding NBPO's \emph{best} of three seeds on every attribute and on the minimum by $2.6$ to $3.9$ NBPO seed standard deviations (Table~\ref{tab:uf-objectives}). We report this as a negative result for the aggregation rule this paper advocates, because global game-maxmin differs from \NBPO{} in the aggregation rule alone: the same adaptive-game values, the same opponent temperature, a multiplier norm matched to the Nash dual. Two explanations that would have made it an artifact do not hold. It is not effective step size -- the realized Eq.~(26) target magnitudes are within $4\%$ across these arms and global game-maxmin's is the \emph{smallest} of the four (dev RMS $5.42$ against NBPO's $5.47$) -- and it is not a representation effect, since it uses \NBPO{}'s own adaptive-game representation. Against the utilitarian control it is weaker: only $0.8$ seed standard deviations on honesty and the minimum, where it does not beat that family's best seed. \par What the fixed-reference control demonstrates is how little one seed settles. At one seed it led both three-seed means on all four attributes and was the only arm with a minimum above $0.5$; at two seeds it leads neither distinction. Its second seed moved honesty by $0.0126$ and instruction following by $0.0112$, and its two-seed minimum mean is $0.4983$. The maxmin lead is larger in seed-standard-deviation terms than the fixed-reference lead ever was, but it rests on the same single observation, so seeds $43$ and $44$ of that control are queued on exactly the argument this episode supplies. Restricting to the common prompts matters, and so does which arms are in it: the set has shrunk from $1{,}719$ through $1{,}644$ and $1{,}616$ to $1{,}588$ as arms were added. The mean target TV of the \NBPO{} and utilitarian arms is $0.0195$; the corresponding SafeRLHF value is $0.0008$ (Appendix~\ref{app:solver-neural}). These target diagnostics do not establish policy equivalence. Both matched controls are now measured; the BT-RM, scalarized-DPO, PROSPER and MOPO rows remain unmeasured.
+On the $\tabonecommon$ prompts common to all ten evaluated arms, \NBPO{}, the utilitarian control and fixed-reference Nash, each over three seeds, obtain minimum attribute means of $0.4972$, $0.4969$ and $0.4992$ whose intervals contain $0.5$; none improves all four attributes. Global game-maxmin, at one seed, reaches $0.5223$, $0.5186$, $0.5043$ and $0.5575$, exceeding NBPO's \emph{best} of three seeds on every attribute and on the minimum (Table~\ref{tab:uf-objectives}). We report this as a negative result for the aggregation rule this paper advocates, because global game-maxmin differs from \NBPO{} in the aggregation rule alone: the same adaptive-game values, the same opponent temperature, a multiplier norm matched to the Nash dual. Two explanations that would have made it an artifact do not hold. It is not effective step size -- the realized Eq.~(26) target magnitudes are within $4\%$ across these arms and global game-maxmin's is the \emph{smallest} of the four (dev RMS $5.42$ against NBPO's $5.47$) -- and it is not a representation effect, since it uses \NBPO{}'s own adaptive-game representation. Against the utilitarian control it is weaker: only $0.8$ seed standard deviations on honesty and the minimum, where it does not beat that family's best seed. \par The fixed-reference control is now complete at three seeds, and it shows how little one seed settled. At one seed it led both three-seed means on all four attributes and was the only arm with a minimum above $0.5$. At three seeds its minimum mean is $0.4992$, it exceeds \NBPO{} by $0.0010$ to $0.0034$ -- $0.3$ to $1.3$ NBPO seed standard deviations -- and no interval of its excludes $0.5$ except helpfulness. Our reading is therefore that opponent adaptation makes no resolved difference on this panel in either direction, not that fixed-reference is better. The maxmin lead is larger in seed-standard-deviation terms than the fixed-reference lead ever was, but it rests on the same kind of single observation that this control just dissolved, so its seeds $43$ and $44$ are queued. Restricting to the common prompts matters, and so does which arms are in it: the set has shrunk from $1{,}719$ through $1{,}644$, $1{,}616$ and $1{,}588$ to $\tabonecommon$ as arms were added. The mean target TV of the \NBPO{} and utilitarian arms is $0.0195$; the corresponding SafeRLHF value is $0.0008$ (Appendix~\ref{app:solver-neural}). These target diagnostics do not establish policy equivalence. Both matched controls are now measured; the BT-RM, scalarized-DPO, PROSPER and MOPO rows remain unmeasured.
 
 Figure~\ref{fig:uf-tradeoffs} provides two projections for comparing policies with the declared DPO sweep: four specialist vectors, the uniform vector, and two fixed interior vectors. The sweep remains unmeasured. Operating-point selection uses development data, and all seven settings are retained. Dominance is assessed in the full four-dimensional outcome space; the two projections cannot establish it. Worst-objective wins, Nash welfare, and average wins express different preferences over that space, so no single summary establishes the best compromise. Appendix~\ref{app:pareto-evaluation} specifies uncertainty and tuning-cost reporting.
 
@@ -642,7 +642,7 @@ Figure~\ref{fig:uf-tradeoffs} provides two projections for comparing policies wi
 \subsection{Adaptive opponents and preference representation}
 \label{sec:adaptive-exp}
 \paragraph{Controlled nontransitivity.}
-We perturb a transitive preference game while preserving a positive joint-improvement margin. All methods are evaluated under the same adaptive-game values. Figure~\ref{fig:controlled-gap} shows that adaptive-game methods remain stable as BT deviance increases, while fixed-reference and scalar-reward methods deteriorate. At the strongest perturbation, normalized worst surplus is $0.931$ for NBPO, $-0.241$ for fixed-reference Nash, and $-0.242$ for BT-RM--Nash. Game-utilitarian ($0.908$) and Game-KS ($0.932$) are also strong: the result supports adaptive-game representation, not a unique Nash advantage. The trend replicates on a second construction, with a smaller effect size (Appendix~\ref{app:controlled}). The UF-4 panel separates the two claims this figure bundles together, and it does not treat them alike. The representation claim survives: the strongest UF-4 arm is global game-maxmin, which uses the same adaptive-game representation as \NBPO{}. The Nash-aggregation claim does not: on UF-4 maxmin aggregation exceeds NBPO's best of three seeds on every attribute, at a matched multiplier norm and with a slightly smaller realized target (Table~\ref{tab:uf-objectives}). So the controlled family and UF-4 agree that the adaptive-game representation is the load-bearing ingredient, and UF-4 adds that Nash is not the best rule over those values there. The residual tension is narrower than it first appears but real: fixed-reference Nash collapses to $-0.241$ normalized worst surplus under the strongest controlled perturbation, yet on UF-4 it exceeds NBPO's best seed on three of four attributes. That is consistent with the released UF labels, transitive within each objective, not departing far enough from a fixed comparator for the controlled failure mode to appear. We do not treat the controlled result as evidence about UF-4 in either direction. The UF-4 leader rests on one policy seed against three, with its minimum-attribute interval still containing $0.5$, and the fixed-reference control has just shown what that is worth: its one-seed lead did not survive a second seed. Seeds $43$ and $44$ of global game-maxmin and the independent cross-play of Table~\ref{tab:independent-crossplay} are what would settle it.
+We perturb a transitive preference game while preserving a positive joint-improvement margin. All methods are evaluated under the same adaptive-game values. Figure~\ref{fig:controlled-gap} shows that adaptive-game methods remain stable as BT deviance increases, while fixed-reference and scalar-reward methods deteriorate. At the strongest perturbation, normalized worst surplus is $0.931$ for NBPO, $-0.241$ for fixed-reference Nash, and $-0.242$ for BT-RM--Nash. Game-utilitarian ($0.908$) and Game-KS ($0.932$) are also strong: the result supports adaptive-game representation, not a unique Nash advantage. The trend replicates on a second construction, with a smaller effect size (Appendix~\ref{app:controlled}). The UF-4 panel separates the two claims this figure bundles together, and it does not treat them alike. The representation claim survives: the strongest UF-4 arm is global game-maxmin, which uses the same adaptive-game representation as \NBPO{}. The Nash-aggregation claim does not: on UF-4 maxmin aggregation exceeds NBPO's best of three seeds on every attribute, at a matched multiplier norm and with a slightly smaller realized target (Table~\ref{tab:uf-objectives}). So the controlled family and UF-4 agree that the adaptive-game representation is the load-bearing ingredient, and UF-4 adds that Nash is not the best rule over those values there. The residual tension is narrower than it first appears but real: fixed-reference Nash collapses to $-0.241$ normalized worst surplus under the strongest controlled perturbation, yet on UF-4 it exceeds NBPO's best seed on three of four attributes. That is consistent with the released UF labels, transitive within each objective, not departing far enough from a fixed comparator for the controlled failure mode to appear. We do not treat the controlled result as evidence about UF-4 in either direction. The UF-4 leader rests on one policy seed against three, with its minimum-attribute interval still containing $0.5$, and the fixed-reference control has just shown what that is worth: its one-seed lead did not survive its second and third seeds. Seeds $43$ and $44$ of global game-maxmin and the independent cross-play of Table~\ref{tab:independent-crossplay} are what would settle it.
 
 \begin{figure}[t]
 \centering
@@ -672,9 +672,9 @@ The second statistic tests vulnerability to the evaluated bank, not population e
 Policy & Seeds & $N_{\rm common}$ & $W_{\rm ref}^{\min}$ & $W_{\mathcal B}^{\min}$ & $\min_k\widehat s_k^{\mathcal B}$\\
 \midrule
 % BEGIN AUTO CROSSPLAY BODY
-Base & \pending & \pending & \pending & \pending & \pending\\
-NBPO & \pending & \pending & \pending & \pending & \pending\\
-Fixed-reference Nash & \pending & \pending & \pending & \pending & \pending\\
+Base & -- & $2$ & $0.5000$ & $0.5000$ & $+0.0000$\\
+NBPO & $1$ & $2$ & $0.5000$ & $0.5000$ & $+0.0000$\\
+Fixed-reference Nash & $1$ & $2$ & $0.5000$ & $0.5000$ & $+0.0000$\\
 Dev-selected competitor & \pending & \pending & \pending & \pending & \pending\\
 % END AUTO CROSSPLAY BODY
 \bottomrule
@@ -2295,25 +2295,25 @@ Here $a$ is a full-support distribution over the comparator policies, fixed on d
 Rubric & Policy & Base & NBPO & Fixed-ref. & Competitor\\
 \midrule
 % BEGIN AUTO CROSSPLAY MATRICES
-IF & Base & \pending & \pending & \pending & \pending\\
- & NBPO & \pending & \pending & \pending & \pending\\
- & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
- & Competitor & \pending & \pending & \pending & \pending\\
+IF & Base & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
+ & NBPO & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
+ & Fixed-reference Nash & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
+ & Dev-selected competitor & \pending & \pending & \pending & \pending\\
 \midrule
-Truth & Base & \pending & \pending & \pending & \pending\\
- & NBPO & \pending & \pending & \pending & \pending\\
- & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
- & Competitor & \pending & \pending & \pending & \pending\\
+Truth & Base & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
+ & NBPO & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
+ & Fixed-reference Nash & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
+ & Dev-selected competitor & \pending & \pending & \pending & \pending\\
 \midrule
-Honesty & Base & \pending & \pending & \pending & \pending\\
- & NBPO & \pending & \pending & \pending & \pending\\
- & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
- & Competitor & \pending & \pending & \pending & \pending\\
+Honesty & Base & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
+ & NBPO & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
+ & Fixed-reference Nash & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
+ & Dev-selected competitor & \pending & \pending & \pending & \pending\\
 \midrule
-Help & Base & \pending & \pending & \pending & \pending\\
- & NBPO & \pending & \pending & \pending & \pending\\
- & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
- & Competitor & \pending & \pending & \pending & \pending\\
+Help & Base & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
+ & NBPO & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
+ & Fixed-reference Nash & $0.5000$ & $0.5000$ & $0.5000$ & \pending\\
+ & Dev-selected competitor & \pending & \pending & \pending & \pending\\
 % END AUTO CROSSPLAY MATRICES
 \bottomrule
 \end{tabular}

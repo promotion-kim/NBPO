@@ -1,5 +1,5 @@
 {
-  "written_kst": "2026-09-12 07:13:12",
+  "planned_final_prompts": 2000,
   "arms": [
     "fixedref_mse_s42",
     "fixedref_mse_s43",
@@ -13,89 +13,6 @@
     "util_mse_s44"
   ],
   "common_prompts": 1569,
-  "crossplay": {
-    "n_common_prompts": 2,
-    "policies": [
-      "base",
-      "fixedref_mse_s42",
-      "nbpo_mse_s42"
-    ],
-    "pairs_missing_for_full_bank": [],
-    "statistics": {
-      "base": {
-        "W_ref_min": 0.5,
-        "W_bank_min": 0.5,
-        "min_s_bank": 0.0,
-        "s_bank_per_objective": {
-          "instruction_following": 0.0,
-          "truthfulness": 0.0,
-          "honesty": 0.0,
-          "helpfulness": 0.0
-        },
-        "min_s_bank_excluding_self": 0.0,
-        "W_ref_min_ci95": [
-          0.5,
-          0.5
-        ],
-        "W_bank_min_ci95": [
-          0.5,
-          0.5
-        ],
-        "min_s_bank_ci95": [
-          0.0,
-          0.0
-        ]
-      },
-      "fixedref_mse_s42": {
-        "W_ref_min": 0.5,
-        "W_bank_min": 0.5,
-        "min_s_bank": 0.0,
-        "s_bank_per_objective": {
-          "instruction_following": 0.0,
-          "truthfulness": 0.0,
-          "honesty": 0.0,
-          "helpfulness": 0.0
-        },
-        "min_s_bank_excluding_self": 0.0,
-        "W_ref_min_ci95": [
-          0.5,
-          0.5
-        ],
-        "W_bank_min_ci95": [
-          0.5,
-          0.5
-        ],
-        "min_s_bank_ci95": [
-          0.0,
-          0.0
-        ]
-      },
-      "nbpo_mse_s42": {
-        "W_ref_min": 0.5,
-        "W_bank_min": 0.5,
-        "min_s_bank": 0.0,
-        "s_bank_per_objective": {
-          "instruction_following": 0.0,
-          "truthfulness": 0.0,
-          "honesty": 0.0,
-          "helpfulness": 0.0
-        },
-        "min_s_bank_excluding_self": 0.0,
-        "W_ref_min_ci95": [
-          0.5,
-          0.5
-        ],
-        "W_bank_min_ci95": [
-          0.5,
-          0.5
-        ],
-        "min_s_bank_ci95": [
-          0.0,
-          0.0
-        ]
-      }
-    }
-  },
   "per_method_own_denominator": {
     "fixedref_mse_s42": 1914,
     "fixedref_mse_s43": 1927,
@@ -108,25 +25,75 @@
     "util_mse_s43": 1927,
     "util_mse_s44": 1929
   },
-  "attributes_whose_interval_excludes_half": {
-    "instruction_following": [
-      "Global game-maxmin"
-    ],
-    "truthfulness": [
-      "Global game-maxmin"
-    ],
-    "honesty": [],
-    "helpfulness": [
-      "NBPO",
-      "Fixed-reference Nash",
-      "Game-utilitarian",
-      "Global game-maxmin"
-    ],
-    "min_objective": []
+  "judgment_status": {
+    "fixedref_mse_s42": {
+      "ok": 15900,
+      "multiple_verdicts": 34,
+      "no_verdict": 66
+    },
+    "fixedref_mse_s43": {
+      "ok": 15914,
+      "multiple_verdicts": 27,
+      "no_verdict": 59
+    },
+    "fixedref_mse_s44": {
+      "ok": 15932,
+      "multiple_verdicts": 29,
+      "no_verdict": 39
+    },
+    "maxmin_mse_s42": {
+      "ok": 15912,
+      "multiple_verdicts": 31,
+      "no_verdict": 57
+    },
+    "nbpo_mse_s42": {
+      "ok": 15910,
+      "no_verdict": 59,
+      "multiple_verdicts": 31
+    },
+    "nbpo_mse_s43": {
+      "ok": 15909,
+      "no_verdict": 61,
+      "multiple_verdicts": 30
+    },
+    "nbpo_mse_s44": {
+      "ok": 15921,
+      "multiple_verdicts": 26,
+      "no_verdict": 53
+    },
+    "util_mse_s42": {
+      "ok": 15901,
+      "no_verdict": 65,
+      "multiple_verdicts": 34
+    },
+    "util_mse_s43": {
+      "ok": 15916,
+      "no_verdict": 48,
+      "multiple_verdicts": 36
+    },
+    "util_mse_s44": {
+      "ok": 15924,
+      "no_verdict": 44,
+      "multiple_verdicts": 32
+    }
   },
-  "caption_prose_note": "The caption's interpretive sentences are hand-written. Compare them against attributes_whose_interval_excludes_half above; if they disagree, the prose is stale.",
+  "judgments_sha256": {
+    "fixedref_mse_s42": "009950e0364e7875850f6737fc76186043f4319839079316d8d3b924f83a838a",
+    "fixedref_mse_s43": "780d8aefc28c232c93fddecaf88c3c0f78ef373da5675e2033b1bc3daab78964",
+    "fixedref_mse_s44": "bf5557a9ec498af5b0ce6b6f7d300209ba23b7f25a09198a6cea6330c852f7bc",
+    "maxmin_mse_s42": "de4fd3be22416a7ff558857503713f41287cbbb8430049f0dd6ce827d93b7ce1",
+    "nbpo_mse_s42": "acbc452a805476ab01cf561ab1ed0ff9e96466d5bf801e76002cd9b1191f264a",
+    "nbpo_mse_s43": "5336fccc3aa9040c380991a0c66e25cc29f18de386dfb5631ae7463ed25bc498",
+    "nbpo_mse_s44": "58a95797eb968a05ab85bd2d0a5a395c65141da142659002cb24b4bd4fea7391",
+    "util_mse_s42": "da2b51a35d15b2032389fb8d0487cbf89849c0af79f09bd9257de4a7e2592b0d",
+    "util_mse_s43": "8e7da9d2ae8771636bef5c04a93058bdf9fa3791199ba90de1467789760d4a42",
+    "util_mse_s44": "928980d08545b36c5707c769146646d85e7a9b334b00538a18b0ec6a5784fcb2"
+  },
+  "denominator_note": "per_method_own_denominator is each arm's own valid count; common_prompts is the intersection used for every number below, so the arms are compared on identical prompts",
+  "bootstrap": "2000 whole-prompt paired replicates; every method, rubric and order for a prompt is resampled together and the minimum objective is recomputed inside each replicate",
   "results": {
     "fixedref_mse_s42": {
+      "n_common": 1569,
       "instruction_following": {
         "win_rate": 0.5152963671128107,
         "ci95": [
@@ -154,9 +121,17 @@
           0.5352135117909497,
           0.5631054811982154
         ]
+      },
+      "min_objective": {
+        "point": 0.5054174633524537,
+        "ci95": [
+          0.48916108986615675,
+          0.5192797960484385
+        ]
       }
     },
     "fixedref_mse_s43": {
+      "n_common": 1569,
       "instruction_following": {
         "win_rate": 0.5046207775653282,
         "ci95": [
@@ -184,9 +159,17 @@
           0.5377629063097514,
           0.5661249203314213
         ]
+      },
+      "min_objective": {
+        "point": 0.4931485022307202,
+        "ci95": [
+          0.47625876354365837,
+          0.5079668578712556
+        ]
       }
     },
     "fixedref_mse_s44": {
+      "n_common": 1569,
       "instruction_following": {
         "win_rate": 0.511472275334608,
         "ci95": [
@@ -214,9 +197,17 @@
           0.5398342893562779,
           0.5683596239643084
         ]
+      },
+      "min_objective": {
+        "point": 0.49904397705544934,
+        "ci95": [
+          0.48311026131293816,
+          0.5146590184831102
+        ]
       }
     },
     "maxmin_mse_s42": {
+      "n_common": 1569,
       "instruction_following": {
         "win_rate": 0.5223072020395156,
         "ci95": [
@@ -244,9 +235,17 @@
           0.5430210325047801,
           0.5717017208413002
         ]
+      },
+      "min_objective": {
+        "point": 0.504302103250478,
+        "ci95": [
+          0.4872530274059911,
+          0.5197578075207139
+        ]
       }
     },
     "nbpo_mse_s42": {
+      "n_common": 1569,
       "instruction_following": {
         "win_rate": 0.51434034416826,
         "ci95": [
@@ -274,9 +273,17 @@
           0.5396709687699172,
           0.5689929891650733
         ]
+      },
+      "min_objective": {
+        "point": 0.49952198852772467,
+        "ci95": [
+          0.48326959847036327,
+          0.5132289674952198
+        ]
       }
     },
     "nbpo_mse_s43": {
+      "n_common": 1569,
       "instruction_following": {
         "win_rate": 0.504302103250478,
         "ci95": [
@@ -304,9 +311,17 @@
           0.5353688655194392,
           0.5642168578712555
         ]
+      },
+      "min_objective": {
+        "point": 0.4964945825366475,
+        "ci95": [
+          0.47944550669216063,
+          0.5098789037603569
+        ]
       }
     },
     "nbpo_mse_s44": {
+      "n_common": 1569,
       "instruction_following": {
         "win_rate": 0.504302103250478,
         "ci95": [
@@ -334,9 +349,17 @@
           0.5334568196303379,
           0.5626234862970044
         ]
+      },
+      "min_objective": {
+        "point": 0.49569789674952197,
+        "ci95": [
+          0.47896351179094965,
+          0.5102015615041428
+        ]
       }
     },
     "util_mse_s42": {
+      "n_common": 1569,
       "instruction_following": {
         "win_rate": 0.5062141491395793,
         "ci95": [
@@ -364,9 +387,17 @@
           0.5334608030592735,
           0.5616634799235182
         ]
+      },
+      "min_objective": {
+        "point": 0.5052581261950286,
+        "ci95": [
+          0.48740838113448054,
+          0.5151410133843212
+        ]
       }
     },
     "util_mse_s43": {
+      "n_common": 1569,
       "instruction_following": {
         "win_rate": 0.5078075207138305,
         "ci95": [
@@ -394,9 +425,17 @@
           0.5387189292543021,
           0.5675629381771828
         ]
+      },
+      "min_objective": {
+        "point": 0.4862970044614404,
+        "ci95": [
+          0.4695666029318037,
+          0.5025493945188018
+        ]
       }
     },
     "util_mse_s44": {
+      "n_common": 1569,
       "instruction_following": {
         "win_rate": 0.5087635436583812,
         "ci95": [
@@ -424,79 +463,14 @@
           0.5368068833652008,
           0.5659655831739961
         ]
+      },
+      "min_objective": {
+        "point": 0.49904397705544934,
+        "ci95": [
+          0.48246892925430207,
+          0.5116316124920331
+        ]
       }
-    }
-  },
-  "min_objective": {
-    "fixedref_mse_s42": {
-      "point": 0.5054174633524537,
-      "ci95": [
-        0.48916108986615675,
-        0.5192797960484385
-      ]
-    },
-    "fixedref_mse_s43": {
-      "point": 0.4931485022307202,
-      "ci95": [
-        0.47625876354365837,
-        0.5079668578712556
-      ]
-    },
-    "fixedref_mse_s44": {
-      "point": 0.49904397705544934,
-      "ci95": [
-        0.48311026131293816,
-        0.5146590184831102
-      ]
-    },
-    "maxmin_mse_s42": {
-      "point": 0.504302103250478,
-      "ci95": [
-        0.4872530274059911,
-        0.5197578075207139
-      ]
-    },
-    "nbpo_mse_s42": {
-      "point": 0.49952198852772467,
-      "ci95": [
-        0.48326959847036327,
-        0.5132289674952198
-      ]
-    },
-    "nbpo_mse_s43": {
-      "point": 0.4964945825366475,
-      "ci95": [
-        0.47944550669216063,
-        0.5098789037603569
-      ]
-    },
-    "nbpo_mse_s44": {
-      "point": 0.49569789674952197,
-      "ci95": [
-        0.47896351179094965,
-        0.5102015615041428
-      ]
-    },
-    "util_mse_s42": {
-      "point": 0.5052581261950286,
-      "ci95": [
-        0.48740838113448054,
-        0.5151410133843212
-      ]
-    },
-    "util_mse_s43": {
-      "point": 0.4862970044614404,
-      "ci95": [
-        0.4695666029318037,
-        0.5025493945188018
-      ]
-    },
-    "util_mse_s44": {
-      "point": 0.49904397705544934,
-      "ci95": [
-        0.48246892925430207,
-        0.5116316124920331
-      ]
     }
   },
   "seed_spread": {
@@ -674,5 +648,6 @@
         "sample_sd": 0.0029851806875709095
       }
     }
-  }
+  },
+  "seed_spread_note": "sample SD across policy seeds under one frozen teacher; it is not prompt uncertainty and the two are never combined"
 }

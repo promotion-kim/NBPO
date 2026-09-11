@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-12 06:13:10",
+  "generated_kst": "2026-09-12 07:13:09",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -124,9 +124,8 @@
     ]
   },
   "state_counts": {
-    "DONE": 19,
-    "PENDING": 11,
-    "RUNNING": 1,
+    "DONE": 21,
+    "PENDING": 10,
     "READY": 10,
     "NOT_STARTED": 86
   },
@@ -344,10 +343,10 @@
       "method": "fixed_reference_nash",
       "seed_or_weight": "seed 44",
       "checkpoint_id": "fixedref_mse_s44",
-      "config_hash": "",
+      "config_hash": "f4694e7b9555a80c7a68c32296a010c31be52c0ad2d026e83d2c55975881e544",
       "dependency": "uf4_train_fixedref_mse_s44",
       "job_id": "uf4_finaleval_judge_fixedref_mse_s44",
-      "state": "PENDING",
+      "state": "DONE",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/fixedref_mse_s44/complete.json",
       "eta_min": 24
@@ -360,8 +359,8 @@
       "config_hash": "f7630d1e674e41e7ca2fccbdeacc25b869bc6519e490cab3f64b4b697201dcdc",
       "dependency": "target solve",
       "job_id": "uf4_train_fixedref_mse_s44",
-      "state": "RUNNING",
-      "progress": "step 1158/1250",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/fixedref_mse_s44/config.json",
       "eta_min": 184
     },
