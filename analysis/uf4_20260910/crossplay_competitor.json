@@ -1,0 +1,38 @@
+{
+  "selected_competitor": "util_mse_s42",
+  "rule": "highest minimum-objective win rate against the base, independent judge on policy_dev; ties within 0.002 broken by average win rate, then arm name",
+  "declared_before_measurement": "analysis/uf4_20260910/crossplay_declarations_20260912.md",
+  "candidate_set": [
+    "util_mse_s42",
+    "maxmin_mse_s42"
+  ],
+  "candidates_within_tie_band": [],
+  "ranking": [
+    {
+      "arm": "util_mse_s42",
+      "min_objective": 0.5073828920570265,
+      "average": 0.5235195249055509,
+      "per_objective": {
+        "instruction_following": 0.5164640324214792,
+        "truthfulness": 0.5073828920570265,
+        "honesty": 0.5199293642785066,
+        "helpfulness": 0.5503018108651911
+      },
+      "n_prompts_complete": 987
+    },
+    {
+      "arm": "maxmin_mse_s42",
+      "min_objective": 0.500507614213198,
+      "average": 0.5181633561669268,
+      "per_objective": {
+        "instruction_following": 0.5080971659919028,
+        "truthfulness": 0.500507614213198,
+        "honesty": 0.5167173252279635,
+        "helpfulness": 0.5473313192346425
+      },
+      "n_prompts_complete": 988
+    }
+  ],
+  "accessed_final_outcomes": false,
+  "note": "candidate set is the trained non-bank arms whose dev judging had finished when this ran; arms trained later are not retro-fitted into the decision"
+}

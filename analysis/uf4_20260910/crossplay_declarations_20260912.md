@@ -72,3 +72,47 @@ rubrics x 2 presentation orders x 500 prompts = 24,000 judgments, against 16,000
 for one final-eval arm, which took 24 minutes. No paid API is involved; the
 judge is the same local Qwen3-14B at revision 40c069824f4251a91eefaf281ebe4c544efd3e18,
 temperature 0, both orders, ties 0.5.
+
+## Outcome of the declared selection rule, 07:45 KST
+
+Applied to the two candidates whose dev judging had finished:
+
+| arm | min objective (dev) | average (dev) | n |
+|---|---|---|---|
+| util_mse_s42 | 0.5074 | 0.5235 | 987 |
+| maxmin_mse_s42 | 0.5005 | 0.5182 | 988 |
+
+**Selected competitor: util_mse_s42.** Not within the 0.002 tie band, so no
+tiebreak was needed. The rule never read any final-eval number for a non-devsel
+arm.
+
+This is worth noting against the objectives table rather than passing over: on
+policy_dev the utilitarian arm beats global game-maxmin on the minimum
+objective, which is the reverse of the final-split ordering where maxmin leads
+every attribute. Two different prompt sets, one seed each, so this is not a
+refutation -- but it is a second independent reason not to treat the maxmin lead
+as settled before its seeds 43 and 44 land.
+
+## Judge token budget on the cross-play prompts: unexplained
+
+Parse rate of the same frozen judge, same template, same verdict grammar:
+
+| evaluation | prompts | max_tokens | parse rate |
+|---|---|---|---|
+| final eval | final_eval 2,000 | 256 | 99.4-99.6% |
+| dev selection | policy_dev 1,000 | 256 | 99.4% |
+| cross-play | unassigned 500 | 256 | 2.6-6.9% |
+| cross-play | unassigned 500 | 1024 | 81.8-83.3% |
+
+The failures are cut off mid-reasoning, and the rate is rubric-dependent
+(helpfulness 92.4%, truthfulness 86.0%, instruction following 76.2%, honesty
+74.5% at 1024). So it is a length limit. What is NOT explained is why these
+prompts need several times the deliberation that final_eval and policy_dev
+prompts need, given that instruction lengths (median 240 against 186 characters)
+and response lengths (median 2,906 against 2,787) are comparable, truncation of
+the judge input is zero in all cases, and the comparison type is the same
+base-versus-policy in the devsel and cross-play cases alike.
+
+2048 tokens is running. The budget is being raised because raising it
+demonstrably raises the parse rate, and this is recorded as an unexplained
+difference rather than presented as understood.
