@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-11 19:30:23",
+  "generated_kst": "2026-09-11 20:00:19",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -112,8 +112,7 @@
     }
   },
   "state_counts": {
-    "DONE": 13,
-    "RUNNING": 2,
+    "DONE": 15,
     "NOT_STARTED": 90,
     "READY": 10
   },
@@ -256,8 +255,8 @@
       "config_hash": "69aa1b00e191e963590aebacc105169348561194f19d6b51b121e60d0680bd94",
       "dependency": "uf4_train_util_mse_s44",
       "job_id": "uf4_finaleval_judge_util_mse_s44",
-      "state": "RUNNING",
-      "progress": "elapsed 8m",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/util_mse_s44/complete.json",
       "eta_min": 24
     },
@@ -282,8 +281,8 @@
       "config_hash": "9b9392aa249d4800b9fd7112b3d832dd976614d64c374150f10b19447dcb83d4",
       "dependency": "uf4_train_fixedref_mse_s42",
       "job_id": "uf4_finaleval_judge_fixedref_mse_s42",
-      "state": "RUNNING",
-      "progress": "elapsed 1m",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/fixedref_mse_s42/complete.json",
       "eta_min": 24
     },
@@ -1639,6 +1638,14 @@
       "job_id": "uf4_cap_base_mmlu_retry1",
       "state": "NOT_APPLICABLE",
       "reason": "stopped by operator; superseded by a later retry"
+    },
+    {
+      "job_id": "uf4_train_smoke_dpo_uniform",
+      "state": "FAILED",
+      "reason": "no successful retry found; artifact still missing",
+      "missing": [
+        "/work/uf4_20260910/arms/smoke_dpo_uniform/runtime_rank0.jsonl"
+      ]
     }
   ]
 }

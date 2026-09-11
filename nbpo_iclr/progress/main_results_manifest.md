@@ -1,8 +1,8 @@
 # Main-body result manifest
 
-Generated 2026-09-11 19:30:23 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-11 20:00:19 KST. DONE requires the proving artifact on disk.
 
-State counts: DONE 13, NOT_STARTED 90, READY 10, RUNNING 2
+State counts: DONE 15, NOT_STARTED 90, READY 10
 
 | exhibit | method | seed/weight | checkpoint | job | state | progress | ETA (min) |
 |---|---|---|---|---|---|---|---|
@@ -16,9 +16,9 @@ State counts: DONE 13, NOT_STARTED 90, READY 10, RUNNING 2
 | tab:uf-objectives | game_utilitarian | seed 42 (train) | util_mse_s42 | uf4_train_util_mse_s42 | DONE | - | 184 |
 | tab:uf-objectives | game_utilitarian | seed 43 | util_mse_s43 | uf4_finaleval_judge_util_mse_s43 | DONE | - | 24 |
 | tab:uf-objectives | game_utilitarian | seed 43 (train) | util_mse_s43 | uf4_train_util_mse_s43 | DONE | - | 184 |
-| tab:uf-objectives | game_utilitarian | seed 44 | util_mse_s44 | uf4_finaleval_judge_util_mse_s44 | RUNNING | elapsed 8m | 24 |
+| tab:uf-objectives | game_utilitarian | seed 44 | util_mse_s44 | uf4_finaleval_judge_util_mse_s44 | DONE | - | 24 |
 | tab:uf-objectives | game_utilitarian | seed 44 (train) | util_mse_s44 | uf4_train_util_mse_s44 | DONE | - | 184 |
-| tab:uf-objectives | fixed_reference_nash | seed 42 | fixedref_mse_s42 | uf4_finaleval_judge_fixedref_mse_s42 | RUNNING | elapsed 1m | 24 |
+| tab:uf-objectives | fixed_reference_nash | seed 42 | fixedref_mse_s42 | uf4_finaleval_judge_fixedref_mse_s42 | DONE | - | 24 |
 | tab:uf-objectives | fixed_reference_nash | seed 42 (train) | fixedref_mse_s42 | uf4_train_fixedref_mse_s42 | DONE | - | 184 |
 | tab:uf-objectives | bt_rm_nash | seed 42 | btrm_mse_s42 | uf4_finaleval_judge_btrm_mse_s42 | NOT_STARTED | - | 24 |
 | tab:uf-objectives | bt_rm_nash | seed 42 (train) | btrm_mse_s42 | uf4_train_btrm_mse_s42 | READY | - | 184 |
@@ -131,3 +131,4 @@ State counts: DONE 13, NOT_STARTED 90, READY 10, RUNNING 2
 | uf4_cap_base_mmlu | NOT_APPLICABLE | every declared artifact is on disk from a later successful retry |
 | uf4_cap_base_hellaswag | NOT_APPLICABLE | every declared artifact is on disk from a later successful retry |
 | uf4_cap_base_mmlu_retry1 | NOT_APPLICABLE | stopped by operator; superseded by a later retry |
+| uf4_train_smoke_dpo_uniform | FAILED | no successful retry found; artifact still missing |
