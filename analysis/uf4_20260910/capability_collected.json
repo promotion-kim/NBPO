@@ -119,6 +119,18 @@
       "n": 1172,
       "harness": "lm-evaluation-harness 0.4.9",
       "seconds": 315.9
+    },
+    "hellaswag": {
+      "num_fewshot": 10,
+      "metrics": {
+        "acc,none": 0.5932,
+        "acc_stderr,none": 0.0049,
+        "acc_norm,none": 0.7993,
+        "acc_norm_stderr,none": 0.004
+      },
+      "n": 10042,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 1158.6
     }
   },
   "util_mse_s42": {
@@ -169,6 +181,44 @@
       "n": 1172,
       "harness": "lm-evaluation-harness 0.4.9",
       "seconds": 299.8
+    },
+    "hellaswag": {
+      "num_fewshot": 10,
+      "metrics": {
+        "acc,none": 0.5935,
+        "acc_stderr,none": 0.0049,
+        "acc_norm,none": 0.8001,
+        "acc_norm_stderr,none": 0.004
+      },
+      "n": 10042,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 1155.3
+    }
+  },
+  "util_mse_s44": {
+    "arc_challenge": {
+      "num_fewshot": 25,
+      "metrics": {
+        "acc,none": 0.5683,
+        "acc_stderr,none": 0.0145,
+        "acc_norm,none": 0.6058,
+        "acc_norm_stderr,none": 0.0143
+      },
+      "n": 1172,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 271.7
+    },
+    "hellaswag": {
+      "num_fewshot": 10,
+      "metrics": {
+        "acc,none": 0.5923,
+        "acc_stderr,none": 0.0049,
+        "acc_norm,none": 0.7994,
+        "acc_norm_stderr,none": 0.004
+      },
+      "n": 10042,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 1205.5
     }
   }
 }

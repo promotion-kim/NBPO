@@ -95,11 +95,11 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-11 20:30 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-11 21:00 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 4/9; cross-play 0/4; DPO weights 0/7; capability cells 7/36; lm-eval cells 18.
 \\[2pt]
-GPU0: uf4\_train\_maxmin\_mse\_s42, 84\%, 96355/143771 MiB | GPU1: uf4\_train\_maxmin\_mse\_s42, 88\%, 96187/143771 MiB | GPU2: uf4\_train\_maxmin\_mse\_s42, 99\%, 97831/143771 MiB | GPU3: uf4\_train\_maxmin\_mse\_s42, 91\%, 96195/143771 MiB
+GPU0: uf4\_train\_maxmin\_mse\_s42, 99\%, 96355/143771 MiB | GPU1: uf4\_train\_maxmin\_mse\_s42, 99\%, 96191/143771 MiB | GPU2: uf4\_train\_maxmin\_mse\_s42, 99\%, 97831/143771 MiB | GPU3: uf4\_train\_maxmin\_mse\_s42, 98\%, 96197/143771 MiB
 \\[2pt]
 Queue: DONE 135, FAILED 5, PENDING 55, READY 14, RUNNING 1. PDF rebuilt each cycle.
 }}\end{center}
@@ -2160,7 +2160,7 @@ The planned final split is $2{,}000$ prompts. A prompt enters the reported table
 
 \subsection{Complete capability results}
 \label{app:capability-complete}
-This table retains the full reported capability panel. The UF and historical SafeRLHF base rows use different recorded protocols and are not pooled. The UF rows are policy seed $42$. Further seeds are complete for some columns but not all, and the completed sets differ by column, so they are reported here rather than averaged into the table: ARC-C is measured on three NBPO seeds ($0.6058$, $0.6075$, $0.6058$) and two game-utilitarian seeds ($0.6032$, $0.6041$); HellaSwag and MMLU on two NBPO seeds ($0.7984$, $0.8005$ and $0.6816$, $0.6827$). Every one of these is within $0.0030$ of the base, and none of them is an equivalence test. Table~\ref{tab:general-capability} in the main text isolates the core outcomes to complete on the UF checkpoints.
+This table retains the full reported capability panel. The UF and historical SafeRLHF base rows use different recorded protocols and are not pooled. The UF rows are policy seed $42$. ARC-C and HellaSwag are now complete on all three policy seeds of both families, and their seed means and sample standard deviations are $0.6064$${}\pm{}$$0.0010$ and $0.7994$${}\pm{}$$0.0011$ for NBPO, $0.6044$${}\pm{}$$0.0013$ and $0.7991$${}\pm{}$$0.0012$ for game-utilitarian, against base values of $0.6049$ and $0.8008$. MMLU is not yet complete -- two NBPO seeds ($0.6816$, $0.6827$) and one game-utilitarian seed ($0.6817$) -- so it is reported with its counts rather than averaged alongside the other two. No individual cell differs from the base by more than $0.0030$, and the seed spreads are around $0.0010$; none of this is an equivalence test. Table~\ref{tab:general-capability} in the main text isolates the core outcomes to complete on the UF checkpoints.
 
 \begin{table}[t]
 \centering\scriptsize

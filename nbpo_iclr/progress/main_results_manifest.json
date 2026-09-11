@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-11 20:00:19",
+  "generated_kst": "2026-09-11 21:00:24",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -20,7 +20,7 @@
         "base": 1,
         "nbpo": 3,
         "game_utilitarian": 3,
-        "fixed_reference_nash": 1,
+        "fixed_reference_nash": 3,
         "bt_rm_nash": 1,
         "game_maxmin": 1,
         "dpo_uniform": 1,
@@ -109,12 +109,21 @@
         "prosper_adapt",
         "mopo_adapt"
       ]
-    }
+    },
+    "amendments": [
+      {
+        "kst": "2026-09-11 20:22",
+        "change": "fixed_reference_nash planned seeds 1 -> 3",
+        "why": "on the seven-arm common set this control leads on all four attributes and is the only arm with a minimum-attribute point estimate above 0.5, so the central mechanism comparison rested on one seed against three; the denominator is widened, never narrowed"
+      }
+    ]
   },
   "state_counts": {
     "DONE": 15,
-    "NOT_STARTED": 90,
-    "READY": 10
+    "PENDING": 10,
+    "READY": 9,
+    "RUNNING": 1,
+    "NOT_STARTED": 80
   },
   "rows": [
     {
@@ -307,7 +316,7 @@
       "config_hash": "",
       "dependency": "uf4_train_btrm_mse_s42",
       "job_id": "uf4_finaleval_judge_btrm_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "PENDING",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/btrm_mse_s42/complete.json",
       "eta_min": 24
@@ -333,7 +342,7 @@
       "config_hash": "",
       "dependency": "uf4_train_maxmin_mse_s42",
       "job_id": "uf4_finaleval_judge_maxmin_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "PENDING",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/maxmin_mse_s42/complete.json",
       "eta_min": 24
@@ -343,11 +352,11 @@
       "method": "game_maxmin",
       "seed_or_weight": "seed 42 (train)",
       "checkpoint_id": "maxmin_mse_s42",
-      "config_hash": "",
+      "config_hash": "03d9552f6190ebd8eb49ebcb15de43b9f465f71ab72427f99ee4b33a3a420bef",
       "dependency": "target solve",
       "job_id": "uf4_train_maxmin_mse_s42",
-      "state": "READY",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "step 306/1250",
       "artifact_path": "/work/uf4_20260910/arms/maxmin_mse_s42/config.json",
       "eta_min": 184
     },
@@ -359,7 +368,7 @@
       "config_hash": "",
       "dependency": "uf4_train_dpo_uniform_mse_s42",
       "job_id": "uf4_finaleval_judge_dpo_uniform_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "PENDING",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_uniform_mse_s42/complete.json",
       "eta_min": 24
@@ -554,7 +563,7 @@
       "config_hash": "",
       "dependency": "uf4_train_dpo_if_only_mse_s42",
       "job_id": "uf4_finaleval_judge_dpo_if_only_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "PENDING",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_if_only_mse_s42/complete.json",
       "eta_min": 24
@@ -580,7 +589,7 @@
       "config_hash": "",
       "dependency": "uf4_train_dpo_truth_only_mse_s42",
       "job_id": "uf4_finaleval_judge_dpo_truth_only_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "PENDING",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_truth_only_mse_s42/complete.json",
       "eta_min": 24
@@ -606,7 +615,7 @@
       "config_hash": "",
       "dependency": "uf4_train_dpo_honesty_only_mse_s42",
       "job_id": "uf4_finaleval_judge_dpo_honesty_only_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "PENDING",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_honesty_only_mse_s42/complete.json",
       "eta_min": 24
@@ -632,7 +641,7 @@
       "config_hash": "",
       "dependency": "uf4_train_dpo_help_only_mse_s42",
       "job_id": "uf4_finaleval_judge_dpo_help_only_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "PENDING",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_help_only_mse_s42/complete.json",
       "eta_min": 24
@@ -658,7 +667,7 @@
       "config_hash": "",
       "dependency": "uf4_train_dpo_uniform_mse_s42",
       "job_id": "uf4_finaleval_judge_dpo_uniform_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "PENDING",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_uniform_mse_s42/complete.json",
       "eta_min": 24
@@ -684,7 +693,7 @@
       "config_hash": "",
       "dependency": "uf4_train_dpo_help_heavy_mse_s42",
       "job_id": "uf4_finaleval_judge_dpo_help_heavy_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "PENDING",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_help_heavy_mse_s42/complete.json",
       "eta_min": 24
@@ -710,7 +719,7 @@
       "config_hash": "",
       "dependency": "uf4_train_dpo_truth_heavy_mse_s42",
       "job_id": "uf4_finaleval_judge_dpo_truth_heavy_mse_s42",
-      "state": "NOT_STARTED",
+      "state": "PENDING",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_truth_heavy_mse_s42/complete.json",
       "eta_min": 24
@@ -1638,14 +1647,6 @@
       "job_id": "uf4_cap_base_mmlu_retry1",
       "state": "NOT_APPLICABLE",
       "reason": "stopped by operator; superseded by a later retry"
-    },
-    {
-      "job_id": "uf4_train_smoke_dpo_uniform",
-      "state": "FAILED",
-      "reason": "no successful retry found; artifact still missing",
-      "missing": [
-        "/work/uf4_20260910/arms/smoke_dpo_uniform/runtime_rank0.jsonl"
-      ]
     }
   ]
 }
