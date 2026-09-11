@@ -1,0 +1,210 @@
+{
+  "weights_order": [
+    "instruction_following",
+    "truthfulness",
+    "honesty",
+    "helpfulness"
+  ],
+  "weights": {
+    "if_only": [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "truth_only": [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    "honesty_only": [
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    "help_only": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "uniform": [
+      0.25,
+      0.25,
+      0.25,
+      0.25
+    ],
+    "help_heavy": [
+      0.1,
+      0.1,
+      0.1,
+      0.7
+    ],
+    "truth_heavy": [
+      0.1,
+      0.7,
+      0.1,
+      0.1
+    ]
+  },
+  "tie_threshold_standardized": 0.05,
+  "calibration": {
+    "fitted_on": "policy_train pool, all 16 occurrences per prompt",
+    "per_objective_mean": [
+      0.9478740504510701,
+      0.8459334918349981,
+      1.2327361053913832,
+      1.4419581394484267
+    ],
+    "per_objective_std": [
+      1.6528202394250362,
+      1.070891887529192,
+      1.3813594305767507,
+      1.914756874948047
+    ],
+    "rule": "r_tilde = (r - mean)/std, then r_w = sum_k w_k r_tilde_k",
+    "dev_refits": false
+  },
+  "pool": "identical to the NBPO pool",
+  "source_sha256": "ca0bc544e0f885b75e94c29870109ebf0dbc7fa5d2d4bac3484bacc8a4fd21c5",
+  "splits": {
+    "train": {
+      "n_prompts": 10000,
+      "per_weight": {
+        "if_only": {
+          "total_pairs": 280000,
+          "usable_pairs": 249868,
+          "below_tie_threshold": 30132,
+          "usable_fraction": 0.8923857142857143,
+          "median_abs_gap": 0.2836061592294291,
+          "p10_abs_gap": 0.04726769320490487,
+          "reward_sd_over_pool": 1.000262806991811
+        },
+        "truth_only": {
+          "total_pairs": 280000,
+          "usable_pairs": 251789,
+          "below_tie_threshold": 28211,
+          "usable_fraction": 0.8992464285714286,
+          "median_abs_gap": 0.29910815809711544,
+          "p10_abs_gap": 0.04741958603978663,
+          "reward_sd_over_pool": 0.999758677964773
+        },
+        "honesty_only": {
+          "total_pairs": 280000,
+          "usable_pairs": 253870,
+          "below_tie_threshold": 26130,
+          "usable_fraction": 0.9066785714285714,
+          "median_abs_gap": 0.3223726498280547,
+          "p10_abs_gap": 0.056556605232992,
+          "reward_sd_over_pool": 0.9995859670482735
+        },
+        "help_only": {
+          "total_pairs": 280000,
+          "usable_pairs": 246078,
+          "below_tie_threshold": 33922,
+          "usable_fraction": 0.87885,
+          "median_abs_gap": 0.25296945337414833,
+          "p10_abs_gap": 0.04080152473776594,
+          "reward_sd_over_pool": 1.0001983258212463
+        },
+        "uniform": {
+          "total_pairs": 280000,
+          "usable_pairs": 249712,
+          "below_tie_threshold": 30288,
+          "usable_fraction": 0.8918285714285714,
+          "median_abs_gap": 0.27946949484367495,
+          "p10_abs_gap": 0.046126240516463066,
+          "reward_sd_over_pool": 0.9502103609893551
+        },
+        "help_heavy": {
+          "total_pairs": 280000,
+          "usable_pairs": 248300,
+          "below_tie_threshold": 31700,
+          "usable_fraction": 0.8867857142857143,
+          "median_abs_gap": 0.2605755657094818,
+          "p10_abs_gap": 0.04387239175274521,
+          "reward_sd_over_pool": 0.961428260319829
+        },
+        "truth_heavy": {
+          "total_pairs": 280000,
+          "usable_pairs": 249855,
+          "below_tie_threshold": 30145,
+          "usable_fraction": 0.8923392857142857,
+          "median_abs_gap": 0.2866081505511879,
+          "p10_abs_gap": 0.04617341954554038,
+          "reward_sd_over_pool": 0.9601128234990883
+        }
+      }
+    },
+    "dev": {
+      "n_prompts": 1000,
+      "per_weight": {
+        "if_only": {
+          "total_pairs": 28000,
+          "usable_pairs": 25055,
+          "below_tie_threshold": 2945,
+          "usable_fraction": 0.8948214285714285,
+          "median_abs_gap": 0.2847139957889191,
+          "p10_abs_gap": 0.04726769320490487,
+          "reward_sd_over_pool": 0.9778808302340161
+        },
+        "truth_only": {
+          "total_pairs": 28000,
+          "usable_pairs": 25263,
+          "below_tie_threshold": 2737,
+          "usable_fraction": 0.90225,
+          "median_abs_gap": 0.29910815809711555,
+          "p10_abs_gap": 0.051067246504385544,
+          "reward_sd_over_pool": 0.9463255446629785
+        },
+        "honesty_only": {
+          "total_pairs": 28000,
+          "usable_pairs": 25472,
+          "below_tie_threshold": 2528,
+          "usable_fraction": 0.9097142857142857,
+          "median_abs_gap": 0.3223726498280548,
+          "p10_abs_gap": 0.056556605232992,
+          "reward_sd_over_pool": 0.9694136935077344
+        },
+        "help_only": {
+          "total_pairs": 28000,
+          "usable_pairs": 24666,
+          "below_tie_threshold": 3334,
+          "usable_fraction": 0.8809285714285714,
+          "median_abs_gap": 0.25296945337414833,
+          "p10_abs_gap": 0.04080152473776599,
+          "reward_sd_over_pool": 1.0081886022326392
+        },
+        "uniform": {
+          "total_pairs": 28000,
+          "usable_pairs": 24965,
+          "below_tie_threshold": 3035,
+          "usable_fraction": 0.8916071428571428,
+          "median_abs_gap": 0.2841654442524451,
+          "p10_abs_gap": 0.04621679276652406,
+          "reward_sd_over_pool": 0.926891880461607
+        },
+        "help_heavy": {
+          "total_pairs": 28000,
+          "usable_pairs": 24889,
+          "below_tie_threshold": 3111,
+          "usable_fraction": 0.8888928571428572,
+          "median_abs_gap": 0.2621239167092635,
+          "p10_abs_gap": 0.0452282301142648,
+          "reward_sd_over_pool": 0.9583788391944007
+        },
+        "truth_heavy": {
+          "total_pairs": 28000,
+          "usable_pairs": 25037,
+          "below_tie_threshold": 2963,
+          "usable_fraction": 0.8941785714285714,
+          "median_abs_gap": 0.2885854919831192,
+          "p10_abs_gap": 0.047354965183969144,
+          "reward_sd_over_pool": 0.918344100565751
+        }
+      }
+    }
+  }
+}
