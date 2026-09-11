@@ -315,6 +315,14 @@ def max_steps_of(job_id):
     return int(m.group(1)) if m else None
 
 
+def eval_steps_of(job_id):
+    """The arm's dev-pass interval, so remaining passes can be counted."""
+    arm = job_id[len("uf4_train_"):] if job_id.startswith("uf4_train_") else job_id
+    out = pod("grep -m1 '^eval_steps:' /work/uf4_20260910/configs/%s.yaml 2>/dev/null; true" % arm)
+    m = re.search(r"eval_steps:\s*(\d+)", out)
+    return int(m.group(1)) if m else None
+
+
 def train_bar(log, total):
     """The training progress bar, never the periodic evaluation's.
 
@@ -325,36 +333,48 @@ def train_bar(log, total):
     """
     if not total:
         return None
-    out = pod(r"tr '\r' '\n' < %s | grep -oE '[0-9]+/%d \[[0-9:]+<[0-9:]+' | tail -1"
+    # capture the rate field too: the remaining estimate is built from s/it, and
+    # a pattern that stops at the elapsed<remaining pair makes the caller fall
+    # back to a constant without any sign that it did.
+    out = pod(r"tr '\r' '\n' < %s | grep -oE '[0-9]+/%d \[[0-9:]+<[0-9:]+, *[0-9.]+s/it' | tail -1"
               % (log, total))
     return out.strip() or None
+
+
+DEV_PASS_MIN = 15.7          # measured wall time of one dev pass on the 28k pair set
 
 
 def running_train_remaining(snap):
     """Minutes left on the training that is on the cards.
 
-    Computed from steps completed and wall time elapsed, NOT from tqdm's own
-    remaining estimate. The trainer pauses every 250 updates for a ~16 minute
-    dev pass, and when it resumes tqdm folds that pause into its rate and prints
-    a wildly inflated estimate for a few steps -- once as 15 hours on a run with
-    40 minutes left. Amortising the real elapsed time over the real steps is
-    monotone, and it already includes the remaining dev passes.
+    Neither of the obvious readings works. tqdm's own remaining field collapses
+    right after each dev pass, because the pause lands in its rate -- it once
+    read 15 hours on a run with 40 minutes left. Amortising wall time over
+    completed steps fixes that but breaks at the other end: early in a run the
+    elapsed time is nearly all fixed startup (model load, dataset map), so
+    dividing it across four completed steps projected 41 hours on a run that had
+    just begun.
+
+    So: take the per-step rate from the bar, which is a training rate and does
+    not include startup, and add the dev passes still to come explicitly. The
+    result is then clamped to the measured duration of a finished arm, because
+    every arm here runs the same 1,250 updates on the same hardware and no
+    honest estimate for one of them is several times another.
     """
     for job_id, entry in snap["jobs"].items():
         if entry.get("state") != "RUNNING" or "train" not in job_id:
             continue
         total = max_steps_of(job_id)
         bar = train_bar(entry.get("log", ""), total)
-        started = entry.get("started")
-        m = re.match(r"(\d+)/(\d+)", bar or "")
-        if m and started and total:
-            done = int(m.group(1))
-            if done <= 0:
-                return COST["train"]
-            t0 = datetime.strptime(started, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
-            elapsed = (datetime.now(timezone.utc) - t0).total_seconds() / 60.0
-            return max(0.0, (total - done) * (elapsed / done))
-        return COST["train"] / 2
+        m = re.match(r"(\d+)/(\d+).*?([0-9.]+)s/it", bar or "")
+        if not (m and total):
+            return COST["train"] / 2
+        done, per_step = int(m.group(1)), float(m.group(3))
+        loop = (total - done) * per_step / 60.0
+        every = eval_steps_of(job_id)
+        passes = len([s for s in range(done + 1, total + 1) if every and s % every == 0])
+        estimate = loop + passes * DEV_PASS_MIN
+        return max(0.0, min(estimate, 1.5 * COST["train"]))
     return 0
 
 

@@ -131,6 +131,16 @@
       "n": 10042,
       "harness": "lm-evaluation-harness 0.4.9",
       "seconds": 1158.6
+    },
+    "mmlu": {
+      "num_fewshot": 5,
+      "metrics": {
+        "acc,none": 0.6817,
+        "acc_stderr,none": 0.0037
+      },
+      "n": null,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 1476.8
     }
   },
   "util_mse_s42": {
@@ -193,6 +203,16 @@
       "n": 10042,
       "harness": "lm-evaluation-harness 0.4.9",
       "seconds": 1155.3
+    },
+    "mmlu": {
+      "num_fewshot": 5,
+      "metrics": {
+        "acc,none": 0.6826,
+        "acc_stderr,none": 0.0037
+      },
+      "n": null,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 1453.6
     }
   },
   "util_mse_s44": {
@@ -219,6 +239,16 @@
       "n": 10042,
       "harness": "lm-evaluation-harness 0.4.9",
       "seconds": 1205.5
+    },
+    "mmlu": {
+      "num_fewshot": 5,
+      "metrics": {
+        "acc,none": 0.6823,
+        "acc_stderr,none": 0.0037
+      },
+      "n": null,
+      "harness": "lm-evaluation-harness 0.4.9",
+      "seconds": 1476.8
     }
   }
 }
