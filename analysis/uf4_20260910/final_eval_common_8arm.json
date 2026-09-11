@@ -1,5 +1,5 @@
 {
-  "written_kst": "2026-09-11 23:43:20",
+  "planned_final_prompts": 2000,
   "arms": [
     "fixedref_mse_s42",
     "maxmin_mse_s42",
@@ -21,27 +21,63 @@
     "util_mse_s43": 1927,
     "util_mse_s44": 1929
   },
-  "attributes_whose_interval_excludes_half": {
-    "instruction_following": [
-      "Fixed-reference Nash",
-      "Global game-maxmin"
-    ],
-    "truthfulness": [
-      "Fixed-reference Nash",
-      "Global game-maxmin"
-    ],
-    "honesty": [],
-    "helpfulness": [
-      "NBPO",
-      "Fixed-reference Nash",
-      "Game-utilitarian",
-      "Global game-maxmin"
-    ],
-    "min_objective": []
+  "judgment_status": {
+    "fixedref_mse_s42": {
+      "ok": 15900,
+      "multiple_verdicts": 34,
+      "no_verdict": 66
+    },
+    "maxmin_mse_s42": {
+      "ok": 15912,
+      "multiple_verdicts": 31,
+      "no_verdict": 57
+    },
+    "nbpo_mse_s42": {
+      "ok": 15910,
+      "no_verdict": 59,
+      "multiple_verdicts": 31
+    },
+    "nbpo_mse_s43": {
+      "ok": 15909,
+      "no_verdict": 61,
+      "multiple_verdicts": 30
+    },
+    "nbpo_mse_s44": {
+      "ok": 15921,
+      "multiple_verdicts": 26,
+      "no_verdict": 53
+    },
+    "util_mse_s42": {
+      "ok": 15901,
+      "no_verdict": 65,
+      "multiple_verdicts": 34
+    },
+    "util_mse_s43": {
+      "ok": 15916,
+      "no_verdict": 48,
+      "multiple_verdicts": 36
+    },
+    "util_mse_s44": {
+      "ok": 15924,
+      "no_verdict": 44,
+      "multiple_verdicts": 32
+    }
   },
-  "caption_prose_note": "The caption's interpretive sentences are hand-written. Compare them against attributes_whose_interval_excludes_half above; if they disagree, the prose is stale.",
+  "judgments_sha256": {
+    "fixedref_mse_s42": "009950e0364e7875850f6737fc76186043f4319839079316d8d3b924f83a838a",
+    "maxmin_mse_s42": "de4fd3be22416a7ff558857503713f41287cbbb8430049f0dd6ce827d93b7ce1",
+    "nbpo_mse_s42": "acbc452a805476ab01cf561ab1ed0ff9e96466d5bf801e76002cd9b1191f264a",
+    "nbpo_mse_s43": "5336fccc3aa9040c380991a0c66e25cc29f18de386dfb5631ae7463ed25bc498",
+    "nbpo_mse_s44": "58a95797eb968a05ab85bd2d0a5a395c65141da142659002cb24b4bd4fea7391",
+    "util_mse_s42": "da2b51a35d15b2032389fb8d0487cbf89849c0af79f09bd9257de4a7e2592b0d",
+    "util_mse_s43": "8e7da9d2ae8771636bef5c04a93058bdf9fa3791199ba90de1467789760d4a42",
+    "util_mse_s44": "928980d08545b36c5707c769146646d85e7a9b334b00538a18b0ec6a5784fcb2"
+  },
+  "denominator_note": "per_method_own_denominator is each arm's own valid count; common_prompts is the intersection used for every number below, so the arms are compared on identical prompts",
+  "bootstrap": "2000 whole-prompt paired replicates; every method, rubric and order for a prompt is resampled together and the minimum objective is recomputed inside each replicate",
   "results": {
     "fixedref_mse_s42": {
+      "n_common": 1616,
       "instruction_following": {
         "win_rate": 0.5174814356435643,
         "ci95": [
@@ -69,9 +105,17 @@
           0.5352722772277227,
           0.5642017326732673
         ]
+      },
+      "min_objective": {
+        "point": 0.5063428217821783,
+        "ci95": [
+          0.48916692450495053,
+          0.521194306930693
+        ]
       }
     },
     "maxmin_mse_s42": {
+      "n_common": 1616,
       "instruction_following": {
         "win_rate": 0.5249071782178217,
         "ci95": [
@@ -99,9 +143,17 @@
           0.5456296410891089,
           0.573955754950495
         ]
+      },
+      "min_objective": {
+        "point": 0.504950495049505,
+        "ci95": [
+          0.4882387066831683,
+          0.5205793626237624
+        ]
       }
     },
     "nbpo_mse_s42": {
+      "n_common": 1616,
       "instruction_following": {
         "win_rate": 0.5146967821782178,
         "ci95": [
@@ -129,9 +181,17 @@
           0.5403736076732674,
           0.5694616336633663
         ]
+      },
+      "min_objective": {
+        "point": 0.5007735148514851,
+        "ci95": [
+          0.48406172648514856,
+          0.5143912438118812
+        ]
       }
     },
     "nbpo_mse_s43": {
+      "n_common": 1616,
       "instruction_following": {
         "win_rate": 0.5047957920792079,
         "ci95": [
@@ -159,9 +219,17 @@
           0.5363513304455446,
           0.5652846534653465
         ]
+      },
+      "min_objective": {
+        "point": 0.494740099009901,
+        "ci95": [
+          0.47725866336633666,
+          0.5092821782178217
+        ]
       }
     },
     "nbpo_mse_s44": {
+      "n_common": 1616,
       "instruction_following": {
         "win_rate": 0.505259900990099,
         "ci95": [
@@ -189,9 +257,17 @@
           0.5332611386138614,
           0.5634320853960396
         ]
+      },
+      "min_objective": {
+        "point": 0.49659653465346537,
+        "ci95": [
+          0.47972617574257426,
+          0.5114518873762376
+        ]
       }
     },
     "util_mse_s42": {
+      "n_common": 1616,
       "instruction_following": {
         "win_rate": 0.5083539603960396,
         "ci95": [
@@ -219,9 +295,17 @@
           0.5344948948019802,
           0.5640470297029703
         ]
+      },
+      "min_objective": {
+        "point": 0.5069616336633663,
+        "ci95": [
+          0.48824257425742573,
+          0.5173306002475248
+        ]
       }
     },
     "util_mse_s43": {
+      "n_common": 1616,
       "instruction_following": {
         "win_rate": 0.5064975247524752,
         "ci95": [
@@ -249,9 +333,17 @@
           0.5375889542079209,
           0.5668394183168316
         ]
+      },
+      "min_objective": {
+        "point": 0.48623143564356436,
+        "ci95": [
+          0.46998762376237624,
+          0.5027846534653465
+        ]
       }
     },
     "util_mse_s44": {
+      "n_common": 1616,
       "instruction_following": {
         "win_rate": 0.510674504950495,
         "ci95": [
@@ -279,65 +371,14 @@
           0.5388304455445545,
           0.5679146039603961
         ]
+      },
+      "min_objective": {
+        "point": 0.49922648514851486,
+        "ci95": [
+          0.48251082920792077,
+          0.5126856435643564
+        ]
       }
-    }
-  },
-  "min_objective": {
-    "fixedref_mse_s42": {
-      "point": 0.5063428217821783,
-      "ci95": [
-        0.48916692450495053,
-        0.521194306930693
-      ]
-    },
-    "maxmin_mse_s42": {
-      "point": 0.504950495049505,
-      "ci95": [
-        0.4882387066831683,
-        0.5205793626237624
-      ]
-    },
-    "nbpo_mse_s42": {
-      "point": 0.5007735148514851,
-      "ci95": [
-        0.48406172648514856,
-        0.5143912438118812
-      ]
-    },
-    "nbpo_mse_s43": {
-      "point": 0.494740099009901,
-      "ci95": [
-        0.47725866336633666,
-        0.5092821782178217
-      ]
-    },
-    "nbpo_mse_s44": {
-      "point": 0.49659653465346537,
-      "ci95": [
-        0.47972617574257426,
-        0.5114518873762376
-      ]
-    },
-    "util_mse_s42": {
-      "point": 0.5069616336633663,
-      "ci95": [
-        0.48824257425742573,
-        0.5173306002475248
-      ]
-    },
-    "util_mse_s43": {
-      "point": 0.48623143564356436,
-      "ci95": [
-        0.46998762376237624,
-        0.5027846534653465
-      ]
-    },
-    "util_mse_s44": {
-      "point": 0.49922648514851486,
-      "ci95": [
-        0.48251082920792077,
-        0.5126856435643564
-      ]
     }
   },
   "seed_spread": {
@@ -457,5 +498,6 @@
         "sample_sd": 0.0022789170579604295
       }
     }
-  }
+  },
+  "seed_spread_note": "sample SD across policy seeds under one frozen teacher; it is not prompt uncertainty and the two are never combined"
 }
