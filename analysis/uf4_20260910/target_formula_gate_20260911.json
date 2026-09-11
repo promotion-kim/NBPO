@@ -1,0 +1,15 @@
+{
+  "question": "Is the canonical training target a closed form in the solved candidate masses, independent of the objective weights?",
+  "why_it_matters": "PROSPER needs per-prompt objective weights, which the shared artifact path cannot carry, so its targets must be assembled outside build_rows. That is only safe if the target does not involve the weights.",
+  "formula": "log(nbpo_weight_a / nbpo_center_a) - log(nbpo_weight_b / nbpo_center_b)",
+  "checked": [
+    {"targets": "nash_v1",           "aggregation": "nash",            "representation": "adaptive_game",   "rows": 28000, "disagreeing_beyond_1e-9": 0, "max_abs_error": 5.33e-15},
+    {"targets": "util_l1matched_v1", "aggregation": "utilitarian",     "representation": "adaptive_game",   "rows": 28000, "disagreeing_beyond_1e-9": 0, "max_abs_error": 7.11e-15},
+    {"targets": "maxmin_l1m_v1",     "aggregation": "absolute_maxmin", "representation": "adaptive_game",   "rows": 28000, "disagreeing_beyond_1e-9": 0, "max_abs_error": 7.11e-15},
+    {"targets": "btrm_nash_v1",      "aggregation": "nash",            "representation": "bt_reward",       "rows": 28000, "disagreeing_beyond_1e-9": 0, "max_abs_error": 7.11e-15},
+    {"targets": "fixedref_nash_v1",  "aggregation": "nash",            "representation": "fixed_reference", "rows": 28000, "disagreeing_beyond_1e-9": 0, "max_abs_error": 3.55e-15}
+  ],
+  "total_rows_checked": 140000,
+  "verdict": "Holds exactly on every released dev pair set, across four aggregation rules and three representations. The residuals are float64 rounding. The target is a property of the canonical realization, not of any particular rule, so PROSPER may assemble it from per-prompt solved masses without touching the shared artifact path.",
+  "split_checked": "dev only; the train files are 9 GB each and the dev files already cover every rule and representation"
+}
