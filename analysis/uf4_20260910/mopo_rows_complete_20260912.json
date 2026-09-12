@@ -1,0 +1,30 @@
+{
+  "rho_from": "/work/uf4_20260910/targets/mopo_v1",
+  "pairs_from": "/work/uf4_20260910/targets/nash_v1",
+  "solver_artifact_sha256": "0ed544c0d57ece4d6a5155dd3298dfed4fac1f974e48f455acc553e67573eaaa",
+  "splits": {
+    "train": {
+      "prompts": 10000,
+      "candidates": 8,
+      "rows": 80000,
+      "rho_mean_max_dev": 4.440892098500626e-16,
+      "rho_min": 0.00013641986126578721,
+      "rho_max": 7.970947563824859,
+      "source_pairs_sha256": "5064e2eddfa8c5bef6e86ef73a4d41ea291a967ca1715cf029795a83aabfc8a5",
+      "path": "/work/uf4_20260910/targets/mopo_v1/pairs/train.jsonl",
+      "sha256": "933253ded4c5f29830c6595acb11099a204ef8cff5efd81fdef044ebd0f93c16"
+    },
+    "dev": {
+      "prompts": 1000,
+      "candidates": 8,
+      "rows": 8000,
+      "rho_mean_max_dev": 4.440892098500626e-16,
+      "rho_min": 0.0003547052273251545,
+      "rho_max": 7.430110600236762,
+      "source_pairs_sha256": "e532879d40663a12829018daa77355e69442754394aab4918d6d3133c05bb7c3",
+      "path": "/work/uf4_20260910/targets/mopo_v1/pairs/dev.jsonl",
+      "sha256": "9db2578122941911384362bea5bc84296e27b8d6d79ea7eb3fc752c9a3462ebb"
+    }
+  },
+  "builder_sha256": "5bfdfa8e67af95f823cf3511abf79d6f4b25b9d08e15e04fab1d27c6e83ae604"
+}

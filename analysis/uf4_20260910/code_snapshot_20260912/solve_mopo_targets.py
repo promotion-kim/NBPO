@@ -247,8 +247,14 @@ def main():
     ap.add_argument("--tau", type=float, default=0.08)
     ap.add_argument("--epsilon", type=float, default=None,
                     help="the paper's value is 0.15; omit to calibrate against beta")
-    ap.add_argument("--epsilon-mode", default="calibrated",
-                    choices=("calibrated", "paper"))
+    ap.add_argument("--epsilon-mode", default="zero",
+                    choices=("zero", "calibrated", "paper"),
+                    help="zero applies the constraint to the estimated values directly, "
+                         "the paper Problem (3) form. It is the default because the chi "
+                         "robustification guards against estimation error in q-hat from a "
+                         "finite sample and ours are exact teacher evaluations over every "
+                         "prompt complete 8x8 block; measured, epsilon > 0 is also jointly "
+                         "infeasible with the paper own beta once the ratchet raises b.")
     ap.add_argument("--beta", type=float, default=0.9995)
     ap.add_argument("--dual-iters", type=int, default=300)
     ap.add_argument("--dual-step", type=float, default=0.5)
@@ -293,7 +299,14 @@ def main():
         Wbar = candidate_values(A)
         pbar = Wbar[kp]
         qbar = np.stack([Wbar[k] for k in range(len(OBJECTIVES)) if k != kp])
-        if args.epsilon_mode == "paper":
+        if args.epsilon_mode == "zero":
+            eps = 0.0
+            eps_report = {"mode": "zero",
+                          "epsilon": 0.0,
+                          "why": "paper Problem (3): constraint on the estimated values "
+                                 "directly; the chi robustification addresses finite-sample "
+                                 "estimation error the frozen teacher does not have"}
+        elif args.epsilon_mode == "paper":
             eps = 0.15 if args.epsilon is None else args.epsilon
             eps_report = {"mode": "paper", "epsilon": eps}
         else:
