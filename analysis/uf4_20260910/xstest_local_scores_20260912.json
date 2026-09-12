@@ -1,0 +1,899 @@
+{
+  "benchmark": "XSTest450 (250 safe, 200 unsafe)",
+  "adjudication": "XSTest's own three-class prompt, verbatim, grader substituted",
+  "prompt_sha256": "7d893e1d2888e0cf98a3d4816f7369c75598ac03a54fea1770fbe84900abcb0d",
+  "judge": "/work/uf4_20260910/assets/Qwen3-14B",
+  "judge_revision": "40c069824f4251a91eefaf281ebe4c544efd3e18",
+  "judge_thinking_mode": "disabled (enable_thinking=False)",
+  "decoding": {
+    "temperature": 0.0,
+    "max_tokens": 128,
+    "max_model_len": 16384
+  },
+  "not_official": "Not the published XSTest number: the GPT-4 grader is replaced by the local Qwen3-14B, and the pinned WildGuard classifier this project prefers returns HTTP 403 for our identity, which was not worked around. Comparable across the arms here, not to published values.",
+  "headline": "full-refusal rate on the 250 safe prompts; lower is better",
+  "interpretation": "safe-group refusal is an over-refusal proxy; unsafe-group refusal is behaviour, not proof of appropriate handling, and non-refusal there is not automatically harmful compliance",
+  "missing_rule": "an unparsed classification stays missing; it is never imputed",
+  "paid_judge_api_calls": 0,
+  "n_classifications": 5850,
+  "seconds": 134.91474898532033,
+  "longest_judge_input_tokens": 2611,
+  "status_counts": {
+    "ok": 5819,
+    "multiple_classes": 31
+  },
+  "classifications_sha256": "5044f9e831c5151660c1409176df2af741ba82b5f139d4ebab5bc29db601e819",
+  "labels": {
+    "base": {
+      "safe": {
+        "n_planned": 250,
+        "n_scored": 249,
+        "n_unscored": 1,
+        "1_full_compliance": {
+          "estimate": 0.9156626506024096,
+          "ci95": [
+            0.8795180722891566,
+            0.9477911646586346
+          ],
+          "n_positive": 228
+        },
+        "2_full_refusal": {
+          "estimate": 0.06827309236947791,
+          "ci95": [
+            0.040160642570281124,
+            0.10040160642570281
+          ],
+          "n_positive": 17
+        },
+        "3_partial_refusal": {
+          "estimate": 0.01606425702811245,
+          "ci95": [
+            0.003915662650602415,
+            0.0321285140562249
+          ],
+          "n_positive": 4
+        },
+        "any_refusal": {
+          "estimate": 0.08433734939759036
+        }
+      },
+      "unsafe": {
+        "n_planned": 200,
+        "n_scored": 200,
+        "n_unscored": 0,
+        "1_full_compliance": {
+          "estimate": 0.04,
+          "ci95": [
+            0.015,
+            0.07
+          ],
+          "n_positive": 8
+        },
+        "2_full_refusal": {
+          "estimate": 0.955,
+          "ci95": [
+            0.925,
+            0.98
+          ],
+          "n_positive": 191
+        },
+        "3_partial_refusal": {
+          "estimate": 0.005,
+          "ci95": [
+            0.0,
+            0.015
+          ],
+          "n_positive": 1
+        },
+        "any_refusal": {
+          "estimate": 0.96
+        }
+      },
+      "headline_safe_full_refusal": 0.06827309236947791
+    },
+    "uf4xs_nbpo_mse_s42": {
+      "safe": {
+        "n_planned": 250,
+        "n_scored": 248,
+        "n_unscored": 2,
+        "1_full_compliance": {
+          "estimate": 0.9556451612903226,
+          "ci95": [
+            0.9274193548387096,
+            0.9798387096774194
+          ],
+          "n_positive": 237
+        },
+        "2_full_refusal": {
+          "estimate": 0.04032258064516129,
+          "ci95": [
+            0.016129032258064516,
+            0.06451612903225806
+          ],
+          "n_positive": 10
+        },
+        "3_partial_refusal": {
+          "estimate": 0.004032258064516129,
+          "ci95": [
+            0.0,
+            0.012096774193548387
+          ],
+          "n_positive": 1
+        },
+        "any_refusal": {
+          "estimate": 0.04435483870967742
+        }
+      },
+      "unsafe": {
+        "n_planned": 200,
+        "n_scored": 197,
+        "n_unscored": 3,
+        "1_full_compliance": {
+          "estimate": 0.12690355329949238,
+          "ci95": [
+            0.08629441624365482,
+            0.17258883248730963
+          ],
+          "n_positive": 25
+        },
+        "2_full_refusal": {
+          "estimate": 0.8223350253807107,
+          "ci95": [
+            0.7715736040609137,
+            0.8730964467005076
+          ],
+          "n_positive": 162
+        },
+        "3_partial_refusal": {
+          "estimate": 0.050761421319796954,
+          "ci95": [
+            0.02030456852791878,
+            0.08121827411167512
+          ],
+          "n_positive": 10
+        },
+        "any_refusal": {
+          "estimate": 0.8730964467005076
+        }
+      },
+      "headline_safe_full_refusal": 0.04032258064516129
+    },
+    "uf4xs_nbpo_mse_s43": {
+      "safe": {
+        "n_planned": 250,
+        "n_scored": 250,
+        "n_unscored": 0,
+        "1_full_compliance": {
+          "estimate": 0.948,
+          "ci95": [
+            0.92,
+            0.976
+          ],
+          "n_positive": 237
+        },
+        "2_full_refusal": {
+          "estimate": 0.04,
+          "ci95": [
+            0.016,
+            0.064
+          ],
+          "n_positive": 10
+        },
+        "3_partial_refusal": {
+          "estimate": 0.012,
+          "ci95": [
+            0.0,
+            0.028
+          ],
+          "n_positive": 3
+        },
+        "any_refusal": {
+          "estimate": 0.052
+        }
+      },
+      "unsafe": {
+        "n_planned": 200,
+        "n_scored": 198,
+        "n_unscored": 2,
+        "1_full_compliance": {
+          "estimate": 0.10101010101010101,
+          "ci95": [
+            0.06060606060606061,
+            0.14646464646464646
+          ],
+          "n_positive": 20
+        },
+        "2_full_refusal": {
+          "estimate": 0.8484848484848485,
+          "ci95": [
+            0.797979797979798,
+            0.898989898989899
+          ],
+          "n_positive": 168
+        },
+        "3_partial_refusal": {
+          "estimate": 0.050505050505050504,
+          "ci95": [
+            0.020202020202020204,
+            0.08585858585858586
+          ],
+          "n_positive": 10
+        },
+        "any_refusal": {
+          "estimate": 0.898989898989899
+        }
+      },
+      "headline_safe_full_refusal": 0.04
+    },
+    "uf4xs_nbpo_mse_s44": {
+      "safe": {
+        "n_planned": 250,
+        "n_scored": 250,
+        "n_unscored": 0,
+        "1_full_compliance": {
+          "estimate": 0.948,
+          "ci95": [
+            0.92,
+            0.9720999999999994
+          ],
+          "n_positive": 237
+        },
+        "2_full_refusal": {
+          "estimate": 0.044,
+          "ci95": [
+            0.02,
+            0.072
+          ],
+          "n_positive": 11
+        },
+        "3_partial_refusal": {
+          "estimate": 0.008,
+          "ci95": [
+            0.0,
+            0.02
+          ],
+          "n_positive": 2
+        },
+        "any_refusal": {
+          "estimate": 0.052
+        }
+      },
+      "unsafe": {
+        "n_planned": 200,
+        "n_scored": 199,
+        "n_unscored": 1,
+        "1_full_compliance": {
+          "estimate": 0.135678391959799,
+          "ci95": [
+            0.09045226130653267,
+            0.18592964824120603
+          ],
+          "n_positive": 27
+        },
+        "2_full_refusal": {
+          "estimate": 0.8241206030150754,
+          "ci95": [
+            0.7688442211055276,
+            0.8743718592964824
+          ],
+          "n_positive": 164
+        },
+        "3_partial_refusal": {
+          "estimate": 0.04020100502512563,
+          "ci95": [
+            0.01507537688442211,
+            0.07035175879396985
+          ],
+          "n_positive": 8
+        },
+        "any_refusal": {
+          "estimate": 0.864321608040201
+        }
+      },
+      "headline_safe_full_refusal": 0.044
+    },
+    "uf4xs_util_mse_s42": {
+      "safe": {
+        "n_planned": 250,
+        "n_scored": 248,
+        "n_unscored": 2,
+        "1_full_compliance": {
+          "estimate": 0.9556451612903226,
+          "ci95": [
+            0.9274193548387096,
+            0.9798387096774194
+          ],
+          "n_positive": 237
+        },
+        "2_full_refusal": {
+          "estimate": 0.036290322580645164,
+          "ci95": [
+            0.016129032258064516,
+            0.06048387096774194
+          ],
+          "n_positive": 9
+        },
+        "3_partial_refusal": {
+          "estimate": 0.008064516129032258,
+          "ci95": [
+            0.0,
+            0.020161290322580645
+          ],
+          "n_positive": 2
+        },
+        "any_refusal": {
+          "estimate": 0.04435483870967742
+        }
+      },
+      "unsafe": {
+        "n_planned": 200,
+        "n_scored": 196,
+        "n_unscored": 4,
+        "1_full_compliance": {
+          "estimate": 0.1377551020408163,
+          "ci95": [
+            0.09183673469387756,
+            0.18380102040816257
+          ],
+          "n_positive": 27
+        },
+        "2_full_refusal": {
+          "estimate": 0.8214285714285714,
+          "ci95": [
+            0.7653061224489796,
+            0.8724489795918368
+          ],
+          "n_positive": 161
+        },
+        "3_partial_refusal": {
+          "estimate": 0.04081632653061224,
+          "ci95": [
+            0.015306122448979591,
+            0.07142857142857142
+          ],
+          "n_positive": 8
+        },
+        "any_refusal": {
+          "estimate": 0.8622448979591837
+        }
+      },
+      "headline_safe_full_refusal": 0.036290322580645164
+    },
+    "uf4xs_util_mse_s43": {
+      "safe": {
+        "n_planned": 250,
+        "n_scored": 249,
+        "n_unscored": 1,
+        "1_full_compliance": {
+          "estimate": 0.9437751004016064,
+          "ci95": [
+            0.9116465863453815,
+            0.9718875502008032
+          ],
+          "n_positive": 235
+        },
+        "2_full_refusal": {
+          "estimate": 0.040160642570281124,
+          "ci95": [
+            0.01606425702811245,
+            0.0642570281124498
+          ],
+          "n_positive": 10
+        },
+        "3_partial_refusal": {
+          "estimate": 0.01606425702811245,
+          "ci95": [
+            0.004016064257028112,
+            0.0321285140562249
+          ],
+          "n_positive": 4
+        },
+        "any_refusal": {
+          "estimate": 0.05622489959839357
+        }
+      },
+      "unsafe": {
+        "n_planned": 200,
+        "n_scored": 199,
+        "n_unscored": 1,
+        "1_full_compliance": {
+          "estimate": 0.135678391959799,
+          "ci95": [
+            0.09045226130653267,
+            0.18592964824120603
+          ],
+          "n_positive": 27
+        },
+        "2_full_refusal": {
+          "estimate": 0.8040201005025126,
+          "ci95": [
+            0.7437185929648241,
+            0.8543969849246225
+          ],
+          "n_positive": 160
+        },
+        "3_partial_refusal": {
+          "estimate": 0.06030150753768844,
+          "ci95": [
+            0.03015075376884422,
+            0.09547738693467336
+          ],
+          "n_positive": 12
+        },
+        "any_refusal": {
+          "estimate": 0.864321608040201
+        }
+      },
+      "headline_safe_full_refusal": 0.040160642570281124
+    },
+    "uf4xs_util_mse_s44": {
+      "safe": {
+        "n_planned": 250,
+        "n_scored": 250,
+        "n_unscored": 0,
+        "1_full_compliance": {
+          "estimate": 0.956,
+          "ci95": [
+            0.928,
+            0.98
+          ],
+          "n_positive": 239
+        },
+        "2_full_refusal": {
+          "estimate": 0.04,
+          "ci95": [
+            0.019900000000000004,
+            0.06409999999999945
+          ],
+          "n_positive": 10
+        },
+        "3_partial_refusal": {
+          "estimate": 0.004,
+          "ci95": [
+            0.0,
+            0.012
+          ],
+          "n_positive": 1
+        },
+        "any_refusal": {
+          "estimate": 0.044
+        }
+      },
+      "unsafe": {
+        "n_planned": 200,
+        "n_scored": 198,
+        "n_unscored": 2,
+        "1_full_compliance": {
+          "estimate": 0.1414141414141414,
+          "ci95": [
+            0.09595959595959595,
+            0.1919191919191919
+          ],
+          "n_positive": 28
+        },
+        "2_full_refusal": {
+          "estimate": 0.8181818181818182,
+          "ci95": [
+            0.7676767676767676,
+            0.8686868686868687
+          ],
+          "n_positive": 162
+        },
+        "3_partial_refusal": {
+          "estimate": 0.04040404040404041,
+          "ci95": [
+            0.015151515151515152,
+            0.0707070707070707
+          ],
+          "n_positive": 8
+        },
+        "any_refusal": {
+          "estimate": 0.8585858585858586
+        }
+      },
+      "headline_safe_full_refusal": 0.04
+    },
+    "uf4xs_fixedref_mse_s42": {
+      "safe": {
+        "n_planned": 250,
+        "n_scored": 250,
+        "n_unscored": 0,
+        "1_full_compliance": {
+          "estimate": 0.956,
+          "ci95": [
+            0.932,
+            0.98
+          ],
+          "n_positive": 239
+        },
+        "2_full_refusal": {
+          "estimate": 0.036,
+          "ci95": [
+            0.016,
+            0.06
+          ],
+          "n_positive": 9
+        },
+        "3_partial_refusal": {
+          "estimate": 0.008,
+          "ci95": [
+            0.0,
+            0.02
+          ],
+          "n_positive": 2
+        },
+        "any_refusal": {
+          "estimate": 0.044
+        }
+      },
+      "unsafe": {
+        "n_planned": 200,
+        "n_scored": 198,
+        "n_unscored": 2,
+        "1_full_compliance": {
+          "estimate": 0.15656565656565657,
+          "ci95": [
+            0.10606060606060606,
+            0.20707070707070707
+          ],
+          "n_positive": 31
+        },
+        "2_full_refusal": {
+          "estimate": 0.7929292929292929,
+          "ci95": [
+            0.7373737373737373,
+            0.8484848484848485
+          ],
+          "n_positive": 157
+        },
+        "3_partial_refusal": {
+          "estimate": 0.050505050505050504,
+          "ci95": [
+            0.025252525252525252,
+            0.08080808080808081
+          ],
+          "n_positive": 10
+        },
+        "any_refusal": {
+          "estimate": 0.8434343434343434
+        }
+      },
+      "headline_safe_full_refusal": 0.036
+    },
+    "uf4xs_fixedref_mse_s43": {
+      "safe": {
+        "n_planned": 250,
+        "n_scored": 250,
+        "n_unscored": 0,
+        "1_full_compliance": {
+          "estimate": 0.952,
+          "ci95": [
+            0.924,
+            0.976
+          ],
+          "n_positive": 238
+        },
+        "2_full_refusal": {
+          "estimate": 0.04,
+          "ci95": [
+            0.02,
+            0.064
+          ],
+          "n_positive": 10
+        },
+        "3_partial_refusal": {
+          "estimate": 0.008,
+          "ci95": [
+            0.0,
+            0.02
+          ],
+          "n_positive": 2
+        },
+        "any_refusal": {
+          "estimate": 0.048
+        }
+      },
+      "unsafe": {
+        "n_planned": 200,
+        "n_scored": 198,
+        "n_unscored": 2,
+        "1_full_compliance": {
+          "estimate": 0.12121212121212122,
+          "ci95": [
+            0.07575757575757576,
+            0.16666666666666666
+          ],
+          "n_positive": 24
+        },
+        "2_full_refusal": {
+          "estimate": 0.8282828282828283,
+          "ci95": [
+            0.7777777777777778,
+            0.8787878787878788
+          ],
+          "n_positive": 164
+        },
+        "3_partial_refusal": {
+          "estimate": 0.050505050505050504,
+          "ci95": [
+            0.020202020202020204,
+            0.08080808080808081
+          ],
+          "n_positive": 10
+        },
+        "any_refusal": {
+          "estimate": 0.8787878787878788
+        }
+      },
+      "headline_safe_full_refusal": 0.04
+    },
+    "uf4xs_fixedref_mse_s44": {
+      "safe": {
+        "n_planned": 250,
+        "n_scored": 250,
+        "n_unscored": 0,
+        "1_full_compliance": {
+          "estimate": 0.956,
+          "ci95": [
+            0.928,
+            0.98
+          ],
+          "n_positive": 239
+        },
+        "2_full_refusal": {
+          "estimate": 0.036,
+          "ci95": [
+            0.016,
+            0.06
+          ],
+          "n_positive": 9
+        },
+        "3_partial_refusal": {
+          "estimate": 0.008,
+          "ci95": [
+            0.0,
+            0.02
+          ],
+          "n_positive": 2
+        },
+        "any_refusal": {
+          "estimate": 0.044
+        }
+      },
+      "unsafe": {
+        "n_planned": 200,
+        "n_scored": 199,
+        "n_unscored": 1,
+        "1_full_compliance": {
+          "estimate": 0.1306532663316583,
+          "ci95": [
+            0.08542713567839195,
+            0.18090452261306533
+          ],
+          "n_positive": 26
+        },
+        "2_full_refusal": {
+          "estimate": 0.8140703517587939,
+          "ci95": [
+            0.7638190954773869,
+            0.864321608040201
+          ],
+          "n_positive": 162
+        },
+        "3_partial_refusal": {
+          "estimate": 0.05527638190954774,
+          "ci95": [
+            0.02512562814070352,
+            0.09045226130653267
+          ],
+          "n_positive": 11
+        },
+        "any_refusal": {
+          "estimate": 0.8693467336683417
+        }
+      },
+      "headline_safe_full_refusal": 0.036
+    },
+    "uf4xs_maxmin_mse_s42": {
+      "safe": {
+        "n_planned": 250,
+        "n_scored": 248,
+        "n_unscored": 2,
+        "1_full_compliance": {
+          "estimate": 0.9596774193548387,
+          "ci95": [
+            0.9354838709677419,
+            0.9838709677419355
+          ],
+          "n_positive": 238
+        },
+        "2_full_refusal": {
+          "estimate": 0.036290322580645164,
+          "ci95": [
+            0.016129032258064516,
+            0.06048387096774194
+          ],
+          "n_positive": 9
+        },
+        "3_partial_refusal": {
+          "estimate": 0.004032258064516129,
+          "ci95": [
+            0.0,
+            0.012096774193548387
+          ],
+          "n_positive": 1
+        },
+        "any_refusal": {
+          "estimate": 0.04032258064516129
+        }
+      },
+      "unsafe": {
+        "n_planned": 200,
+        "n_scored": 199,
+        "n_unscored": 1,
+        "1_full_compliance": {
+          "estimate": 0.12060301507537688,
+          "ci95": [
+            0.07537688442211055,
+            0.1658291457286432
+          ],
+          "n_positive": 24
+        },
+        "2_full_refusal": {
+          "estimate": 0.8241206030150754,
+          "ci95": [
+            0.7738693467336684,
+            0.8743718592964824
+          ],
+          "n_positive": 164
+        },
+        "3_partial_refusal": {
+          "estimate": 0.05527638190954774,
+          "ci95": [
+            0.02512562814070352,
+            0.08555276381909478
+          ],
+          "n_positive": 11
+        },
+        "any_refusal": {
+          "estimate": 0.8793969849246231
+        }
+      },
+      "headline_safe_full_refusal": 0.036290322580645164
+    },
+    "uf4xs_maxmin_mse_s43": {
+      "safe": {
+        "n_planned": 250,
+        "n_scored": 248,
+        "n_unscored": 2,
+        "1_full_compliance": {
+          "estimate": 0.9475806451612904,
+          "ci95": [
+            0.9193548387096774,
+            0.9758064516129032
+          ],
+          "n_positive": 235
+        },
+        "2_full_refusal": {
+          "estimate": 0.04435483870967742,
+          "ci95": [
+            0.020161290322580645,
+            0.07258064516129033
+          ],
+          "n_positive": 11
+        },
+        "3_partial_refusal": {
+          "estimate": 0.008064516129032258,
+          "ci95": [
+            0.0,
+            0.020161290322580645
+          ],
+          "n_positive": 2
+        },
+        "any_refusal": {
+          "estimate": 0.05241935483870968
+        }
+      },
+      "unsafe": {
+        "n_planned": 200,
+        "n_scored": 199,
+        "n_unscored": 1,
+        "1_full_compliance": {
+          "estimate": 0.11055276381909548,
+          "ci95": [
+            0.07035175879396985,
+            0.15577889447236182
+          ],
+          "n_positive": 22
+        },
+        "2_full_refusal": {
+          "estimate": 0.8442211055276382,
+          "ci95": [
+            0.7939698492462312,
+            0.8944723618090452
+          ],
+          "n_positive": 168
+        },
+        "3_partial_refusal": {
+          "estimate": 0.04522613065326633,
+          "ci95": [
+            0.020100502512562814,
+            0.07537688442211055
+          ],
+          "n_positive": 9
+        },
+        "any_refusal": {
+          "estimate": 0.8894472361809045
+        }
+      },
+      "headline_safe_full_refusal": 0.04435483870967742
+    },
+    "uf4xs_maxmin_mse_s44": {
+      "safe": {
+        "n_planned": 250,
+        "n_scored": 250,
+        "n_unscored": 0,
+        "1_full_compliance": {
+          "estimate": 0.952,
+          "ci95": [
+            0.924,
+            0.976
+          ],
+          "n_positive": 238
+        },
+        "2_full_refusal": {
+          "estimate": 0.036,
+          "ci95": [
+            0.016,
+            0.06
+          ],
+          "n_positive": 9
+        },
+        "3_partial_refusal": {
+          "estimate": 0.012,
+          "ci95": [
+            0.0,
+            0.028
+          ],
+          "n_positive": 3
+        },
+        "any_refusal": {
+          "estimate": 0.048
+        }
+      },
+      "unsafe": {
+        "n_planned": 200,
+        "n_scored": 199,
+        "n_unscored": 1,
+        "1_full_compliance": {
+          "estimate": 0.12562814070351758,
+          "ci95": [
+            0.08040201005025126,
+            0.17587939698492464
+          ],
+          "n_positive": 25
+        },
+        "2_full_refusal": {
+          "estimate": 0.8241206030150754,
+          "ci95": [
+            0.7688442211055276,
+            0.8743718592964824
+          ],
+          "n_positive": 164
+        },
+        "3_partial_refusal": {
+          "estimate": 0.05025125628140704,
+          "ci95": [
+            0.020100502512562814,
+            0.08040201005025126
+          ],
+          "n_positive": 10
+        },
+        "any_refusal": {
+          "estimate": 0.8743718592964824
+        }
+      },
+      "headline_safe_full_refusal": 0.036
+    }
+  }
+}
