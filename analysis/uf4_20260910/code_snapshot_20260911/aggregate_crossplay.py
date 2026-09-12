@@ -115,7 +115,13 @@ def main():
                 if all((c, pid) in per_prompt and pairs_needed <= set(per_prompt[(c, pid)])
                        for c in CRITERIA)]
 
-    prompts = complete_for(all_pairs)
+    # Strictest global intersection, reported for reference only.
+    strict = complete_for(all_pairs)
+    # The tensor spans every prompt any pair judged. A statistic then indexes
+    # only its own complete set, where every cell it reads is present; cells it
+    # never reads may still hold the 0.5 initialiser, which is why indexing by
+    # scope rather than averaging the whole tensor is the part that matters.
+    prompts = sorted({q for (_, q) in per_prompt})
     scope = {}
     for name in order:
         own = {q for q in all_pairs if name in q}
@@ -124,7 +130,8 @@ def main():
         scope[name] = {"W_ref_min": complete_for(ref_pair or set()),
                        "W_bank_min": complete_for(own or ref_own),
                        "min_s_bank": complete_for(own | ref_own)}
-    if not any(v for s in scope.values() for v in s.values()):
+    if not any(v for s in scope.values() for v in s.values()):   # nothing usable
+
         print(json.dumps({"status": "no prompt is complete for any statistic"})); return 0
 
     # ---- per-prompt tensor: (P, K, N, N) win rate of row over column -----
@@ -164,23 +171,33 @@ def main():
             out[name]["min_s_bank_excluding_self"] = float((Vi - Vr).min())
         return out
 
-    point = statistics(W.mean(axis=0))
-    rng = np.random.default_rng(20260912)
-    draws = defaultdict(lambda: defaultdict(list))
-    for _ in range(args.bootstrap):
-        pick = rng.integers(0, P, size=P)
-        rep = statistics(W[pick].mean(axis=0))
-        for name, vals in rep.items():
-            for stat in ("W_ref_min", "W_bank_min", "min_s_bank"):
-                draws[name][stat].append(vals[stat])
-
+    # Each statistic is computed, and bootstrapped, on its own declared prompt
+    # set: the scope above. Using one global intersection instead both discards
+    # data no statistic needs and widens every interval, because the narrowest
+    # scope (a single pair against the reference) then inherits the completeness
+    # of the widest.
+    row_of = {pid: i for i, pid in enumerate(prompts)}
     summary = {}
+    rng = np.random.default_rng(20260912)
     for name in order:
-        summary[name] = dict(point[name])
+        summary[name] = {}
         for stat in ("W_ref_min", "W_bank_min", "min_s_bank"):
-            arr = np.array(draws[name][stat])
-            summary[name][stat + "_ci95"] = [float(np.quantile(arr, .025)),
-                                             float(np.quantile(arr, .975))]
+            pids = [q for q in scope[name][stat] if q in row_of]
+            if not pids:
+                summary[name].update({stat: None, stat + "_ci95": None,
+                                      stat + "_n_prompts": 0})
+                continue
+            rows = np.array([row_of[q] for q in pids])
+            summary[name][stat] = statistics(W[rows].mean(axis=0))[name][stat]
+            draws = [statistics(W[rows[rng.integers(0, len(rows), size=len(rows))]]
+                                .mean(axis=0))[name][stat]
+                     for _ in range(args.bootstrap)]
+            summary[name][stat + "_ci95"] = [float(np.quantile(draws, .025)),
+                                             float(np.quantile(draws, .975))]
+            summary[name][stat + "_n_prompts"] = len(pids)
+        full = statistics(W.mean(axis=0))[name]
+        summary[name]["s_bank_per_objective"] = full["s_bank_per_objective"]
+        summary[name]["min_s_bank_excluding_self"] = full["min_s_bank_excluding_self"]
 
     matrices = {c: {r: {q: float(W[:, k, idx[r], idx[q]].mean()) for q in order}
                     for r in order}
@@ -188,7 +205,8 @@ def main():
 
     report = {
         "policies": order, "reference": args.reference,
-        "n_common_prompts": len(prompts),
+        "n_common_prompts": len(strict),
+        "n_prompts_in_tensor": len(prompts),
         "pairs_judged": ["%s__vs__%s" % p for p in sorted(pair_reports)],
         "declared_bank": declared,
         "pairs_missing_for_full_bank": missing,

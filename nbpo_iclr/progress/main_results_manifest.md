@@ -1,8 +1,8 @@
 # Main-body result manifest
 
-Generated 2026-09-12 10:41:51 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-12 11:11:51 KST. DONE requires the proving artifact on disk.
 
-State counts: DONE 22, NOT_STARTED 94, PENDING 12, READY 11
+State counts: DONE 23, NOT_STARTED 94, PENDING 11, READY 11
 
 | exhibit | method | seed/weight | checkpoint | job | state | progress | ETA (min) |
 |---|---|---|---|---|---|---|---|
@@ -28,7 +28,7 @@ State counts: DONE 22, NOT_STARTED 94, PENDING 12, READY 11
 | tab:uf-objectives | bt_rm_nash | seed 42 (train) | btrm_mse_s42 | uf4_train_btrm_mse_s42 | READY | - | 184 |
 | tab:uf-objectives | game_maxmin | seed 42 | maxmin_mse_s42 | uf4_finaleval_judge_maxmin_mse_s42 | DONE | - | 24 |
 | tab:uf-objectives | game_maxmin | seed 42 (train) | maxmin_mse_s42 | uf4_train_maxmin_mse_s42 | DONE | - | 184 |
-| tab:uf-objectives | game_maxmin | seed 43 | maxmin_mse_s43 | uf4_finaleval_judge_maxmin_mse_s43 | PENDING | - | 24 |
+| tab:uf-objectives | game_maxmin | seed 43 | maxmin_mse_s43 | uf4_finaleval_judge_maxmin_mse_s43 | DONE | - | 24 |
 | tab:uf-objectives | game_maxmin | seed 43 (train) | maxmin_mse_s43 | uf4_train_maxmin_mse_s43 | DONE | - | 184 |
 | tab:uf-objectives | game_maxmin | seed 44 | maxmin_mse_s44 | uf4_finaleval_judge_maxmin_mse_s44 | PENDING | - | 24 |
 | tab:uf-objectives | game_maxmin | seed 44 (train) | maxmin_mse_s44 | uf4_train_maxmin_mse_s44 | READY | - | 184 |

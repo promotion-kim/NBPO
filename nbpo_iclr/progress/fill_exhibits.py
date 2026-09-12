@@ -99,12 +99,20 @@ def render_crossplay(cp):
     r"""Both cross-play exhibits. A policy the aggregator has no row for stays \pending."""
     stats, mats = cp["statistics"], cp["matrices"]
     n = cp["n_common_prompts"]
-    # A statistic resting on a handful of prompts is not a measurement, and an
-    # N=2 intersection renders as exactly 0.5000 everywhere -- which reads to
-    # anyone skimming the table as a clean "no difference" result rather than as
-    # an absence of data. Refuse below the declared floor.
-    if n < MIN_CROSSPLAY_PROMPTS:
-        return None, None
+    # The floor is applied per statistic, not to the strictest global
+    # intersection. Each statistic has its own declared prompt set -- the
+    # reference comparison needs one pair, the bank statistics need more -- so
+    # withholding the whole table because the narrowest set is thin would
+    # discard usable measurements. A cell below the floor stays \pending; an
+    # earlier version rendered an N=2 intersection as exactly 0.5000
+    # everywhere, which reads as a clean "no difference" rather than as absent
+    # data.
+    def cell(s, key, fmt="$%.4f$"):
+        if s is None or s.get(key) is None:
+            return r"\pending"
+        if s.get(key + "_n_prompts", 0) < MIN_CROSSPLAY_PROMPTS:
+            return r"\pending"
+        return fmt % s[key]
     competitor = next((p for p in cp["policies"]
                        if p not in {k for _, k, _ in CROSSPLAY_ROWS}), None)
     rows = list(CROSSPLAY_ROWS)
@@ -118,9 +126,14 @@ def render_crossplay(cp):
             body.append("%s & \\pending & \\pending & \\pending & \\pending & "
                         "\\pending\\\\" % label)
             continue
-        body.append("%s & %s & $%s$ & $%.4f$ & $%.4f$ & $%+.4f$\\\\"
-                    % (label, seeds, _tex_thousands(n), s["W_ref_min"], s["W_bank_min"],
-                       s["min_s_bank"]))
+        # N is per statistic, so the column reports the reference comparison's
+        # own count rather than one number that fits none of the three.
+        ncell = s.get("W_ref_min_n_prompts")
+        body.append("%s & %s & %s & %s & %s & %s\\\\"
+                    % (label, seeds,
+                       ("$%s$" % _tex_thousands(ncell)) if ncell else r"\pending",
+                       cell(s, "W_ref_min"), cell(s, "W_bank_min"),
+                       cell(s, "min_s_bank", "$%+.4f$")))
 
     order = [k for _, k, _ in CROSSPLAY_ROWS] + ([competitor] if competitor else [])
     mrows = []
