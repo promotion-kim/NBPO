@@ -7,6 +7,7 @@ directory wins; the chosen paths are reported so the caller can record them.
 import glob
 import json
 import os
+import re
 from pathlib import Path
 
 ROOT = "/work/uf4_20260910"
@@ -20,8 +21,21 @@ def put(arm, col, val):
 
 
 def newest(pattern):
-    hits = sorted(glob.glob(pattern), key=lambda p: (len(p), p))
-    return hits[-1] if hits else None
+    """Pick the artifact covering the most arms, by parsing the count.
+
+    Each family is re-run under a name carrying its arm count as arms are added,
+    so "newest" means "most arms". Sorting by path length then lexically happens
+    to work for the counts on disk today -- 12arm loses to 14arm lexically, 9arm
+    loses to 14arm on length -- but it is right by accident: 9arm would beat
+    14arm if the names were padded, and 100arm would lose to 99arm. Parse the
+    number so the choice is correct by construction, and fall back to the path
+    for artifacts with no count in the name.
+    """
+    def key(path):
+        m = re.search(r"_(\d+)arm", path)
+        return (1, int(m.group(1))) if m else (0, 0)
+    hits = glob.glob(pattern)
+    return max(hits, key=lambda q: (key(q), q)) if hits else None
 
 
 for d in glob.glob(REPAIR + "/evaluations/deterministic_uf4_*_v1"):
