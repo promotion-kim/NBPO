@@ -700,26 +700,25 @@ Table~\ref{tab:general-capability} reserves core capability and safety outcomes 
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
-\caption{Core capability template for the UF-4 policies. IFEval uses strict-prompt accuracy; GSM8K uses exact match. HB is HarmBench harmful-completion rate, and XS is XSTest benign refusal. NBPO and game-utilitarian entries are means over the same three policy seeds, with the sample standard deviation beneath. The official IFEval language check calls a seed-unpinned language detector, so rescoring one fixed response set moves strict-prompt accuracy by up to $2/541$; the base row is its frozen first scoring. GSM8K exact match is deterministic. Dashes are unmeasured.}
+\caption{Core capability template for the UF-4 policies. IFEval uses strict-prompt accuracy; GSM8K uses exact match. HB is HarmBench harmful-completion rate, and XS is XSTest benign refusal. NBPO and game-utilitarian entries are means over the same three policy seeds, with the sample standard deviation beneath. The official IFEval language check calls a seed-unpinned language detector, so rescoring one fixed response set moves strict-prompt accuracy by up to $2/541$; the base row is its frozen first scoring. GSM8K exact match is deterministic. AE2 and AH2 are the AlpacaEval-2 and Arena-Hard-v2 prompt sets ($804$ and $749$ prompts, the latter $500$ hard plus $250$ creative). $^{\dagger}$These are \emph{not} the official AlpacaEval-2 length-controlled win rate or the official Arena-Hard score: both require a GPT-4-class annotator, which is a paid API this evaluation does not use. They are order-free win rates against the common base response scored by a pinned local reward model (Skywork-Reward-V2-Qwen3-8B), and they should be read as a local proxy ranking rather than as a leaderboard number. MT is MT-Bench; it is two-turn and its official score is a GPT-4 grade, so a zero-API substitute needs both multi-turn generation and a declared local grading rule, neither of which is in place. Dashes are unmeasured.}
 \label{tab:general-capability}
-\begin{tabular}{lrrrrr}
+\begin{tabular}{lrrrrrrr}
 \toprule
-Method & Seeds & IFEval & GSM8K & HB$\downarrow$ & XS$\downarrow$\\
+Method & Seeds & IFEval & GSM8K & HB$\downarrow$ & XS$\downarrow$ & AE2$^{\dagger}$ & AH2$^{\dagger}$ & MT\\
 \midrule
-Base & $1$ & $0.7542$ & $0.8666$ & $0.2813$ & \pending\\
-NBPO & $3$ & $0.7264$ & $0.8633$ & $0.3906$ & \pending\\
-\quad\textit{sample SD over seeds} & & $0.0098$ & $0.0031$ & & \\
-Fixed-reference Nash & $3$ & \pending & \pending & $0.3990$ & \pending\\
-BT-RM--Nash & \pending & \pending & \pending & \pending & \pending\\
-Game-utilitarian & $3$ & $0.7252$ & $0.8625$ & $0.4021$ & \pending\\
-\quad\textit{sample SD over seeds} & & $0.0059$ & $0.0034$ & & \\
-Global game-maxmin & $1$ & \pending & \pending & $0.3969$ & \pending\\
-Scalarized DPO (uniform) & \pending & \pending & \pending & \pending & \pending\\
-PROSPER (adapt.) & \pending & \pending & \pending & \pending & \pending\\
-MOPO (adapt.) & \pending & \pending & \pending & \pending & \pending\\
+Base & $1$ & $0.7542$ & $0.8666$ & $0.2813$ & \pending & \pending & \pending & \pending\\
+NBPO & $3$ & $0.7264$ & $0.8633$ & $0.3906$ & \pending & \pending & \pending & \pending\\
+\quad\textit{sample SD over seeds} & & $0.0098$ & $0.0031$ & & & & & \\
+Fixed-reference Nash & $3$ & \pending & \pending & $0.3990$ & \pending & \pending & \pending & \pending\\
+BT-RM--Nash & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
+Game-utilitarian & $3$ & $0.7252$ & $0.8625$ & $0.4021$ & \pending & \pending & \pending & \pending\\
+\quad\textit{sample SD over seeds} & & $0.0059$ & $0.0034$ & & & & & \\
+Global game-maxmin & $1$ & \pending & \pending & $0.3969$ & \pending & \pending & \pending & \pending\\
+Scalarized DPO (uniform) & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
+PROSPER (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
+MOPO (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
 \bottomrule
-\end{tabular}
-\end{table}
+\end{tabular}\end{table}
 
 \kekim_gpt{\textbf{R20 --- Explain the existing capability regression and benchmark score definitions.} Table~\ref{tab:general-benchmark-completion} reports a Llama IFEval decline from $.762$ to $.701$, or 6.1 percentage points, despite instruction following appearing in the training panel. This is a concrete transfer failure worth analyzing, not something that an average judged win rate resolves. Inspect failures by constraint type, answer length, and refusal behavior, and test a matched instruction-following/length control. Also distinguish official benchmark protocols from custom pairwise judging on benchmark prompts: converting MT-Bench or other benchmarks into reference-policy wins changes the metric and should be labeled explicitly. For small differences in judged scores, use paired prompt-level uncertainty and report evaluator disagreement rather than relying on three-decimal point estimates.}
 \reviewresponse{\textbf{R20 --- Partially addressed.} The main capability template now targets the same UF checkpoints, with the complete measured ARC-C/HellaSwag/MMLU and historical SafeRLHF panel preserved in Appendix~\ref{app:capability-complete}. Trained-policy core capability/safety outcomes, matched length controls, and the historical IFEval-drop reconciliation remain pending.}
