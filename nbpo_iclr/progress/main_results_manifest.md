@@ -1,6 +1,6 @@
 # Main-body result manifest
 
-Generated 2026-09-12 11:41:52 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-12 12:11:50 KST. DONE requires the proving artifact on disk.
 
 State counts: DONE 23, NOT_STARTED 94, PENDING 11, READY 10, RUNNING 1
 
@@ -31,7 +31,7 @@ State counts: DONE 23, NOT_STARTED 94, PENDING 11, READY 10, RUNNING 1
 | tab:uf-objectives | game_maxmin | seed 43 | maxmin_mse_s43 | uf4_finaleval_judge_maxmin_mse_s43 | DONE | - | 24 |
 | tab:uf-objectives | game_maxmin | seed 43 (train) | maxmin_mse_s43 | uf4_train_maxmin_mse_s43 | DONE | - | 184 |
 | tab:uf-objectives | game_maxmin | seed 44 | maxmin_mse_s44 | uf4_finaleval_judge_maxmin_mse_s44 | PENDING | - | 24 |
-| tab:uf-objectives | game_maxmin | seed 44 (train) | maxmin_mse_s44 | uf4_train_maxmin_mse_s44 | RUNNING | step 184/1250 | 184 |
+| tab:uf-objectives | game_maxmin | seed 44 (train) | maxmin_mse_s44 | uf4_train_maxmin_mse_s44 | RUNNING | step 386/1250 | 184 |
 | tab:uf-objectives | dpo_uniform | seed 42 | dpo_uniform_mse_s42 | uf4_finaleval_judge_dpo_uniform_mse_s42 | PENDING | - | 24 |
 | tab:uf-objectives | dpo_uniform | seed 42 (train) | dpo_uniform_mse_s42 | uf4_train_dpo_uniform_mse_s42 | READY | - | 184 |
 | tab:uf-objectives | prosper_adapt | seed 42 | prosper_mse_s42 | uf4_finaleval_judge_prosper_mse_s42 | PENDING | - | 24 |

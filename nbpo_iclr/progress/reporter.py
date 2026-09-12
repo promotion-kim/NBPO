@@ -124,8 +124,13 @@ def completion():
                 obj_methods.add(meth)
     # Cross-play and DPO rows are counted from the artifacts that would prove
     # them, so the counters cannot stay at zero after the results land.
-    cp = pod("ls -d /work/uf4_20260910/evaluation/crossplay/*/complete.json 2>/dev/null; true")
-    crossplay_done = len([p for p in cp.split() if p.strip()])
+    # Judged pairs live one level deeper, under crossplay/pairs/<pair>/, so the
+    # old glob matched nothing and the counter sat at 0 while six pairs were in
+    # flight. Retired runs carry a dotted suffix and must not be counted.
+    cp = pod("ls -d /work/uf4_20260910/evaluation/crossplay/pairs/*/complete.json "
+             "2>/dev/null; true")
+    crossplay_done = len([q for q in cp.split() if q.strip()
+                          and "." not in q.split("/")[-2]])
     dpo_done = len([a for a in evaluated if a.startswith("dpo_")])
     lm_cells = pod("ls -d /work/uf4_20260910/evaluation/capability/*/*/results.json 2>/dev/null")
     lm_cells = len([p for p in lm_cells.split() if p.strip()])
@@ -137,7 +142,11 @@ def completion():
         "objective_rows_total": len(m["objective_rows"]["methods"]),
         "objective_arms_evaluated": sorted(evaluated),
         "crossplay_done": crossplay_done,
-        "crossplay_total": len(m["crossplay"]["entries"]),
+        # The numerator counts judged PAIRS, so the denominator must be pairs
+        # too: C(4,2) = 6 unordered pairs over the declared four-policy bank,
+        # not the four policies. Reporting 6/4 was the alternative.
+        "crossplay_total": (len(m["crossplay"]["entries"])
+                            * (len(m["crossplay"]["entries"]) - 1)) // 2,
         "dpo_done": dpo_done, "dpo_total": len(m["dpo_weights"]["weights"]),
         "capability_cells_done": cap_cells,
         "capability_cells_total": len(m["capability"]["methods"]) * len(m["capability"]["benchmarks"]),
