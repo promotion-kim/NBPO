@@ -95,13 +95,13 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-12 19:11 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-12 19:41 KST.} Not part of the reported results.
 \\[2pt]
-Main-body objective rows 6/9; cross-play 6/6; DPO weights 0/7; capability cells 24/63; lm-eval cells 31.
+Main-body objective rows 6/9; cross-play 6/6; DPO weights 0/7; capability cells 24/63; lm-eval cells 38.
 \\[2pt]
-GPU0: uf4\_cap\_maxmin\_mse\_s42\_hellaswag, 98\%, 125077/143771 MiB | GPU1: uf4\_cap\_fixedref\_mse\_s44\_mmlu, 99\%, 128305/143771 MiB | GPU2: uf4\_cap\_maxmin\_mse\_s42\_mmlu, 0\%, 126733/143771 MiB | GPU3: uf4\_cap\_maxmin\_mse\_s43\_arc\_challenge, 0\%, 0/143771 MiB
+GPU0: uf4\_genhb3\_maxmin\_mse\_s43, 81\%, 123901/143771 MiB | GPU1: uf4\_gen\_bench\_maxmin\_mse\_s44, 0\%, 0/143771 MiB | GPU2: uf4\_cap\_maxmin\_mse\_s44\_mmlu, 94\%, 128243/143771 MiB | GPU3: uf4\_genhb3\_maxmin\_mse\_s44, 81\%, 123901/143771 MiB
 \\[2pt]
-Queue: BLOCKED 1 (1 superseded), DONE 254, FAILED 6 (6 superseded), PENDING 53, READY 44, RUNNING 4. PDF rebuilt each cycle.
+Queue: BLOCKED 1 (1 superseded), DONE 272, FAILED 6 (6 superseded), PENDING 58, READY 33, RUNNING 4. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -709,8 +709,8 @@ Method & Seeds & IFEval & GSM8K & HB$\downarrow$ & XS$\downarrow$ & AE2$^{\dagge
 Base & $1$ & $0.7542$ & $0.8666$ & $0.2813$ & \pending & -- & -- & $7.53$\\
 NBPO & $3$ & $0.7264$ & $0.8633$ & $0.3906$ & \pending & $0.5617$ & $0.5143$ & $7.59$\\
 \quad\textit{sample SD over seeds} & & $0.0098$ & $0.0031$ & & & $0.0083$ & $0.0206$ & $0.13$\\
-Fixed-reference Nash & $3$ & \pending & \pending & $0.3990$ & \pending & $0.5578$ & $0.5243$ & $7.61$\\
-\quad\textit{sample SD over seeds} & & & & & & $0.0138$ & $0.0126$ & $0.03$\\
+Fixed-reference Nash & $3$ & $0.7289$ & $0.8615$ & $0.3990$ & \pending & $0.5578$ & $0.5243$ & $7.61$\\
+\quad\textit{sample SD over seeds} & & $0.0059$ & $0.0038$ & & & $0.0138$ & $0.0126$ & $0.03$\\
 BT-RM--Nash & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
 Game-utilitarian & $3$ & $0.7252$ & $0.8625$ & $0.4021$ & \pending & $0.5685$ & $0.5363$ & $7.65$\\
 \quad\textit{sample SD over seeds} & & $0.0059$ & $0.0034$ & & & $0.0123$ & $0.0196$ & $0.14$\\
