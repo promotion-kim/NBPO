@@ -95,11 +95,11 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-13 00:41 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-13 01:11 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 6/9; cross-play 6/6; DPO weights 0/7; capability cells 35/63; lm-eval cells 45.
 \\[2pt]
-GPU0: uf4\_train\_btrm\_mse\_s44, 100\%, 96401/143771 MiB | GPU1: uf4\_train\_btrm\_mse\_s44, 97\%, 98085/143771 MiB | GPU2: uf4\_train\_btrm\_mse\_s44, 100\%, 95161/143771 MiB | GPU3: uf4\_train\_btrm\_mse\_s44, 99\%, 96271/143771 MiB
+GPU0: uf4\_train\_btrm\_mse\_s44, 98\%, 96401/143771 MiB | GPU1: uf4\_train\_btrm\_mse\_s44, 100\%, 98085/143771 MiB | GPU2: uf4\_train\_btrm\_mse\_s44, 97\%, 95161/143771 MiB | GPU3: uf4\_train\_btrm\_mse\_s44, 95\%, 96271/143771 MiB
 \\[2pt]
 Queue: BLOCKED 1 (1 superseded), DONE 315, FAILED 6 (6 superseded), PENDING 75, READY 29, RUNNING 1. PDF rebuilt each cycle.
 }}\end{center}
@@ -638,7 +638,7 @@ Figure~\ref{fig:uf-tradeoffs} provides two projections for comparing policies wi
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.92\textwidth]{figures/uf_tradeoffs.pdf}
-\caption{Empirical trade-off template: helpfulness versus truthfulness (left), and instruction following versus honesty (right). The declared scalarization sweep and uncertainty estimates remain pending.}
+\caption{Empirical four-objective trade-offs: helpfulness versus truthfulness (left), and instruction following versus honesty (right). One point per evaluated \emph{policy seed} rather than per method -- fourteen across \NBPO{}, fixed-reference Nash, BT-RM--Nash, game-utilitarian and global game-maxmin -- on the $\tabonecommon$ common prompts, with each seed's own whole-prompt paired bootstrap interval. Seeds are plotted separately because a family mean has no defined prompt-bootstrap interval here: prompt uncertainty and seed spread are kept separate throughout and never pooled, and the scatter within a method is itself the panel's main finding. Filled markers indicate descriptive dominance of point estimates over all \emph{four} objectives among the plotted rows only; they do not imply significant dominance or population Pareto optimality. The base is the reference for every axis and sits at $0.5$ by construction, so it is not plotted. The declared scalarization sweep and the PROSPER and MOPO points remain pending.}
 \label{fig:uf-tradeoffs}
 \end{figure}
 
