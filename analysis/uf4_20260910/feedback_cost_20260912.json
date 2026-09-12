@@ -1,0 +1,305 @@
+{
+  "source": "/work/uf4_20260910/logs/queue_report.jsonl",
+  "per_arm_gen_eval": {
+    "btrm_mse_s42": {
+      "gpu_h": 0.922,
+      "jobs": 5,
+      "all_succeeded": true
+    },
+    "fixedref_mse_s42": {
+      "gpu_h": 0.917,
+      "jobs": 5,
+      "all_succeeded": true
+    },
+    "fixedref_mse_s43": {
+      "gpu_h": 0.92,
+      "jobs": 5,
+      "all_succeeded": true
+    },
+    "fixedref_mse_s44": {
+      "gpu_h": 0.905,
+      "jobs": 5,
+      "all_succeeded": true
+    },
+    "maxmin_mse_s42": {
+      "gpu_h": 0.903,
+      "jobs": 5,
+      "all_succeeded": true
+    },
+    "maxmin_mse_s43": {
+      "gpu_h": 0.932,
+      "jobs": 5,
+      "all_succeeded": true
+    },
+    "maxmin_mse_s44": {
+      "gpu_h": 0.924,
+      "jobs": 5,
+      "all_succeeded": true
+    },
+    "nbpo_mse_s42": {
+      "gpu_h": 1.11,
+      "jobs": 5,
+      "all_succeeded": true
+    },
+    "nbpo_mse_s43": {
+      "gpu_h": 0.974,
+      "jobs": 5,
+      "all_succeeded": true
+    },
+    "nbpo_mse_s44": {
+      "gpu_h": 0.946,
+      "jobs": 5,
+      "all_succeeded": true
+    },
+    "util_mse_s42": {
+      "gpu_h": 1.56,
+      "jobs": 5,
+      "all_succeeded": true
+    },
+    "util_mse_s43": {
+      "gpu_h": 0.922,
+      "jobs": 5,
+      "all_succeeded": true
+    },
+    "util_mse_s44": {
+      "gpu_h": 0.936,
+      "jobs": 5,
+      "all_succeeded": true
+    }
+  },
+  "definition": "GPU-hours = wall seconds x devices held, from the controller's RUNNING and terminal events. Jobs holding no device are counted as CPU-hours and reported separately, as the appendix requires.",
+  "shared_note": "the frozen teacher heads, the candidate pool and its scoring serve every arm; reported once under _shared and not divided among methods",
+  "unique_labels": "not computed: the appendix distinguishes unique semantic comparisons from order-swapped calls, and that convention has to be declared rather than inferred from a job log",
+  "tuning_trials": {
+    "DPO (uniform / sweep)": 0,
+    "_note": "dpo_beta fixed at the library default 0.01, no sweep"
+  },
+  "methods": {
+    "BT-RM--Nash": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 0.922,
+          "cpu_h": 0.0,
+          "jobs": 5
+        },
+        "policy": {
+          "gpu_h": 12.233,
+          "cpu_h": 0.0,
+          "jobs": 1
+        }
+      },
+      "gpu_h_total": 13.16,
+      "cpu_h_total": 0.0
+    },
+    "DPO (uniform / sweep)": {
+      "stages": {
+        "solver": {
+          "gpu_h": 0.0,
+          "cpu_h": 0.411,
+          "jobs": 16
+        },
+        "policy": {
+          "gpu_h": 0.369,
+          "cpu_h": 0.0,
+          "jobs": 1
+        }
+      },
+      "gpu_h_total": 0.37,
+      "cpu_h_total": 0.41
+    },
+    "Fixed-reference Nash": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 2.742,
+          "cpu_h": 0.0,
+          "jobs": 15
+        },
+        "policy": {
+          "gpu_h": 36.75,
+          "cpu_h": 0.0,
+          "jobs": 3
+        }
+      },
+      "gpu_h_total": 39.49,
+      "cpu_h_total": 0.0
+    },
+    "Game-utilitarian": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 3.418,
+          "cpu_h": 0.0,
+          "jobs": 15
+        },
+        "policy": {
+          "gpu_h": 36.97,
+          "cpu_h": 0.0,
+          "jobs": 3
+        }
+      },
+      "gpu_h_total": 40.39,
+      "cpu_h_total": 0.0
+    },
+    "Global game-maxmin": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 2.759,
+          "cpu_h": 0.0,
+          "jobs": 15
+        },
+        "policy": {
+          "gpu_h": 36.818,
+          "cpu_h": 0.0,
+          "jobs": 3
+        }
+      },
+      "gpu_h_total": 39.58,
+      "cpu_h_total": 0.0
+    },
+    "NBPO": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 3.03,
+          "cpu_h": 0.0,
+          "jobs": 15
+        },
+        "policy": {
+          "gpu_h": 46.813,
+          "cpu_h": 0.0,
+          "jobs": 3
+        }
+      },
+      "gpu_h_total": 49.84,
+      "cpu_h_total": 0.0
+    },
+    "PROSPER (adapt.)": {
+      "stages": {
+        "solver": {
+          "gpu_h": 0.0,
+          "cpu_h": 0.017,
+          "jobs": 3
+        }
+      },
+      "gpu_h_total": 0.0,
+      "cpu_h_total": 0.02
+    },
+    "_arenas_alpaca_arena": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 0.726,
+          "cpu_h": 0.0,
+          "jobs": 13
+        }
+      },
+      "gpu_h_total": 0.73,
+      "cpu_h_total": 0.0
+    },
+    "_arenas_mtbench": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 0.499,
+          "cpu_h": 0.0,
+          "jobs": 14
+        }
+      },
+      "gpu_h_total": 0.5,
+      "cpu_h_total": 0.0
+    },
+    "_capability_deterministic": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 0.0,
+          "cpu_h": 0.069,
+          "jobs": 12
+        }
+      },
+      "gpu_h_total": 0.0,
+      "cpu_h_total": 0.07
+    },
+    "_capability_harmbench": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 0.565,
+          "cpu_h": 0.0,
+          "jobs": 14
+        }
+      },
+      "gpu_h_total": 0.57,
+      "cpu_h_total": 0.0
+    },
+    "_capability_lm_eval": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 11.612,
+          "cpu_h": 0.0,
+          "jobs": 54
+        }
+      },
+      "gpu_h_total": 11.61,
+      "cpu_h_total": 0.0
+    },
+    "_capability_xstest": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 0.381,
+          "cpu_h": 0.0,
+          "jobs": 13
+        }
+      },
+      "gpu_h_total": 0.38,
+      "cpu_h_total": 0.0
+    },
+    "_competitor_selection": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 0.893,
+          "cpu_h": 0.0,
+          "jobs": 4
+        }
+      },
+      "gpu_h_total": 0.89,
+      "cpu_h_total": 0.0
+    },
+    "_crossplay": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 3.304,
+          "cpu_h": 0.011,
+          "jobs": 21
+        }
+      },
+      "gpu_h_total": 3.3,
+      "cpu_h_total": 0.01
+    },
+    "_shared": {
+      "stages": {
+        "teacher": {
+          "gpu_h": 1.788,
+          "cpu_h": 7.247,
+          "jobs": 32
+        },
+        "solver": {
+          "gpu_h": 0.0,
+          "cpu_h": 0.073,
+          "jobs": 13
+        }
+      },
+      "gpu_h_total": 1.79,
+      "cpu_h_total": 7.32
+    },
+    "_shared_solver": {
+      "stages": {
+        "gen_eval": {
+          "gpu_h": 0.0,
+          "cpu_h": 1.236,
+          "jobs": 8
+        }
+      },
+      "gpu_h_total": 0.0,
+      "cpu_h_total": 1.24
+    }
+  },
+  "unattributed_jobs": [
+    "safe_fixedref_mse_s42",
+    "safe_maxmin_l1m_mse_s42"
+  ]
+}
