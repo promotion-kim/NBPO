@@ -1,6 +1,6 @@
 # Main-body result manifest
 
-Generated 2026-09-12 08:42:22 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-12 09:11:57 KST. DONE requires the proving artifact on disk.
 
 State counts: DONE 21, NOT_STARTED 94, PENDING 12, READY 11, RUNNING 1
 
@@ -29,7 +29,7 @@ State counts: DONE 21, NOT_STARTED 94, PENDING 12, READY 11, RUNNING 1
 | tab:uf-objectives | game_maxmin | seed 42 | maxmin_mse_s42 | uf4_finaleval_judge_maxmin_mse_s42 | DONE | - | 24 |
 | tab:uf-objectives | game_maxmin | seed 42 (train) | maxmin_mse_s42 | uf4_train_maxmin_mse_s42 | DONE | - | 184 |
 | tab:uf-objectives | game_maxmin | seed 43 | maxmin_mse_s43 | uf4_finaleval_judge_maxmin_mse_s43 | PENDING | - | 24 |
-| tab:uf-objectives | game_maxmin | seed 43 (train) | maxmin_mse_s43 | uf4_train_maxmin_mse_s43 | RUNNING | step 500/1250 | 184 |
+| tab:uf-objectives | game_maxmin | seed 43 (train) | maxmin_mse_s43 | uf4_train_maxmin_mse_s43 | RUNNING | step 750/1250 | 184 |
 | tab:uf-objectives | game_maxmin | seed 44 | maxmin_mse_s44 | uf4_finaleval_judge_maxmin_mse_s44 | PENDING | - | 24 |
 | tab:uf-objectives | game_maxmin | seed 44 (train) | maxmin_mse_s44 | uf4_train_maxmin_mse_s44 | READY | - | 184 |
 | tab:uf-objectives | dpo_uniform | seed 42 | dpo_uniform_mse_s42 | uf4_finaleval_judge_dpo_uniform_mse_s42 | PENDING | - | 24 |

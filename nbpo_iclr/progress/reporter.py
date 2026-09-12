@@ -435,10 +435,23 @@ def etas(man, snap):
             continue
         first.setdefault(r["method"], []).append(r)
     m2_missing = [m for m, rs in first.items() if not any(x["state"] == "DONE" for x in rs)]
-    unimplemented = [m for m in m2_missing if m in ("prosper_adapt", "mopo_adapt")]
+
+    # "Unimplemented" means no training for it exists anywhere in the queue, not
+    # merely that it has no result yet. PROSPER has a solved target, a
+    # materialized dataset and a queued training arm, so blaming it for blocking
+    # this milestone -- which the previous text did -- is simply wrong.
+    trains = {}
+    for r in rows:
+        if r["exhibit_label"] == "tab:uf-objectives" and "(train)" in r["seed_or_weight"]:
+            trains.setdefault(r["method"], []).append(r["state"])
+    unimplemented = sorted(m for m in m2_missing
+                           if all(s == "NOT_STARTED" for s in trains.get(m, ["NOT_STARTED"])))
+    reachable = [m for m in m2_missing if m not in unimplemented]
     if unimplemented:
-        two = span(0, 0, "본문 첫 전체 평가",
-                   "%s 충실 구현 미완" % "/".join(sorted(unimplemented)))
+        # Report the reachable part as a range and name only what actually blocks.
+        partial = span(len(reachable), len(reachable), "본문 첫 전체 평가", counts_live=True)
+        two = "%s (%d/9, %s 선언 대기)" % (partial, 9 - len(unimplemented),
+                                          "/".join(unimplemented))
     else:
         two = span(len(m2_missing), len(m2_missing), "본문 첫 전체 평가", counts_live=True)
 
@@ -448,7 +461,7 @@ def etas(man, snap):
                 and "(train)" not in r["seed_or_weight"])
     if unimplemented:
         three = span(0, 0, "본문 최종",
-                     "PROSPER/MOPO 구현 + cross-play bank 미확정")
+                     "%s 선언 + cross-play bank 미확정" % "/".join(unimplemented))
     else:
         three = span(len(tr), len(ju), "본문 최종", counts_live=True)
     return " / ".join([one, two, three])
