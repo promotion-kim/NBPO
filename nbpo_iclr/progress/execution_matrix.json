@@ -19,7 +19,7 @@
       "nbpo": 3,
       "game_utilitarian": 3,
       "fixed_reference_nash": 3,
-      "bt_rm_nash": 1,
+      "bt_rm_nash": 3,
       "game_maxmin": 3,
       "dpo_uniform": 1,
       "prosper_adapt": 3,
@@ -126,6 +126,11 @@
       "kst": "2026-09-12 15:45",
       "change": "capability benchmarks 4 -> 7: alpaca_eval_2, arena_hard_v2, mt_bench added",
       "why": "these three columns were added to tab:general-capability at the user's request and are now measured on all twelve trained arms, so the denominator must include them or the counter reports 11/36 while 13 further cells are filled. Widening the denominator, never narrowing it: the three new columns are unmeasured for BT-RM-Nash, scalarized DPO, PROSPER and MOPO and count against it."
+    },
+    {
+      "kst": "2026-09-12 19:15",
+      "change": "bt_rm_nash planned seeds 1 -> 3",
+      "why": "at one seed BT-RM-Nash is the only arm in the table whose minimum-attribute mean exceeds 0.5 (0.5064) and it leads instruction following and honesty, while its minimum-objective interval [0.4892, 0.5202] still contains 0.5. This is the third one-seed lead in this table and the previous two, fixed-reference Nash and global game-maxmin, both lost the lead once their remaining seeds arrived. Widening the denominator, never narrowing it."
     }
   ]
 }
