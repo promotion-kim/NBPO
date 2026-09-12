@@ -144,3 +144,84 @@ So MOPO needs its own row construction: one row per (prompt, candidate), 10000 �
 checked before the arm is queued — the same "read the callee before queueing a
 batch" rule that caught the DPO, HarmBench and spaCy failures. It is the reason
 the arm is not queued in the same turn as these declarations.
+
+## What running it showed (2026-09-12, solver verified)
+
+The dual was solved on both splits. Three things came out of it, and two are
+corrections to what is written above.
+
+### The lower bound is exact, after three of my own errors
+
+The closed form `max_χ [−χ log E exp(−ρq/χ) − χε]` now agrees with a direct
+constrained minimisation to **5.7e-14** relative, swept over KL radii
+{0.15, 0.01, 1e-3, 1e-5}. Getting there took three fixes, all caught by the
+check rather than by reading the code: the check's own sign (Problem (5)
+*minimises*, so the direct value is `+Σ w v`; writing `−Σ w v` gave a relative
+residual of exactly 2), a log-spaced grid for the χ maximisation (replaced by
+ternary search on log χ, since the objective is concave), and a χ bracket capped
+at 1e2 when the optimal χ grows like 1/√ε (a 1e-5 radius needs χ ≈ 200).
+
+### CORRECTION 1 — ε = 0.15 cannot be transplanted, and neither can ε > 0
+
+Measured on our own tensors, the paper's ε = 0.15 costs **0.0612 / 0.0742 /
+0.0831** of the three secondary values at the reference policy, while the
+paper's β = 0.9995 allows a slack of **2.5e-4** — a factor of 240 to 330. The
+constraint is violated before optimisation starts, λ runs away linearly (73.8
+after 300 iterations and still rising) and ρ collapses to one-hot, which turns
+MOPO's policy step into best-of-8 cloning.
+
+Calibrating ε so the robustification consumes exactly β's slack at the reference
+(ε = 1.48e-6) fixes stage 0. It does **not** survive the ratchet: once ρ spreads
+out, the adversary has more room, the gap grows past (1−β)·G again, and the
+solver's feasibility guard fires at stage 1 with a violation of 5.4e-4.
+
+So the robustification is dropped: **ε = 0**, the paper's Problem (3) constraint
+on the estimated values directly. The justification is the paper's own — it
+introduces the χ step to make the policy "robust against these estimation
+errors" in `q̂` collected from a finite dataset, and our `q̄` is an exact
+deterministic teacher evaluation over the complete 8×8 block of every prompt,
+not a bootstrap estimate from sampled comparisons. The departure is recorded
+with the number that forces it rather than asserted.
+
+### CORRECTION 2 — t0 is inert here, so the main row's t0 = ∞ needs no apology
+
+Simulating the ratchet `b ← β·G(ρ_prev)` over six stages: `b` climbs from
+[0.4998, 0.5000, 0.5002] to [0.5699, 0.5919, 0.6033] and **λ stays exactly 0 at
+every stage**, with ρ and the primary value unchanged to five decimals. The
+fixed point is reached in one step. So t0 = ∞ and t0 = 250 produce the identical
+ρ, and the earlier worry that t0 = ∞ makes the main row a degenerate limit does
+not apply — measured, over six ratchet stages, rather than argued.
+
+### The finding: MOPO's constraints never bind on UF-4
+
+Why λ = 0 is not a solver artifact. Within each prompt, across the eight
+candidates, the teacher's primary and secondary values are nearly rank-identical:
+
+| secondary | within-prompt Spearman vs IF | prompts positive | prompts below −0.5 |
+|---|---|---|---|
+| truthfulness | 0.870 | 99.8 % / 99.6 % | 0.02 % / 0 % |
+| honesty | 0.912 | 100 % / 99.9 % | 0 % / 0 % |
+| helpfulness | 0.905 | 99.8 % / 99.9 % | 0.06 % / 0 % |
+
+(train n = 10000 / dev n = 1000.) The candidate that maximises instruction
+following clears each secondary's pool mean on **99.0 % to 100 %** of prompts,
+and by a wide margin: 0.599 / 0.634 / 0.652 against pool means of 0.500. Under
+ρ at λ = 0 the primary reaches 0.604 and the secondaries 0.570 / 0.592 / 0.604,
+all far above the 0.500 reference.
+
+So on this candidate pool maximising the primary objective also raises all three
+secondaries well past β times anything they had achieved, the constraints are
+satisfied for free, and **MOPO reduces exactly to KL-regularised
+single-objective preference optimisation on the primary objective**, for any β
+and t0 in the paper's ranges.
+
+This is not a reason to skip the arm: "maximise instruction following and merely
+check the others do not fall" is a distinct policy from the four aggregation
+rules, and it belongs in the table. It is a reason to report that MOPO's
+distinguishing mechanism is inactive here — which is the same absence of
+objective conflict that leaves all four aggregation rules indistinguishable,
+seen through a different algorithm's diagnostic.
+
+## Still to do
+
+The 80000-row (prompt, candidate) builder, then solve → train → eval.

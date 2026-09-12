@@ -1,0 +1,100 @@
+{
+ "train": {
+  "n_prompts": 10000,
+  "within_prompt_association": {
+   "truthfulness": {
+    "mean_within_prompt_spearman_vs_primary": 0.870347619047619,
+    "fraction_of_prompts_positive": 0.9978,
+    "fraction_below_-0.5": 0.0002
+   },
+   "honesty": {
+    "mean_within_prompt_spearman_vs_primary": 0.9117190476190477,
+    "fraction_of_prompts_positive": 0.9997,
+    "fraction_below_-0.5": 0.0
+   },
+   "helpfulness": {
+    "mean_within_prompt_spearman_vs_primary": 0.905061904761905,
+    "fraction_of_prompts_positive": 0.9981,
+    "fraction_below_-0.5": 0.0006
+   }
+  },
+  "primary_argmax_check": {
+   "truthfulness": {
+    "mean_secondary_at_primary_argmax": 0.5985976833305189,
+    "pool_mean": 0.5001653653325246,
+    "fraction_of_prompts_at_or_above_pool_mean": 0.9901
+   },
+   "honesty": {
+    "mean_secondary_at_primary_argmax": 0.6340400742811817,
+    "pool_mean": 0.5003037325481219,
+    "fraction_of_prompts_at_or_above_pool_mean": 0.9973
+   },
+   "helpfulness": {
+    "mean_secondary_at_primary_argmax": 0.6523732068806887,
+    "pool_mean": 0.5002099199743676,
+    "fraction_of_prompts_at_or_above_pool_mean": 0.9945
+   }
+  },
+  "value_under_rho_lambda0": {
+   "truthfulness": 0.5702193157638802,
+   "honesty": 0.5923487718502238,
+   "helpfulness": 0.6039191553567265,
+   "primary": 0.6042905981355572
+  },
+  "value_under_reference": {
+   "truthfulness": 0.5001653653325246,
+   "honesty": 0.5003037325481219,
+   "helpfulness": 0.5002099199743676,
+   "primary": 0.5000934411909962
+  }
+ },
+ "dev": {
+  "n_prompts": 1000,
+  "within_prompt_association": {
+   "truthfulness": {
+    "mean_within_prompt_spearman_vs_primary": 0.8699285714285716,
+    "fraction_of_prompts_positive": 0.996,
+    "fraction_below_-0.5": 0.0
+   },
+   "honesty": {
+    "mean_within_prompt_spearman_vs_primary": 0.9133809523809525,
+    "fraction_of_prompts_positive": 0.999,
+    "fraction_below_-0.5": 0.0
+   },
+   "helpfulness": {
+    "mean_within_prompt_spearman_vs_primary": 0.9054285714285716,
+    "fraction_of_prompts_positive": 0.999,
+    "fraction_below_-0.5": 0.0
+   }
+  },
+  "primary_argmax_check": {
+   "truthfulness": {
+    "mean_secondary_at_primary_argmax": 0.599414610334805,
+    "pool_mean": 0.500098848635597,
+    "fraction_of_prompts_at_or_above_pool_mean": 0.994
+   },
+   "honesty": {
+    "mean_secondary_at_primary_argmax": 0.6350937999870095,
+    "pool_mean": 0.5002725885835078,
+    "fraction_of_prompts_at_or_above_pool_mean": 1.0
+   },
+   "helpfulness": {
+    "mean_secondary_at_primary_argmax": 0.652793080670493,
+    "pool_mean": 0.5004354407292392,
+    "fraction_of_prompts_at_or_above_pool_mean": 0.997
+   }
+  },
+  "value_under_rho_lambda0": {
+   "truthfulness": 0.5701856395001966,
+   "honesty": 0.5922088368615722,
+   "helpfulness": 0.6035731746802118,
+   "primary": 0.6041447010212151
+  },
+  "value_under_reference": {
+   "truthfulness": 0.500098848635597,
+   "honesty": 0.5002725885835078,
+   "helpfulness": 0.5004354407292392,
+   "primary": 0.5001837805115751
+  }
+ }
+}
