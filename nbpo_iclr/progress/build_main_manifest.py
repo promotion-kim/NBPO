@@ -94,7 +94,7 @@ ARMS = {
     # objectives table, on one seed, right after the fixed-reference control's
     # one-seed lead dissolved at three seeds. Matrix widened 1 -> 3.
     "game_maxmin": ("maxmin_mse_s%d", [42, 43, 44]),
-    "dpo_uniform": ("dpo_uniform_mse_s%d", [42]),
+    "dpo_uniform": ("dpo_uniform_mse_s%d", [42, 43, 44]),
     "prosper_adapt": ("prosper_mse_s%d", [42, 43, 44]),
     "mopo_adapt": ("mopo_mse_s%d", [42, 43, 44]),
 }

@@ -21,7 +21,7 @@
       "fixed_reference_nash": 3,
       "bt_rm_nash": 3,
       "game_maxmin": 3,
-      "dpo_uniform": 1,
+      "dpo_uniform": 3,
       "prosper_adapt": 3,
       "mopo_adapt": 3
     }
@@ -131,6 +131,11 @@
       "kst": "2026-09-12 19:15",
       "change": "bt_rm_nash planned seeds 1 -> 3",
       "why": "at one seed BT-RM-Nash is the only arm in the table whose minimum-attribute mean exceeds 0.5 (0.5064) and it leads instruction following and honesty, while its minimum-objective interval [0.4892, 0.5202] still contains 0.5. This is the third one-seed lead in this table and the previous two, fixed-reference Nash and global game-maxmin, both lost the lead once their remaining seeds arrived. Widening the denominator, never narrowing it."
+    },
+    {
+      "kst": "2026-09-13 08:15",
+      "change": "dpo_uniform planned seeds 1 -> 3",
+      "why": "at one seed the uniform-weight scalarized DPO baseline exceeds all five bargaining mechanisms on every attribute and on the minimum objective -- instruction following 0.5719 against their 0.5041-0.5104, truthfulness 0.5728 against 0.5091-0.5141, helpfulness 0.6351 against 0.5485-0.5504, minimum 0.5117 against 0.4928-0.5004 -- and its instruction-following, truthfulness and helpfulness intervals exclude 0.5, which no mechanism achieved outside helpfulness. This is the row that would invert the paper's conclusion, and three one-seed leads in this table have already failed to replicate. Widening the denominator, never narrowing it."
     }
   ]
 }

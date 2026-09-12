@@ -88,27 +88,27 @@
 % Factual counts written by progress/fill_exhibits.py. The caption prose reads
 % these macros, so the table body and the sentence describing it cannot drift
 % apart. Interpretive sentences are NOT auto-written.
-\newcommand{\tabonecommon}{1{,}439}
-\newcommand{\tabonevalidrange}{$1{,}914$--$1{,}939$}
+\newcommand{\tabonecommon}{1{,}408}
+\newcommand{\tabonevalidrange}{$1{,}908$--$1{,}939$}
 % END AUTO EXHIBIT NUMBERS
 
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-13 06:14 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-13 07:44 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 6/9; cross-play 6/6; DPO weights 0/7; capability cells 40/63; lm-eval cells 48.
 \\[2pt]
-GPU0: uf4\_train\_dpo\_uniform\_mse\_s42, 98\%, 98397/143771 MiB | GPU1: uf4\_train\_dpo\_uniform\_mse\_s42, 97\%, 96233/143771 MiB | GPU2: uf4\_train\_dpo\_uniform\_mse\_s42, 97\%, 96299/143771 MiB | GPU3: uf4\_train\_dpo\_uniform\_mse\_s42, 94\%, 95135/143771 MiB
+GPU0: uf4\_finaleval\_judge\_dpo\_uniform\_mse\_s42, 97\%, 131019/143771 MiB | GPU1: uf4\_cap\_dpo\_uniform\_mse\_s42\_arc\_challenge, 97\%, 125111/143771 MiB | GPU2: uf4\_cap\_dpo\_uniform\_mse\_s42\_hellaswag, 0\%, 122963/143771 MiB | GPU3: uf4\_cap\_dpo\_uniform\_mse\_s42\_mmlu, 0\%, 122963/143771 MiB
 \\[2pt]
-Queue: BLOCKED 1 (1 superseded), DONE 339, FAILED 6 (6 superseded), PENDING 73, READY 20, RUNNING 1. PDF rebuilt each cycle.
+Queue: BLOCKED 1 (1 superseded), DONE 344, FAILED 6 (6 superseded), PENDING 69, READY 25, RUNNING 4. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
 
 
 \begin{abstract}
-Aligning a large language model (LLM) with multiple objectives requires choosing a compromise while accounting for gains and losses on each objective. General pairwise preferences need not admit a scalar ranking, and evaluation against a fixed reference can miss weaknesses exposed by other responses. We introduce Nash Bargaining Preference Optimization (\NBPO{}), which evaluates each objective against an opponent that adapts to the policy and maximizes the product of improvements over a shared reference policy. The policy and its opponents depend on one another; we directly optimize the probabilities of sampled responses, then train the LLM to reproduce their relative probability changes. Under the stated assumptions, the population optimum improves each objective's game value over the reference and is Pareto efficient in these values. Exact population updates with a constant step size achieve an $O(1/T)$ bargaining-objective gap. Controlled experiments support adaptive-game representations as nontransitivity increases. On UltraFeedback with four judged objectives, however, the mechanism does not separate from its controls: \NBPO{}, a fixed-reference Nash control, an $L_1$-matched utilitarian control and a global game-maxmin control, three policy seeds each on a common set of $\tabonecommon$ prompts, give minimum-objective win rates spanning $0.4931$ to $0.4981$, all below the reference and all with whole-prompt paired intervals containing it. Independent cross-play on a frozen four-policy bank orders \NBPO{} first on all three of its statistics yet separates no arm from another; the one interval that excludes its null is the untrained reference's own worst-bank win rate. Three times an arm led this table at one policy seed and three times the lead did not survive its remaining seeds, so we report no single-seed ordering as a result. Capability is retained on GSM8K and general benchmarks, while every mechanism becomes markedly more compliant with direct harmful requests and correspondingly less prone to refusing benign ones, uniformly enough to be a property of training on these score-induced labels rather than of any compromise rule. We report this as a null result for the mechanism this paper argues for and for its alternatives alike.
+Aligning a large language model (LLM) with multiple objectives requires choosing a compromise while accounting for gains and losses on each objective. General pairwise preferences need not admit a scalar ranking, and evaluation against a fixed reference can miss weaknesses exposed by other responses. We introduce Nash Bargaining Preference Optimization (\NBPO{}), which evaluates each objective against an opponent that adapts to the policy and maximizes the product of improvements over a shared reference policy. The policy and its opponents depend on one another; we directly optimize the probabilities of sampled responses, then train the LLM to reproduce their relative probability changes. Under the stated assumptions, the population optimum improves each objective's game value over the reference and is Pareto efficient in these values. Exact population updates with a constant step size achieve an $O(1/T)$ bargaining-objective gap. Controlled experiments support adaptive-game representations as nontransitivity increases. On UltraFeedback with four judged objectives, however, the mechanism does not separate from its controls: \NBPO{}, a fixed-reference Nash control, an $L_1$-matched utilitarian control and a global game-maxmin control, three policy seeds each on a common set of $\tabonecommon$ prompts, give minimum-objective win rates spanning $0.4931$ to $0.4981$, all below the reference and all with whole-prompt paired intervals containing it. Independent cross-play on a frozen four-policy bank orders \NBPO{} first on all three of its statistics yet separates no arm from another; the one interval that excludes its null is the untrained reference's own worst-bank win rate. Three times an arm led this table at one policy seed and three times the lead did not survive its remaining seeds, so we report no single-seed ordering as a result. Capability is retained on GSM8K and general benchmarks, while every mechanism becomes markedly more compliant with direct harmful requests and correspondingly less prone to refusing benign ones, uniformly enough to be a property of training on these score-induced labels rather than of any compromise rule. At one policy seed a uniform-weight scalarized DPO baseline, trained on the same pool at the same budget and judged by the same evaluator, exceeds all five mechanisms on every objective by $0.06$ to $0.09$; its remaining seeds are running, and we draw no conclusion from one seed in a table where three such orderings have already reversed. We report this as a null result for the mechanism this paper argues for and for its alternatives alike.
 \end{abstract}
 
 \kekim_gpt{\textbf{R01 --- Review roadmap and central claim.} The strongest possible story is not simply ``Nash bargaining has desirable axioms.'' It is that a specific reference-surplus bargaining problem over general preference games can be solved reliably enough to improve a deployed LLM. The present evidence leaves two links unresolved: whether the practical training procedure realizes the proposed update, and whether adaptive game values help beyond fixed-reference Nash. Organize the paper around a falsifiable sequence: demonstrate residual within-objective preference misspecification; define the particular compromise being chosen; solve the finite game accurately; measure neural realization error; then evaluate independent trade-offs. Prioritize these links before expanding benchmark coverage. The comments below address substantive framing, correctness, and experimental design; intentionally unfinished tables and routine placeholders are not the focus.}
@@ -599,19 +599,19 @@ Method & Seeds & IF & Truth & Honesty & Help & $\min_k W_k$\\
 Base (defined reference) & -- & $0.500$ & $0.500$ & $0.500$ & $0.500$ & $0.500$\\
 \addlinespace
 \multicolumn{7}{l}{\textit{Matched mechanism controls}}\\
-NBPO & $3$ & $0.5057$ & $0.5096$ & $0.4948$ & $\mathbf{0.5496}$ & $0.4948$\\
-\quad\textit{sample SD over seeds} & & $0.0087$ & $0.0015$ & $0.0027$ & $0.0061$ & $0.0027$\\
-Fixed-reference Nash & $3$ & $0.5079$ & $0.5136$ & $0.4978$ & $\mathbf{0.5510}$ & $0.4978$\\
-\quad\textit{sample SD over seeds} & & $0.0053$ & $0.0008$ & $0.0053$ & $0.0010$ & $0.0053$\\
-BT-RM--Nash & $3$ & $0.5024$ & $0.5127$ & $0.5023$ & $\mathbf{0.5487}$ & $0.4994$\\
-\quad\textit{sample SD over seeds} & & $0.0118$ & $0.0027$ & $0.0036$ & $0.0041$ & $0.0082$\\
-Game-utilitarian & $3$ & $0.5073$ & $0.5083$ & $0.4986$ & $\mathbf{0.5511}$ & $0.4981$\\
-\quad\textit{sample SD over seeds} & & $0.0008$ & $0.0058$ & $0.0101$ & $0.0036$ & $0.0095$\\
-Global game-maxmin & $3$ & $0.5074$ & $0.5115$ & $0.4931$ & $\mathbf{0.5504}$ & $0.4931$\\
-\quad\textit{sample SD over seeds} & & $0.0153$ & $0.0085$ & $0.0101$ & $0.0092$ & $0.0101$\\
+NBPO & $3$ & $0.5076$ & $0.5109$ & $0.4954$ & $\mathbf{0.5494}$ & $0.4954$\\
+\quad\textit{sample SD over seeds} & & $0.0083$ & $0.0025$ & $0.0030$ & $0.0053$ & $0.0030$\\
+Fixed-reference Nash & $3$ & $0.5104$ & $0.5141$ & $0.4971$ & $\mathbf{0.5500}$ & $0.4971$\\
+\quad\textit{sample SD over seeds} & & $0.0052$ & $0.0011$ & $0.0064$ & $0.0007$ & $0.0064$\\
+BT-RM--Nash & $3$ & $0.5041$ & $0.5134$ & $0.5022$ & $\mathbf{0.5485}$ & $0.5004$\\
+\quad\textit{sample SD over seeds} & & $0.0125$ & $0.0029$ & $0.0055$ & $0.0033$ & $0.0085$\\
+Game-utilitarian & $3$ & $0.5092$ & $0.5091$ & $0.4991$ & $\mathbf{0.5504}$ & $0.4989$\\
+\quad\textit{sample SD over seeds} & & $0.0002$ & $0.0058$ & $0.0107$ & $0.0030$ & $0.0104$\\
+Global game-maxmin & $3$ & $0.5100$ & $0.5128$ & $0.4928$ & $\mathbf{0.5504}$ & $0.4928$\\
+\quad\textit{sample SD over seeds} & & $0.0154$ & $0.0096$ & $0.0107$ & $0.0094$ & $0.0107$\\
 \addlinespace
 \multicolumn{7}{l}{\textit{External baselines}}\\
-Scalarized DPO (uniform) & \pending & \pending & \pending & \pending & \pending & \pending\\
+Scalarized DPO (uniform) & $1$ & $\mathbf{0.5719}$ & $\mathbf{0.5728}$ & $0.5117$ & $\mathbf{0.6351}$ & $0.5117$\\
 PROSPER (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending\\
 MOPO (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending\\
 % END AUTO TAB1 BODY
@@ -627,11 +627,11 @@ Every measured policy uses the same planned $2000$ final prompts and cached base
 
 \subsection{Bargaining and empirical trade-offs}
 \label{sec:tradeoffs}
-On the $\tabonecommon$ prompts common to all fifteen evaluated arms, the four matched mechanisms are indistinguishable. \NBPO{}, fixed-reference Nash, game-utilitarian and global game-maxmin, three policy seeds each, give minimum attribute means of $0.4948$, $0.4978$, $0.4981$ and $0.4931$: a spread of $0.0050$, all below $0.5$, all with intervals containing it, and all binding on honesty. Their four attribute means agree to within $0.0065$ everywhere, and to within $0.0022$ on instruction following and helpfulness (Table~\ref{tab:uf-objectives}). Changing the aggregation rule from Nash to utilitarian or to maxmin over the same prompt-averaged game values, and changing the representation from an adaptive opponent to a fixed reference, each leave the outcome where it was. We report this as a null result for the mechanism this paper argues for and for its alternatives alike.
+On the $\tabonecommon$ prompts common to all fifteen evaluated arms, the four matched mechanisms are indistinguishable. \NBPO{}, fixed-reference Nash, game-utilitarian and global game-maxmin, three policy seeds each, give minimum attribute means of $0.4948$, $0.4978$, $0.4981$ and $0.4931$: a spread of $0.0050$, all below $0.5$, all with intervals containing it, and all binding on honesty. Their four attribute means agree to within $0.0065$ everywhere, and to within $0.0022$ on instruction following and helpfulness (Table~\ref{tab:uf-objectives}). Changing the aggregation rule from Nash to utilitarian or to maxmin over the same prompt-averaged game values, and changing the representation from an adaptive opponent to a fixed reference, each leave the outcome where it was. We report this as a null result for the mechanism this paper argues for and for its alternatives alike. At one policy seed the external scalarized-DPO baseline is not merely indistinguishable from them but ahead of all five on every attribute, by margins of $0.06$ to $0.09$ that dwarf every seed spread measured here. If that survives its remaining two seeds it is the paper's central negative result rather than a footnote, and the two seeds are queued; until they land we state the comparison and draw nothing from it, because three single-seed orderings in this same table have already reversed.
 
 Reaching it required the seeds, and both single-seed readings were wrong. At one seed fixed-reference led both three-seed means on all four attributes and was the only arm with a minimum above $0.5$; at three it leads none. At one seed global game-maxmin exceeded NBPO's best of three seeds on every attribute by $2.6$ to $3.9$ NBPO seed standard deviations; at three seeds it has the lowest minimum-attribute mean of the four mechanisms, $0.4921$ against \NBPO{}'s $0.4949$, because honesty binds for every arm and its honesty mean is the lowest. Its seed standard deviations are the largest of the four on all four attributes, and on instruction following ($0.0142$) twice the next largest, which is why its one-seed figures were the most misleading here. Two explanations that would have made the single-seed ordering an artifact were checked and did not hold: the realized Eq.~(26) target magnitudes agree to within $4\%$ across these arms and the leading arm's was the smallest, and global game-maxmin shares \NBPO{}'s adaptive-game representation. What remained was policy-seed variation, and that is what it was. An independent measurement pointed the same way beforehand: on the development split used to select the cross-play competitor, the utilitarian arm beat global game-maxmin on the minimum objective, reversing the single-seed final-split ordering.
 
-Restricting to the common prompts matters, and so does which arms are in it: the set has shrunk from $1{,}719$ through $1{,}644$, $1{,}616$, $1{,}588$, $1{,}569$, $1{,}544$, $1{,}512$, $1{,}486$ and $1{,}466$ to $\tabonecommon$ as arms were added, so every number in the table has been recomputed nine times. The mean target TV of the \NBPO{} and utilitarian arms is $0.0195$; the corresponding SafeRLHF value is $0.0008$ (Appendix~\ref{app:solver-neural}). These target diagnostics do not establish policy equivalence. All five mechanisms are measured at three seeds; the scalarized-DPO, PROSPER and MOPO rows remain unmeasured.
+Restricting to the common prompts matters, and so does which arms are in it: the set has shrunk from $1{,}719$ through $1{,}644$, $1{,}616$, $1{,}588$, $1{,}569$, $1{,}544$, $1{,}512$, $1{,}486$ and $1{,}466$ to $\tabonecommon$ as arms were added, so every number in the table has been recomputed nine times. The mean target TV of the \NBPO{} and utilitarian arms is $0.0195$; the corresponding SafeRLHF value is $0.0008$ (Appendix~\ref{app:solver-neural}). These target diagnostics do not establish policy equivalence. All five mechanisms are measured at three seeds, and the uniform-weight scalarized DPO baseline at one, where it exceeds every mechanism on every attribute and on the minimum: instruction following $0.5719$ against their $0.5041$--$0.5104$, truthfulness $0.5728$ against $0.5091$--$0.5141$, helpfulness $0.6351$ against $0.5485$--$0.5504$ and the minimum $0.5117$ against $0.4928$--$0.5004$, with its instruction-following, truthfulness and helpfulness intervals excluding $0.5$ where no mechanism's did outside helpfulness. Its own minimum-objective interval still contains $0.5$, it rests on one policy seed against three, and three one-seed leads in this table have already failed to replicate, so its remaining two seeds are queued ahead of the other baselines and nothing is concluded from it yet; the scalarized-DPO, PROSPER and MOPO rows remain unmeasured.
 
 Figure~\ref{fig:uf-tradeoffs} provides two projections for comparing policies with the declared DPO sweep: four specialist vectors, the uniform vector, and two fixed interior vectors. The sweep remains unmeasured. Operating-point selection uses development data, and all seven settings are retained. Dominance is assessed in the full four-dimensional outcome space; the two projections cannot establish it. Worst-objective wins, Nash welfare, and average wins express different preferences over that space, so no single summary establishes the best compromise. Appendix~\ref{app:pareto-evaluation} specifies uncertainty and tuning-cost reporting.
 
@@ -719,7 +719,7 @@ Game-utilitarian & $3$ & $0.7252$ & $0.8625$ & $0.4021$ & $0.0388$ & $0.5685$ & 
 \quad\textit{sample SD over seeds} & & $0.0059$ & $0.0034$ & $0.0130$ & $0.0022$ & $0.0123$ & $0.0196$ & $0.13$\\
 Global game-maxmin & $3$ & $0.7437$ & $0.8678$ & $0.3917$ & $0.0388$ & $0.5636$ & $0.5323$ & $7.62$\\
 \quad\textit{sample SD over seeds} & & $0.0043$ & $0.0024$ & $0.0065$ & $0.0046$ & $0.0169$ & $0.0203$ & $0.13$\\
-Scalarized DPO (uniform) & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
+Scalarized DPO (uniform) & $1$ & $0.6359$ & $0.8582$ & \pending & \pending & \pending & \pending & \pending\\
 PROSPER (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
 MOPO (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
 % END AUTO TAB3 BODY
@@ -2359,7 +2359,7 @@ BT-RM--Nash & $1.12\times10^{6}$ & $1.8$ & $11.2$ & $0.9$ & $12.1$ & $0$\\
 Global game-maxmin & $1.12\times10^{6}$ & $1.8$ & $11.2$ & $0.9$ & $12.1$ & $0$\\
 PROSPER (adapt.) & $1.12\times10^{6}$ & $1.8$ & \pending & \pending & \pending & \pending\\
 MOPO (adapt.) & $1.12\times10^{6}$ & $1.8$ & \pending & \pending & \pending & \pending\\
-DPO (uniform / sweep) & $1.12\times10^{6}$ & $1.8$ & \pending & \pending & \pending & $0$\\
+DPO (uniform / sweep) & $1.12\times10^{6}$ & $1.8$ & $10.7$ & \pending & \pending & $0$\\
 % END AUTO COST BODY
 \bottomrule
 \end{tabular}
