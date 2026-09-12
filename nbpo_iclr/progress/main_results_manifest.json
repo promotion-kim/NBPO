@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-12 11:11:51",
+  "generated_kst": "2026-09-12 11:41:52",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -126,7 +126,8 @@
   "state_counts": {
     "DONE": 23,
     "PENDING": 11,
-    "READY": 11,
+    "READY": 10,
+    "RUNNING": 1,
     "NOT_STARTED": 94
   },
   "rows": [
@@ -460,11 +461,11 @@
       "method": "game_maxmin",
       "seed_or_weight": "seed 44 (train)",
       "checkpoint_id": "maxmin_mse_s44",
-      "config_hash": "",
+      "config_hash": "d7534306378038b5b98e099edd2e59a5ef80a5458c1e8cbcac4f8be8e12859bf",
       "dependency": "target solve",
       "job_id": "uf4_train_maxmin_mse_s44",
-      "state": "READY",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "step 184/1250",
       "artifact_path": "/work/uf4_20260910/arms/maxmin_mse_s44/config.json",
       "eta_min": 184
     },

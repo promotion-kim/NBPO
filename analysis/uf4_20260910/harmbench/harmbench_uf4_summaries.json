@@ -1,0 +1,318 @@
+{
+  "base": {
+    "overall": {
+      "estimate": 0.28125,
+      "ci95": [
+        0.23125,
+        0.33125
+      ],
+      "n_prompts": 320,
+      "denominator": 320.0,
+      "bootstrap_repetitions": 2000,
+      "bootstrap_seed": 20260909,
+      "uncertainty_scope": "prompt sampling, not training-seed uncertainty",
+      "n_planned": 320,
+      "n_scored": 320,
+      "n_failed": 0,
+      "complete": true
+    },
+    "metric": "HarmBench harmful-completion rate, official category routing",
+    "n_planned": 320,
+    "n_generated": 320,
+    "invalid_labels": 0,
+    "official_repo_commit": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
+    "classifier": "/work/hf_cache/hub/models--cais--HarmBench-Llama-2-13b-cls/snapshots/bda705349d1144fa618770bea64d99ce54e3835b",
+    "eval_utils_sha256": "46f1db751866848834d45d5128a18d4cc0a820828e89796ab51bc605d10c7058",
+    "behavior_file_sha256": "75d257b3e7428c52eb7b0154318f455af3e01b09a3794b5e2f3d36054f3c0e29",
+    "coverage_note": "Missing responses, invalid classifier labels, and errors remain separate; rates use successfully scored prompts only and cannot be cited as complete-panel rates when incomplete"
+  },
+  "uf4hb_fixedref_mse_s42": {
+    "overall": {
+      "estimate": 0.403125,
+      "ci95": [
+        0.35,
+        0.4563281249999996
+      ],
+      "n_prompts": 320,
+      "denominator": 320.0,
+      "bootstrap_repetitions": 2000,
+      "bootstrap_seed": 20260909,
+      "uncertainty_scope": "prompt sampling, not training-seed uncertainty",
+      "n_planned": 320,
+      "n_scored": 320,
+      "n_failed": 0,
+      "complete": true
+    },
+    "metric": "HarmBench harmful-completion rate, official category routing",
+    "n_planned": 320,
+    "n_generated": 320,
+    "invalid_labels": 0,
+    "official_repo_commit": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
+    "classifier": "/work/hf_cache/hub/models--cais--HarmBench-Llama-2-13b-cls/snapshots/bda705349d1144fa618770bea64d99ce54e3835b",
+    "eval_utils_sha256": "46f1db751866848834d45d5128a18d4cc0a820828e89796ab51bc605d10c7058",
+    "behavior_file_sha256": "75d257b3e7428c52eb7b0154318f455af3e01b09a3794b5e2f3d36054f3c0e29",
+    "coverage_note": "Missing responses, invalid classifier labels, and errors remain separate; rates use successfully scored prompts only and cannot be cited as complete-panel rates when incomplete"
+  },
+  "uf4hb_fixedref_mse_s43": {
+    "overall": {
+      "estimate": 0.403125,
+      "ci95": [
+        0.346875,
+        0.45625
+      ],
+      "n_prompts": 320,
+      "denominator": 320.0,
+      "bootstrap_repetitions": 2000,
+      "bootstrap_seed": 20260909,
+      "uncertainty_scope": "prompt sampling, not training-seed uncertainty",
+      "n_planned": 320,
+      "n_scored": 320,
+      "n_failed": 0,
+      "complete": true
+    },
+    "metric": "HarmBench harmful-completion rate, official category routing",
+    "n_planned": 320,
+    "n_generated": 320,
+    "invalid_labels": 0,
+    "official_repo_commit": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
+    "classifier": "/work/hf_cache/hub/models--cais--HarmBench-Llama-2-13b-cls/snapshots/bda705349d1144fa618770bea64d99ce54e3835b",
+    "eval_utils_sha256": "46f1db751866848834d45d5128a18d4cc0a820828e89796ab51bc605d10c7058",
+    "behavior_file_sha256": "75d257b3e7428c52eb7b0154318f455af3e01b09a3794b5e2f3d36054f3c0e29",
+    "coverage_note": "Missing responses, invalid classifier labels, and errors remain separate; rates use successfully scored prompts only and cannot be cited as complete-panel rates when incomplete"
+  },
+  "uf4hb_fixedref_mse_s44": {
+    "overall": {
+      "estimate": 0.390625,
+      "ci95": [
+        0.3375,
+        0.4438281249999996
+      ],
+      "n_prompts": 320,
+      "denominator": 320.0,
+      "bootstrap_repetitions": 2000,
+      "bootstrap_seed": 20260909,
+      "uncertainty_scope": "prompt sampling, not training-seed uncertainty",
+      "n_planned": 320,
+      "n_scored": 320,
+      "n_failed": 0,
+      "complete": true
+    },
+    "metric": "HarmBench harmful-completion rate, official category routing",
+    "n_planned": 320,
+    "n_generated": 320,
+    "invalid_labels": 0,
+    "official_repo_commit": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
+    "classifier": "/work/hf_cache/hub/models--cais--HarmBench-Llama-2-13b-cls/snapshots/bda705349d1144fa618770bea64d99ce54e3835b",
+    "eval_utils_sha256": "46f1db751866848834d45d5128a18d4cc0a820828e89796ab51bc605d10c7058",
+    "behavior_file_sha256": "75d257b3e7428c52eb7b0154318f455af3e01b09a3794b5e2f3d36054f3c0e29",
+    "coverage_note": "Missing responses, invalid classifier labels, and errors remain separate; rates use successfully scored prompts only and cannot be cited as complete-panel rates when incomplete"
+  },
+  "uf4hb_maxmin_mse_s42": {
+    "overall": {
+      "estimate": 0.396875,
+      "ci95": [
+        0.34375,
+        0.4500781249999996
+      ],
+      "n_prompts": 320,
+      "denominator": 320.0,
+      "bootstrap_repetitions": 2000,
+      "bootstrap_seed": 20260909,
+      "uncertainty_scope": "prompt sampling, not training-seed uncertainty",
+      "n_planned": 320,
+      "n_scored": 320,
+      "n_failed": 0,
+      "complete": true
+    },
+    "metric": "HarmBench harmful-completion rate, official category routing",
+    "n_planned": 320,
+    "n_generated": 320,
+    "invalid_labels": 0,
+    "official_repo_commit": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
+    "classifier": "/work/hf_cache/hub/models--cais--HarmBench-Llama-2-13b-cls/snapshots/bda705349d1144fa618770bea64d99ce54e3835b",
+    "eval_utils_sha256": "46f1db751866848834d45d5128a18d4cc0a820828e89796ab51bc605d10c7058",
+    "behavior_file_sha256": "75d257b3e7428c52eb7b0154318f455af3e01b09a3794b5e2f3d36054f3c0e29",
+    "coverage_note": "Missing responses, invalid classifier labels, and errors remain separate; rates use successfully scored prompts only and cannot be cited as complete-panel rates when incomplete"
+  },
+  "uf4hb_nbpo_mse_s42": {
+    "overall": {
+      "estimate": 0.390625,
+      "ci95": [
+        0.3375,
+        0.44375
+      ],
+      "n_prompts": 320,
+      "denominator": 320.0,
+      "bootstrap_repetitions": 2000,
+      "bootstrap_seed": 20260909,
+      "uncertainty_scope": "prompt sampling, not training-seed uncertainty",
+      "n_planned": 320,
+      "n_scored": 320,
+      "n_failed": 0,
+      "complete": true
+    },
+    "metric": "HarmBench harmful-completion rate, official category routing",
+    "n_planned": 320,
+    "n_generated": 320,
+    "invalid_labels": 0,
+    "official_repo_commit": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
+    "classifier": "/work/hf_cache/hub/models--cais--HarmBench-Llama-2-13b-cls/snapshots/bda705349d1144fa618770bea64d99ce54e3835b",
+    "eval_utils_sha256": "46f1db751866848834d45d5128a18d4cc0a820828e89796ab51bc605d10c7058",
+    "behavior_file_sha256": "75d257b3e7428c52eb7b0154318f455af3e01b09a3794b5e2f3d36054f3c0e29",
+    "coverage_note": "Missing responses, invalid classifier labels, and errors remain separate; rates use successfully scored prompts only and cannot be cited as complete-panel rates when incomplete"
+  },
+  "uf4hb_nbpo_mse_s43": {
+    "overall": {
+      "estimate": 0.4,
+      "ci95": [
+        0.346875,
+        0.4532031249999996
+      ],
+      "n_prompts": 320,
+      "denominator": 320.0,
+      "bootstrap_repetitions": 2000,
+      "bootstrap_seed": 20260909,
+      "uncertainty_scope": "prompt sampling, not training-seed uncertainty",
+      "n_planned": 320,
+      "n_scored": 320,
+      "n_failed": 0,
+      "complete": true
+    },
+    "metric": "HarmBench harmful-completion rate, official category routing",
+    "n_planned": 320,
+    "n_generated": 320,
+    "invalid_labels": 0,
+    "official_repo_commit": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
+    "classifier": "/work/hf_cache/hub/models--cais--HarmBench-Llama-2-13b-cls/snapshots/bda705349d1144fa618770bea64d99ce54e3835b",
+    "eval_utils_sha256": "46f1db751866848834d45d5128a18d4cc0a820828e89796ab51bc605d10c7058",
+    "behavior_file_sha256": "75d257b3e7428c52eb7b0154318f455af3e01b09a3794b5e2f3d36054f3c0e29",
+    "coverage_note": "Missing responses, invalid classifier labels, and errors remain separate; rates use successfully scored prompts only and cannot be cited as complete-panel rates when incomplete"
+  },
+  "uf4hb_nbpo_mse_s44": {
+    "overall": {
+      "estimate": 0.38125,
+      "ci95": [
+        0.325,
+        0.434375
+      ],
+      "n_prompts": 320,
+      "denominator": 320.0,
+      "bootstrap_repetitions": 2000,
+      "bootstrap_seed": 20260909,
+      "uncertainty_scope": "prompt sampling, not training-seed uncertainty",
+      "n_planned": 320,
+      "n_scored": 320,
+      "n_failed": 0,
+      "complete": true
+    },
+    "metric": "HarmBench harmful-completion rate, official category routing",
+    "n_planned": 320,
+    "n_generated": 320,
+    "invalid_labels": 0,
+    "official_repo_commit": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
+    "classifier": "/work/hf_cache/hub/models--cais--HarmBench-Llama-2-13b-cls/snapshots/bda705349d1144fa618770bea64d99ce54e3835b",
+    "eval_utils_sha256": "46f1db751866848834d45d5128a18d4cc0a820828e89796ab51bc605d10c7058",
+    "behavior_file_sha256": "75d257b3e7428c52eb7b0154318f455af3e01b09a3794b5e2f3d36054f3c0e29",
+    "coverage_note": "Missing responses, invalid classifier labels, and errors remain separate; rates use successfully scored prompts only and cannot be cited as complete-panel rates when incomplete"
+  },
+  "uf4hb_util_mse_s42": {
+    "overall": {
+      "estimate": 0.4125,
+      "ci95": [
+        0.359375,
+        0.465625
+      ],
+      "n_prompts": 320,
+      "denominator": 320.0,
+      "bootstrap_repetitions": 2000,
+      "bootstrap_seed": 20260909,
+      "uncertainty_scope": "prompt sampling, not training-seed uncertainty",
+      "n_planned": 320,
+      "n_scored": 320,
+      "n_failed": 0,
+      "complete": true
+    },
+    "metric": "HarmBench harmful-completion rate, official category routing",
+    "n_planned": 320,
+    "n_generated": 320,
+    "invalid_labels": 0,
+    "official_repo_commit": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
+    "classifier": "/work/hf_cache/hub/models--cais--HarmBench-Llama-2-13b-cls/snapshots/bda705349d1144fa618770bea64d99ce54e3835b",
+    "eval_utils_sha256": "46f1db751866848834d45d5128a18d4cc0a820828e89796ab51bc605d10c7058",
+    "behavior_file_sha256": "75d257b3e7428c52eb7b0154318f455af3e01b09a3794b5e2f3d36054f3c0e29",
+    "coverage_note": "Missing responses, invalid classifier labels, and errors remain separate; rates use successfully scored prompts only and cannot be cited as complete-panel rates when incomplete"
+  },
+  "uf4hb_util_mse_s43": {
+    "overall": {
+      "estimate": 0.40625,
+      "ci95": [
+        0.35,
+        0.4625
+      ],
+      "n_prompts": 320,
+      "denominator": 320.0,
+      "bootstrap_repetitions": 2000,
+      "bootstrap_seed": 20260909,
+      "uncertainty_scope": "prompt sampling, not training-seed uncertainty",
+      "n_planned": 320,
+      "n_scored": 320,
+      "n_failed": 0,
+      "complete": true
+    },
+    "metric": "HarmBench harmful-completion rate, official category routing",
+    "n_planned": 320,
+    "n_generated": 320,
+    "invalid_labels": 0,
+    "official_repo_commit": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
+    "classifier": "/work/hf_cache/hub/models--cais--HarmBench-Llama-2-13b-cls/snapshots/bda705349d1144fa618770bea64d99ce54e3835b",
+    "eval_utils_sha256": "46f1db751866848834d45d5128a18d4cc0a820828e89796ab51bc605d10c7058",
+    "behavior_file_sha256": "75d257b3e7428c52eb7b0154318f455af3e01b09a3794b5e2f3d36054f3c0e29",
+    "coverage_note": "Missing responses, invalid classifier labels, and errors remain separate; rates use successfully scored prompts only and cannot be cited as complete-panel rates when incomplete"
+  },
+  "uf4hb_util_mse_s44": {
+    "overall": {
+      "estimate": 0.3875,
+      "ci95": [
+        0.334375,
+        0.440625
+      ],
+      "n_prompts": 320,
+      "denominator": 320.0,
+      "bootstrap_repetitions": 2000,
+      "bootstrap_seed": 20260909,
+      "uncertainty_scope": "prompt sampling, not training-seed uncertainty",
+      "n_planned": 320,
+      "n_scored": 320,
+      "n_failed": 0,
+      "complete": true
+    },
+    "metric": "HarmBench harmful-completion rate, official category routing",
+    "n_planned": 320,
+    "n_generated": 320,
+    "invalid_labels": 0,
+    "official_repo_commit": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
+    "classifier": "/work/hf_cache/hub/models--cais--HarmBench-Llama-2-13b-cls/snapshots/bda705349d1144fa618770bea64d99ce54e3835b",
+    "eval_utils_sha256": "46f1db751866848834d45d5128a18d4cc0a820828e89796ab51bc605d10c7058",
+    "behavior_file_sha256": "75d257b3e7428c52eb7b0154318f455af3e01b09a3794b5e2f3d36054f3c0e29",
+    "coverage_note": "Missing responses, invalid classifier labels, and errors remain separate; rates use successfully scored prompts only and cannot be cited as complete-panel rates when incomplete"
+  },
+  "_evaluation_complete": {
+    "mode": "harmbench",
+    "labels": [
+      "uf4hb_nbpo_mse_s42",
+      "uf4hb_nbpo_mse_s43",
+      "uf4hb_nbpo_mse_s44",
+      "uf4hb_util_mse_s42",
+      "uf4hb_util_mse_s43",
+      "uf4hb_util_mse_s44",
+      "uf4hb_fixedref_mse_s42",
+      "uf4hb_fixedref_mse_s43",
+      "uf4hb_fixedref_mse_s44",
+      "uf4hb_maxmin_mse_s42",
+      "base"
+    ],
+    "source_sha256": "848fa8840b4efec3638640d8d185845cc0b31551bed842de15a5823b349777c3",
+    "bootstrap_seed": 20260909,
+    "paid_judge_api_calls": 0
+  }
+}
