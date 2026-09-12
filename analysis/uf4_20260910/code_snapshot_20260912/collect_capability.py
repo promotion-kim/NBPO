@@ -34,8 +34,29 @@ def newest(pattern):
     def key(path):
         m = re.search(r"_(\d+)arm", path)
         return (1, int(m.group(1))) if m else (0, 0)
-    hits = glob.glob(pattern)
+    hits = [h for h in glob.glob(pattern) if complete(h)]
     return max(hits, key=lambda q: (key(q), q)) if hits else None
+
+
+def complete(path):
+    """Reject an artifact a scorer is still writing.
+
+    The multi-file scorers write one summary per arm as they go and their
+    completion marker last, so "newest" is not enough: picking up a directory
+    mid-run silently replaced a measured column with dashes. This happened --
+    alpaca_arena_uf4_14arm had all fourteen AlpacaEval summaries and one of
+    fourteen Arena-Hard ones, and Arena-Hard went to pending for every family.
+    A single-file artifact is complete when it exists.
+    """
+    if os.path.isfile(path):
+        return True
+    for marker in ("evaluation_complete.json",):
+        if os.path.exists(os.path.join(path, marker)):
+            return True
+    # No marker defined for this family: accept only if nothing newer is being
+    # written, which for our layout means the directory has a scores file.
+    return any(os.path.exists(os.path.join(path, n)) for n in
+               ("mtbench_scores.json", "xstest_local_scores.json"))
 
 
 for d in glob.glob(REPAIR + "/evaluations/deterministic_uf4_*_v1"):

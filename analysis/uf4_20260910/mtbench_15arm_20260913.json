@@ -1,0 +1,746 @@
+{
+  "benchmark": "MT-Bench (80 questions, two turns)",
+  "grading": "official MT-Bench single-answer grading, 1-10, four official templates",
+  "judge": "/work/uf4_20260910/assets/Qwen3-14B",
+  "judge_revision": "40c069824f4251a91eefaf281ebe4c544efd3e18",
+  "judge_thinking_mode": "disabled (enable_thinking=False)",
+  "judge_system_message": "You are a helpful assistant.",
+  "decoding": {
+    "temperature": 0.0,
+    "max_tokens": 1024,
+    "max_model_len": 16384
+  },
+  "reference_answer_rule": "used exactly for MT-Bench's declared categories ('math', 'reasoning', 'coding')",
+  "missing_rule": "an unparsed rating stays missing; it is never imputed",
+  "not_official": "Not an official MT-Bench score: the GPT-4 judge is replaced by the local Qwen3-14B grader, so values are comparable across the arms in this table and not to published MT-Bench numbers.",
+  "n_judgments": 2400,
+  "seconds": 219.9860506877303,
+  "longest_judge_input_tokens": 4751,
+  "status_counts": {
+    "ok": 2398,
+    "no_rating": 2
+  },
+  "judgments_sha256": "5172775d76934bec86cc2367c8e06c7f183d3e832209f239a030e18185c5ec42",
+  "labels": {
+    "uf4mt_base": {
+      "score": 7.4875,
+      "ci95": [
+        7.00625,
+        7.93125
+      ],
+      "turn1": 8.125,
+      "turn2": 6.85,
+      "mean_of_turn_means": 7.4875,
+      "n_graded": 160,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 6.0,
+          "n": 20
+        },
+        "extraction": {
+          "score": 8.75,
+          "n": 20
+        },
+        "humanities": {
+          "score": 8.8,
+          "n": 20
+        },
+        "math": {
+          "score": 6.75,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 5.5,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.15,
+          "n": 20
+        },
+        "stem": {
+          "score": 7.85,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.1,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_btrm_mse_s42": {
+      "score": 7.7875,
+      "ci95": [
+        7.30625,
+        8.24375
+      ],
+      "turn1": 8.35,
+      "turn2": 7.225,
+      "mean_of_turn_means": 7.7875,
+      "n_graded": 160,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 5.6,
+          "n": 20
+        },
+        "extraction": {
+          "score": 8.7,
+          "n": 20
+        },
+        "humanities": {
+          "score": 8.95,
+          "n": 20
+        },
+        "math": {
+          "score": 8.2,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 5.4,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.6,
+          "n": 20
+        },
+        "stem": {
+          "score": 8.7,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.15,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_btrm_mse_s43": {
+      "score": 7.654088050314465,
+      "ci95": [
+        7.174738924050633,
+        8.08125
+      ],
+      "turn1": 8.2125,
+      "turn2": 7.0886075949367084,
+      "mean_of_turn_means": 7.650553797468355,
+      "n_graded": 159,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 5.421052631578948,
+          "n": 19
+        },
+        "extraction": {
+          "score": 9.0,
+          "n": 20
+        },
+        "humanities": {
+          "score": 8.95,
+          "n": 20
+        },
+        "math": {
+          "score": 7.5,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 5.45,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.35,
+          "n": 20
+        },
+        "stem": {
+          "score": 7.95,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.5,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_fixedref_mse_s42": {
+      "score": 7.5625,
+      "ci95": [
+        7.08109375,
+        8.075
+      ],
+      "turn1": 8.2625,
+      "turn2": 6.8625,
+      "mean_of_turn_means": 7.5625,
+      "n_graded": 160,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 5.5,
+          "n": 20
+        },
+        "extraction": {
+          "score": 8.75,
+          "n": 20
+        },
+        "humanities": {
+          "score": 9.05,
+          "n": 20
+        },
+        "math": {
+          "score": 7.55,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 5.4,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 7.85,
+          "n": 20
+        },
+        "stem": {
+          "score": 8.1,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.3,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_fixedref_mse_s43": {
+      "score": 7.56875,
+      "ci95": [
+        7.025,
+        8.05625
+      ],
+      "turn1": 8.225,
+      "turn2": 6.9125,
+      "mean_of_turn_means": 7.56875,
+      "n_graded": 160,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 5.15,
+          "n": 20
+        },
+        "extraction": {
+          "score": 8.65,
+          "n": 20
+        },
+        "humanities": {
+          "score": 9.05,
+          "n": 20
+        },
+        "math": {
+          "score": 7.5,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 5.4,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.0,
+          "n": 20
+        },
+        "stem": {
+          "score": 8.5,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.3,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_fixedref_mse_s44": {
+      "score": 7.6125,
+      "ci95": [
+        7.11875,
+        8.10625
+      ],
+      "turn1": 8.125,
+      "turn2": 7.1,
+      "mean_of_turn_means": 7.6125,
+      "n_graded": 160,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 5.3,
+          "n": 20
+        },
+        "extraction": {
+          "score": 9.05,
+          "n": 20
+        },
+        "humanities": {
+          "score": 8.9,
+          "n": 20
+        },
+        "math": {
+          "score": 8.0,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 5.0,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.15,
+          "n": 20
+        },
+        "stem": {
+          "score": 8.15,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.35,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_maxmin_mse_s42": {
+      "score": 7.61875,
+      "ci95": [
+        7.10625,
+        8.10640625
+      ],
+      "turn1": 8.175,
+      "turn2": 7.0625,
+      "mean_of_turn_means": 7.61875,
+      "n_graded": 160,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 5.35,
+          "n": 20
+        },
+        "extraction": {
+          "score": 8.55,
+          "n": 20
+        },
+        "humanities": {
+          "score": 8.9,
+          "n": 20
+        },
+        "math": {
+          "score": 8.05,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 5.45,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.45,
+          "n": 20
+        },
+        "stem": {
+          "score": 7.85,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.35,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_maxmin_mse_s43": {
+      "score": 7.465408805031447,
+      "ci95": [
+        6.962113797169811,
+        7.930379746835443
+      ],
+      "turn1": 8.1625,
+      "turn2": 6.7594936708860756,
+      "mean_of_turn_means": 7.460996835443037,
+      "n_graded": 159,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 5.25,
+          "n": 20
+        },
+        "extraction": {
+          "score": 8.65,
+          "n": 20
+        },
+        "humanities": {
+          "score": 8.95,
+          "n": 20
+        },
+        "math": {
+          "score": 7.526315789473684,
+          "n": 19
+        },
+        "reasoning": {
+          "score": 5.2,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.05,
+          "n": 20
+        },
+        "stem": {
+          "score": 8.15,
+          "n": 20
+        },
+        "writing": {
+          "score": 7.95,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_maxmin_mse_s44": {
+      "score": 7.71875,
+      "ci95": [
+        7.1810937500000005,
+        8.2
+      ],
+      "turn1": 8.325,
+      "turn2": 7.1125,
+      "mean_of_turn_means": 7.71875,
+      "n_graded": 160,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 5.0,
+          "n": 20
+        },
+        "extraction": {
+          "score": 8.8,
+          "n": 20
+        },
+        "humanities": {
+          "score": 9.0,
+          "n": 20
+        },
+        "math": {
+          "score": 8.0,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 5.8,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.3,
+          "n": 20
+        },
+        "stem": {
+          "score": 8.45,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.4,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_nbpo_mse_s42": {
+      "score": 7.5375,
+      "ci95": [
+        7.03125,
+        8.0375
+      ],
+      "turn1": 8.0625,
+      "turn2": 7.0125,
+      "mean_of_turn_means": 7.5375,
+      "n_graded": 160,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 5.45,
+          "n": 20
+        },
+        "extraction": {
+          "score": 8.6,
+          "n": 20
+        },
+        "humanities": {
+          "score": 8.8,
+          "n": 20
+        },
+        "math": {
+          "score": 7.05,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 5.75,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.3,
+          "n": 20
+        },
+        "stem": {
+          "score": 8.15,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.2,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_nbpo_mse_s43": {
+      "score": 7.6875,
+      "ci95": [
+        7.19375,
+        8.15
+      ],
+      "turn1": 8.2875,
+      "turn2": 7.0875,
+      "mean_of_turn_means": 7.6875,
+      "n_graded": 160,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 5.4,
+          "n": 20
+        },
+        "extraction": {
+          "score": 8.7,
+          "n": 20
+        },
+        "humanities": {
+          "score": 8.95,
+          "n": 20
+        },
+        "math": {
+          "score": 7.7,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 5.55,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.75,
+          "n": 20
+        },
+        "stem": {
+          "score": 8.3,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.15,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_nbpo_mse_s44": {
+      "score": 7.4375,
+      "ci95": [
+        6.88125,
+        7.95
+      ],
+      "turn1": 8.0,
+      "turn2": 6.875,
+      "mean_of_turn_means": 7.4375,
+      "n_graded": 160,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 4.8,
+          "n": 20
+        },
+        "extraction": {
+          "score": 9.05,
+          "n": 20
+        },
+        "humanities": {
+          "score": 8.75,
+          "n": 20
+        },
+        "math": {
+          "score": 8.05,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 4.45,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.05,
+          "n": 20
+        },
+        "stem": {
+          "score": 8.1,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.25,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_util_mse_s42": {
+      "score": 7.75625,
+      "ci95": [
+        7.2748437500000005,
+        8.21875
+      ],
+      "turn1": 8.3625,
+      "turn2": 7.15,
+      "mean_of_turn_means": 7.7562500000000005,
+      "n_graded": 160,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 5.4,
+          "n": 20
+        },
+        "extraction": {
+          "score": 8.55,
+          "n": 20
+        },
+        "humanities": {
+          "score": 9.1,
+          "n": 20
+        },
+        "math": {
+          "score": 8.05,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 6.0,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.7,
+          "n": 20
+        },
+        "stem": {
+          "score": 8.1,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.15,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_util_mse_s43": {
+      "score": 7.5125,
+      "ci95": [
+        7.0,
+        8.0125
+      ],
+      "turn1": 8.1625,
+      "turn2": 6.8625,
+      "mean_of_turn_means": 7.512499999999999,
+      "n_graded": 160,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 5.25,
+          "n": 20
+        },
+        "extraction": {
+          "score": 8.8,
+          "n": 20
+        },
+        "humanities": {
+          "score": 9.05,
+          "n": 20
+        },
+        "math": {
+          "score": 7.5,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 5.0,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.1,
+          "n": 20
+        },
+        "stem": {
+          "score": 8.25,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.15,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    },
+    "uf4mt_util_mse_s44": {
+      "score": 7.63125,
+      "ci95": [
+        7.0873437500000005,
+        8.13140625
+      ],
+      "turn1": 8.175,
+      "turn2": 7.0875,
+      "mean_of_turn_means": 7.6312500000000005,
+      "n_graded": 160,
+      "n_planned": 160,
+      "n_questions_with_any": 80,
+      "by_category": {
+        "coding": {
+          "score": 4.95,
+          "n": 20
+        },
+        "extraction": {
+          "score": 9.0,
+          "n": 20
+        },
+        "humanities": {
+          "score": 8.9,
+          "n": 20
+        },
+        "math": {
+          "score": 8.3,
+          "n": 20
+        },
+        "reasoning": {
+          "score": 5.35,
+          "n": 20
+        },
+        "roleplay": {
+          "score": 8.1,
+          "n": 20
+        },
+        "stem": {
+          "score": 8.1,
+          "n": 20
+        },
+        "writing": {
+          "score": 8.35,
+          "n": 20
+        }
+      },
+      "generation_settings_sha256": "0128d2a76a22eaaa09dc6995e8e1b96fcc2c09fadf13feed6be31e84ddaff139"
+    }
+  }
+}
