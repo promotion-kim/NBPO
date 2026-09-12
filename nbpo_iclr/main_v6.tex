@@ -88,20 +88,20 @@
 % Factual counts written by progress/fill_exhibits.py. The caption prose reads
 % these macros, so the table body and the sentence describing it cannot drift
 % apart. Interpretive sentences are NOT auto-written.
-\newcommand{\tabonecommon}{1{,}466}
+\newcommand{\tabonecommon}{1{,}439}
 \newcommand{\tabonevalidrange}{$1{,}914$--$1{,}939$}
 % END AUTO EXHIBIT NUMBERS
 
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-13 03:13 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-13 03:43 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 6/9; cross-play 6/6; DPO weights 0/7; capability cells 37/63; lm-eval cells 45.
 \\[2pt]
-GPU0: uf4\_score\_alpaca\_arena\_14arm, 93\%, 21443/143771 MiB | GPU1: uf4\_finaleval\_judge\_btrm\_mse\_s44, 89\%, 130761/143771 MiB | GPU2: uf4\_score\_xstest\_14arm, 90\%, 130903/143771 MiB | GPU3: -, 0\%, 0/143771 MiB
+GPU0: uf4\_train\_smoke\_dpo\_uniform, 0\%, 32385/143771 MiB | GPU1: uf4\_train\_smoke\_dpo\_uniform, 0\%, 1497/143771 MiB | GPU2: uf4\_train\_smoke\_dpo\_uniform, 0\%, 1497/143771 MiB | GPU3: uf4\_train\_smoke\_dpo\_uniform, 0\%, 1497/143771 MiB
 \\[2pt]
-Queue: BLOCKED 1 (1 superseded), DONE 322, FAILED 6 (6 superseded), PENDING 70, READY 25, RUNNING 3. PDF rebuilt each cycle.
+Queue: BLOCKED 1 (1 superseded), DONE 325, FAILED 6 (6 superseded), PENDING 73, READY 21, RUNNING 1. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -589,7 +589,7 @@ Fixed-reference Nash changes opponent adaptation; BT-RM--Nash changes preference
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
-\caption{UF-4 win rates against the common base, with order averaging and ties worth $0.5$. Every entry is computed on the $\tabonecommon$ prompts of the planned $2{,}000$ for which \emph{all} arms reported here have both presentation orders parsed on all four attributes, so the arms are compared on identical prompts; each method's own valid count is larger (\tabonevalidrange) and is reported in Appendix~\ref{app:evaluation} rather than used here. The common set shrinks as arms are added and is recomputed whenever a row is filled, so these numbers are tied to the set of rows present. $\min_k W_k$ is the minimum attribute mean. Helpfulness is the only attribute whose whole-prompt interval excludes $0.5$, and it does so for every evaluated seed of all four mechanisms. Honesty is the binding attribute for every arm, so $\min_k W_k$ is each arm's honesty mean. No row reaches $0.5$. The four mechanisms measured at three seeds span $0.4931$ to $0.4986$, a spread of $0.0055$, and BT-RM--Nash at two seeds sits at $0.4986$, coinciding with the fixed-reference control to four decimals. At its first seed it was the only row above $0.5$, at $0.5064$; its second seed moved instruction following by $0.0174$ and its minimum by $0.0104$, the two largest seed spreads in the table, and removed the lead. Its third seed is training. Every arm that has led this table at one seed has lost that lead once further seeds arrived, and that has now happened three times out of three: fixed-reference Nash; global game-maxmin, which at one seed beat NBPO's best of three everywhere and at three seeds has the lowest minimum-attribute mean of the four; and BT-RM--Nash, whose second seed alone took its minimum from $0.5064$ to $0.4986$. At the effect sizes this table reports, a one-seed ordering here has not once survived replication, which is why no such ordering is reported as a result. Among the four three-seed mechanisms the fixed-reference control leads every attribute and the minimum, and \NBPO{} leads none; every gap is inside the seed spreads and every interval contains $0.5$, so the ordering carries no weight. It also has the largest seed spread on all four attributes, and on instruction following ($0.0142$) twice the next largest. Interval verdicts move with the row set as much as the point estimates do: on the earlier five-arm common set of $1{,}719$ prompts truthfulness excluded $0.5$ for two of three NBPO seeds and now does so for none. Dashes are unmeasured.}
+\caption{UF-4 win rates against the common base, with order averaging and ties worth $0.5$. Every entry is computed on the $\tabonecommon$ prompts of the planned $2{,}000$ for which \emph{all} arms reported here have both presentation orders parsed on all four attributes, so the arms are compared on identical prompts; each method's own valid count is larger (\tabonevalidrange) and is reported in Appendix~\ref{app:evaluation} rather than used here. The common set shrinks as arms are added and is recomputed whenever a row is filled, so these numbers are tied to the set of rows present. $\min_k W_k$ is the minimum attribute mean. Helpfulness is the only attribute whose whole-prompt interval excludes $0.5$, and it does so for every evaluated seed of all four mechanisms. Honesty is the binding attribute for every arm, so $\min_k W_k$ is each arm's honesty mean. No row reaches $0.5$. All five mechanisms are now at three seeds: the four matched ones span $0.4931$ to $0.4981$, a spread of $0.0050$, and BT-RM--Nash is highest at $0.4994$, still below $0.5$. Its trajectory is the clearest statement this table makes about single seeds: $0.5064$ at one seed, the only row above $0.5$; $0.4986$ at two; $0.4994$ at three. Every arm that has led this table at one seed has lost that lead once further seeds arrived, and that has now happened three times out of three: fixed-reference Nash; global game-maxmin, which at one seed beat NBPO's best of three everywhere and at three seeds has the lowest minimum-attribute mean of the four; and BT-RM--Nash, whose second seed alone took its minimum from $0.5064$ to $0.4986$ and whose third leaves it at $0.4994$. At the effect sizes this table reports, a one-seed ordering here has not once survived replication, which is why no such ordering is reported as a result. Among the four three-seed mechanisms the fixed-reference control leads every attribute and the minimum, and \NBPO{} leads none; every gap is inside the seed spreads and every interval contains $0.5$, so the ordering carries no weight. It also has the largest seed spread on all four attributes, and on instruction following ($0.0142$) twice the next largest. Interval verdicts move with the row set as much as the point estimates do: on the earlier five-arm common set of $1{,}719$ prompts truthfulness excluded $0.5$ for two of three NBPO seeds and now does so for none. Dashes are unmeasured.}
 \label{tab:uf-objectives}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -599,16 +599,16 @@ Method & Seeds & IF & Truth & Honesty & Help & $\min_k W_k$\\
 Base (defined reference) & -- & $0.500$ & $0.500$ & $0.500$ & $0.500$ & $0.500$\\
 \addlinespace
 \multicolumn{7}{l}{\textit{Matched mechanism controls}}\\
-NBPO & $3$ & $0.5063$ & $0.5097$ & $0.4955$ & $\mathbf{0.5495}$ & $0.4955$\\
-\quad\textit{sample SD over seeds} & & $0.0080$ & $0.0011$ & $0.0020$ & $0.0060$ & $0.0020$\\
-Fixed-reference Nash & $3$ & $0.5084$ & $0.5139$ & $0.4986$ & $\mathbf{0.5511}$ & $0.4986$\\
-\quad\textit{sample SD over seeds} & & $0.0069$ & $0.0015$ & $0.0051$ & $0.0003$ & $0.0051$\\
-BT-RM--Nash & $2$ & $0.5036$ & $0.5114$ & $0.5023$ & $\mathbf{0.5495}$ & $0.4986$\\
-\quad\textit{sample SD over seeds} & & $0.0174$ & $0.0002$ & $0.0052$ & $0.0035$ & $0.0104$\\
-Game-utilitarian & $3$ & $0.5069$ & $0.5077$ & $0.4979$ & $\mathbf{0.5504}$ & $0.4977$\\
-\quad\textit{sample SD over seeds} & & $0.0007$ & $0.0051$ & $0.0096$ & $0.0034$ & $0.0094$\\
-Global game-maxmin & $3$ & $0.5080$ & $0.5114$ & $0.4931$ & $\mathbf{0.5505}$ & $0.4931$\\
-\quad\textit{sample SD over seeds} & & $0.0147$ & $0.0081$ & $0.0106$ & $0.0088$ & $0.0106$\\
+NBPO & $3$ & $0.5057$ & $0.5096$ & $0.4948$ & $\mathbf{0.5496}$ & $0.4948$\\
+\quad\textit{sample SD over seeds} & & $0.0087$ & $0.0015$ & $0.0027$ & $0.0061$ & $0.0027$\\
+Fixed-reference Nash & $3$ & $0.5079$ & $0.5136$ & $0.4978$ & $\mathbf{0.5510}$ & $0.4978$\\
+\quad\textit{sample SD over seeds} & & $0.0053$ & $0.0008$ & $0.0053$ & $0.0010$ & $0.0053$\\
+BT-RM--Nash & $3$ & $0.5024$ & $0.5127$ & $0.5023$ & $\mathbf{0.5487}$ & $0.4994$\\
+\quad\textit{sample SD over seeds} & & $0.0118$ & $0.0027$ & $0.0036$ & $0.0041$ & $0.0082$\\
+Game-utilitarian & $3$ & $0.5073$ & $0.5083$ & $0.4986$ & $\mathbf{0.5511}$ & $0.4981$\\
+\quad\textit{sample SD over seeds} & & $0.0008$ & $0.0058$ & $0.0101$ & $0.0036$ & $0.0095$\\
+Global game-maxmin & $3$ & $0.5074$ & $0.5115$ & $0.4931$ & $\mathbf{0.5504}$ & $0.4931$\\
+\quad\textit{sample SD over seeds} & & $0.0153$ & $0.0085$ & $0.0101$ & $0.0092$ & $0.0101$\\
 \addlinespace
 \multicolumn{7}{l}{\textit{External baselines}}\\
 Scalarized DPO (uniform) & \pending & \pending & \pending & \pending & \pending & \pending\\
@@ -627,11 +627,11 @@ Every measured policy uses the same planned $2000$ final prompts and cached base
 
 \subsection{Bargaining and empirical trade-offs}
 \label{sec:tradeoffs}
-On the $\tabonecommon$ prompts common to all fourteen evaluated arms, the four matched mechanisms are indistinguishable. \NBPO{}, fixed-reference Nash, game-utilitarian and global game-maxmin, three policy seeds each, give minimum attribute means of $0.4955$, $0.4986$, $0.4977$ and $0.4931$: a spread of $0.0055$, all below $0.5$, all with intervals containing it, and all binding on honesty. Their four attribute means agree to within $0.0065$ everywhere, and to within $0.0022$ on instruction following and helpfulness (Table~\ref{tab:uf-objectives}). Changing the aggregation rule from Nash to utilitarian or to maxmin over the same prompt-averaged game values, and changing the representation from an adaptive opponent to a fixed reference, each leave the outcome where it was. We report this as a null result for the mechanism this paper argues for and for its alternatives alike.
+On the $\tabonecommon$ prompts common to all fifteen evaluated arms, the four matched mechanisms are indistinguishable. \NBPO{}, fixed-reference Nash, game-utilitarian and global game-maxmin, three policy seeds each, give minimum attribute means of $0.4948$, $0.4978$, $0.4981$ and $0.4931$: a spread of $0.0050$, all below $0.5$, all with intervals containing it, and all binding on honesty. Their four attribute means agree to within $0.0065$ everywhere, and to within $0.0022$ on instruction following and helpfulness (Table~\ref{tab:uf-objectives}). Changing the aggregation rule from Nash to utilitarian or to maxmin over the same prompt-averaged game values, and changing the representation from an adaptive opponent to a fixed reference, each leave the outcome where it was. We report this as a null result for the mechanism this paper argues for and for its alternatives alike.
 
 Reaching it required the seeds, and both single-seed readings were wrong. At one seed fixed-reference led both three-seed means on all four attributes and was the only arm with a minimum above $0.5$; at three it leads none. At one seed global game-maxmin exceeded NBPO's best of three seeds on every attribute by $2.6$ to $3.9$ NBPO seed standard deviations; at three seeds it has the lowest minimum-attribute mean of the four mechanisms, $0.4921$ against \NBPO{}'s $0.4949$, because honesty binds for every arm and its honesty mean is the lowest. Its seed standard deviations are the largest of the four on all four attributes, and on instruction following ($0.0142$) twice the next largest, which is why its one-seed figures were the most misleading here. Two explanations that would have made the single-seed ordering an artifact were checked and did not hold: the realized Eq.~(26) target magnitudes agree to within $4\%$ across these arms and the leading arm's was the smallest, and global game-maxmin shares \NBPO{}'s adaptive-game representation. What remained was policy-seed variation, and that is what it was. An independent measurement pointed the same way beforehand: on the development split used to select the cross-play competitor, the utilitarian arm beat global game-maxmin on the minimum objective, reversing the single-seed final-split ordering.
 
-Restricting to the common prompts matters, and so does which arms are in it: the set has shrunk from $1{,}719$ through $1{,}644$, $1{,}616$, $1{,}588$, $1{,}569$, $1{,}544$, $1{,}512$ and $1{,}486$ to $\tabonecommon$ as arms were added, so every number in the table has been recomputed eight times. The mean target TV of the \NBPO{} and utilitarian arms is $0.0195$; the corresponding SafeRLHF value is $0.0008$ (Appendix~\ref{app:solver-neural}). These target diagnostics do not establish policy equivalence. All four matched mechanisms are measured at three seeds and BT-RM--Nash at two, with its third training; the scalarized-DPO, PROSPER and MOPO rows remain unmeasured.
+Restricting to the common prompts matters, and so does which arms are in it: the set has shrunk from $1{,}719$ through $1{,}644$, $1{,}616$, $1{,}588$, $1{,}569$, $1{,}544$, $1{,}512$, $1{,}486$ and $1{,}466$ to $\tabonecommon$ as arms were added, so every number in the table has been recomputed nine times. The mean target TV of the \NBPO{} and utilitarian arms is $0.0195$; the corresponding SafeRLHF value is $0.0008$ (Appendix~\ref{app:solver-neural}). These target diagnostics do not establish policy equivalence. All five mechanisms are measured at three seeds; the scalarized-DPO, PROSPER and MOPO rows remain unmeasured.
 
 Figure~\ref{fig:uf-tradeoffs} provides two projections for comparing policies with the declared DPO sweep: four specialist vectors, the uniform vector, and two fixed interior vectors. The sweep remains unmeasured. Operating-point selection uses development data, and all seven settings are retained. Dominance is assessed in the full four-dimensional outcome space; the two projections cannot establish it. Worst-objective wins, Nash welfare, and average wins express different preferences over that space, so no single summary establishes the best compromise. Appendix~\ref{app:pareto-evaluation} specifies uncertainty and tuning-cost reporting.
 
@@ -710,15 +710,15 @@ Method & Seeds & IFEval & GSM8K & HB$\downarrow$ & XS$\downarrow$ & AE2$^{\dagge
 % BEGIN AUTO TAB3 BODY
 Base & $1$ & $0.7542$ & $0.8666$ & $0.2812$ & $0.0683$ & -- & -- & $7.49$\\
 NBPO & $3$ & $0.7264$ & $0.8633$ & $0.3906$ & $0.0414$ & $0.5617$ & $0.5143$ & $7.55$\\
-\quad\textit{sample SD over seeds} & & $0.0098$ & $0.0031$ & $0.0094$ & $0.0022$ & $0.0083$ & $0.0206$ & $0.13$\\
-Fixed-reference Nash & $3$ & $0.7289$ & $0.8615$ & $0.3990$ & $0.0373$ & $0.5578$ & $0.5243$ & $7.58$\\
-\quad\textit{sample SD over seeds} & & $0.0059$ & $0.0038$ & $0.0072$ & $0.0023$ & $0.0138$ & $0.0126$ & $0.03$\\
-BT-RM--Nash & $2$ & $0.7394$ & $0.8654$ & $0.4313$ & \pending & \pending & \pending & $7.72$\\
-\quad\textit{sample SD over seeds} & & $0.0157$ & $0.0059$ & $0.0221$ &  &  &  & $0.09$\\
+\quad\textit{sample SD over seeds} & & $0.0098$ & $0.0031$ & $0.0094$ & $0.0023$ & $0.0083$ & $0.0206$ & $0.13$\\
+Fixed-reference Nash & $3$ & $0.7289$ & $0.8615$ & $0.3990$ & $0.0374$ & $0.5578$ & $0.5243$ & $7.58$\\
+\quad\textit{sample SD over seeds} & & $0.0059$ & $0.0038$ & $0.0072$ & $0.0024$ & $0.0138$ & $0.0126$ & $0.03$\\
+BT-RM--Nash & $2$ & $0.7394$ & $0.8654$ & $0.4313$ & $0.0361$ & $0.5401$ & $0.5305$ & $7.72$\\
+\quad\textit{sample SD over seeds} & & $0.0157$ & $0.0059$ & $0.0221$ & $0.0001$ & $0.0303$ & $0.0148$ & $0.09$\\
 Game-utilitarian & $3$ & $0.7252$ & $0.8625$ & $0.4021$ & $0.0388$ & $0.5685$ & $0.5363$ & $7.63$\\
 \quad\textit{sample SD over seeds} & & $0.0059$ & $0.0034$ & $0.0130$ & $0.0022$ & $0.0123$ & $0.0196$ & $0.12$\\
 Global game-maxmin & $3$ & $0.7437$ & $0.8678$ & $0.3917$ & $0.0389$ & $0.5636$ & $0.5323$ & $7.60$\\
-\quad\textit{sample SD over seeds} & & $0.0043$ & $0.0024$ & $0.0065$ & $0.0047$ & $0.0169$ & $0.0203$ & $0.13$\\
+\quad\textit{sample SD over seeds} & & $0.0043$ & $0.0024$ & $0.0065$ & $0.0048$ & $0.0169$ & $0.0203$ & $0.13$\\
 Scalarized DPO (uniform) & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
 PROSPER (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
 MOPO (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
@@ -2227,7 +2227,7 @@ Scalarized DPO & \pending & \pending & \pending & \pending\\
 \end{table}
 
 \paragraph{Teacher-defined and independent evaluation.}
-UltraFeedback policy evaluation uses the frozen $2000$-prompt final split and the same cached base response for every arm. A separate local judge -- Qwen3-14B at revision \texttt{40c06982}, a different model family from the ModernBERT teacher -- evaluates four rubrics in both presentation orders at temperature $0$, with ties worth $0.5$, for $16{,}000$ scheduled judgments per arm. Fourteen arms are evaluated: three policy seeds each of \NBPO{}, game-utilitarian, fixed-reference Nash and global game-maxmin, and two of BT-RM--Nash. Under the completeness rule this panel uses -- all four attributes parsed in both presentation orders -- each arm retains \tabonevalidrange{} prompts and their intersection is $\tabonecommon$. The earlier counts of $1967$ and $1960$ came from a different completeness rule and are superseded rather than reported alongside. Numerical whole-prompt paired intervals are now supplied for every cell, with the minimum objective recomputed inside each replicate and policy-seed spread kept separate from prompt uncertainty.
+UltraFeedback policy evaluation uses the frozen $2000$-prompt final split and the same cached base response for every arm. A separate local judge -- Qwen3-14B at revision \texttt{40c06982}, a different model family from the ModernBERT teacher -- evaluates four rubrics in both presentation orders at temperature $0$, with ties worth $0.5$, for $16{,}000$ scheduled judgments per arm. Fifteen arms are evaluated: three policy seeds each of \NBPO{}, game-utilitarian, fixed-reference Nash, global game-maxmin and BT-RM--Nash. Under the completeness rule this panel uses -- all four attributes parsed in both presentation orders -- each arm retains \tabonevalidrange{} prompts and their intersection is $\tabonecommon$. The earlier counts of $1967$ and $1960$ came from a different completeness rule and are superseded rather than reported alongside. Numerical whole-prompt paired intervals are now supplied for every cell, with the minimum objective recomputed inside each replicate and policy-seed spread kept separate from prompt uncertainty.
 
 
 \kekim_gpt{\textbf{R33 --- Make label provenance and rubric identity auditable for every reported run.} The note distinguishing Beaver-head precursor runs from prompted comparisons is important. Scalar-head-induced rankings are transitive by construction and therefore cannot substantiate the paper's claim about preserving within-objective cycles. Attach an unambiguous label-source identifier to each checkpoint/result and ensure that the main adaptive versus fixed-reference comparison differs only in the intended component. Also provide the actual per-panel rubric mapping: the prose lists correctness/coherence, whereas some tables use honesty, truthfulness, and instruction following. This is not just terminology because changing or splitting an objective changes both the preference matrices and the bargaining outcome. Measure rubric agreement and show independent evaluator results separately before pooling them.}

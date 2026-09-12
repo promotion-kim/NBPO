@@ -106,9 +106,21 @@ def main():
             cells.append("$%.*f$" % (d, st.mean(vals)))
             sds.append("$%.*f$" % (d, st.stdev(vals)) if len(vals) > 1 else "")
             got[col] = len(vals)
-        report[label] = {"seeds_in_objective_table": seeds, "cells": got,
-                         "members": members}
-        lines.append("%s & %s & %s\\\\" % (label, ("$%s$" % seeds) if seeds else r"\pending",
+        # The Seeds entry must describe THIS table's cells, not the objective
+        # table's. BT-RM--Nash reached three seeds in tab:uf-objectives while
+        # every capability column was still on two, and printing "3" beside
+        # two-seed numbers overstates them. Report what the cells are measured
+        # on, as a range when the columns disagree.
+        counts = sorted(set(got.values()))
+        if not counts:
+            shown = seeds if label == "Base" else None
+        elif len(counts) == 1:
+            shown = str(counts[0])
+        else:
+            shown = "%d$--$%d" % (counts[0], counts[-1])
+        report[label] = {"seeds_in_objective_table": seeds, "seeds_shown": shown,
+                         "cells": got, "members": members}
+        lines.append("%s & %s & %s\\\\" % (label, ("$%s$" % shown) if shown else r"\pending",
                                            " & ".join(cells)))
         if any(sds):
             lines.append("\\quad\\textit{sample SD over seeds} & & %s\\\\" % " & ".join(sds))

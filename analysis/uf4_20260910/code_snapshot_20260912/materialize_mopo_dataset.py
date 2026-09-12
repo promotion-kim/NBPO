@@ -111,8 +111,6 @@ def main():
         raise ValueError("train and dev name different solver artifacts")
 
     dataset.save_to_disk(str(out))
-    write_precompute_manifest(str(out))
-    manifest_sha = file_hash(out / PRECOMPUTE_MANIFEST_FILENAME)
 
     provenance = {"provenance": {
         "tokenizer_hash": hashes["tokenizer_hash"],
@@ -128,6 +126,13 @@ def main():
         "splits": reports,
         "builder_sha256": file_hash(Path(__file__))}}
     (out / "nbpo_dataset_provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")
+    # The manifest must be written LAST: it hashes every file in the directory
+    # except itself, so writing it before the provenance sidecar leaves the
+    # sidecar unlisted and verify_precompute_manifest rejects the dataset with
+    # added=['nbpo_dataset_provenance.json']. That is exactly how the first
+    # MOPO run failed.
+    write_precompute_manifest(str(out))
+    manifest_sha = file_hash(out / PRECOMPUTE_MANIFEST_FILENAME)
 
     # make_train_jobs reads these two, and hashes train/solver/solution.json.
     complete_path = target_dir / "complete.json"
