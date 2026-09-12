@@ -1,0 +1,650 @@
+{
+ "alpaca_eval_uf4ab_fixedref_mse_s42.summary.json": {
+  "n_planned": 805,
+  "n_generated": 805,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "all805": {
+    "estimate": 0.55527950310559,
+    "ci95": [
+     0.5217391304347826,
+     0.5900776397515527
+    ],
+    "n_prompts": 805,
+    "wins": 435,
+    "ties": 24,
+    "losses": 346,
+    "complete": true
+   }
+  }
+ },
+ "alpaca_eval_uf4ab_fixedref_mse_s43.summary.json": {
+  "n_planned": 805,
+  "n_generated": 805,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "all805": {
+    "estimate": 0.5453416149068323,
+    "ci95": [
+     0.5142857142857142,
+     0.5795031055900621
+    ],
+    "n_prompts": 805,
+    "wins": 429,
+    "ties": 20,
+    "losses": 356,
+    "complete": true
+   }
+  }
+ },
+ "alpaca_eval_uf4ab_fixedref_mse_s44.summary.json": {
+  "n_planned": 805,
+  "n_generated": 805,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "all805": {
+    "estimate": 0.5726708074534161,
+    "ci95": [
+     0.5397515527950311,
+     0.6068478260869564
+    ],
+    "n_prompts": 805,
+    "wins": 448,
+    "ties": 26,
+    "losses": 331,
+    "complete": true
+   }
+  }
+ },
+ "alpaca_eval_uf4ab_maxmin_mse_s42.summary.json": {
+  "n_planned": 805,
+  "n_generated": 805,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "all805": {
+    "estimate": 0.5614906832298137,
+    "ci95": [
+     0.5304347826086957,
+     0.5938043478260868
+    ],
+    "n_prompts": 805,
+    "wins": 439,
+    "ties": 26,
+    "losses": 340,
+    "complete": true
+   }
+  }
+ },
+ "alpaca_eval_uf4ab_maxmin_mse_s43.summary.json": {
+  "n_planned": 805,
+  "n_generated": 805,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "all805": {
+    "estimate": 0.5478260869565217,
+    "ci95": [
+     0.5161335403726708,
+     0.5813819875776397
+    ],
+    "n_prompts": 805,
+    "wins": 429,
+    "ties": 24,
+    "losses": 352,
+    "complete": true
+   }
+  }
+ },
+ "alpaca_eval_uf4ab_maxmin_mse_s44.summary.json": {
+  "n_planned": 805,
+  "n_generated": 805,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "all805": {
+    "estimate": 0.5813664596273292,
+    "ci95": [
+     0.5472049689440994,
+     0.6149068322981367
+    ],
+    "n_prompts": 805,
+    "wins": 456,
+    "ties": 24,
+    "losses": 325,
+    "complete": true
+   }
+  }
+ },
+ "alpaca_eval_uf4ab_nbpo_mse_s42.summary.json": {
+  "n_planned": 805,
+  "n_generated": 805,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "all805": {
+    "estimate": 0.5596273291925465,
+    "ci95": [
+     0.5248447204968945,
+     0.593167701863354
+    ],
+    "n_prompts": 805,
+    "wins": 437,
+    "ties": 27,
+    "losses": 341,
+    "complete": true
+   }
+  }
+ },
+ "alpaca_eval_uf4ab_nbpo_mse_s43.summary.json": {
+  "n_planned": 805,
+  "n_generated": 805,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "all805": {
+    "estimate": 0.5546583850931677,
+    "ci95": [
+     0.5211180124223602,
+     0.5875776397515527
+    ],
+    "n_prompts": 805,
+    "wins": 435,
+    "ties": 23,
+    "losses": 347,
+    "complete": true
+   }
+  }
+ },
+ "alpaca_eval_uf4ab_nbpo_mse_s44.summary.json": {
+  "n_planned": 805,
+  "n_generated": 805,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "all805": {
+    "estimate": 0.570807453416149,
+    "ci95": [
+     0.5366459627329192,
+     0.6043478260869565
+    ],
+    "n_prompts": 805,
+    "wins": 445,
+    "ties": 29,
+    "losses": 331,
+    "complete": true
+   }
+  }
+ },
+ "alpaca_eval_uf4ab_util_mse_s42.summary.json": {
+  "n_planned": 805,
+  "n_generated": 805,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "all805": {
+    "estimate": 0.5795031055900621,
+    "ci95": [
+     0.5459627329192547,
+     0.613664596273292
+    ],
+    "n_prompts": 805,
+    "wins": 454,
+    "ties": 25,
+    "losses": 326,
+    "complete": true
+   }
+  }
+ },
+ "alpaca_eval_uf4ab_util_mse_s43.summary.json": {
+  "n_planned": 805,
+  "n_generated": 805,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "all805": {
+    "estimate": 0.55527950310559,
+    "ci95": [
+     0.5248447204968945,
+     0.5894409937888199
+    ],
+    "n_prompts": 805,
+    "wins": 436,
+    "ties": 22,
+    "losses": 347,
+    "complete": true
+   }
+  }
+ },
+ "alpaca_eval_uf4ab_util_mse_s44.summary.json": {
+  "n_planned": 805,
+  "n_generated": 805,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "all805": {
+    "estimate": 0.570807453416149,
+    "ci95": [
+     0.5391304347826087,
+     0.606832298136646
+    ],
+    "n_prompts": 805,
+    "wins": 447,
+    "ties": 25,
+    "losses": 333,
+    "complete": true
+   }
+  }
+ },
+ "arena_hard_uf4ab_fixedref_mse_s42.summary.json": {
+  "n_planned": 750,
+  "n_generated": 750,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "hard500": {
+    "estimate": 0.511,
+    "ci95": [
+     0.467,
+     0.557
+    ],
+    "n_prompts": 500,
+    "wins": 252,
+    "ties": 7,
+    "losses": 241,
+    "complete": true
+   },
+   "creative250": {
+    "estimate": 0.518,
+    "ci95": [
+     0.456,
+     0.578
+    ],
+    "n_prompts": 250,
+    "wins": 128,
+    "ties": 3,
+    "losses": 119,
+    "complete": true
+   }
+  }
+ },
+ "arena_hard_uf4ab_fixedref_mse_s43.summary.json": {
+  "n_planned": 750,
+  "n_generated": 750,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "hard500": {
+    "estimate": 0.526,
+    "ci95": [
+     0.483,
+     0.568
+    ],
+    "n_prompts": 500,
+    "wins": 258,
+    "ties": 10,
+    "losses": 232,
+    "complete": true
+   },
+   "creative250": {
+    "estimate": 0.494,
+    "ci95": [
+     0.432,
+     0.556
+    ],
+    "n_prompts": 250,
+    "wins": 121,
+    "ties": 5,
+    "losses": 124,
+    "complete": true
+   }
+  }
+ },
+ "arena_hard_uf4ab_fixedref_mse_s44.summary.json": {
+  "n_planned": 750,
+  "n_generated": 750,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "hard500": {
+    "estimate": 0.536,
+    "ci95": [
+     0.493975,
+     0.579
+    ],
+    "n_prompts": 500,
+    "wins": 263,
+    "ties": 10,
+    "losses": 227,
+    "complete": true
+   },
+   "creative250": {
+    "estimate": 0.446,
+    "ci95": [
+     0.386,
+     0.5060499999999998
+    ],
+    "n_prompts": 250,
+    "wins": 110,
+    "ties": 3,
+    "losses": 137,
+    "complete": true
+   }
+  }
+ },
+ "arena_hard_uf4ab_maxmin_mse_s42.summary.json": {
+  "n_planned": 750,
+  "n_generated": 750,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "hard500": {
+    "estimate": 0.526,
+    "ci95": [
+     0.483,
+     0.568
+    ],
+    "n_prompts": 500,
+    "wins": 260,
+    "ties": 6,
+    "losses": 234,
+    "complete": true
+   },
+   "creative250": {
+    "estimate": 0.512,
+    "ci95": [
+     0.454,
+     0.572
+    ],
+    "n_prompts": 250,
+    "wins": 124,
+    "ties": 8,
+    "losses": 118,
+    "complete": true
+   }
+  }
+ },
+ "arena_hard_uf4ab_maxmin_mse_s43.summary.json": {
+  "n_planned": 750,
+  "n_generated": 750,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "hard500": {
+    "estimate": 0.516,
+    "ci95": [
+     0.472975,
+     0.559
+    ],
+    "n_prompts": 500,
+    "wins": 254,
+    "ties": 8,
+    "losses": 238,
+    "complete": true
+   },
+   "creative250": {
+    "estimate": 0.504,
+    "ci95": [
+     0.442,
+     0.566
+    ],
+    "n_prompts": 250,
+    "wins": 122,
+    "ties": 8,
+    "losses": 120,
+    "complete": true
+   }
+  }
+ },
+ "arena_hard_uf4ab_maxmin_mse_s44.summary.json": {
+  "n_planned": 750,
+  "n_generated": 750,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "hard500": {
+    "estimate": 0.555,
+    "ci95": [
+     0.515,
+     0.599
+    ],
+    "n_prompts": 500,
+    "wins": 274,
+    "ties": 7,
+    "losses": 219,
+    "complete": true
+   },
+   "creative250": {
+    "estimate": 0.462,
+    "ci95": [
+     0.402,
+     0.522
+    ],
+    "n_prompts": 250,
+    "wins": 114,
+    "ties": 3,
+    "losses": 133,
+    "complete": true
+   }
+  }
+ },
+ "arena_hard_uf4ab_nbpo_mse_s42.summary.json": {
+  "n_planned": 750,
+  "n_generated": 750,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "hard500": {
+    "estimate": 0.512,
+    "ci95": [
+     0.467,
+     0.556
+    ],
+    "n_prompts": 500,
+    "wins": 250,
+    "ties": 12,
+    "losses": 238,
+    "complete": true
+   },
+   "creative250": {
+    "estimate": 0.514,
+    "ci95": [
+     0.452,
+     0.576
+    ],
+    "n_prompts": 250,
+    "wins": 126,
+    "ties": 5,
+    "losses": 119,
+    "complete": true
+   }
+  }
+ },
+ "arena_hard_uf4ab_nbpo_mse_s43.summary.json": {
+  "n_planned": 750,
+  "n_generated": 750,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "hard500": {
+    "estimate": 0.495,
+    "ci95": [
+     0.451,
+     0.54
+    ],
+    "n_prompts": 500,
+    "wins": 245,
+    "ties": 5,
+    "losses": 250,
+    "complete": true
+   },
+   "creative250": {
+    "estimate": 0.508,
+    "ci95": [
+     0.446,
+     0.564
+    ],
+    "n_prompts": 250,
+    "wins": 124,
+    "ties": 6,
+    "losses": 120,
+    "complete": true
+   }
+  }
+ },
+ "arena_hard_uf4ab_nbpo_mse_s44.summary.json": {
+  "n_planned": 750,
+  "n_generated": 750,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "hard500": {
+    "estimate": 0.536,
+    "ci95": [
+     0.492,
+     0.5790249999999998
+    ],
+    "n_prompts": 500,
+    "wins": 266,
+    "ties": 4,
+    "losses": 230,
+    "complete": true
+   },
+   "creative250": {
+    "estimate": 0.502,
+    "ci95": [
+     0.444,
+     0.564
+    ],
+    "n_prompts": 250,
+    "wins": 123,
+    "ties": 5,
+    "losses": 122,
+    "complete": true
+   }
+  }
+ },
+ "arena_hard_uf4ab_util_mse_s42.summary.json": {
+  "n_planned": 750,
+  "n_generated": 750,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "hard500": {
+    "estimate": 0.516,
+    "ci95": [
+     0.472,
+     0.559
+    ],
+    "n_prompts": 500,
+    "wins": 255,
+    "ties": 6,
+    "losses": 239,
+    "complete": true
+   },
+   "creative250": {
+    "estimate": 0.476,
+    "ci95": [
+     0.416,
+     0.538
+    ],
+    "n_prompts": 250,
+    "wins": 117,
+    "ties": 4,
+    "losses": 129,
+    "complete": true
+   }
+  }
+ },
+ "arena_hard_uf4ab_util_mse_s43.summary.json": {
+  "n_planned": 750,
+  "n_generated": 750,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "hard500": {
+    "estimate": 0.555,
+    "ci95": [
+     0.512,
+     0.599
+    ],
+    "n_prompts": 500,
+    "wins": 274,
+    "ties": 7,
+    "losses": 219,
+    "complete": true
+   },
+   "creative250": {
+    "estimate": 0.516,
+    "ci95": [
+     0.456,
+     0.5760499999999997
+    ],
+    "n_prompts": 250,
+    "wins": 126,
+    "ties": 6,
+    "losses": 118,
+    "complete": true
+   }
+  }
+ },
+ "arena_hard_uf4ab_util_mse_s44.summary.json": {
+  "n_planned": 750,
+  "n_generated": 750,
+  "metric": "local Skywork scalar proxy WR vs common base",
+  "not_official": "Not AlpacaEval LC or official Arena-Hard score",
+  "tie_rule": "exact scalar equality; identical prompt+answer uses shared cached score",
+  "subsets": {
+   "hard500": {
+    "estimate": 0.538,
+    "ci95": [
+     0.495,
+     0.582
+    ],
+    "n_prompts": 500,
+    "wins": 261,
+    "ties": 16,
+    "losses": 223,
+    "complete": true
+   },
+   "creative250": {
+    "estimate": 0.536,
+    "ci95": [
+     0.474,
+     0.6
+    ],
+    "n_prompts": 250,
+    "wins": 132,
+    "ties": 4,
+    "losses": 114,
+    "complete": true
+   }
+  }
+ }
+}
