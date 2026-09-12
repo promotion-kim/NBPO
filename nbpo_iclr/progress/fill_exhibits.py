@@ -95,6 +95,31 @@ def crossplay_summary():
         return None
 
 
+def blank_crossplay():
+    r"""Both cross-play exhibits with every outcome \pending.
+
+    Needed because a measurement can be *retracted*, not only awaited. When the
+    aggregator's summary is set aside -- as it was once the thinking-mode judge
+    runs were retired -- leaving the previous numbers in the marked regions
+    would publish results under a protocol the campaign no longer stands
+    behind. Absence of a summary must therefore rewrite the exhibits, not skip
+    them.
+    """
+    rows = list(CROSSPLAY_ROWS) + [("Dev-selected competitor", None, r"\pending")]
+    body = ["%s & \\pending & \\pending & \\pending & \\pending & \\pending\\\\" % label
+            for label, _, _ in rows]
+    mrows = []
+    for ci, crit in enumerate(("instruction_following", "truthfulness",
+                               "honesty", "helpfulness")):
+        if ci:
+            mrows.append("\\midrule")
+        for ri, (label, _, _) in enumerate(rows):
+            name = RUBRIC_LABEL[crit] if ri == 0 else ""
+            mrows.append("%s & %s & %s\\\\"
+                         % (name, label, " & ".join([r"\pending"] * 4)))
+    return "\n".join(body), "\n".join(mrows)
+
+
 def render_crossplay(cp):
     r"""Both cross-play exhibits. A policy the aggregator has no row for stays \pending."""
     stats, mats = cp["statistics"], cp["matrices"]
@@ -273,7 +298,7 @@ def main():
     ])
 
     cp = crossplay_summary()
-    cp_body, cp_matrices = render_crossplay(cp) if cp else (None, None)
+    cp_body, cp_matrices = render_crossplay(cp) if cp else blank_crossplay()
     cp_withheld = bool(cp) and cp_body is None
 
     # Re-read immediately before writing: the reporter and a human may both be

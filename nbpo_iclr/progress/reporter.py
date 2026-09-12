@@ -258,6 +258,17 @@ def build_pdf():
             detail["pages"] = (re.findall(r"Output written.*?\((\d+) pages", txt) or [None])[0]
             detail["undefined"] = txt.count("undefined")
             detail["overfull"] = txt.count("Overfull")
+            # TeX recovers from several real errors and still writes a PDF: an
+            # over-long table row loses its last cell, a bad reference prints
+            # empty. The fallback pdflatex pass below runs in nonstopmode, so
+            # nothing else would notice. Count the errors and refuse to publish.
+            errors = re.findall(r"(?m)^(?:! |[^\n:]+\.tex:\d+: )(.+)$", txt)
+            detail["errors"] = len(errors)
+            detail["first_errors"] = errors[:3]
+            if errors:
+                ok = False
+                detail["ok"] = False
+                detail["failure"] = "LaTeX reported %d error(s); the PDF was not replaced" % len(errors)
             shutil.copy2(log, PROG / "logs" / ("build_%s.log" % stamp))
         if ok:
             archive = PROG / "pdfs" / ("main_v6_%s.pdf" % stamp)

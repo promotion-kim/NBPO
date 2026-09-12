@@ -95,13 +95,13 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-12 12:41 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-12 13:11 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 5/9; cross-play 3/6; DPO weights 0/7; capability cells 11/36; lm-eval cells 21.
 \\[2pt]
-GPU0: uf4\_train\_maxmin\_mse\_s44, 98\%, 96401/143771 MiB | GPU1: uf4\_train\_maxmin\_mse\_s44, 98\%, 98085/143771 MiB | GPU2: uf4\_train\_maxmin\_mse\_s44, 99\%, 95161/143771 MiB | GPU3: uf4\_train\_maxmin\_mse\_s44, 98\%, 96271/143771 MiB
+GPU0: uf4\_train\_maxmin\_mse\_s44, 98\%, 96401/143771 MiB | GPU1: uf4\_train\_maxmin\_mse\_s44, 99\%, 98085/143771 MiB | GPU2: uf4\_train\_maxmin\_mse\_s44, 99\%, 95161/143771 MiB | GPU3: uf4\_train\_maxmin\_mse\_s44, 85\%, 96271/143771 MiB
 \\[2pt]
-Queue: BLOCKED 1, DONE 198, FAILED 6, PENDING 55, READY 21, RUNNING 1. PDF rebuilt each cycle.
+Queue: BLOCKED 1, DONE 198, FAILED 6, PENDING 56, READY 32, RUNNING 1. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -677,9 +677,9 @@ The second statistic tests vulnerability to the evaluated bank, not population e
 Policy & Seeds & $N_{\rm common}$ & $W_{\rm ref}^{\min}$ & $W_{\mathcal B}^{\min}$ & $\min_k\widehat s_k^{\mathcal B}$\\
 \midrule
 % BEGIN AUTO CROSSPLAY BODY
-Base & -- & $123$ & $0.5000$ & $0.4736$ & $+0.0000$\\
-NBPO & $1$ & $223$ & $0.5011$ & $0.5160$ & \pending\\
-Fixed-reference Nash & $1$ & $213$ & $0.4789$ & $0.4827$ & \pending\\
+Base & \pending & \pending & \pending & \pending & \pending\\
+NBPO & \pending & \pending & \pending & \pending & \pending\\
+Fixed-reference Nash & \pending & \pending & \pending & \pending & \pending\\
 Dev-selected competitor & \pending & \pending & \pending & \pending & \pending\\
 % END AUTO CROSSPLAY BODY
 \bottomrule
@@ -700,11 +700,11 @@ Table~\ref{tab:general-capability} reserves core capability and safety outcomes 
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
-\caption{Core capability template for the UF-4 policies. IFEval uses strict-prompt accuracy; GSM8K uses exact match. HB is HarmBench harmful-completion rate, and XS is XSTest benign refusal. NBPO and game-utilitarian entries are means over the same three policy seeds, with the sample standard deviation beneath. The official IFEval language check calls a seed-unpinned language detector, so rescoring one fixed response set moves strict-prompt accuracy by up to $2/541$; the base row is its frozen first scoring. GSM8K exact match is deterministic. AE2 and AH2 are the AlpacaEval-2 and Arena-Hard-v2 prompt sets ($804$ and $749$ prompts, the latter $500$ hard plus $250$ creative). $^{\dagger}$These are \emph{not} the official AlpacaEval-2 length-controlled win rate or the official Arena-Hard score: both require a GPT-4-class annotator, which is a paid API this evaluation does not use. They are order-free win rates against the common base response scored by a pinned local reward model (Skywork-Reward-V2-Qwen3-8B), and they should be read as a local proxy ranking rather than as a leaderboard number. MT is MT-Bench; it is two-turn and its official score is a GPT-4 grade, so a zero-API substitute needs both multi-turn generation and a declared local grading rule, neither of which is in place. Dashes are unmeasured.}
+\caption{Core capability template for the UF-4 policies. IFEval uses strict-prompt accuracy; GSM8K uses exact match. HB is HarmBench harmful-completion rate, and XS is XSTest benign refusal. NBPO and game-utilitarian entries are means over the same three policy seeds, with the sample standard deviation beneath. The official IFEval language check calls a seed-unpinned language detector, so rescoring one fixed response set moves strict-prompt accuracy by up to $2/541$; the base row is its frozen first scoring. GSM8K exact match is deterministic. AE2 and AH2 are the AlpacaEval-2 and Arena-Hard-v2 prompt sets ($804$ and $749$ prompts, the latter $500$ hard plus $250$ creative). MT is MT-Bench: $80$ questions generated over two turns, with the second turn conditioned on the model's own first answer, then graded under MT-Bench's own single-answer protocol -- its four official grading templates, reference answers for exactly the three categories it declares need them, and its $1$--$10$ scale. $^{\dagger}$None of these three is an official leaderboard score, because each official score requires a GPT-4-class annotator and this evaluation makes no paid API calls. AE2 and AH2 are order-free win rates against the common base response scored by a pinned local reward model (Skywork-Reward-V2-Qwen3-8B); MT substitutes the same frozen local Qwen3-14B used as judge elsewhere here, thinking disabled, at temperature $0$. They are comparable across the rows of this table and not to published numbers, and an unparsed MT rating stays missing rather than being scored or imputed. Dashes are unmeasured.}
 \label{tab:general-capability}
-\begin{tabular}{lrrrrrrr}
+\begin{tabular}{lrrrrrrrr}
 \toprule
-Method & Seeds & IFEval & GSM8K & HB$\downarrow$ & XS$\downarrow$ & AE2$^{\dagger}$ & AH2$^{\dagger}$ & MT\\
+Method & Seeds & IFEval & GSM8K & HB$\downarrow$ & XS$\downarrow$ & AE2$^{\dagger}$ & AH2$^{\dagger}$ & MT$^{\dagger}$\\
 \midrule
 Base & $1$ & $0.7542$ & $0.8666$ & $0.2813$ & \pending & \pending & \pending & \pending\\
 NBPO & $3$ & $0.7264$ & $0.8633$ & $0.3906$ & \pending & \pending & \pending & \pending\\
@@ -2299,24 +2299,24 @@ Here $a$ is a full-support distribution over the comparator policies, fixed on d
 Rubric & Policy & Base & NBPO & Fixed-ref. & Competitor\\
 \midrule
 % BEGIN AUTO CROSSPLAY MATRICES
-IF & Base & $0.5000$ & $0.4965$ & $0.4990$ & \pending\\
- & NBPO & $0.5035$ & $0.5000$ & $0.5120$ & \pending\\
- & Fixed-reference Nash & $0.5010$ & $0.4880$ & $0.5000$ & \pending\\
+IF & Base & \pending & \pending & \pending & \pending\\
+ & NBPO & \pending & \pending & \pending & \pending\\
+ & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
  & Dev-selected competitor & \pending & \pending & \pending & \pending\\
 \midrule
-Truth & Base & $0.5000$ & $0.5020$ & $0.5115$ & \pending\\
- & NBPO & $0.4980$ & $0.5000$ & $0.4955$ & \pending\\
- & Fixed-reference Nash & $0.4885$ & $0.5045$ & $0.5000$ & \pending\\
+Truth & Base & \pending & \pending & \pending & \pending\\
+ & NBPO & \pending & \pending & \pending & \pending\\
+ & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
  & Dev-selected competitor & \pending & \pending & \pending & \pending\\
 \midrule
-Honesty & Base & $0.5000$ & $0.4790$ & $0.4890$ & \pending\\
- & NBPO & $0.5210$ & $0.5000$ & $0.5190$ & \pending\\
- & Fixed-reference Nash & $0.5110$ & $0.4810$ & $0.5000$ & \pending\\
+Honesty & Base & \pending & \pending & \pending & \pending\\
+ & NBPO & \pending & \pending & \pending & \pending\\
+ & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
  & Dev-selected competitor & \pending & \pending & \pending & \pending\\
 \midrule
-Help & Base & $0.5000$ & $0.4480$ & $0.4595$ & \pending\\
- & NBPO & $0.5520$ & $0.5000$ & $0.5030$ & \pending\\
- & Fixed-reference Nash & $0.5405$ & $0.4970$ & $0.5000$ & \pending\\
+Help & Base & \pending & \pending & \pending & \pending\\
+ & NBPO & \pending & \pending & \pending & \pending\\
+ & Fixed-reference Nash & \pending & \pending & \pending & \pending\\
  & Dev-selected competitor & \pending & \pending & \pending & \pending\\
 % END AUTO CROSSPLAY MATRICES
 \bottomrule
