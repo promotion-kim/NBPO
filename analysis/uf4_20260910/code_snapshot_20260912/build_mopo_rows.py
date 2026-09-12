@@ -88,7 +88,10 @@ def main():
 
     rho_root = ROOT / "targets" / args.rho_from
     pair_root = ROOT / "targets" / args.pairs_from
-    solver_hash = file_hash(pair_root / "train/solver/solution.json")
+    # The rho source's solution, not the token source's: rho is what the rows
+    # label and what the trainer pins. nash_v1's contribution is recorded
+    # separately as source_pairs_sha256.
+    solver_hash = file_hash(rho_root / "train/solver/solution.json")
     report = {"rho_from": str(rho_root), "pairs_from": str(pair_root),
               "solver_artifact_sha256": solver_hash, "splits": {}}
 
