@@ -556,22 +556,35 @@ def newly_done(man):
     return ", ".join(new) if new else "새 완료 결과 없음"
 
 
+FILLERS = ("fill_exhibits.py", "fill_capability.py", "fill_tradeoffs.py")
+
+
 def fill_exhibits():
-    """Write any newly measured UF-4 numbers into Table 1's marked region.
+    """Write any newly measured numbers into every marked region, then report.
 
     Runs before the build so a judge that finished since the last cycle appears
-    in this cycle's PDF. It only rewrites the marker regions, and it reports
-    which attributes clear 0.5 so a stale interpretive caption is visible rather
-    than silently rewritten.
+    in this cycle's PDF. Only marker regions are rewritten, and the significance
+    summary is printed rather than applied, so a stale interpretive caption is
+    visible instead of being silently reworded.
+
+    Three fillers now, not one. Table 3 and the trade-off figure were
+    hand-maintained: every arm cost a manual edit, and the figure was found
+    plotting numbers the appendix supersedes. One filler failing does not stop
+    the others -- a missing artifact for one exhibit is not a reason to leave
+    the rest of the paper stale.
     """
-    try:
-        r = subprocess.run([sys.executable, str(PROG / "fill_exhibits.py")],
-                           capture_output=True, text=True, timeout=2400)
-        if r.returncode != 0:
-            return {"ok": False, "detail": (r.stderr or r.stdout)[-300:]}
-        return {"ok": True, "detail": (r.stdout or "").strip()[-300:]}
-    except Exception as error:                               # noqa: BLE001
-        return {"ok": False, "detail": repr(error)[-300:]}
+    results, ok = {}, True
+    for name in FILLERS:
+        try:
+            r = subprocess.run([sys.executable, str(PROG / name)],
+                               capture_output=True, text=True, timeout=2400)
+            results[name] = {"rc": r.returncode,
+                             "detail": ((r.stdout or "") + (r.stderr or "")).strip()[-200:]}
+            ok = ok and r.returncode == 0
+        except Exception as error:                           # noqa: BLE001
+            results[name] = {"rc": None, "detail": repr(error)[-200:]}
+            ok = False
+    return {"ok": ok, "detail": json.dumps(results)[-600:]}
 
 
 def cycle():

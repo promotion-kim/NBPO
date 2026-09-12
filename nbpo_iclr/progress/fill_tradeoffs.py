@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -40,7 +41,9 @@ UNCERTAINTY = ("2000 whole-prompt paired bootstrap; prompt variability only, "
 
 
 def main():
-    raw = subprocess.run(POD, shell=True, capture_output=True, text=True).stdout
+    env = dict(os.environ, KUBECONFIG="/home/sjkim/.kube/aipr-kubeconfig.yaml")
+    raw = subprocess.run(POD, shell=True, capture_output=True, text=True,
+                         timeout=300, env=env).stdout
     if not raw.strip():
         print(json.dumps({"status": "aggregator unreachable; csv left alone"}), file=sys.stderr)
         return 1
