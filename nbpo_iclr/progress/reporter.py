@@ -60,11 +60,13 @@ def snapshot():
         except ValueError:
             continue
     raw = pod("cat /work/uf4_20260910/jobs/state.json")
-    jobs = {}
+    jobs, live_specs = {}, set()
     try:
-        jobs = json.loads(raw)["jobs"] if raw.strip() else {}
+        payload = json.loads(raw) if raw.strip() else {}
+        jobs = payload.get("jobs", {})
+        live_specs = set(payload.get("queued_specs", []))
     except Exception:
-        jobs = {}
+        jobs, live_specs = {}, set()
     for g in gpus:
         g["job"] = "-"
     for name, e in jobs.items():
@@ -76,7 +78,15 @@ def snapshot():
     counts = {}
     for e in jobs.values():
         counts[e.get("state", "?")] = counts.get(e.get("state", "?"), 0) + 1
+    # A job requeued under a new id leaves its old FAILED/BLOCKED record behind
+    # with no spec to schedule. Those entries are history, not open problems,
+    # and counting them with live failures buries a genuinely new one in a
+    # constant of six. Report the two separately.
+    stale = {s: sorted(n for n, e in jobs.items()
+                       if e.get("state") == s and n not in live_specs)
+             for s in ("FAILED", "BLOCKED")}
     return {"gpus": gpus, "jobs": jobs, "state_counts": counts,
+            "live_specs": sorted(live_specs), "superseded": stale,
             "unreachable": not bool(out.strip())}
 
 
@@ -179,7 +189,10 @@ def status_block(snap, comp, pdf_note):
         # the escapes instead of the job name.
         rows.append("GPU%d: %s, %d\\%%, %d/%d MiB" %
                     (g["gpu"], esc(g["job"]), g["util"], g["used_mib"], g["total_mib"]))
-    counts = ", ".join("%s %d" % (k, v) for k, v in sorted(snap["state_counts"].items()))
+    counts = ", ".join(
+        "%s %d%s" % (k, v, (" (%d superseded)" % len(snap.get("superseded", {}).get(k, []))
+                            if snap.get("superseded", {}).get(k) else ""))
+        for k, v in sorted(snap["state_counts"].items()))
     lines = [
         BEGIN,
         "\\ifshowreviews",
@@ -200,7 +213,16 @@ def status_block(snap, comp, pdf_note):
         "\\fi",
         END,
     ]
-    return "\n".join(lines)
+    text = "\n".join(lines)
+    # The LaTeX draft block is English by instruction, and pdflatex here has no
+    # CJK font: one Hangul character makes the whole build fail and the cycle
+    # then publishes nothing. Strip rather than raise, so a wording slip costs a
+    # legible warning instead of the status updates.
+    if not text.isascii():
+        print("status block had non-ASCII %r; stripped (this block must be English)"
+              % sorted({c for c in text if not c.isascii()}), flush=True)
+        text = text.encode("ascii", "replace").decode("ascii")
+    return text
 
 
 def update_manuscript(block):
@@ -288,7 +310,10 @@ def korean_summary(snap, comp, build, extra):
         if not x:
             return "GPU%d: 조회 실패" % i
         return "GPU%d: %s, %d%%, %d/%d MiB" % (i, x["job"], x["util"], x["used_mib"], x["total_mib"])
-    counts = ", ".join("%s %d" % (k, v) for k, v in sorted(snap["state_counts"].items()))
+    counts = ", ".join(
+        "%s %d%s" % (k, v, ("(대체완료 %d)" % len(snap.get("superseded", {}).get(k, []))
+                            if snap.get("superseded", {}).get(k) else ""))
+        for k, v in sorted(snap["state_counts"].items()))
     if build["ok"]:
         pdfline = "PDF: 성공 %s, %s쪽, nbpo_iclr/main_v6.pdf" % (t, build.get("pages"))
     else:
