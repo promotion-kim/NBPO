@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-12 10:11:52",
+  "generated_kst": "2026-09-12 10:41:51",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -124,10 +124,9 @@
     ]
   },
   "state_counts": {
-    "DONE": 21,
+    "DONE": 22,
     "PENDING": 12,
     "READY": 11,
-    "RUNNING": 1,
     "NOT_STARTED": 94
   },
   "rows": [
@@ -438,8 +437,8 @@
       "config_hash": "1c27fa679e8c52571fb30714ab21777e217b73329e9e55e60b9d7868df835144",
       "dependency": "target solve",
       "job_id": "uf4_train_maxmin_mse_s43",
-      "state": "RUNNING",
-      "progress": "step 1154/1250",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/maxmin_mse_s43/config.json",
       "eta_min": 184
     },
