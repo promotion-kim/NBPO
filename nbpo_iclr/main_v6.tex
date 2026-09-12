@@ -95,13 +95,13 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-12 11:41 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-12 12:41 KST.} Not part of the reported results.
 \\[2pt]
-Main-body objective rows 5/9; cross-play 0/4; DPO weights 0/7; capability cells 7/36; lm-eval cells 21.
+Main-body objective rows 5/9; cross-play 3/6; DPO weights 0/7; capability cells 11/36; lm-eval cells 21.
 \\[2pt]
-GPU0: uf4\_train\_maxmin\_mse\_s44, 99\%, 96401/143771 MiB | GPU1: uf4\_train\_maxmin\_mse\_s44, 99\%, 98083/143771 MiB | GPU2: uf4\_train\_maxmin\_mse\_s44, 99\%, 95161/143771 MiB | GPU3: uf4\_train\_maxmin\_mse\_s44, 100\%, 96271/143771 MiB
+GPU0: uf4\_train\_maxmin\_mse\_s44, 98\%, 96401/143771 MiB | GPU1: uf4\_train\_maxmin\_mse\_s44, 98\%, 98085/143771 MiB | GPU2: uf4\_train\_maxmin\_mse\_s44, 99\%, 95161/143771 MiB | GPU3: uf4\_train\_maxmin\_mse\_s44, 98\%, 96271/143771 MiB
 \\[2pt]
-Queue: BLOCKED 1, DONE 198, FAILED 6, PENDING 51, READY 20, RUNNING 1. PDF rebuilt each cycle.
+Queue: BLOCKED 1, DONE 198, FAILED 6, PENDING 55, READY 21, RUNNING 1. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -2335,17 +2335,17 @@ We record unique semantic comparisons separately from order-swapped calls, gener
 \begin{table}[htbp]
 \centering\scriptsize
 \setlength{\tabcolsep}{3pt}
-\caption{Cost-accounting template. Teacher, policy, generation/evaluation, and total costs use GPU-hours; total includes declared tuning. Solver CPU time is reported separately. Policy cost is per policy seed and is the trainer-reported runtime times the four devices held. On this measure the seven completed UF arms agree to within $0.02$ GPU-hours ($11.17$--$11.19$), so the fixed-reference and utilitarian entries are the same $11.2$ as NBPO rather than an independent coincidence; three policy seeds are trained for NBPO and for game-utilitarian, one for fixed-reference Nash. The controller-side wall cost, which also covers model loading and checkpointing, is $12.25$ GPU-hours per seed, and NBPO seed $42$ additionally consumed $10.1$ GPU-hours in two failed attempts before the run that is reported. Remaining columns are unmeasured; unique labels in particular await the declared convention separating unique semantic comparisons from order-swapped calls.}
+\caption{Cost-accounting template. Teacher, policy, generation/evaluation, and total costs use GPU-hours; total includes declared tuning. Solver CPU time is reported separately. Policy cost is per policy seed and is the trainer-reported runtime times the four devices held. On this measure the seven completed UF arms agree to within $0.02$ GPU-hours ($11.17$--$11.19$), so the fixed-reference and utilitarian entries are the same $11.2$ as NBPO rather than an independent coincidence; three policy seeds are trained for NBPO and for game-utilitarian, one for fixed-reference Nash. The controller-side wall cost, which also covers model loading and checkpointing, is $12.25$ GPU-hours per seed, and NBPO seed $42$ additionally consumed $10.1$ GPU-hours in two failed attempts before the run that is reported. Generation/evaluation is also per policy seed and is the measured cost of one arm's fresh-response generation plus its independent judging: the eleven completed arms span $0.90$--$1.56$ GPU-hours with a median of $0.93$, and the two values above $1.0$ are the two earliest arms. Teacher cost is \emph{shared}, not per method: one frozen preference model and one candidate pool serve every arm, at $1.8$ GPU-hours plus $7.4$ CPU-hours in total, and the column repeats that shared figure rather than charging it to each row. Tuning trials are zero for every row: no sweep was run, and the scalarized-DPO beta is the library default rather than a tuned value. Evaluation programmes that belong to the panel rather than to any arm are reported separately and excluded from these rows: capability benchmarks $6.8$, cross-play $2.5$ and competitor selection $0.9$ GPU-hours. Unique labels await the declared convention separating unique semantic comparisons from order-swapped calls.}
 \label{tab:feedback-cost}
 \begin{tabular}{lrrrrrr}
 \toprule
 Method & Unique labels & Teacher & Policy & Gen./eval. & Total & Trials\\
 \midrule
-NBPO, seed 42 & \pending & \pending & $11.2$ & \pending & \pending & \pending\\
-Fixed-reference Nash & \pending & \pending & $11.2$ & \pending & \pending & \pending\\
-Game-utilitarian & \pending & \pending & $11.2$ & \pending & \pending & \pending\\
-BT-RM--Nash & \pending & \pending & \pending & \pending & \pending & \pending\\
-Global game-maxmin & \pending & \pending & \pending & \pending & \pending & \pending\\
+NBPO, seed 42 & \pending & $1.8$ & $11.2$ & $1.1$ & $12.3$ & $0$\\
+Fixed-reference Nash & \pending & $1.8$ & $11.2$ & $0.9$ & $12.1$ & $0$\\
+Game-utilitarian & \pending & $1.8$ & $11.2$ & $0.9$ & $12.1$ & $0$\\
+BT-RM--Nash & \pending & $1.8$ & \pending & \pending & \pending & $0$\\
+Global game-maxmin & \pending & $1.8$ & $11.2$ & $0.9$ & $12.1$ & $0$\\
 PROSPER (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending\\
 MOPO (adapt.) & \pending & \pending & \pending & \pending & \pending & \pending\\
 DPO (uniform / sweep) & \pending & \pending & \pending & \pending & \pending & \pending\\

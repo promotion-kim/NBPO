@@ -38,8 +38,15 @@ SOLVE_METHOD = {"uf4_solve_nash_v1": "NBPO", "uf4_solve_util_v1": "Game-utilitar
                 "uf4_solve_fixedref_v1": "Fixed-reference Nash",
                 "uf4_solve_btrm_v1": "BT-RM--Nash",
                 "uf4_solve_maxmin_v1": "Global game-maxmin"}
-SHARED = ("teacher_", "uf4_pool_", "pool_train", "pool_dev", "uf4_score_", "score_train",
-          "score_dev", "uf4_det_", "uf4_audit_", "uf4_regress_", "uf4_build_dpo_pairs")
+SHARED = ("teacher_", "uf4_pool_", "pool_train", "pool_dev", "score_train",
+          "score_dev", "uf4_score_dev", "uf4_score_train", "uf4_det_", "uf4_audit_",
+          "uf4_regress_")
+# Evaluation programmes that are not attributable to one method: the cross-play
+# bank is a property of the bank, and competitor selection is a decision about
+# the bank rather than a cost of any arm in it.
+PROGRAMME = {"uf4_crossplay_": "_crossplay", "uf4_devsel_": "_competitor_selection",
+             "uf4_genhb": "_capability_harmbench", "uf4_score_harmbench": "_capability_harmbench",
+             "uf4_cap_": "_capability_lm_eval", "uf4_gen_bench": "_capability_lm_eval"}
 
 
 def parse(ts):
@@ -67,6 +74,17 @@ def durations():
 
 def classify(job_id):
     """(method, stage) for a job, or (None, None) when it is not a cost we attribute."""
+    for prefix, programme in PROGRAMME.items():
+        if job_id.startswith(prefix):
+            return programme, "gen_eval"
+    if job_id.startswith("uf4_build_dpo_pairs") or job_id.startswith("uf4_materialize_dpo_") \
+            or job_id.startswith("uf4_make_dpo_"):
+        return "DPO (uniform / sweep)", "solver"
+    if job_id.startswith("uf4_solve_prosper") or job_id.startswith("uf4_make_train_prosper") \
+            or job_id.startswith("uf4_queue_finaleval_prosper"):
+        return "PROSPER (adapt.)", "solver"
+    if job_id.startswith("uf4_make_train_") or job_id.startswith("uf4_queue_finaleval_"):
+        return "_shared", "solver"
     if any(k in job_id for k in SHARED):
         return "_shared", "teacher"
     if job_id in SOLVE_METHOD:
@@ -110,7 +128,24 @@ def main():
             entry["cpu_h"] += hours
         entry["jobs"] += 1
 
+    # Per-arm evaluation cost, so the clean single-run figure is visible next to
+    # the method total, which also carries retried attempts.
+    per_arm = {}
+    for job_id, rec in sorted(dur.items()):
+        for prefix in ("uf4_finaleval_gen_", "uf4_finaleval_judge_"):
+            if job_id.startswith(prefix):
+                arm = job_id[len(prefix):].rsplit("_shard", 1)[0]
+                d = per_arm.setdefault(arm, {"gpu_h": 0.0, "jobs": 0, "states": []})
+                d["gpu_h"] += rec["seconds"] / 3600.0 * max(1, rec.get("devices", 1))
+                d["jobs"] += 1
+                d["states"].append(rec.get("state"))
+    for arm, d in per_arm.items():
+        d["gpu_h"] = round(d["gpu_h"], 3)
+        d["all_succeeded"] = all(s == "DONE" for s in d["states"])
+        d.pop("states")
+
     report = {"source": str(ROOT / "logs/queue_report.jsonl"),
+              "per_arm_gen_eval": per_arm,
               "definition": ("GPU-hours = wall seconds x devices held, from the controller's "
                              "RUNNING and terminal events. Jobs holding no device are counted "
                              "as CPU-hours and reported separately, as the appendix requires."),
