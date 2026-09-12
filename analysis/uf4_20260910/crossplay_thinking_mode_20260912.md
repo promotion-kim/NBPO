@@ -80,3 +80,30 @@ flag, at parse rates of 99.38-99.58 %. The main results are untouched.
 
 The retired runs cost about 2.5 GPU-hours. They stay in the cost accounting:
 they were really spent.
+
+## Result of the re-judgment (measured 2026-09-12 14:33-14:47 KST)
+
+Parse rates at the declared 256-token limit with thinking off, all six pairs:
+
+| pair | parsed | was (2048, thinking on) |
+|---|---|---|
+| base vs fixedref_mse_s42 | 3968/4000 = 99.2 % | 88.0 % |
+| base vs nbpo_mse_s42 | 3974/4000 = 99.3 % | 88.6 % |
+| base vs util_mse_s42 | 3978/4000 = 99.5 % | not run |
+| nbpo_mse_s42 vs fixedref_mse_s42 | 3977/4000 = 99.4 % | 91.1 % |
+| fixedref_mse_s42 vs util_mse_s42 | 3990/4000 = 99.8 % | not run |
+| nbpo_mse_s42 vs util_mse_s42 | see summary | not run |
+
+That is the final-eval judge's own range (99.38-99.58 %), which is what a
+protocol match should look like. Complete prompts per cell rose from 365-442 to
+487-500 of 500, so every cell clears the declared 100-prompt floor with room.
+
+**The retired numbers were shifted, not merely noisy.** Comparing the same
+twelve cells under both settings, the corrected win rate moves by $-0.019$ to
+$+0.025$, and the movement is not centred on zero: honesty rises by $+0.021$
+and $+0.025$ in the two base-vs-arm pairs while instruction following and
+truthfulness fall by up to $0.019$. Missing judgments were therefore not
+missing at random with respect to the verdict -- the comparisons the judge
+deliberated longest over are exactly the ones it failed to return, and those
+lean a particular way per rubric. Keeping the 2048-token numbers "because the
+parse rate was acceptable" would have kept a biased estimate.
