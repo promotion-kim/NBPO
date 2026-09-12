@@ -110,7 +110,15 @@ def capability_cells_in_manuscript():
         cells = line[:-2].split("&")
         if len(cells) < 6 or "sample SD over seeds" in cells[0]:
             continue
-        filled += sum(1 for c in cells[2:6] if "\\pending" not in c and c.strip())
+        # Every data column, not a hard-coded slice of four. Three columns were
+        # added to this table and the slice kept the counter at 11/36 while
+        # thirteen further cells were filled. Columns 0 and 1 are the method
+        # name and the seed count, and a cell the base defines rather than
+        # measures is written "--", which is not a measurement either.
+        for c in cells[2:]:
+            c = c.strip()
+            if c and "\\pending" not in c and c not in ("--", "---"):
+                filled += 1
     return filled
 
 
