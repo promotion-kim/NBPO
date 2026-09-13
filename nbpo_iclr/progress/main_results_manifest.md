@@ -1,8 +1,8 @@
 # Main-body result manifest
 
-Generated 2026-09-14 02:44:24 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-14 03:44:23 KST. DONE requires the proving artifact on disk.
 
-State counts: DONE 47, NOT_STARTED 100, PENDING 8, READY 7, RUNNING 1
+State counts: DONE 48, NOT_STARTED 100, PENDING 8, READY 7
 
 | exhibit | method | seed/weight | checkpoint | job | state | progress | ETA (min) |
 |---|---|---|---|---|---|---|---|
@@ -45,7 +45,7 @@ State counts: DONE 47, NOT_STARTED 100, PENDING 8, READY 7, RUNNING 1
 | tab:uf-objectives | prosper_adapt | seed 42 | prosper_mse_s42 | uf4_finaleval_judge_prosper_mse_s42 | DONE | - | 24 |
 | tab:uf-objectives | prosper_adapt | seed 42 (train) | prosper_mse_s42 | uf4_train_prosper_mse_s42 | DONE | - | 184 |
 | tab:uf-objectives | prosper_adapt | seed 43 | prosper_mse_s43 | uf4_finaleval_judge_prosper_mse_s43 | PENDING | - | 24 |
-| tab:uf-objectives | prosper_adapt | seed 43 (train) | prosper_mse_s43 | uf4_train_prosper_mse_s43 | RUNNING | step 1000/1250 | 184 |
+| tab:uf-objectives | prosper_adapt | seed 43 (train) | prosper_mse_s43 | uf4_train_prosper_mse_s43 | DONE | - | 184 |
 | tab:uf-objectives | prosper_adapt | seed 44 | prosper_mse_s44 | uf4_finaleval_judge_prosper_mse_s44 | PENDING | - | 24 |
 | tab:uf-objectives | prosper_adapt | seed 44 (train) | prosper_mse_s44 | uf4_train_prosper_mse_s44 | READY | - | 184 |
 | tab:uf-objectives | mopo_adapt | seed 42 | mopo_mse_s42 | uf4_finaleval_judge_mopo_mse_s42 | DONE | - | 24 |

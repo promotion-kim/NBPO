@@ -170,13 +170,13 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-14 02:44 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-14 03:44 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 9/9; cross-play 6/6; DPO weights 3/7; capability cells 51/63; lm-eval cells 63.
 \\[2pt]
-GPU0: uf4\_train\_prosper\_mse\_s43, 100\%, 96865/143771 MiB | GPU1: uf4\_train\_prosper\_mse\_s43, 99\%, 95065/143771 MiB | GPU2: uf4\_train\_prosper\_mse\_s43, 96\%, 96297/143771 MiB | GPU3: uf4\_train\_prosper\_mse\_s43, 97\%, 98687/143771 MiB
+GPU0: uf4\_diag\_bank\_shard0, 96\%, 130869/143771 MiB | GPU1: uf4\_diag\_bank\_shard1, 99\%, 131759/143771 MiB | GPU2: uf4\_diag\_bank\_shard2, 94\%, 131019/143771 MiB | GPU3: uf4\_diag\_bank\_shard3, 100\%, 130893/143771 MiB
 \\[2pt]
-Queue: BLOCKED 1 (1 superseded), DONE 431, FAILED 6 (6 superseded), PENDING 70, READY 24, RUNNING 1. PDF rebuilt each cycle.
+Queue: BLOCKED 1 (1 superseded), DONE 439, FAILED 6 (6 superseded), PENDING 51, READY 32, RUNNING 4. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -833,29 +833,79 @@ SafeRLHF supplies human helpfulness and harmlessness comparisons on the same res
 \label{sec:target-transfer}
 The small separation between aggregation targets does not identify whether the remaining bottleneck is target quality or neural realization. We therefore specify a development-only diagnostic on $200$ fixed prompts (Table~\ref{tab:target-transfer}). An independent judge scores the same eight learner candidates against four reference candidates. Without refitting any target, we evaluate the empirical source distribution, each exact target, and the importance-reweighted distribution of a fitted LLM. Fresh generations are evaluated separately against the same reference bank. This isolates whether target improvements survive projection and generation; it does not estimate population exploitability. Protocol and missing-data rules are in Appendix~\ref{app:target-transfer}.
 
+The measured panel separates the three stages. Coverage first: of the $200$ planned prompts, a
+prompt-objective cell enters the complete case only when all $76$ of its rubric-order verdicts
+parse, and $60{,}252$ of $60{,}800$ verdicts do ($99.10\%$), which leaves $143$, $131$, $144$ and
+$167$ complete prompts by objective and $78$ common to all four. Table~\ref{tab:target-transfer}
+reports every categorical row on that one common set so the rows stay paired. Because
+complete-case selection is not outcome-free, the bounds required by
+Appendix~\ref{app:target-transfer} are also computed on all $200$ planned prompts, with each
+unresolved preference put at $0$ and at $1$.
+
+The exact targets do carry independent signal. Against the empirical source distribution on the
+same eight candidates, the \NBPO{} target gains $+0.0271$ $[+0.0023,+0.0518]$ on instruction
+following and $+0.0505$ $[+0.0273,+0.0743]$ on helpfulness, both excluding zero in the
+whole-prompt paired bootstrap, while truthfulness $(+0.0030)$ and honesty $(-0.0044)$ contain it;
+the minimum finite-bank surplus moves from $-0.0054$ to $+0.0054$. The missing-data bounds make
+this robust rather than conditional: over all $200$ prompts the target's win-rate interval lies
+entirely above the source's on every objective, for instance $[0.5722,0.5810]$ against
+$[0.4898,0.5001]$ on helpfulness. The complete case and the bounds disagree on the sign of the
+honesty gap, which is a coverage effect between $78$ and $200$ prompts rather than a contradiction.
+
+What the targets do not do is distinguish the aggregation rules. On the same panel the \NBPO{}
+target beats the utilitarian target by $+0.0010$, $+0.0012$, $+0.0018$ and $+0.0004$ across the
+four objectives and the fixed-reference target by $-0.0007$ to $+0.0003$; the largest of these is
+$0.0018$, against a target-versus-source gap of up to $0.0505$. The null result this paper reports
+at the policy level is therefore already present in the targets themselves, before any neural
+training and under an evaluator that never saw them.
+
+Projection does not lose that advantage on the sampled support, and it does not reproduce the
+target either. The fitted pools score above their own exact targets on instruction following,
+truthfulness and honesty and carry a larger minimum surplus ($+0.0222$ for \NBPO{}, $+0.0163$ for
+utilitarian, against $+0.0054$ and $+0.0036$), yet they sit further from the target in
+distribution than the source they started from: $\KL(p^\star\Vert\widetilde p_\theta)$ averages
+$1.457$ for both arms where $\KL(p^\star\Vert p_t)$ is $1.047$ and $1.075$, with total variation
+$0.58$ and a log-ratio RMS above $3.2$. The policy moved the pool substantially, in a direction
+the independent judge rewards and the regression target does not.
+
+Fresh generations then behave differently by arm. \NBPO{}'s new draws track its fitted pool
+($.5455$, $.5460$, $.5221$, $.5781$), the utilitarian arm's fall below its own pool on
+instruction following and honesty ($.5158$ against $.5500$, $.4926$ against $.5123$), and the
+uniform scalarized DPO arm leads every objective ($.5806$, $.5548$, $.5171$, $.6357$), which is
+the ordering Table~\ref{tab:uf-objectives} reports on the final split. No stage is guaranteed to
+improve on the previous one, and these are single-seed development rows.
+
+Two judge-contract checks accompany the panel. Thirty-two pairs in the bank carry byte-identical
+responses on both sides, and their order-averaged value is exactly $0.5$. Presentation order
+changes the verdict on $13{,}312$ of $29{,}893$ pairs, which is why both orders are averaged
+rather than sampled. The surplus columns remain a finite-matrix quantity at $m_{\rm eval}=4$ with
+$\beta^E=0.25$ fixed before the panel ran, not a population game value; the $[0,1]$ bounds for the
+surplus span $[-0.16,+0.18]$ and are uninformative, unlike the direct-win bounds.
+
+
 \begin{table}[t]
 \centering\scriptsize
 \setlength{\tabcolsep}{4pt}
-\caption{Planned independent target-to-policy evaluation. All rows share prompt IDs, judge and reference bank. IF/Truth/Honesty/Help are direct win rates. $\min_k s_k^{E}$ is a finite-response-bank surplus, defined only for categorical rows. $N$ is the common valid prompt count. Dashes are unmeasured; n/a excludes a quantity not estimated by this protocol.}
+\caption{Independent target-to-policy evaluation, measured. All rows share prompt IDs, judge and reference bank. IF/Truth/Honesty/Help are direct win rates. $\min_k s_k^{E}$ is a finite-response-bank surplus, defined only for categorical rows. $N$ is the common valid prompt count. Dashes are unmeasured; n/a excludes a quantity not estimated by this protocol.}
 \label{tab:target-transfer}
 \begin{tabular}{lrrrrrr}
 \toprule
 Representation & $N$ & IF & Truth & Honesty & Help & $\min_k s_k^{E}$\\
 \midrule
 % BEGIN AUTO TARGET TRANSFER BODY
-Reference on evaluation bank & \pending & $.500$ & $.500$ & $.500$ & $.500$ & $.000$\\
-Empirical source on learner pool & \pending & \pending & \pending & \pending & \pending & \pending\\
+Reference on evaluation bank & $78$ & $.500$ & $.500$ & $.500$ & $.500$ & $.000$\\
+Empirical source on learner pool & $78$ & $.5056$ & $.5099$ & $.5105$ & $.4937$ & $-.0054$\\
 \addlinespace
-NBPO exact target & \pending & \pending & \pending & \pending & \pending & \pending\\
-Fixed-reference exact target & \pending & \pending & \pending & \pending & \pending & \pending\\
-Utilitarian exact target & \pending & \pending & \pending & \pending & \pending & \pending\\
+NBPO exact target & $78$ & $.5327$ & $.5129$ & $.5061$ & $.5442$ & $.0054$\\
+Fixed-reference exact target & $78$ & $.5323$ & $.5130$ & $.5068$ & $.5448$ & $.0058$\\
+Utilitarian exact target & $78$ & $.5316$ & $.5117$ & $.5043$ & $.5437$ & $.0036$\\
 \addlinespace
-NBPO fitted pool, seed 42 & \pending & \pending & \pending & \pending & \pending & \pending\\
-Utilitarian fitted pool, seed 42 & \pending & \pending & \pending & \pending & \pending & \pending\\
+NBPO fitted pool, seed 42 & $78$ & $.5494$ & $.5369$ & $.5198$ & $.5402$ & $.0222$\\
+Utilitarian fitted pool, seed 42 & $78$ & $.5500$ & $.5336$ & $.5123$ & $.5399$ & $.0163$\\
 \addlinespace
-NBPO fresh responses, seed 42 & \pending & \pending & \pending & \pending & \pending & n/a\\
-Utilitarian fresh responses, seed 42 & \pending & \pending & \pending & \pending & \pending & n/a\\
-DPO fresh responses, seed 42 & \pending & \pending & \pending & \pending & \pending & n/a\\
+NBPO fresh responses, seed 42 & $186$ & $.5455$ & $.5460$ & $.5221$ & $.5781$ & n/a\\
+Utilitarian fresh responses, seed 42 & $188$ & $.5158$ & $.5279$ & $.4926$ & $.5575$ & n/a\\
+DPO fresh responses, seed 42 & $187$ & $.5806$ & $.5548$ & $.5171$ & $.6357$ & n/a\\
 % END AUTO TARGET TRANSFER BODY
 \bottomrule
 \end{tabular}

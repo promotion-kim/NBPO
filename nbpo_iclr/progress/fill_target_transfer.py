@@ -95,13 +95,18 @@ def render_transfer(transfer):
             cells = [PENDING] * 5 if kind == "categorical" else [PENDING] * 4 + ["n/a"]
             lines.append("%s & %s & %s\\\\" % (label, PENDING, " & ".join(cells)))
             continue
-        got = [entry.get(c, {}).get("n") for c in CRITERIA if c in entry]
-        n = min(got) if got else None
-        wins = [num(entry.get(c, {}).get("win_rate")) for c in CRITERIA]
         if kind == "categorical":
-            surplus = boot.get(key, {}).get("min_surplus_point")
+            # every categorical row is reported on the one common set the paired
+            # bootstrap uses, so the rows stay comparable to each other
+            common = boot.get(key, {})
+            n = transfer.get("common_prompts_all_objectives")
+            wins = [num(common.get(c, {}).get("win_rate_common")) for c in CRITERIA]
+            surplus = common.get("min_surplus_point")
             last = num(surplus, 4) if surplus is not None else PENDING
         else:
+            got = [entry.get(c, {}).get("n") for c in CRITERIA if c in entry]
+            n = min(got) if got else None
+            wins = [num(entry.get(c, {}).get("win_rate")) for c in CRITERIA]
             last = "n/a"
         lines.append("%s & %s & %s & %s\\\\"
                      % (label, ("$%d$" % n) if n else PENDING, " & ".join(wins), last))
