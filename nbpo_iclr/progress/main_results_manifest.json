@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-13 18:14:18",
+  "generated_kst": "2026-09-13 20:44:18",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -142,10 +142,9 @@
     ]
   },
   "state_counts": {
-    "DONE": 42,
-    "PENDING": 10,
-    "READY": 10,
-    "RUNNING": 1,
+    "DONE": 45,
+    "PENDING": 9,
+    "READY": 9,
     "NOT_STARTED": 100
   },
   "rows": [
@@ -729,8 +728,8 @@
       "config_hash": "ed8bbada34264c7457fadec815e92f51a82844d4c3f93ab0598c34bfe42286da",
       "dependency": "uf4_train_mopo_mse_s43",
       "job_id": "uf4_finaleval_judge_mopo_mse_s43",
-      "state": "RUNNING",
-      "progress": "elapsed 2m",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/mopo_mse_s43/complete.json",
       "eta_min": 24
     },
@@ -752,10 +751,10 @@
       "method": "mopo_adapt",
       "seed_or_weight": "seed 44",
       "checkpoint_id": "mopo_mse_s44",
-      "config_hash": "",
+      "config_hash": "742fc8c83f7082f35990120a3a6091eef9b743237f0cbbcc524bfabc54df1f86",
       "dependency": "uf4_train_mopo_mse_s44",
       "job_id": "uf4_finaleval_judge_mopo_mse_s44",
-      "state": "PENDING",
+      "state": "DONE",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/mopo_mse_s44/complete.json",
       "eta_min": 24
@@ -765,10 +764,10 @@
       "method": "mopo_adapt",
       "seed_or_weight": "seed 44 (train)",
       "checkpoint_id": "mopo_mse_s44",
-      "config_hash": "",
+      "config_hash": "627757c498dc3ab258772025b75edced311d8ab00144d8c53cdbc62df8b17f28",
       "dependency": "target solve",
       "job_id": "uf4_train_mopo_mse_s44",
-      "state": "READY",
+      "state": "DONE",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/mopo_mse_s44/config.json",
       "eta_min": 184

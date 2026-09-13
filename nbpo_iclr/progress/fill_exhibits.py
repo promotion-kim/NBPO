@@ -290,6 +290,13 @@ def _money(x):
     return "$%.4f$" % x
 
 
+def _pair(n, total, article=True):
+    """"eighteen of the 21" mixes a word with a numeral; keep both in one style."""
+    if max(n, total) >= len(WORDS):
+        return "%d of %s%d" % (n, "the " if article else "", total)
+    return "%s of %s%s" % (_word(n), "the " if article else "", _word(total))
+
+
 def _range(vals):
     lo, hi = min(vals), max(vals)
     return _money(lo) if lo == hi else "%s--%s" % (_money(lo), _money(hi))
@@ -445,7 +452,7 @@ def derived_macros(report, arms):
     add("tabonerowsathalfcount", _word(len(reach)))
     binds = sum(1 for a in res
                 if min(CRITERIA, key=lambda c: res[a][c]["win_rate"]) == "honesty")
-    add("tabonehonestybinds", "%s of the %s" % (_word(binds), _word(len(res))))
+    add("tabonehonestybinds", _pair(binds, len(res)))
     other = [ATTR_WORD[min(CRITERIA, key=lambda c: res[a][c]["win_rate"])]
              for a in sorted(res)
              if min(CRITERIA, key=lambda c: res[a][c]["win_rate"]) != "honesty"]
@@ -454,7 +461,7 @@ def derived_macros(report, arms):
     # ---- seeds whose truthfulness interval clears 0.5, mechanisms only
     mech_seeds = [a for a in res if a.rsplit("_s", 1)[0] in {f for _, f in MECHANISMS}]
     tr = sum(1 for a in mech_seeds if res[a]["truthfulness"]["ci95"][0] > 0.5)
-    add("tabonetruthexclmech", "%s of %s" % (_word(tr), _word(len(mech_seeds))))
+    add("tabonetruthexclmech", _pair(tr, len(mech_seeds), article=False))
 
     # ---- which matched family leads each attribute, and which leads nothing
     leads = {}
@@ -474,7 +481,7 @@ def derived_macros(report, arms):
                                      for lab, items in sorted(by_family.items())))
     quiet = [lab for lab, _ in MATCHED if lab not in by_family]
     add("tabonenolead", _join(quiet) or "no family")
-    add("tabonenoleadclause", "%s lead%s nothing" % (_join(quiet), "" if len(quiet) == 1 else "")
+    add("tabonenoleadclause", "%s lead%s nothing" % (_join(quiet), "s" if len(quiet) == 1 else "")
         if quiet else "every family leads something")
 
     # ---- the widest seed spread, since the noisiest arm is usually a leader
