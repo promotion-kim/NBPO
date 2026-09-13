@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-14 00:14:18",
+  "generated_kst": "2026-09-14 02:44:24",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -142,10 +142,10 @@
     ]
   },
   "state_counts": {
-    "DONE": 46,
-    "RUNNING": 1,
+    "DONE": 47,
     "PENDING": 8,
-    "READY": 8,
+    "RUNNING": 1,
+    "READY": 7,
     "NOT_STARTED": 100
   },
   "rows": [
@@ -625,8 +625,8 @@
       "config_hash": "e30d5f9545958aaf82a091b38472dde7790d7bc791428f4953e7a5c0b80b0911",
       "dependency": "uf4_train_prosper_mse_s42",
       "job_id": "uf4_finaleval_judge_prosper_mse_s42",
-      "state": "RUNNING",
-      "progress": "elapsed 17m",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/prosper_mse_s42/complete.json",
       "eta_min": 24
     },
@@ -661,11 +661,11 @@
       "method": "prosper_adapt",
       "seed_or_weight": "seed 43 (train)",
       "checkpoint_id": "prosper_mse_s43",
-      "config_hash": "",
+      "config_hash": "7ebf91af3174ae613998225160a420784d6b77e36657a46d8a599544dc649acf",
       "dependency": "target solve",
       "job_id": "uf4_train_prosper_mse_s43",
-      "state": "READY",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "step 1000/1250",
       "artifact_path": "/work/uf4_20260910/arms/prosper_mse_s43/config.json",
       "eta_min": 184
     },

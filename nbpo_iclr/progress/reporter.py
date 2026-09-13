@@ -556,7 +556,8 @@ def newly_done(man):
     return ", ".join(new) if new else "새 완료 결과 없음"
 
 
-FILLERS = ("fill_exhibits.py", "fill_capability.py", "fill_tradeoffs.py", "fill_costs.py")
+FILLERS = ("fill_exhibits.py", "fill_capability.py", "fill_tradeoffs.py", "fill_costs.py",
+           "fill_target_transfer.py")
 
 
 def fill_exhibits():
