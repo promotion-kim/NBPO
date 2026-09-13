@@ -270,6 +270,223 @@ def _sd(vals):
     return (sum((v - m) ** 2 for v in vals) / (n - 1)) ** 0.5
 
 
+MATCHED = (("NBPO", "nbpo_mse"), ("Fixed-reference Nash", "fixedref_mse"),
+           ("Game-utilitarian", "util_mse"), ("Global game-maxmin", "maxmin_mse"))
+MECHANISMS = MATCHED[:2] + (("BT-RM--Nash", "btrm_mse"),) + MATCHED[2:]
+ATTR_WORD = {"instruction_following": "instruction following",
+             "truthfulness": "truthfulness", "honesty": "honesty",
+             "helpfulness": "helpfulness"}
+WORDS = ("zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+         "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+         "sixteen", "seventeen", "eighteen", "nineteen", "twenty")
+HISTORY = Path(__file__).resolve().parent / "common_set_history.json"
+
+
+def _word(n):
+    return WORDS[n] if 0 <= n < len(WORDS) else str(n)
+
+
+def _money(x):
+    return "$%.4f$" % x
+
+
+def _range(vals):
+    lo, hi = min(vals), max(vals)
+    return _money(lo) if lo == hi else "%s--%s" % (_money(lo), _money(hi))
+
+
+def _join(items):
+    if not items:
+        return "none"
+    if len(items) == 1:
+        return items[0]
+    return ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def _family_mean(report, family, criterion):
+    """Mean over this family's evaluated seeds, or None when it has none."""
+    members = [a for a in report["results"] if a.rsplit("_s", 1)[0] == family]
+    if not members:
+        return None
+    return sum(report["results"][m][criterion]["win_rate"] for m in members) / len(members)
+
+
+def _family_min_mean(report, family):
+    """Mean over seeds of each seed's own minimum attribute."""
+    members = [a for a in report["results"] if a.rsplit("_s", 1)[0] == family]
+    if not members:
+        return None
+    return sum(min(report["results"][m][c]["win_rate"] for c in CRITERIA)
+               for m in members) / len(members)
+
+
+def _shrink_history(common):
+    """Append the current common-set size and return (history list, transitions)."""
+    known = json.loads(HISTORY.read_text()) if HISTORY.exists() else []
+    if not known or known[-1] != common:
+        known.append(common)
+        tmp = HISTORY.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(known) + "\n")
+        os.replace(tmp, HISTORY)
+    return known, max(len(known) - 1, 0)
+
+
+def derived_macros(report, arms):
+    """Quantities the Table-1 prose quotes, so the prose cannot drift from the table."""
+    out = []
+    res = report["results"]
+    add = lambda name, value: out.append("\\newcommand{\\%s}{%s}" % (name, value))
+
+    add("tabonearms", _word(len(arms)))
+    add("tabonearmsnum", str(len(arms)))
+
+    # ---- the four matched mechanisms: minimum column, and how closely they agree
+    matched_mins = [(lab, _family_min_mean(report, fam)) for lab, fam in MATCHED]
+    matched_mins = [(lab, v) for lab, v in matched_mins if v is not None]
+    if matched_mins:
+        vals = [v for _, v in matched_mins]
+        add("tabonematchedminlist", _join([_money(v) for v in vals]))
+        add("tabonematchedminspread", "$%.4f$" % (max(vals) - min(vals)))
+        add("tabonematchedminrange", _range(vals))
+        below = sum(1 for v in vals if v < 0.5)
+        add("tabonematchedbelowhalf", _word(below))
+    spreads = {}
+    for c in CRITERIA:
+        vals = [_family_mean(report, fam, c) for _, fam in MATCHED]
+        vals = [v for v in vals if v is not None]
+        if vals:
+            spreads[c] = max(vals) - min(vals)
+    if spreads:
+        add("tabonematchedagreeall", "$%.4f$" % max(spreads.values()))
+        for c, key in (("instruction_following", "if"), ("helpfulness", "help")):
+            if c in spreads:
+                add("tabonematchedagree" + key, "$%.4f$" % spreads[c])
+
+    # ---- the five mechanisms as a band, and the scalarized-DPO row against it
+    keys = {"instruction_following": "if", "truthfulness": "truth",
+            "honesty": "honesty", "helpfulness": "help"}
+    mech_best = {}
+    for c, key in keys.items():
+        vals = [_family_mean(report, fam, c) for _, fam in MECHANISMS]
+        vals = [v for v in vals if v is not None]
+        if not vals:
+            continue
+        add("tabonemech" + key, _range(vals))
+        mech_best[c] = max(vals)
+    mech_min = [_family_min_mean(report, fam) for _, fam in MECHANISMS]
+    mech_min = [v for v in mech_min if v is not None]
+    if mech_min:
+        add("tabonemechmin", _range(mech_min))
+
+    dpo_members = sorted(a for a in res if a.rsplit("_s", 1)[0] == "dpo_uniform_mse")
+    if dpo_members:
+        add("tabonedposeeds", _word(len(dpo_members)))
+        sds, margins = [], {}
+        for c, key in keys.items():
+            vals = [res[m][c]["win_rate"] for m in dpo_members]
+            mean = sum(vals) / len(vals)
+            add("tabonedpo" + key, _money(mean))
+            if len(vals) > 1:
+                sds.append(_sd(vals))
+            if c in mech_best:
+                margins[c] = mean - mech_best[c]
+        dpo_min = _family_min_mean(report, "dpo_uniform_mse")
+        add("tabonedpomin", _money(dpo_min))
+        if sds:
+            add("tabonedpomaxsd", "$%.4f$" % max(sds))
+        big = [c for c in ("instruction_following", "truthfulness", "helpfulness")
+               if c in margins]
+        if big:
+            add("tabonedpomargins", _join(["$%.3f$" % margins[c] for c in big]))
+        if "honesty" in margins:
+            add("tabonedpohonestymargin", "$%.4f$" % margins["honesty"])
+        # every seed's own interval, since a family mean can hide a seed
+        excl = {c: all(res[m][c]["ci95"][0] > 0.5 for m in dpo_members) for c in keys}
+        add("tabonedpoexcl", _join([ATTR_WORD[c] for c in keys if excl[c]]))
+
+    # ---- which rows actually reach 0.5 on the minimum, and what binds it
+    reach = []
+    for lab, fam in MECHANISMS + (("scalarized DPO", "dpo_uniform_mse"),
+                                  ("PROSPER", "prosper_mse"), ("MOPO", "mopo_mse")):
+        v = _family_min_mean(report, fam)
+        if v is not None and v >= 0.5:
+            reach.append("%s at %s" % (lab, _money(v)))
+    add("tabonerowsathalf", _join(reach))
+    add("tabonerowsathalfcount", _word(len(reach)))
+    binds = sum(1 for a in res
+                if min(CRITERIA, key=lambda c: res[a][c]["win_rate"]) == "honesty")
+    add("tabonehonestybinds", "%s of the %s" % (_word(binds), _word(len(res))))
+    other = [ATTR_WORD[min(CRITERIA, key=lambda c: res[a][c]["win_rate"])]
+             for a in sorted(res)
+             if min(CRITERIA, key=lambda c: res[a][c]["win_rate"]) != "honesty"]
+    add("tabonebindsother", _join(sorted(set(other))) if other else "nothing else")
+
+    # ---- seeds whose truthfulness interval clears 0.5, mechanisms only
+    mech_seeds = [a for a in res if a.rsplit("_s", 1)[0] in {f for _, f in MECHANISMS}]
+    tr = sum(1 for a in mech_seeds if res[a]["truthfulness"]["ci95"][0] > 0.5)
+    add("tabonetruthexclmech", "%s of %s" % (_word(tr), _word(len(mech_seeds))))
+
+    # ---- which matched family leads each attribute, and which leads nothing
+    leads = {}
+    for c in CRITERIA:
+        pairs = [(lab, _family_mean(report, fam, c)) for lab, fam in MATCHED]
+        pairs = [(lab, v) for lab, v in pairs if v is not None]
+        if pairs:
+            leads[c] = max(pairs, key=lambda p: p[1])[0]
+    min_pairs = [(lab, v) for lab, v in matched_mins]
+    if min_pairs:
+        leads["min"] = max(min_pairs, key=lambda p: p[1])[0]
+    by_family = {}
+    for what, lab in leads.items():
+        by_family.setdefault(lab, []).append(
+            "the minimum" if what == "min" else ATTR_WORD[what])
+    add("taboneleadsplit", "; ".join("%s on %s" % (lab, _join(items))
+                                     for lab, items in sorted(by_family.items())))
+    quiet = [lab for lab, _ in MATCHED if lab not in by_family]
+    add("tabonenolead", _join(quiet) or "no family")
+    add("tabonenoleadclause", "%s lead%s nothing" % (_join(quiet), "" if len(quiet) == 1 else "")
+        if quiet else "every family leads something")
+
+    # ---- the widest seed spread, since the noisiest arm is usually a leader
+    sds = {}
+    for lab, fam in MATCHED + (("BT-RM--Nash", "btrm_mse"),):
+        members = sorted(a for a in res if a.rsplit("_s", 1)[0] == fam)
+        if len(members) > 1:
+            sds[lab] = {c: _sd([res[m][c]["win_rate"] for m in members]) for c in CRITERIA}
+    if sds:
+        widest = {c: max(sds, key=lambda lab: sds[lab][c]) for c in CRITERIA}
+        top = max(set(widest.values()), key=lambda lab: list(widest.values()).count(lab))
+        n = list(widest.values()).count(top)
+        add("tabonewidestfamily", top)
+        add("tabonewidestcount", "%s of the %s attributes" % (_word(n), _word(len(CRITERIA))))
+        ifs = sorted((sds[lab]["instruction_following"] for lab in sds), reverse=True)
+        add("tabonewidestif", "$%.4f$ against a next largest of $%.4f$" % (ifs[0], ifs[1])
+            if len(ifs) > 1 else "$%.4f$" % ifs[0])
+
+    # ---- the seed whose capability panel is reported, so that paragraph can cite it
+    if "dpo_uniform_mse_s42" in res:
+        add("capdpojudgedif",
+            _money(res["dpo_uniform_mse_s42"]["instruction_following"]["win_rate"]))
+
+    # ---- BT-RM's cumulative minimum, the table's own single-seed cautionary tale
+    btrm = sorted(a for a in res if a.rsplit("_s", 1)[0] == "btrm_mse")
+    if btrm:
+        mins = [min(res[a][c]["win_rate"] for c in CRITERIA) for a in btrm]
+        cum = [sum(mins[:k]) / k for k in range(1, len(mins) + 1)]
+        add("tabonebtrmtraj", "; ".join(
+            "%s at %s seed%s" % (_money(v), _word(i + 1), "" if i == 0 else "s")
+            for i, v in enumerate(cum)))
+        add("tabonebtrmfirst", _money(cum[0]))
+        add("tabonebtrmlast", _money(cum[-1]))
+
+    # ---- how many times the common set has moved under these rows
+    history, transitions = _shrink_history(report["common_prompts"])
+    if len(history) > 1:
+        add("taboneshrink", ", ".join("$%s$" % _tex_thousands(v) for v in history[:-1]))
+        add("taboneshrinkcount", _word(transitions))
+    return out
+
+
 def replace_region(text, begin, end, payload):
     i, j = text.index(begin), text.index(end)
     return text[:i + len(begin)] + "\n" + payload + "\n" + text[j:]
@@ -295,7 +512,7 @@ def main():
         "\\newcommand{\\tabonevalidrange}{%s}" % (
             "$%s$" % _tex_thousands(own[0]) if own[0] == own[-1]
             else "$%s$--$%s$" % (_tex_thousands(own[0]), _tex_thousands(own[-1]))),
-    ])
+    ] + derived_macros(report, arms))
 
     cp = crossplay_summary()
     cp_body, cp_matrices = render_crossplay(cp) if cp else blank_crossplay()

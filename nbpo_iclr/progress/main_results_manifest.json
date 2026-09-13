@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-13 11:44:19",
+  "generated_kst": "2026-09-13 14:14:18",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -142,9 +142,9 @@
     ]
   },
   "state_counts": {
-    "DONE": 37,
-    "PENDING": 13,
+    "DONE": 38,
     "RUNNING": 1,
+    "PENDING": 12,
     "READY": 12,
     "NOT_STARTED": 100
   },
@@ -570,11 +570,11 @@
       "method": "dpo_uniform",
       "seed_or_weight": "seed 43",
       "checkpoint_id": "dpo_uniform_mse_s43",
-      "config_hash": "",
+      "config_hash": "dd944dd36654f958dcd7dc1159539998fb20b3ef851781e7244dab38ad9a66be",
       "dependency": "uf4_train_dpo_uniform_mse_s43",
       "job_id": "uf4_finaleval_judge_dpo_uniform_mse_s43",
-      "state": "PENDING",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "elapsed 19m",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_uniform_mse_s43/complete.json",
       "eta_min": 24
     },
@@ -586,8 +586,8 @@
       "config_hash": "20a0412a5cc585868732525120a5613fd34a055185d5ffe1a1aeb14e8e772371",
       "dependency": "target solve",
       "job_id": "uf4_train_dpo_uniform_mse_s43",
-      "state": "RUNNING",
-      "progress": "elapsed 0m",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/dpo_uniform_mse_s43/config.json",
       "eta_min": 184
     },

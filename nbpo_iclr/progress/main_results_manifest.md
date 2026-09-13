@@ -1,8 +1,8 @@
 # Main-body result manifest
 
-Generated 2026-09-13 11:44:19 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-13 14:14:18 KST. DONE requires the proving artifact on disk.
 
-State counts: DONE 37, NOT_STARTED 100, PENDING 13, READY 12, RUNNING 1
+State counts: DONE 38, NOT_STARTED 100, PENDING 12, READY 12, RUNNING 1
 
 | exhibit | method | seed/weight | checkpoint | job | state | progress | ETA (min) |
 |---|---|---|---|---|---|---|---|
@@ -38,8 +38,8 @@ State counts: DONE 37, NOT_STARTED 100, PENDING 13, READY 12, RUNNING 1
 | tab:uf-objectives | game_maxmin | seed 44 (train) | maxmin_mse_s44 | uf4_train_maxmin_mse_s44 | DONE | - | 184 |
 | tab:uf-objectives | dpo_uniform | seed 42 | dpo_uniform_mse_s42 | uf4_finaleval_judge_dpo_uniform_mse_s42 | DONE | - | 24 |
 | tab:uf-objectives | dpo_uniform | seed 42 (train) | dpo_uniform_mse_s42 | uf4_train_dpo_uniform_mse_s42 | DONE | - | 184 |
-| tab:uf-objectives | dpo_uniform | seed 43 | dpo_uniform_mse_s43 | uf4_finaleval_judge_dpo_uniform_mse_s43 | PENDING | - | 24 |
-| tab:uf-objectives | dpo_uniform | seed 43 (train) | dpo_uniform_mse_s43 | uf4_train_dpo_uniform_mse_s43 | RUNNING | elapsed 0m | 184 |
+| tab:uf-objectives | dpo_uniform | seed 43 | dpo_uniform_mse_s43 | uf4_finaleval_judge_dpo_uniform_mse_s43 | RUNNING | elapsed 19m | 24 |
+| tab:uf-objectives | dpo_uniform | seed 43 (train) | dpo_uniform_mse_s43 | uf4_train_dpo_uniform_mse_s43 | DONE | - | 184 |
 | tab:uf-objectives | dpo_uniform | seed 44 | dpo_uniform_mse_s44 | uf4_finaleval_judge_dpo_uniform_mse_s44 | DONE | - | 24 |
 | tab:uf-objectives | dpo_uniform | seed 44 (train) | dpo_uniform_mse_s44 | uf4_train_dpo_uniform_mse_s44 | DONE | - | 184 |
 | tab:uf-objectives | prosper_adapt | seed 42 | prosper_mse_s42 | uf4_finaleval_judge_prosper_mse_s42 | PENDING | - | 24 |
