@@ -171,13 +171,13 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-14 05:14 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-14 05:44 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 9/9; cross-play 6/6; DPO weights 3/7; capability cells 51/63; lm-eval cells 66.
 \\[2pt]
-GPU0: uf4\_diag\_fresh\_gen\_base\_fresh, 0\%, 0/143771 MiB | GPU1: -, 0\%, 0/143771 MiB | GPU2: -, 0\%, 0/143771 MiB | GPU3: -, 0\%, 0/143771 MiB
+GPU0: uf4\_train\_dpo\_if\_only\_mse\_s42, 93\%, 96423/143771 MiB | GPU1: uf4\_train\_dpo\_if\_only\_mse\_s42, 91\%, 99021/143771 MiB | GPU2: uf4\_train\_dpo\_if\_only\_mse\_s42, 99\%, 96515/143771 MiB | GPU3: uf4\_train\_dpo\_if\_only\_mse\_s42, 94\%, 96211/143771 MiB
 \\[2pt]
-Queue: BLOCKED 13 (1 superseded), DONE 466, FAILED 7 (6 superseded), PENDING 38, READY 16, RUNNING 1. PDF rebuilt each cycle.
+Queue: BLOCKED 13 (1 superseded), DONE 468, FAILED 7 (6 superseded), PENDING 37, READY 15, RUNNING 1. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -946,7 +946,7 @@ Four objective differences; zero reference\par\medskip
 \textit{Results pending}
 \end{minipage}}%
 }
-\caption{Template for the target-to-policy diagnostic. Panel (a) tracks each objective across representations; panel (b) shows paired NBPO-minus-utilitarian differences. Intervals condition on the specified policy seed. No points are drawn before judgments are available.}
+\caption{Target-to-policy diagnostic, measured. Panel (a) tracks each objective across the three representations of the \NBPO{} seed-42 run; panel (b) shows paired NBPO-minus-utilitarian differences at the same three stages. Bars and points carry whole-prompt paired intervals and condition on that policy seed. The stages do not share a denominator: the two categorical stages use the $78$ prompts where every rubric-order verdict parsed, and the fresh stage uses the $174$ prompts complete on all four objectives for that arm. The dotted line is the untrained base draw's weakest objective, which is where a policy that changed nothing would sit on the fresh scale.}
 \label{fig:target-transfer}
 \end{figure}
 

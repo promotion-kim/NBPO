@@ -1,8 +1,8 @@
 # Main-body result manifest
 
-Generated 2026-09-14 05:14:18 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-14 05:44:19 KST. DONE requires the proving artifact on disk.
 
-State counts: DONE 49, FAILED 1, NOT_STARTED 100, PENDING 7, READY 6
+State counts: DONE 49, FAILED 1, NOT_STARTED 100, PENDING 7, READY 5, RUNNING 1
 
 | exhibit | method | seed/weight | checkpoint | job | state | progress | ETA (min) |
 |---|---|---|---|---|---|---|---|
@@ -56,7 +56,7 @@ State counts: DONE 49, FAILED 1, NOT_STARTED 100, PENDING 7, READY 6
 | tab:uf-objectives | mopo_adapt | seed 44 (train) | mopo_mse_s44 | uf4_train_mopo_mse_s44 | DONE | - | 184 |
 | tab:uf-objectives | base | reference | Llama-3.1-8B-Instruct | uf4_pool_finaleval_shard0 | DONE | - | 9 |
 | fig:uf-tradeoffs | scalarized_dpo | if_only | dpo_if_only_mse_s42 | uf4_finaleval_judge_dpo_if_only_mse_s42 | PENDING | - | 24 |
-| fig:uf-tradeoffs | scalarized_dpo | if_only (train) | dpo_if_only_mse_s42 | uf4_train_dpo_if_only_mse_s42 | READY | - | 184 |
+| fig:uf-tradeoffs | scalarized_dpo | if_only (train) | dpo_if_only_mse_s42 | uf4_train_dpo_if_only_mse_s42 | RUNNING | step 29/1250 | 184 |
 | fig:uf-tradeoffs | scalarized_dpo | truth_only | dpo_truth_only_mse_s42 | uf4_finaleval_judge_dpo_truth_only_mse_s42 | PENDING | - | 24 |
 | fig:uf-tradeoffs | scalarized_dpo | truth_only (train) | dpo_truth_only_mse_s42 | uf4_train_dpo_truth_only_mse_s42 | READY | - | 184 |
 | fig:uf-tradeoffs | scalarized_dpo | honesty_only | dpo_honesty_only_mse_s42 | uf4_finaleval_judge_dpo_honesty_only_mse_s42 | PENDING | - | 24 |
