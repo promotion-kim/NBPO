@@ -170,13 +170,13 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-14 03:44 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-14 04:14 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 9/9; cross-play 6/6; DPO weights 3/7; capability cells 51/63; lm-eval cells 63.
 \\[2pt]
-GPU0: uf4\_diag\_bank\_shard0, 96\%, 130869/143771 MiB | GPU1: uf4\_diag\_bank\_shard1, 99\%, 131759/143771 MiB | GPU2: uf4\_diag\_bank\_shard2, 94\%, 131019/143771 MiB | GPU3: uf4\_diag\_bank\_shard3, 100\%, 130893/143771 MiB
+GPU0: uf4\_diag\_proj\_all, 95\%, 95253/143771 MiB | GPU1: uf4\_diag\_proj\_all, 90\%, 95023/143771 MiB | GPU2: uf4\_diag\_proj\_all, 97\%, 95119/143771 MiB | GPU3: uf4\_diag\_proj\_all, 98\%, 95093/143771 MiB
 \\[2pt]
-Queue: BLOCKED 1 (1 superseded), DONE 439, FAILED 6 (6 superseded), PENDING 51, READY 32, RUNNING 4. PDF rebuilt each cycle.
+Queue: BLOCKED 1 (1 superseded), DONE 445, FAILED 6 (6 superseded), PENDING 51, READY 30, RUNNING 1. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -935,18 +935,44 @@ Four objective differences; zero reference\par\medskip
 
 To test projection without changing the target, we compare sampled-pair regression with an equivalent all-candidate evaluation of Eq.~\eqref{eq:regression-loss}. The two pilot runs share the base checkpoint, $200$ training prompts, frozen targets and a declared token budget; evaluation uses the $200$ development prompts above. Table~\ref{tab:projection-ablation} reports the fit and generated-policy results separately. A single-seed pilot diagnoses the implementation and does not establish a method-level improvement.
 
+Both pilot arms consume the identical row multiset -- $5{,}600$ pair rows, every unordered pair of
+every one of the $200$ training prompts exactly once -- in $200$ updates of $28$ rows each, at the
+campaign's learning rate, schedule, precision and seed, for $6{,}597{,}080$ non-padding response
+tokens apiece. The budget is therefore matched by construction rather than by adjustment. What
+differs is coverage inside an update: the sampled-pair arm draws its $28$ rows across prompts
+through the campaign's sampler, while the all-candidate arm reads them in written order so each
+update carries one prompt's complete pair graph, which evaluates
+Eq.~\eqref{eq:all-candidate-regression} exactly. We verified that identity separately, in value
+and in gradient, to $2.8\times10^{-14}$ on the real solver numbers, so this is a coverage control
+and not a second implementation of the loss.
+
+The two arms fail in different directions. Complete coverage fits the direction of the target
+better on the development panel -- nMSE $0.83$ against $0.95$, Pearson $0.42$ against $0.23$,
+sign agreement $0.60$ against $0.56$ -- while overshooting its scale badly on the training panel,
+where its prediction RMS reaches $13.5$ against a target RMS of $5.5$ and its nMSE of $3.52$ is
+worse than predicting zero. The sampled-pair arm does the opposite: it fits the training panel
+($0.17$) and transfers almost nothing ($0.95$), with a prediction RMS of $1.6$ that is less than a
+third of the target scale. Seven appearances of each candidate in one update evidently make the
+per-prompt step far larger than the same twenty-eight rows spread over twenty-eight prompts, which
+is a learning-rate interaction rather than a property of either objective. Neither arm brings the
+pool closer to the target than doing nothing: development $\KL(p^\star\Vert\widetilde p_\theta)$ is
+$1.31$ and $1.41$ against the source's $1.05$. This is one seed on $200$ development prompts and
+diagnoses the implementation; it is not a recipe change, and the $10$k-prompt runs in
+Table~\ref{tab:uf-objectives} are untouched.
+
+
 \begin{table}[t]
 \centering\scriptsize
 \setlength{\tabcolsep}{3.5pt}
-\caption{Planned projection pilot, seed 42. Train/dev nMSE and development pool KL measure target realization; fresh $W_{\min}=\min_k W_k$ uses independent judgments. Report actual optimizer steps, non-padding response tokens and GPU-hours for each run. No winning pilot replaces the existing final-test results.}
+\caption{Projection pilot, seed 42, measured. Train/dev nMSE and development pool KL measure target realization; fresh $W_{\min}=\min_k W_k$ uses independent judgments. Report actual optimizer steps, non-padding response tokens and GPU-hours for each run. No winning pilot replaces the existing final-test results.}
 \label{tab:projection-ablation}
 \begin{tabular}{lrrrrrrr}
 \toprule
 Projection & Steps & Train nMSE & Dev nMSE & Pool KL & Fresh $W_{\min}$ & Tokens & GPU-h\\
 \midrule
 % BEGIN AUTO PROJECTION ABLATION BODY
-Sampled pairs & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
-All candidates & \pending & \pending & \pending & \pending & \pending & \pending & \pending\\
+Sampled pairs & $200$ & $.1665$ & $.9519$ & $1.3112$ & \pending & $6{,}597{,}080$ & $1.07$\\
+All candidates & $200$ & $3.5157$ & $.8282$ & $1.4054$ & \pending & $6{,}597{,}080$ & $0.93$\\
 % END AUTO PROJECTION ABLATION BODY
 \bottomrule
 \end{tabular}
@@ -2676,6 +2702,20 @@ The identity follows from $\sum_{i<i'}(u_i-u_{i'})^2=n\sum_i(u_i-\bar u)^2$ and 
 \paragraph{Target separation and objective conflict.}
 Recompute all entries in Table~\ref{tab:target-signal} on this same development panel and pair measure. Target-difference RMS is $\sqrt{\E[(\widehat h_a^\star-\widehat h_b^\star)^2]}$. Let $e_a=h_a-\widehat h_a^\star$; fit-error RMS is $\sqrt{\E[e_a^2]}$ and error-difference RMS is $\sqrt{\E[(e_a-e_b)^2]}$. The identity $h_a-h_b=(\widehat h_a^\star-\widehat h_b^\star)+(e_a-e_b)$ distinguishes shared fitting error from error that changes the method contrast. Compare their scales without interpreting their ratio as a statistical power calculation or proof of signal loss. Report cross-objective winner disagreement, non-tie denominators and rank correlations. These measure conflict, not within-objective cycles; independent-judge agreement assesses teacher transfer.
 
+Measured on that panel, the two terms are far apart in scale. The \NBPO{} and utilitarian targets
+differ by RMS $0.179$ and the \NBPO{} and fixed-reference targets by $0.418$, against a target RMS
+of $5.38$ and mean total variations of $0.021$ and $0.024$ between the target distributions
+themselves. The fitted arms' errors are RMS $4.21$ for \NBPO{} and $4.28$--$4.30$ for the
+controls, so the regression leaves most of the target unexplained at this budget. Their error
+\emph{difference} is RMS $1.18$ and $1.23$, which is $6.6$ and $2.9$ times the corresponding
+target difference, and the difference between the two fitted policies is RMS $1.18$ and $1.20$ --
+numerically the error difference rather than the target difference. We report these as scales and
+draw no power calculation from their ratio. Read with the independent panel, where the same three
+targets differ by at most $0.0018$ in judged win rate, the two measurements say the same thing
+from different directions: what distinguishes these aggregation rules is small both in the
+numbers the regression must reproduce and in the quality an independent evaluator can detect.
+
+
 \begin{table}[htbp]
 \centering\scriptsize
 \setlength{\tabcolsep}{5pt}
@@ -2686,8 +2726,8 @@ Recompute all entries in Table~\ref{tab:target-signal} on this same development 
 Targets compared & $N$ & Mean TV & Target diff. RMS & NBPO error RMS & Error diff. RMS\\
 \midrule
 % BEGIN AUTO TARGET SIGNAL BODY
-NBPO / utilitarian & \pending & \pending & \pending & \pending & \pending\\
-NBPO / fixed reference & \pending & \pending & \pending & \pending & \pending\\
+NBPO / utilitarian & $200$ & $.0206$ & $.1794$ & $4.2117$ & $1.1806$\\
+NBPO / fixed reference & $200$ & $.0240$ & $.4178$ & $4.2117$ & $1.2321$\\
 % END AUTO TARGET SIGNAL BODY
 \bottomrule
 \end{tabular}
