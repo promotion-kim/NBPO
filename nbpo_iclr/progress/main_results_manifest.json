@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-13 16:14:18",
+  "generated_kst": "2026-09-13 18:14:18",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -142,9 +142,9 @@
     ]
   },
   "state_counts": {
-    "DONE": 40,
-    "PENDING": 11,
-    "READY": 11,
+    "DONE": 42,
+    "PENDING": 10,
+    "READY": 10,
     "RUNNING": 1,
     "NOT_STARTED": 100
   },
@@ -703,8 +703,8 @@
       "config_hash": "23be483ab20017a4e670b4c60daf135054d0d549389dd7009f41bcd4e26916dc",
       "dependency": "uf4_train_mopo_mse_s42",
       "job_id": "uf4_finaleval_judge_mopo_mse_s42",
-      "state": "RUNNING",
-      "progress": "elapsed 11m",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/mopo_mse_s42/complete.json",
       "eta_min": 24
     },
@@ -726,11 +726,11 @@
       "method": "mopo_adapt",
       "seed_or_weight": "seed 43",
       "checkpoint_id": "mopo_mse_s43",
-      "config_hash": "",
+      "config_hash": "ed8bbada34264c7457fadec815e92f51a82844d4c3f93ab0598c34bfe42286da",
       "dependency": "uf4_train_mopo_mse_s43",
       "job_id": "uf4_finaleval_judge_mopo_mse_s43",
-      "state": "PENDING",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "elapsed 2m",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/mopo_mse_s43/complete.json",
       "eta_min": 24
     },
@@ -739,10 +739,10 @@
       "method": "mopo_adapt",
       "seed_or_weight": "seed 43 (train)",
       "checkpoint_id": "mopo_mse_s43",
-      "config_hash": "",
+      "config_hash": "7d68aaa7c689a7b54a0cc9a04cdba7ee32f59ed55a598b9601035cda2e3f7f59",
       "dependency": "target solve",
       "job_id": "uf4_train_mopo_mse_s43",
-      "state": "READY",
+      "state": "DONE",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/mopo_mse_s43/config.json",
       "eta_min": 184

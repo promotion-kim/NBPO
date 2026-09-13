@@ -384,6 +384,8 @@ def derived_macros(report, arms):
         if not members:
             continue
         add("tabone%sseeds" % key, _word(len(members)))
+        add("tabone%sseedphrase" % key,
+            "%s seed%s" % (_word(len(members)), "" if len(members) == 1 else "s"))
         sds_k = []
         for c, short in keys.items():
             vals = [res[m][c]["win_rate"] for m in members]
