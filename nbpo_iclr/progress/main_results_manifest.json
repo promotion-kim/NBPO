@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-14 05:44:19",
+  "generated_kst": "2026-09-14 06:14:19",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -809,7 +809,7 @@
       "dependency": "uf4_build_dpo_datasets",
       "job_id": "uf4_train_dpo_if_only_mse_s42",
       "state": "RUNNING",
-      "progress": "step 29/1250",
+      "progress": "step 453/1250",
       "artifact_path": "/work/uf4_20260910/arms/dpo_if_only_mse_s42/config.json",
       "eta_min": 184
     },
