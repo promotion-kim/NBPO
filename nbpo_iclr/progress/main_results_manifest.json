@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-13 14:14:18",
+  "generated_kst": "2026-09-13 16:14:18",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -142,10 +142,10 @@
     ]
   },
   "state_counts": {
-    "DONE": 38,
+    "DONE": 40,
+    "PENDING": 11,
+    "READY": 11,
     "RUNNING": 1,
-    "PENDING": 12,
-    "READY": 12,
     "NOT_STARTED": 100
   },
   "rows": [
@@ -573,8 +573,8 @@
       "config_hash": "dd944dd36654f958dcd7dc1159539998fb20b3ef851781e7244dab38ad9a66be",
       "dependency": "uf4_train_dpo_uniform_mse_s43",
       "job_id": "uf4_finaleval_judge_dpo_uniform_mse_s43",
-      "state": "RUNNING",
-      "progress": "elapsed 19m",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_uniform_mse_s43/complete.json",
       "eta_min": 24
     },
@@ -700,11 +700,11 @@
       "method": "mopo_adapt",
       "seed_or_weight": "seed 42",
       "checkpoint_id": "mopo_mse_s42",
-      "config_hash": "",
+      "config_hash": "23be483ab20017a4e670b4c60daf135054d0d549389dd7009f41bcd4e26916dc",
       "dependency": "uf4_train_mopo_mse_s42",
       "job_id": "uf4_finaleval_judge_mopo_mse_s42",
-      "state": "PENDING",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "elapsed 11m",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/mopo_mse_s42/complete.json",
       "eta_min": 24
     },
@@ -713,10 +713,10 @@
       "method": "mopo_adapt",
       "seed_or_weight": "seed 42 (train)",
       "checkpoint_id": "mopo_mse_s42",
-      "config_hash": "",
+      "config_hash": "9eb10fc3b83a91ddc4fd6bcb5af72cedd0fbca0329017071506c4e141e70e445",
       "dependency": "target solve",
       "job_id": "uf4_train_mopo_mse_s42",
-      "state": "READY",
+      "state": "DONE",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/mopo_mse_s42/config.json",
       "eta_min": 184

@@ -29,8 +29,17 @@ CRITERIA = (("if", "instruction_following"), ("truth", "truthfulness"),
             ("honesty", "honesty"), ("help", "helpfulness"))
 LABEL = {"nbpo_mse": "NBPO", "fixedref_mse": "Fixed-reference Nash",
          "btrm_mse": "BT-RM--Nash", "util_mse": "Game-utilitarian",
-         "maxmin_mse": "Global game-maxmin"}
-PLANNED = [("dpo", "Scalarized DPO"), ("prosper", "PROSPER (adapt.)"), ("mopo", "MOPO (adapt.)")]
+         "maxmin_mse": "Global game-maxmin",
+         # The baselines and the declared weight sweep, so a measured arm is
+         # plotted instead of sitting in the planned block for another cycle.
+         "dpo_uniform_mse": "Scalarized DPO (uniform)",
+         "dpo_if_only_mse": "Scalarized DPO (IF only)",
+         "dpo_truth_only_mse": "Scalarized DPO (truth only)",
+         "dpo_honesty_only_mse": "Scalarized DPO (honesty only)",
+         "dpo_help_only_mse": "Scalarized DPO (help only)",
+         "dpo_help_heavy_mse": "Scalarized DPO (help heavy)",
+         "dpo_truth_heavy_mse": "Scalarized DPO (truth heavy)",
+         "prosper_mse": "PROSPER (adapt.)", "mopo_mse": "MOPO (adapt.)"}
 HEADER = (["method_id", "method_label", "dataset", "test_hash", "protocol_id", "judge_id",
            "n_prompts", "n_seeds", "seed_ids", "status", "uncertainty_type"]
           + [f"{k}_{s}" for k, _ in CRITERIA for s in ("mean", "ci_low", "ci_high")])
@@ -85,7 +94,11 @@ def main():
             row[short + "_ci_low"] = "%.4f" % lo
             row[short + "_ci_high"] = "%.4f" % hi
         rows.append(row)
-    for mid, label in PLANNED:
+    # A declared row with no evaluated seed stays visible as planned, so the
+    # figure's caption can count what is still missing without a hand-kept list.
+    evaluated = {a.rpartition("_s")[0] for a in results}
+    planned = [(fam, lab) for fam, lab in sorted(LABEL.items()) if fam not in evaluated]
+    for mid, label in planned:
         rows.append({"method_id": mid, "method_label": label, "dataset": "UF-4",
                      "status": "planned"})
 
@@ -100,7 +113,9 @@ def main():
     plotted = sum(1 for r in rows if r.get("status") == "reported")
     print(json.dumps({"csv": str(out), "plotted_seed_points": plotted,
                       "n_common_prompts": n_common, "test_hash": test_hash,
-                      "planned_rows": len(PLANNED)}))
+                      "planned_rows": sum(1 for r in rows if r.get("status") == "planned"),
+                      "planned": [r["method_label"] for r in rows
+                                  if r.get("status") == "planned"]}))
     return 0
 
 

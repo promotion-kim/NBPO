@@ -378,31 +378,59 @@ def derived_macros(report, arms):
     if mech_min:
         add("tabonemechmin", _range(mech_min))
 
+    for fam, key in (("dpo_uniform_mse", "dpo"), ("mopo_mse", "mopo"),
+                     ("prosper_mse", "prosper")):
+        members = sorted(a for a in res if a.rsplit("_s", 1)[0] == fam)
+        if not members:
+            continue
+        add("tabone%sseeds" % key, _word(len(members)))
+        sds_k = []
+        for c, short in keys.items():
+            vals = [res[m][c]["win_rate"] for m in members]
+            add("tabone%s%s" % (key, short), _money(sum(vals) / len(vals)))
+            if len(vals) > 1:
+                sds_k.append(_sd(vals))
+        add("tabone%smin" % key, _money(_family_min_mean(report, fam)))
+        if sds_k:
+            add("tabone%smaxsd" % key, "$%.4f$" % max(sds_k))
+        excl_k = {c: all(res[m][c]["ci95"][0] > 0.5 for m in members) for c in keys}
+        add("tabone%sexcl" % key,
+            _join([ATTR_WORD[c] for c in keys if excl_k[c]]) if any(excl_k.values())
+            else "no attribute")
+        # Where this baseline sits relative to the whole mechanism band, which
+        # is a claim that can flip when its remaining seeds land.
+        above, below = [], []
+        for c in CRITERIA:
+            band = [_family_mean(report, f, c) for _, f in MECHANISMS]
+            band = [v for v in band if v is not None]
+            mean = sum(res[m][c]["win_rate"] for m in members) / len(members)
+            if band and mean > max(band):
+                above.append(ATTR_WORD[c])
+            elif band and mean < min(band):
+                below.append(ATTR_WORD[c])
+        add("tabone%sabove" % key, _join(above) if above else "no attribute")
+        add("tabone%sbelow" % key, _join(below) if below else "no attribute")
+        own_min = _family_min_mean(report, fam)
+        band_min = [_family_min_mean(report, f) for _, f in MECHANISMS]
+        band_min = [v for v in band_min if v is not None]
+        add("tabone%sminplace" % key,
+            "above all five of them" if band_min and own_min > max(band_min)
+            else ("below all five of them" if band_min and own_min < min(band_min)
+                  else "inside their band"))
+
     dpo_members = sorted(a for a in res if a.rsplit("_s", 1)[0] == "dpo_uniform_mse")
     if dpo_members:
-        add("tabonedposeeds", _word(len(dpo_members)))
-        sds, margins = [], {}
-        for c, key in keys.items():
+        margins = {}
+        for c in keys:
             vals = [res[m][c]["win_rate"] for m in dpo_members]
-            mean = sum(vals) / len(vals)
-            add("tabonedpo" + key, _money(mean))
-            if len(vals) > 1:
-                sds.append(_sd(vals))
             if c in mech_best:
-                margins[c] = mean - mech_best[c]
-        dpo_min = _family_min_mean(report, "dpo_uniform_mse")
-        add("tabonedpomin", _money(dpo_min))
-        if sds:
-            add("tabonedpomaxsd", "$%.4f$" % max(sds))
+                margins[c] = sum(vals) / len(vals) - mech_best[c]
         big = [c for c in ("instruction_following", "truthfulness", "helpfulness")
                if c in margins]
         if big:
             add("tabonedpomargins", _join(["$%.3f$" % margins[c] for c in big]))
         if "honesty" in margins:
             add("tabonedpohonestymargin", "$%.4f$" % margins["honesty"])
-        # every seed's own interval, since a family mean can hide a seed
-        excl = {c: all(res[m][c]["ci95"][0] > 0.5 for m in dpo_members) for c in keys}
-        add("tabonedpoexcl", _join([ATTR_WORD[c] for c in keys if excl[c]]))
 
     # ---- which rows actually reach 0.5 on the minimum, and what binds it
     reach = []
@@ -478,6 +506,20 @@ def derived_macros(report, arms):
             for i, v in enumerate(cum)))
         add("tabonebtrmfirst", _money(cum[0]))
         add("tabonebtrmlast", _money(cum[-1]))
+
+    # ---- the trade-off figure plots one point per evaluated seed, and names
+    # what is still missing; the family list lives in the figure's own filler
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from fill_tradeoffs import LABEL as FIG_LABEL
+    except Exception:                                       # noqa: BLE001
+        FIG_LABEL = {}
+    if FIG_LABEL:
+        evaluated_fams = {a.rpartition("_s")[0] for a in res}
+        add("figtradeoffpoints", _word(len(res)))
+        pending = [FIG_LABEL[f] for f in sorted(FIG_LABEL) if f not in evaluated_fams]
+        add("figtradeoffpending", _join(pending) if pending else "nothing")
+        add("figtradeoffpendingcount", _word(len(pending)))
 
     # ---- how many times the common set has moved under these rows
     history, transitions = _shrink_history(report["common_prompts"])
