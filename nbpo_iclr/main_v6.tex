@@ -2690,7 +2690,7 @@ Sum log probabilities over identical response tokens and terminal-token conventi
 
 \begin{table}[htbp]
 \centering\small
-\caption{Fixed diagnostic contract. Counts are planned workloads, not completed measurements. A call containing several rubrics must be distinguished from the number of rubric-level judgments it returns.}
+\caption{Fixed diagnostic contract, with the scope actually completed. A call containing several rubrics must be distinguished from the number of rubric-level judgments it returns.}
 \label{tab:diagnostic-contract}
 \begin{tabular}{p{.27\linewidth}p{.65\linewidth}}
 \toprule
@@ -2702,6 +2702,12 @@ Categorical workload & $200(8\times4+\binom42)\times4\times2=60{,}800$ rubric-or
 Fresh workload & $200\times4\times4\times2=6{,}400$ rubric-order judgments per policy, plus $200$ generated responses.\\
 Uncertainty & $2{,}000$ whole-prompt paired bootstrap replicates; recompute objective means, minima, finite-bank surpluses and method differences. Seed SD remains separate.\\
 Missing entries & Uniform predeclared formatting repair for every invalid verdict; retain original and repaired outputs. No tie imputation or renormalization around missing cells.\\
+\midrule
+Completed, categorical & $60{,}800$ of $60{,}800$ judged on all $200$ prompts; $60{,}252$ parsed ($99.10\%$); complete prompts per objective $143/131/144/167$ and $78$ common to all four; $[0,1]$ bounds computed on all $200$.\\
+Completed, fresh & Six arms at $6{,}400$ each, $38{,}400$ judgments on $1{,}200$ generated responses: \NBPO{}, utilitarian and uniform DPO at seed $42$, both projection pilots, and the optional untrained-base calibration draw.\\
+Completed, pilots & Two full-parameter arms, $200$ optimizer steps and $6{,}597{,}080$ non-padding response tokens each on $200$ training prompts, $2.00$ GPU-hours together.\\
+Evaluator as run & Local Qwen3-14B, revision recorded as \texttt{40c06982}, rubric file hash \texttt{7f6af77e}, thinking off, temperature $0$, $256$ new tokens, both orders, ties $.5$; no paid API call. The directory carries no upstream snapshot identifier, so the revision is our recorded declaration rather than an independently verifiable tag.\\
+Evaluation constants & $\beta^E=0.25$ and $m_{\rm eval}=4$ fixed before the panel ran; bootstrap seed $20260914$ with $2{,}000$ replicates; panel hash \texttt{f899600a}; training panel hash \texttt{02a1c2ce}.\\
 \bottomrule
 \end{tabular}
 \end{table}
