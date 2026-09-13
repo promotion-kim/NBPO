@@ -170,13 +170,13 @@
 % BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
 \begin{center}\small\fbox{\parbox{0.95\linewidth}{%
-\textbf{Draft status, auto-updated 2026-09-14 04:14 KST.} Not part of the reported results.
+\textbf{Draft status, auto-updated 2026-09-14 04:44 KST.} Not part of the reported results.
 \\[2pt]
 Main-body objective rows 9/9; cross-play 6/6; DPO weights 3/7; capability cells 51/63; lm-eval cells 63.
 \\[2pt]
-GPU0: uf4\_diag\_proj\_all, 95\%, 95253/143771 MiB | GPU1: uf4\_diag\_proj\_all, 90\%, 95023/143771 MiB | GPU2: uf4\_diag\_proj\_all, 97\%, 95119/143771 MiB | GPU3: uf4\_diag\_proj\_all, 98\%, 95093/143771 MiB
+GPU0: uf4\_cap\_prosper\_mse\_s43\_arc\_challenge, 93\%, 125111/143771 MiB | GPU1: uf4\_cap\_prosper\_mse\_s43\_hellaswag, 0\%, 122963/143771 MiB | GPU2: uf4\_finaleval\_gen\_prosper\_mse\_s43\_shard2, 0\%, 122175/143771 MiB | GPU3: uf4\_finaleval\_gen\_prosper\_mse\_s43\_shard3, 88\%, 122111/143771 MiB
 \\[2pt]
-Queue: BLOCKED 1 (1 superseded), DONE 445, FAILED 6 (6 superseded), PENDING 51, READY 30, RUNNING 1. PDF rebuilt each cycle.
+Queue: BLOCKED 1 (1 superseded), DONE 454, FAILED 6 (6 superseded), PENDING 51, READY 23, RUNNING 4. PDF rebuilt each cycle.
 }}\end{center}
 \fi
 % END AUTO EXPERIMENT STATUS
@@ -2722,6 +2722,21 @@ draw no power calculation from their ratio. Read with the independent panel, whe
 targets differ by at most $0.0018$ in judged win rate, the two measurements say the same thing
 from different directions: what distinguishes these aggregation rules is small both in the
 numbers the regression must reproduce and in the quality an independent evaluator can detect.
+
+The conflict report on the same panel says why the targets are so close. Over each prompt's
+eight candidates the four objectives are strongly co-ranked: Spearman correlations average
+$0.777$ to $0.915$ with medians of $0.857$ to $0.952$, at most $1.0\%$ of prompts show a
+negative correlation for any pair, the two objectives agree on the single best candidate on
+$57.0\%$ to $77.5\%$ of prompts, and the candidate maximizing one objective still clears the
+other's pool mean on $96.0\%$ to $100\%$. Truthfulness against helpfulness is the least
+aligned pair on every one of those measures. Target distributions follow: mean total
+variation between the Nash target and the utilitarian target is $0.0206$ (maximum $0.0732$)
+and against the fixed-reference target $0.0240$ (maximum $0.1281$). This is between-objective
+conflict, and it is small. It is not a statement about cycles within an objective: on the
+scalar values this panel induces a strict order except for exact ties, so its weak
+no-Condorcet rate of $0$ to $0.5\%$ and its zero cyclic triangles over $11{,}200$ triples
+are close to automatic and should not be read as evidence about the full pairwise tensor,
+which Appendix~\ref{app:within-rubric-audit} measures separately.
 
 
 \begin{table}[htbp]
