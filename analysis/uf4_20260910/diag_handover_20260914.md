@@ -71,14 +71,30 @@ RMS가 1.18·1.23이다. 학습된 두 정책 사이 차이(1.18·1.20)는 수�
 호스트: `nbpo_iclr/figures/target_transfer.pdf`, `nbpo_iclr/progress/pdfs/main_v6_*_KST.pdf`,
 `nbpo_iclr/scripts/plot_target_transfer.py`, `nbpo_iclr/progress/fill_target_transfer.py`.
 
+## 3b. 밤 동안 함께 들어온 기존 campaign 결과
+
+- **PROSPER 2번째 seed가 1번째를 뒤집었다.** 1 seed에서는 표 전체 최고 최소값(0.5072)이자 기전 대역
+  위 3속성이었으나, 2 seed에서 최소값 **0.4989**로 대역 안이고 지시이행 seed 산포 **0.0301**은 표
+  최대다. 이 표에서 단일-seed 순위가 복제에 실패한 사례가 **4건 중 4건**이 됐다(fixed-reference,
+  global game-maxmin, BT-RM–Nash, PROSPER).
+- **capability 63칸이 전부 채워졌다.** MOPO 3 seed·PROSPER 2 seed의 벤치 생성물이 이미 디스크에
+  있어 교차-arm 채점만 22/21-arm으로 다시 돌렸다. **MOPO가 모든 안전·프록시 축에서 가장 덜 변한
+  학습 arm**이다 — 유해 완성률 0.3156(base 0.2812, 기전 0.3906–0.4333, DPO 0.6281), XSTest 안전
+  거부 0.0600·위험 거부 0.9199(base 0.0683·0.9550에 양쪽 모두 최근접), 학습 arm 중 IFEval·GSM8K
+  최고(0.7579·0.8701), AlpacaEval-2 최저(0.5170, 세 seed 모두 0.5를 배제하지 못함). 제약이 무료로
+  충족되는 arm이 정책을 가장 덜 움직인다는 해석과 일관된다.
+- **DPO 가중치 2/7**: `if_only` arm이 판정까지 끝나 Table 1 공통집합(24 arm, 1,250 prompt)과
+  `fig:uf-tradeoffs`에 들어갔다. 균일 가중치 3 seed는 그대로다.
+
 ## 4. 후속 queue와 ETA
 
 컨트롤러(pid 415591)는 세션과 무관하게 계속 돈다. 아래는 그 큐에 남아 있는 작업이다.
 
 | 작업 | 상태 | ETA(연속 가동 가정) |
 |---|---|---|
-| `uf4_train_dpo_if_only_mse_s42` 판정 | 08:05 예상 | Table 1 행 + tradeoff 2번째 가중치 |
-| DPO 가중치 5개 (truth_only, honesty_only, help_only, help_heavy, truth_heavy) | READY, p72–76 | arm당 약 145분 → 약 12시간 |
+| `uf4_train_dpo_if_only_mse_s42` | **완료 08:03, 반영됨** | Table 1 공통집합과 tradeoff에 포함 |
+| `uf4_train_dpo_truth_only_mse_s42` | 08:05 착수, RUNNING | 10:35경 판정 완료 |
+| DPO 가중치 4개 (honesty_only, help_only, help_heavy, truth_heavy) | READY, p73–76 | arm당 약 145분 → 약 10시간 |
 | PROSPER seed 44 | **의도적 FAILED** | 재개 방법은 아래 |
 | capability 잔여 칸 (MOPO·PROSPER 안전·아레나) | 교차-arm 채점 필요 | 각 계열 seed 완료 후 약 15분 |
 
@@ -95,5 +111,6 @@ terminal 기록을 버리고 처음부터 스케줄한다).
 `tab:target-signal` 2행), `fig:target-transfer`, `tab:diagnostic-contract`의 완료 범위, P0 검증
 4건, 초록·결론의 결과 delta, 기존 exhibit 정합 스냅샷.
 
-들어가지 않은 것(지우지 않고 `\pending`으로 유지): PROSPER 3번째 seed, DPO 6개 가중치 중 5개,
-capability 10칸, DPO if-only 판정(08:15까지 도착하지 않으면 보류).
+들어가지 않은 것(지우지 않고 `\pending`으로 유지): PROSPER 3번째 seed, DPO 7개 가중치 중 5개
+(`truth_only`는 학습 중), 그리고 `tab:projection-ablation`의 fresh 열을 제외한 추가 pilot seed.
+capability 63칸과 DPO if-only 판정은 08:13 빌드에 **포함**됐다.
