@@ -1,8 +1,8 @@
 # Main-body result manifest
 
-Generated 2026-09-14 07:44:18 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-14 08:14:19 KST. DONE requires the proving artifact on disk.
 
-State counts: DONE 50, FAILED 1, NOT_STARTED 100, PENDING 6, READY 5, RUNNING 1
+State counts: DONE 51, FAILED 1, NOT_STARTED 100, PENDING 6, READY 4, RUNNING 1
 
 | exhibit | method | seed/weight | checkpoint | job | state | progress | ETA (min) |
 |---|---|---|---|---|---|---|---|
@@ -55,10 +55,10 @@ State counts: DONE 50, FAILED 1, NOT_STARTED 100, PENDING 6, READY 5, RUNNING 1
 | tab:uf-objectives | mopo_adapt | seed 44 | mopo_mse_s44 | uf4_finaleval_judge_mopo_mse_s44 | DONE | - | 24 |
 | tab:uf-objectives | mopo_adapt | seed 44 (train) | mopo_mse_s44 | uf4_train_mopo_mse_s44 | DONE | - | 184 |
 | tab:uf-objectives | base | reference | Llama-3.1-8B-Instruct | uf4_pool_finaleval_shard0 | DONE | - | 9 |
-| fig:uf-tradeoffs | scalarized_dpo | if_only | dpo_if_only_mse_s42 | uf4_finaleval_judge_dpo_if_only_mse_s42 | RUNNING | elapsed 10m | 24 |
+| fig:uf-tradeoffs | scalarized_dpo | if_only | dpo_if_only_mse_s42 | uf4_finaleval_judge_dpo_if_only_mse_s42 | DONE | - | 24 |
 | fig:uf-tradeoffs | scalarized_dpo | if_only (train) | dpo_if_only_mse_s42 | uf4_train_dpo_if_only_mse_s42 | DONE | - | 184 |
 | fig:uf-tradeoffs | scalarized_dpo | truth_only | dpo_truth_only_mse_s42 | uf4_finaleval_judge_dpo_truth_only_mse_s42 | PENDING | - | 24 |
-| fig:uf-tradeoffs | scalarized_dpo | truth_only (train) | dpo_truth_only_mse_s42 | uf4_train_dpo_truth_only_mse_s42 | READY | - | 184 |
+| fig:uf-tradeoffs | scalarized_dpo | truth_only (train) | dpo_truth_only_mse_s42 | uf4_train_dpo_truth_only_mse_s42 | RUNNING | elapsed 15m | 184 |
 | fig:uf-tradeoffs | scalarized_dpo | honesty_only | dpo_honesty_only_mse_s42 | uf4_finaleval_judge_dpo_honesty_only_mse_s42 | PENDING | - | 24 |
 | fig:uf-tradeoffs | scalarized_dpo | honesty_only (train) | dpo_honesty_only_mse_s42 | uf4_train_dpo_honesty_only_mse_s42 | READY | - | 184 |
 | fig:uf-tradeoffs | scalarized_dpo | help_only | dpo_help_only_mse_s42 | uf4_finaleval_judge_dpo_help_only_mse_s42 | PENDING | - | 24 |

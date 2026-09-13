@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-14 07:44:18",
+  "generated_kst": "2026-09-14 08:14:19",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -142,11 +142,11 @@
     ]
   },
   "state_counts": {
-    "DONE": 50,
+    "DONE": 51,
     "PENDING": 6,
     "FAILED": 1,
     "RUNNING": 1,
-    "READY": 5,
+    "READY": 4,
     "NOT_STARTED": 100
   },
   "rows": [
@@ -795,8 +795,8 @@
       "config_hash": "dad3d9c9a30225ee583f01868eb114c70f46bfff576d36c1bd73bd939275c5a1",
       "dependency": "uf4_train_dpo_if_only_mse_s42",
       "job_id": "uf4_finaleval_judge_dpo_if_only_mse_s42",
-      "state": "RUNNING",
-      "progress": "elapsed 10m",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_if_only_mse_s42/complete.json",
       "eta_min": 24
     },
@@ -831,11 +831,11 @@
       "method": "scalarized_dpo",
       "seed_or_weight": "truth_only (train)",
       "checkpoint_id": "dpo_truth_only_mse_s42",
-      "config_hash": "",
+      "config_hash": "f6ff9880a32a2279952a6dbb1eadba6eb117a10a18db715fb8685e24d5f4c6ed",
       "dependency": "uf4_build_dpo_datasets",
       "job_id": "uf4_train_dpo_truth_only_mse_s42",
-      "state": "READY",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "elapsed 15m",
       "artifact_path": "/work/uf4_20260910/arms/dpo_truth_only_mse_s42/config.json",
       "eta_min": 184
     },

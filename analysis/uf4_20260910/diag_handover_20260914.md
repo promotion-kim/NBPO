@@ -50,7 +50,7 @@ RMS가 1.18·1.23이다. 학습된 두 정책 사이 차이(1.18·1.20)는 수�
   value 추정이 아니다.
 - pilot의 목표 내 순환 측정(0건/11,200 삼각형)은 스칼라 값이 강한 순서를 유도하므로 거의 자동이며
   전체 쌍별 텐서에 대한 증거가 아니다.
-- **PROSPER 3번째 seed, DPO 6개 가중치 중 5개, capability 잔여 칸**은 측정되지 않았다.
+- **PROSPER 3번째 seed와 DPO 7개 가중치 중 5개**는 측정되지 않았다(capability 63칸은 08:13에 완료).
 
 ## 3. 실제 artifact (모두 파드 `/work/uf4_20260910/analysis/diag_20260914/`)
 
@@ -96,7 +96,8 @@ RMS가 1.18·1.23이다. 학습된 두 정책 사이 차이(1.18·1.20)는 수�
 | `uf4_train_dpo_truth_only_mse_s42` | 08:05 착수, RUNNING | 10:35경 판정 완료 |
 | DPO 가중치 4개 (honesty_only, help_only, help_heavy, truth_heavy) | READY, p73–76 | arm당 약 145분 → 약 10시간 |
 | PROSPER seed 44 | **의도적 FAILED** | 재개 방법은 아래 |
-| capability 잔여 칸 (MOPO·PROSPER 안전·아레나) | 교차-arm 채점 필요 | 각 계열 seed 완료 후 약 15분 |
+| capability 63칸 | **완료 08:07** | 22/21-arm 재채점으로 MOPO 3 seed·PROSPER 2 seed 전열 충족 |
+| PROSPER 3번째 seed가 들어오면 capability 재채점 | 대기 | 채점만 약 15분 |
 
 **PROSPER s44 재개 방법**: 05:10에 자동 디스패치됐으나 실측 단가로 계산한 판정 시각이 08:50이어서
 08:45 원고 동결을 넘기고 그 사이 4장을 모두 점유하므로 중단했다. `save_steps: 1250`이라 회수 가능한
