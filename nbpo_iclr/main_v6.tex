@@ -956,7 +956,15 @@ third of the target scale. Seven appearances of each candidate in one update evi
 per-prompt step far larger than the same twenty-eight rows spread over twenty-eight prompts, which
 is a learning-rate interaction rather than a property of either objective. Neither arm brings the
 pool closer to the target than doing nothing: development $\KL(p^\star\Vert\widetilde p_\theta)$ is
-$1.31$ and $1.41$ against the source's $1.05$. This is one seed on $200$ development prompts and
+$1.31$ and $1.41$ against the source's $1.05$. The fresh outputs settle the question the fit cannot. On the $157$ prompts where both arms
+parsed completely, the all-candidate arm's new responses beat the sampled-pair arm's by
+$+0.0167$ on instruction following, $-0.0032$ on truthfulness, $-0.0008$ on honesty and
+$+0.0056$ on helpfulness, and by $+0.0044$ on the minimum; every one of those paired
+intervals contains zero, the widest being $[-0.0366,+0.0426]$ for the minimum. The
+development-fit advantage therefore does not reach generated text at a level this panel can
+detect, so it is reported as a fit difference and not as a better recipe. Both pilots also
+sit below the full $1{,}250$-update \NBPO{} run's fresh minimum of $0.5221$, which is what
+$200$ updates on $200$ prompts should give. This is one seed on $200$ development prompts and
 diagnoses the implementation; it is not a recipe change, and the $10$k-prompt runs in
 Table~\ref{tab:uf-objectives} are untouched.
 
@@ -971,8 +979,8 @@ Table~\ref{tab:uf-objectives} are untouched.
 Projection & Steps & Train nMSE & Dev nMSE & Pool KL & Fresh $W_{\min}$ & Tokens & GPU-h\\
 \midrule
 % BEGIN AUTO PROJECTION ABLATION BODY
-Sampled pairs & $200$ & $.1665$ & $.9519$ & $1.3112$ & \pending & $6{,}597{,}080$ & $1.07$\\
-All candidates & $200$ & $3.5157$ & $.8282$ & $1.4054$ & \pending & $6{,}597{,}080$ & $0.93$\\
+Sampled pairs & $200$ & $.1665$ & $.9519$ & $1.3112$ & $.5055$ & $6{,}597{,}080$ & $1.07$\\
+All candidates & $200$ & $3.5157$ & $.8282$ & $1.4054$ & $.5121$ & $6{,}597{,}080$ & $0.93$\\
 % END AUTO PROJECTION ABLATION BODY
 \bottomrule
 \end{tabular}
