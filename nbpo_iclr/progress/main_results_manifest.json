@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-14 04:44:18",
+  "generated_kst": "2026-09-14 05:14:18",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -142,9 +142,10 @@
     ]
   },
   "state_counts": {
-    "DONE": 48,
-    "PENDING": 8,
-    "READY": 7,
+    "DONE": 49,
+    "PENDING": 7,
+    "FAILED": 1,
+    "READY": 6,
     "NOT_STARTED": 100
   },
   "rows": [
@@ -647,10 +648,10 @@
       "method": "prosper_adapt",
       "seed_or_weight": "seed 43",
       "checkpoint_id": "prosper_mse_s43",
-      "config_hash": "",
+      "config_hash": "271c9352090794c660ac8ec00a1b8b95c7f693c58db3beb011cef15f544824ed",
       "dependency": "uf4_train_prosper_mse_s43",
       "job_id": "uf4_finaleval_judge_prosper_mse_s43",
-      "state": "PENDING",
+      "state": "DONE",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/prosper_mse_s43/complete.json",
       "eta_min": 24
@@ -686,10 +687,10 @@
       "method": "prosper_adapt",
       "seed_or_weight": "seed 44 (train)",
       "checkpoint_id": "prosper_mse_s44",
-      "config_hash": "",
+      "config_hash": "8b4516089b056b5eb398e4fa1c740155cb43bb747af155f84aeac8fd9ff38999",
       "dependency": "target solve",
       "job_id": "uf4_train_prosper_mse_s44",
-      "state": "READY",
+      "state": "FAILED",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/prosper_mse_s44/config.json",
       "eta_min": 184
@@ -2298,6 +2299,12 @@
       "job_id": "uf4_make_train_prosper_s42",
       "state": "NOT_APPLICABLE",
       "reason": "every declared artifact is on disk from a later successful retry"
+    },
+    {
+      "job_id": "uf4_train_prosper_mse_s44",
+      "state": "FAILED",
+      "reason": "no successful retry found; artifact still missing",
+      "missing": []
     }
   ]
 }

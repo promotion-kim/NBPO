@@ -1,8 +1,8 @@
 # Main-body result manifest
 
-Generated 2026-09-14 04:44:18 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-14 05:14:18 KST. DONE requires the proving artifact on disk.
 
-State counts: DONE 48, NOT_STARTED 100, PENDING 8, READY 7
+State counts: DONE 49, FAILED 1, NOT_STARTED 100, PENDING 7, READY 6
 
 | exhibit | method | seed/weight | checkpoint | job | state | progress | ETA (min) |
 |---|---|---|---|---|---|---|---|
@@ -44,10 +44,10 @@ State counts: DONE 48, NOT_STARTED 100, PENDING 8, READY 7
 | tab:uf-objectives | dpo_uniform | seed 44 (train) | dpo_uniform_mse_s44 | uf4_train_dpo_uniform_mse_s44 | DONE | - | 184 |
 | tab:uf-objectives | prosper_adapt | seed 42 | prosper_mse_s42 | uf4_finaleval_judge_prosper_mse_s42 | DONE | - | 24 |
 | tab:uf-objectives | prosper_adapt | seed 42 (train) | prosper_mse_s42 | uf4_train_prosper_mse_s42 | DONE | - | 184 |
-| tab:uf-objectives | prosper_adapt | seed 43 | prosper_mse_s43 | uf4_finaleval_judge_prosper_mse_s43 | PENDING | - | 24 |
+| tab:uf-objectives | prosper_adapt | seed 43 | prosper_mse_s43 | uf4_finaleval_judge_prosper_mse_s43 | DONE | - | 24 |
 | tab:uf-objectives | prosper_adapt | seed 43 (train) | prosper_mse_s43 | uf4_train_prosper_mse_s43 | DONE | - | 184 |
 | tab:uf-objectives | prosper_adapt | seed 44 | prosper_mse_s44 | uf4_finaleval_judge_prosper_mse_s44 | PENDING | - | 24 |
-| tab:uf-objectives | prosper_adapt | seed 44 (train) | prosper_mse_s44 | uf4_train_prosper_mse_s44 | READY | - | 184 |
+| tab:uf-objectives | prosper_adapt | seed 44 (train) | prosper_mse_s44 | uf4_train_prosper_mse_s44 | FAILED | - | 184 |
 | tab:uf-objectives | mopo_adapt | seed 42 | mopo_mse_s42 | uf4_finaleval_judge_mopo_mse_s42 | DONE | - | 24 |
 | tab:uf-objectives | mopo_adapt | seed 42 (train) | mopo_mse_s42 | uf4_train_mopo_mse_s42 | DONE | - | 184 |
 | tab:uf-objectives | mopo_adapt | seed 43 | mopo_mse_s43 | uf4_finaleval_judge_mopo_mse_s43 | DONE | - | 24 |
@@ -180,3 +180,4 @@ State counts: DONE 48, NOT_STARTED 100, PENDING 8, READY 7
 | uf4_cap_base_hellaswag | NOT_APPLICABLE | every declared artifact is on disk from a later successful retry |
 | uf4_cap_base_mmlu_retry1 | NOT_APPLICABLE | stopped by operator; superseded by a later retry |
 | uf4_make_train_prosper_s42 | NOT_APPLICABLE | every declared artifact is on disk from a later successful retry |
+| uf4_train_prosper_mse_s44 | FAILED | no successful retry found; artifact still missing |
