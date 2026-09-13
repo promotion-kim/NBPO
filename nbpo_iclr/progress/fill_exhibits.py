@@ -516,6 +516,22 @@ def derived_macros(report, arms):
         add("tabonebtrmfirst", _money(cum[0]))
         add("tabonebtrmlast", _money(cum[-1]))
 
+    # ---- which row holds the highest minimum, and whether every declared row
+    # has a measurement at all; both are claims the prose makes about the table
+    declared = [(lab, fam) for kind, lab, fam in LAYOUT if kind == "row" and fam]
+    mins = [(lab, _family_min_mean(report, fam)) for lab, fam in declared]
+    mins = [(lab, v) for lab, v in mins if v is not None]
+    if mins:
+        top_lab, top_val = max(mins, key=lambda p: p[1])
+        add("tabonetopmin", "%s at %s" % (top_lab, _money(top_val)))
+        add("tabonetopminrow", top_lab)
+    missing = [lab for lab, fam in declared if _family_min_mean(report, fam) is None]
+    add("tabonerowstatus",
+        "all %s declared methods" % _word(len(declared)) if not missing
+        else "%s of the %s declared methods" % (_word(len(declared) - len(missing)),
+                                                _word(len(declared))))
+    add("tabonerowsmissing", _join(missing) if missing else "none")
+
     # ---- the trade-off figure plots one point per evaluated seed, and names
     # what is still missing; the family list lives in the figure's own filler
     try:
