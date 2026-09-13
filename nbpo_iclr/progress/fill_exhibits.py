@@ -516,6 +516,14 @@ def derived_macros(report, arms):
         add("tabonebtrmfirst", _money(cum[0]))
         add("tabonebtrmlast", _money(cum[-1]))
 
+    # ---- the DPO baseline against NBPO specifically, which the body quotes
+    dpo_vals = {c: _family_mean(report, "dpo_uniform_mse", c) for c in CRITERIA}
+    nbpo_vals = {c: _family_mean(report, "nbpo_mse", c) for c in CRITERIA}
+    if all(v is not None for v in dpo_vals.values()) and all(
+            v is not None for v in nbpo_vals.values()):
+        add("tabonedpoovernbpo",
+            _join(["$%.4f$" % (dpo_vals[c] - nbpo_vals[c]) for c in CRITERIA]))
+
     # ---- which row holds the highest minimum, and whether every declared row
     # has a measurement at all; both are claims the prose makes about the table
     declared = [(lab, fam) for kind, lab, fam in LAYOUT if kind == "row" and fam]

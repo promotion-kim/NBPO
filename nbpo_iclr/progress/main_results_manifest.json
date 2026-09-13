@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-14 06:14:19",
+  "generated_kst": "2026-09-14 07:44:18",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -142,8 +142,8 @@
     ]
   },
   "state_counts": {
-    "DONE": 49,
-    "PENDING": 7,
+    "DONE": 50,
+    "PENDING": 6,
     "FAILED": 1,
     "RUNNING": 1,
     "READY": 5,
@@ -792,11 +792,11 @@
       "method": "scalarized_dpo",
       "seed_or_weight": "if_only",
       "checkpoint_id": "dpo_if_only_mse_s42",
-      "config_hash": "",
+      "config_hash": "dad3d9c9a30225ee583f01868eb114c70f46bfff576d36c1bd73bd939275c5a1",
       "dependency": "uf4_train_dpo_if_only_mse_s42",
       "job_id": "uf4_finaleval_judge_dpo_if_only_mse_s42",
-      "state": "PENDING",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "elapsed 10m",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_if_only_mse_s42/complete.json",
       "eta_min": 24
     },
@@ -808,8 +808,8 @@
       "config_hash": "0538509073b8a6d120184f541fedeaa99633121e4b3b28f7d0a6978e38b32241",
       "dependency": "uf4_build_dpo_datasets",
       "job_id": "uf4_train_dpo_if_only_mse_s42",
-      "state": "RUNNING",
-      "progress": "step 453/1250",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/dpo_if_only_mse_s42/config.json",
       "eta_min": 184
     },
