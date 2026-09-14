@@ -27,7 +27,6 @@
 % Use \showreviewsfalse below to hide both reviews and responses.
 \newif\ifshowreviews
 \showreviewstrue
-\ifdefined\NBPOHideReviews\showreviewsfalse\fi
 \makeatletter
 \let\revieworiginalref\ref
 \newcommand{\reviewref}[1]{%
@@ -69,91 +68,6 @@
 \newcommand{\piref}{\pi_{\mathrm{ref}}}
 \newcommand{\NBPO}{\textsc{NBPO}}
 \newcommand{\pending}{\textemdash}
-\newcommand{\nbpocell}[1]{\csname nbporesult@#1\endcsname}
-% BEGIN INLINE RESULT VALUES
-% Inline result values. Update only measured value definitions in this block.
-\expandafter\def\csname nbporesult@ufN\endcsname{\pending}
-\expandafter\def\csname nbporesult@ufC\endcsname{\pending}
-\expandafter\def\csname nbporesult@ufD\endcsname{\pending}
-\expandafter\def\csname nbporesult@ufGamma\endcsname{\pending}
-\expandafter\def\csname nbporesult@ufTV\endcsname{\pending}
-\expandafter\def\csname nbporesult@safeN\endcsname{\pending}
-\expandafter\def\csname nbporesult@safeC\endcsname{\pending}
-\expandafter\def\csname nbporesult@safeD\endcsname{\pending}
-\expandafter\def\csname nbporesult@safeGamma\endcsname{\pending}
-\expandafter\def\csname nbporesult@safeTV\endcsname{\pending}
-\expandafter\def\csname nbporesult@wildN\endcsname{\pending}
-\expandafter\def\csname nbporesult@wildC\endcsname{\pending}
-\expandafter\def\csname nbporesult@wildD\endcsname{\pending}
-\expandafter\def\csname nbporesult@llC\endcsname{\pending}
-\expandafter\def\csname nbporesult@llD\endcsname{\pending}
-\expandafter\def\csname nbporesult@llGamma\endcsname{\pending}
-\expandafter\def\csname nbporesult@llDelta\endcsname{\pending}
-\expandafter\def\csname nbporesult@llTV\endcsname{\pending}
-\expandafter\def\csname nbporesult@lhC\endcsname{\pending}
-\expandafter\def\csname nbporesult@lhD\endcsname{\pending}
-\expandafter\def\csname nbporesult@lhGamma\endcsname{\pending}
-\expandafter\def\csname nbporesult@lhDelta\endcsname{\pending}
-\expandafter\def\csname nbporesult@lhTV\endcsname{\pending}
-\expandafter\def\csname nbporesult@hlC\endcsname{\pending}
-\expandafter\def\csname nbporesult@hlD\endcsname{\pending}
-\expandafter\def\csname nbporesult@hlGamma\endcsname{\pending}
-\expandafter\def\csname nbporesult@hlDelta\endcsname{\pending}
-\expandafter\def\csname nbporesult@hlTV\endcsname{\pending}
-\expandafter\def\csname nbporesult@hhC\endcsname{\pending}
-\expandafter\def\csname nbporesult@hhD\endcsname{\pending}
-\expandafter\def\csname nbporesult@hhGamma\endcsname{\pending}
-\expandafter\def\csname nbporesult@hhDelta\endcsname{\pending}
-\expandafter\def\csname nbporesult@hhTV\endcsname{\pending}
-\expandafter\def\csname nbporesult@baseS\endcsname{\pending}
-\expandafter\def\csname nbporesult@baseN\endcsname{\pending}
-\expandafter\def\csname nbporesult@baseWone\endcsname{\pending}
-\expandafter\def\csname nbporesult@baseWtwo\endcsname{\pending}
-\expandafter\def\csname nbporesult@baseMin\endcsname{\pending}
-\expandafter\def\csname nbporesult@baseDiff\endcsname{\pending}
-\expandafter\def\csname nbporesult@nbpoS\endcsname{\pending}
-\expandafter\def\csname nbporesult@nbpoN\endcsname{\pending}
-\expandafter\def\csname nbporesult@nbpoWone\endcsname{\pending}
-\expandafter\def\csname nbporesult@nbpoWtwo\endcsname{\pending}
-\expandafter\def\csname nbporesult@nbpoMin\endcsname{\pending}
-\expandafter\def\csname nbporesult@nbpoDiff\endcsname{\pending}
-\expandafter\def\csname nbporesult@fixedS\endcsname{\pending}
-\expandafter\def\csname nbporesult@fixedN\endcsname{\pending}
-\expandafter\def\csname nbporesult@fixedWone\endcsname{\pending}
-\expandafter\def\csname nbporesult@fixedWtwo\endcsname{\pending}
-\expandafter\def\csname nbporesult@fixedMin\endcsname{\pending}
-\expandafter\def\csname nbporesult@fixedDiff\endcsname{\pending}
-\expandafter\def\csname nbporesult@utilS\endcsname{\pending}
-\expandafter\def\csname nbporesult@utilN\endcsname{\pending}
-\expandafter\def\csname nbporesult@utilWone\endcsname{\pending}
-\expandafter\def\csname nbporesult@utilWtwo\endcsname{\pending}
-\expandafter\def\csname nbporesult@utilMin\endcsname{\pending}
-\expandafter\def\csname nbporesult@utilDiff\endcsname{\pending}
-\expandafter\def\csname nbporesult@maxminS\endcsname{\pending}
-\expandafter\def\csname nbporesult@maxminN\endcsname{\pending}
-\expandafter\def\csname nbporesult@maxminWone\endcsname{\pending}
-\expandafter\def\csname nbporesult@maxminWtwo\endcsname{\pending}
-\expandafter\def\csname nbporesult@maxminMin\endcsname{\pending}
-\expandafter\def\csname nbporesult@maxminDiff\endcsname{\pending}
-\expandafter\def\csname nbporesult@btS\endcsname{\pending}
-\expandafter\def\csname nbporesult@btN\endcsname{\pending}
-\expandafter\def\csname nbporesult@btWone\endcsname{\pending}
-\expandafter\def\csname nbporesult@btWtwo\endcsname{\pending}
-\expandafter\def\csname nbporesult@btMin\endcsname{\pending}
-\expandafter\def\csname nbporesult@btDiff\endcsname{\pending}
-\expandafter\def\csname nbporesult@prosperS\endcsname{\pending}
-\expandafter\def\csname nbporesult@prosperN\endcsname{\pending}
-\expandafter\def\csname nbporesult@prosperWone\endcsname{\pending}
-\expandafter\def\csname nbporesult@prosperWtwo\endcsname{\pending}
-\expandafter\def\csname nbporesult@prosperMin\endcsname{\pending}
-\expandafter\def\csname nbporesult@prosperDiff\endcsname{\pending}
-\expandafter\def\csname nbporesult@dpoS\endcsname{\pending}
-\expandafter\def\csname nbporesult@dpoN\endcsname{\pending}
-\expandafter\def\csname nbporesult@dpoWone\endcsname{\pending}
-\expandafter\def\csname nbporesult@dpoWtwo\endcsname{\pending}
-\expandafter\def\csname nbporesult@dpoMin\endcsname{\pending}
-\expandafter\def\csname nbporesult@dpoDiff\endcsname{\pending}
-% END INLINE RESULT VALUES
 \newcommand{\meanstd}[2]{\ensuremath{#1{\scriptstyle\pm#2}}}
 
 \title{Nash Bargaining Preference Optimization}
@@ -255,26 +169,33 @@
 \newcommand{\taboneshrinkcount}{eighteen}
 % END AUTO EXHIBIT NUMBERS
 
-% BEGIN SOURCE SNAPSHOT STATUS
+% BEGIN AUTO EXPERIMENT STATUS
 \ifshowreviews
-\begin{center}\small\fbox{\parbox{.95\linewidth}{\textbf{Editorial snapshot: 2026-09-14.} Based on the supplied 12:17 KST source. Runtime job status was not rechecked. Existing measurements are preserved; new stress-test cells are unmeasured.}}
-\end{center}
+\begin{center}\small\fbox{\parbox{0.95\linewidth}{%
+\textbf{Draft status, auto-updated 2026-09-14 12:17 KST.} Not part of the reported results.
+\\[2pt]
+Main-body objective rows 9/9; cross-play 6/6; DPO weights 3/7; capability cells 61/63; lm-eval cells 66.
+\\[2pt]
+GPU0: uf4\_train\_prosper\_mse\_s44, 97\%, 96401/143771 MiB | GPU1: uf4\_train\_prosper\_mse\_s44, 99\%, 98085/143771 MiB | GPU2: uf4\_train\_prosper\_mse\_s44, 97\%, 95161/143771 MiB | GPU3: uf4\_train\_prosper\_mse\_s44, 100\%, 96271/143771 MiB
+\\[2pt]
+Queue: BLOCKED 1 (1 superseded), DONE 484, FAILED 6 (6 superseded), PENDING 43 (5 superseded), READY 14 (10 superseded), RUNNING 1. PDF rebuilt each cycle.
+}}\end{center}
 \fi
-% END SOURCE SNAPSHOT STATUS
+% END AUTO EXPERIMENT STATUS
 
 
 \begin{abstract}
-Aligning a language model with multiple objectives requires an explicit compromise between improvements over a reference policy. We introduce Nash Bargaining Preference Optimization (\NBPO{}), which maximizes the product of objective-wise improvements in entropy-regularized preference-game values. Each objective uses a policy-dependent opponent. A constrained proximal formulation handles the zero-surplus reference boundary; its dual yields shared inverse-surplus weights. We solve the resulting finite-pool problems directly and fit the language model to their pairwise log-ratio targets. Under joint strict feasibility, the population optimum is Pareto efficient in game-value space, and exact proximal updates achieve an $O(1/T)$ last-iterate objective gap. Controlled experiments support adaptive-game representations as nontransitivity increases. On four-objective UltraFeedback, however, the current one-stage neural results do not establish an advantage for Nash aggregation or adaptive opponents. Uniform scalarized DPO has higher judged objective means across three seeds, alongside instruction-following and safety regressions in the reported capability panel. An independent development diagnostic finds target improvements in instruction following and helpfulness, but little separation between NBPO and its exact-target controls. Neural fitting does not reproduce target distributions, yet can improve independently judged pool quality, leaving the natural-language advantage of the proposed mechanism unresolved.
+Aligning a language model with multiple objectives requires an explicit compromise between improvements over a reference policy. We introduce Nash Bargaining Preference Optimization (\NBPO{}), which maximizes the product of objective-wise improvements in entropy-regularized preference-game values. Each objective uses a policy-dependent opponent. A constrained proximal formulation handles the zero-surplus reference boundary; its dual yields shared inverse-surplus weights. We solve the resulting finite-pool problems directly and fit the language model to their pairwise log-ratio targets. Under joint strict feasibility, the population optimum is Pareto efficient in game-value space, and exact proximal updates achieve an $O(1/T)$ last-iterate objective gap. Controlled experiments support adaptive-game representations as nontransitivity increases. On four-objective UltraFeedback, however, the current one-stage neural results do not establish an advantage for Nash aggregation or adaptive opponents. Uniform scalarized DPO has higher judged objective means across three seeds, alongside instruction-following and safety regressions in the reported capability panel. Closely aligned teacher objectives and imperfect target realization motivate a diagnostic separating independently evaluated target quality, neural projection and fresh-response quality. Run on $200$ held-out prompts against a common four-response bank, it places the exact bargaining target ahead of the empirical source distribution it is solved from, by $0.027$ and $0.051$ on instruction following and helpfulness with intervals excluding zero, while the Nash, fixed-reference and utilitarian targets differ from one another by at most $0.0018$; the fitted pools keep that advantage without reproducing the target, and the fresh-response stage separates the arms differently again on one development seed. The current natural-language results remain inconclusive for the proposed mechanism.
 \end{abstract}
 
 \kekim_gpt{\textbf{R01 --- Review roadmap and central claim.} The strongest possible story is not simply ``Nash bargaining has desirable axioms.'' It is that a specific reference-surplus bargaining problem over general preference games can be solved reliably enough to improve a deployed LLM. The present evidence leaves two links unresolved: whether the practical training procedure realizes the proposed update, and whether adaptive game values help beyond fixed-reference Nash. Organize the paper around a falsifiable sequence: demonstrate residual within-objective preference misspecification; define the particular compromise being chosen; solve the finite game accurately; measure neural realization error; then evaluate independent trade-offs. Prioritize these links before expanding benchmark coverage. The comments below address substantive framing, correctness, and experimental design; intentionally unfinished tables and routine placeholders are not the focus.}
-\reviewresponse{\textbf{R01 --- Partially addressed.} The completed development diagnostic separates exact targets, fitted pool distributions and fresh responses (Tables~\ref{tab:target-transfer}--\ref{tab:projection-ablation}). Exact targets improve some independently judged objectives but barely distinguish the mechanisms; the projection pilot establishes no fresh-response advantage. Natural within-rubric cyclicity remains unestablished. Appendix~\ref{app:dataset_stress_test} preregisters the next data and mechanism checks rather than claiming these missing links are resolved.}
+\reviewresponse{\textbf{R01 --- Partially addressed.} The experimental narrative separates generated-policy quality, compromise selection and adaptive opponents. Current external-baseline and cross-play measurements are retained. Tables~\ref{tab:target-transfer}--\ref{tab:projection-ablation} and Appendix~\ref{app:target-transfer} specify a development diagnostic of target quality and neural realization; its results remain pending.}
 
 
 \section{Introduction}
 \label{sec:intro}
 \kekim_gpt{\textbf{R02 --- Distinguish model misspecification from noisy labels.} The BT criticism in the next paragraph needs a probabilistic qualification. A BT model can assign nonzero probability to every observed binary outcome, including a sampled three-edge cycle; it cannot represent a population preference matrix whose strict majority relation cycles. Thus one contradictory annotation is not evidence that scalar reward modeling is misspecified. State the restriction at the level of $P_k$, not the requirement to satisfy every sampled label. Later compare a fitted BT model with held-out pair probabilities or repeated, order-balanced judgments. This distinction prevents a reviewer from dismissing the motivation as ordinary label noise, and makes clear what the game-based representation is intended to preserve.}
-\reviewresponse{\textbf{R02 --- Partially addressed.} The motivation concerns population preference matrices, not isolated contradictory labels. UF's rating-induced supervision is transitive. The separate $60{,}000$-judgment audit finds neither significant repeated-cycle excess over its fitted BT control nor a resolved frozen-GPM predictive advantage. This is inconclusive evidence about direct feedback, not proof of transitivity.}
+\reviewresponse{\textbf{R02 --- Partially addressed.} The introduction distinguishes population misspecification from sampled label noise and identifies UF as a transitive-supervision comparison. The separate $60{,}000$-judgment audit resolves neither repeated-cycle excess nor a GPM predictive advantage. Acyclic constructed labels are not evidence that fresh preferences on the same prompts must be transitive.}
 
 Reinforcement Learning from Human Feedback (RLHF) commonly learns scalar rewards from pairwise comparisons \citep{christiano2017deep,ouyang2022training}. Direct Preference Optimization removes the separate reward model but retains a Bradley--Terry (BT) preference model \citep{rafailov2023direct,bradley1952rank}. For each prompt and objective, BT assigns one scalar score to each response and models preference probabilities through score differences. It permits noisy, contradictory individual labels, but its population preferences cannot have a cyclic strict majority relation.
 
@@ -283,13 +204,13 @@ Consider the prompt ``How can I learn Python loops?'' and three correct response
 Nash Learning from Human Feedback (NLHF) retains general pairwise payoffs, and INPO, SPPO, and related methods provide scalable equilibrium-seeking updates \citep{munos2024nash,zhang2025iterative,wu2025sppo,calandriello2024online,rosset2024direct,zhou2025egpo}. Multiple objectives additionally require a compromise rule. Existing methods use scalarization, constraints, policy interpolation, preference conditioning, or Blackwell criteria \citep{zhou2024beyond,rame2023rewarded,zhong2024panacea,agnihotri2026mopo,zhang2026prosper}.
 
 \kekim_gpt{\textbf{R03 --- The opening cycle currently changes the criterion between edges.} Relevance justifies $A\succ B$, completeness justifies $B\succ C$, and safety justifies $C\succ A$. This establishes conflict across attributes, but not necessarily a cycle within one of the separate objective oracles used by NBPO. Specify one fixed rubric under which all three comparisons occur, or explicitly separate attribute aggregation from residual within-rubric intransitivity. PROSPER already studies this distinction empirically \citep{zhang2026prosper}. For our data, audit complete triples under the actual training rubric and compare reproducible majority cycles with an appropriate BT/noise control. An illustrative example is useful, but the paper needs evidence that the representation problem remains after splitting feedback into the proposed objectives.}
-\reviewresponse{\textbf{R03 --- Partially addressed.} The illustrative cycle uses one fixed helpfulness rubric. Cross-objective disagreement is separated from within-rubric cycles throughout the experiments. The completed UF audit yields no eligible order-robust witness. The planned dataset audit in Appendix~\ref{app:dataset_stress_test} fixes the rubric and candidate count and reports repeatability and coverage before selecting a training panel.}
+\reviewresponse{\textbf{R03 --- Partially addressed.} The hypothetical example uses one helpfulness rubric. UF is now explicitly a score-induced alignment control, separate from the direct-feedback audit and controlled cyclic games. The audit finds no significant repeated-cycle excess or order-robust witness; residual cyclicity in natural training feedback remains unestablished.}
 
 
 We use classical Nash bargaining to maximize the product of improvements over a common fallback \citep{nash1950}. The bargaining parties are objective rubrics, with annotators supplying comparisons for each rubric. We give these objectives equal bargaining weight to study a compromise without externally specified priorities. Equal weight is a modeling choice: duplicating or splitting a rubric changes its influence. Prior work studies disagreement-adjusted Nash welfare over learned party rewards and bargaining over task-gradient improvements \citep{zhong2024nashwelfare,navon2022nashmtl}.
 
 \kekim_gpt{\textbf{R04 --- Equal bargaining power is a choice, not absence of priorities.} Prefer ``does not require user-specified scalarization weights'' or ``equal bargaining weight for the specified objectives'' to ``priority-free.'' Duplicating objective 1 changes its contribution from $\log s_1$ to $2\log s_1$, generally changing the policy; splitting one rubric into several correlated rubrics has a similar effect. Specify whether the bargaining parties represent objectives, judges, or stakeholder groups, and justify equal treatment at that level. A targeted sensitivity test should merge or duplicate an overlapping rubric and vary the disagreement policy. When varying the reference, distinguish its role as the fallback from its role as the opponent anchor. These are substantive design choices that affine invariance does not remove.}
-\reviewresponse{\textbf{R04 --- Partially addressed.} The bargaining parties are objective rubrics; equal weight is a modeling choice. The reference's disagreement and opponent-anchor roles are distinguished. Rubric duplication/merging and separate reference-sensitivity experiments remain pending in Appendix~\ref{app:rubric-reference-sensitivity}; affine invariance does not resolve these choices.}
+\reviewresponse{\textbf{R04 --- Partially addressed.} The introduction identifies objective rubrics as bargaining parties, states that equal weight is a modeling choice, and separates the reference's disagreement and opponent-anchor roles. Rubric duplication/merging and separate reference-sensitivity experiments are explicitly pending in Appendix~\ref{app:rubric-reference-sensitivity}.}
 
 
 Nash Bargaining Preference Optimization (\NBPO{}) bargains over reference-relative \emph{policy game values}. Each objective evaluates the learner against an adaptive opponent that emphasizes responses exposing its weaknesses, while a KL penalty keeps the opponent near the reference policy. The reference thus serves both as the fallback for measuring improvement and as the anchor restricting the opponent. These roles can be varied separately (Appendix~\ref{app:rubric-reference-sensitivity}). Improvement concerns this adaptive game evaluation, not necessarily direct win rate against the reference; population guarantees do not imply that every prompt improves.
@@ -298,7 +219,7 @@ INPO eliminates the policy normalizer through pairwise log-ratios \citep{zhang20
 
 Our contributions are:
 \kekim_gpt{\textbf{R05 --- Attribute inherited ingredients and isolate the new technical increment.} INPO already eliminates an intractable normalizer through pairwise log-ratios \citep{zhang2025iterative}; PROSPER already combines KL-regularized adversarial comparisons, exponential reweighting, and regression-based policy fitting \citep{zhang2026prosper}. Therefore, presenting those ingredients individually as the main contribution invites an incremental-combination objection. Explain precisely what the nonlinear reference-surplus objective adds: the zero-surplus boundary and the coupled proximal subproblem that must be solved despite policy-dependent opponents. Identify which derivation addresses this additional difficulty and which computation implements it. The current exact theorem and conditional fixed-point argument do not by themselves establish that the stated practical alternation solves this subproblem; R11--R12, R14, and R16 explain the missing link.}
-\reviewresponse{\textbf{R05 --- Addressed in the formulation and attribution.} The introduction attributes pairwise log-ratio fitting to INPO and adversarial reweighting ingredients to PROSPER. The technical increment is the reference-surplus log objective and its coupled proximal dual. The practical procedure uses a finite-pool solve followed by a frozen-target neural fit; neither inherited ingredients nor accurate teacher residuals establish neural-policy convergence.}
+\reviewresponse{\textbf{R05 --- Addressed.} The introduction now attributes pairwise log-ratio fitting to INPO and the adversarial reweighting ingredients to PROSPER. The stated increment is the reference-surplus log objective and its coupled proximal dual, implemented through direct finite-pool optimization with a frozen neural target; numerical and neural errors are kept separate.}
 
 \begin{itemize}
     \item We formulate multi-objective alignment as Nash bargaining over objective-wise regularized preference-game values, separating within-objective preference representation from across-objective compromise selection.
@@ -441,7 +362,7 @@ A=\begin{pmatrix}0&.5&-.5\\-.5&0&.5\\.5&-.5&0\end{pmatrix},\qquad
 q=(.8,.1,.1),\quad p=(.25,.43,.32),\quad\beta=.25.
 \]
 Using $q$ as the reference gives $V(q)\simeq-.0517901$ and $V(p)\simeq-.0417293$, hence positive surplus $s(p)\simeq.0100608$, but $J(p,q)=-.0385$: the direct reference win rate is only $.4615$. This is a full-support, finite-temperature example under the same judge. Explain early why robustness-adjusted value is the intended notion of improvement, and evaluate direct wins separately. The limitation is more basic than the absence of per-prompt safety guarantees.}
-\reviewresponse{\textbf{R06 --- Addressed.} Improvement is stated for adaptive game values, separately from direct reference wins. Appendix~\ref{app:game-versus-direct} gives a full-support, finite-temperature counterexample with positive surplus but direct win probability $0.4615$. Independent direct wins and finite-bank surplus are reported as different outcomes.}
+\reviewresponse{\textbf{R06 --- Addressed.} The introduction explicitly limits improvement to adaptive game values and separates direct reference wins. Appendix~\ref{app:game-versus-direct} now includes the full-support finite-temperature counterexample, with positive surplus but direct win probability $0.4615$.}
 
 
 \begin{assumption}[Joint improvement and support]
@@ -450,7 +371,7 @@ The reference $\piref$ has full support, and there exists a policy $\bar\pi$ suc
 \end{assumption}
 
 \kekim_gpt{\textbf{R07 --- Provide a feasibility diagnostic and a defined failure outcome.} Joint strict improvement is a substantive assumption, particularly for conflicting objectives or an already strong reference. A constrained formulation makes the exact log problem well-defined when a feasible improvement exists; it does not discover one automatically or make an infeasible problem feasible. On each finite response pool, solve a phase-I problem $\max_{\pi,\tau}\tau$ subject to $s_k(\pi)\ge\tau$ for every $k$. Report its margin, then distinguish a genuinely nonpositive optimum from numerical or neural failure to realize a positive one. Include an intentionally conflicting panel with no strict common improvement and specify the returned status/policy. At the reference boundary, report rejection/stalling frequency. Floors and clipped inverse-surplus weights cannot create feasibility.}
-\reviewresponse{\textbf{R07 --- Partially addressed.} Appendix~\ref{app:feasibility} defines phase-I maximum-margin feasibility, an analytically conflicting example, distinct failure statuses and retention of the previous policy on uncertified output. Solver residuals and selected-target positivity are not feasibility certificates. Measured margins and boundary rejection/stalling rates remain outstanding; the planned new panel requires a phase-I audit before training (Appendix~\ref{app:dataset_stress_test}).}
+\reviewresponse{\textbf{R07 --- Partially addressed.} Appendix~\ref{app:feasibility} defines a finite-pool maximum-margin feasibility audit, an analytic conflicting example, distinct failure statuses, and retention of the previous policy on uncertified output. Measured feasibility margins and boundary rejection/stalling rates still require execution artifacts; the constrained formulation is not claimed to create feasibility.}
 
 
 This is a substantive feasibility assumption. A finite-pool audit and failure outcomes are specified in Appendix~\ref{app:feasibility}; the constrained formulation cannot make conflicting objectives jointly improvable. Under this condition, the NBPO population target is
@@ -514,7 +435,7 @@ Appendix~\ref{app:nash-properties} verifies the feasible-set conditions. Once th
 \label{sec:algorithm}
 
 \kekim_gpt{\textbf{R08 --- State exactly what the affine-invariance proposition covers.} The proposition correctly transforms completed utility functions and disagreement values together. It does not imply invariance to arbitrary judge calibration changes. At the primitive game level, if $\Delta'_k=c_k\Delta_k$, one must also set $\beta'_k=c_k\beta_k$ to preserve the opponent and obtain $V'_k=c_kV_k$. With temperature fixed, instead $V_{c\Delta,\beta}=cV_{\Delta,\beta/c}$, which changes the game. Also, scaling a centered preference margin beyond its probability range is a change of payoff units, not necessarily a realizable new probability oracle. Keep the algebraic guarantee, but explain this distinction before connecting it to judge-specific units or the rescaling experiment.}
-\reviewresponse{\textbf{R08 --- Addressed.} The proposition transforms completed utilities and disagreement values jointly. Appendix~\ref{app:nash-properties} gives the required payoff--temperature scaling, the fixed-temperature identity and the distinction between payoff-unit changes and realizable probability oracles. Arbitrary judge recalibration is outside this guarantee.}
+\reviewresponse{\textbf{R08 --- Addressed.} The proposition is explicitly limited to joint transformations of completed utilities and disagreement values. Appendix~\ref{app:nash-properties} now gives the required temperature scaling, the fixed-temperature identity, and the distinction between payoff-unit changes and valid probability oracles; arbitrary judge recalibration is excluded.}
 
 
 Optimizing \eqref{eq:nash-welfare} presents three practical difficulties. First, the reference has $s_k(\piref)=0$, so the logarithmic objective is undefined at initialization. Second, every game value contains an opponent that depends on the learner. Third, the population policy update must be realized by an autoregressive model. We handle these issues with a constrained proximal problem, a prompt-separable finite-pool inner solve, and neural log-ratio projection.
@@ -599,7 +520,7 @@ Thus the constrained problem recovers the inverse-surplus weighting in \eqref{eq
 \subsection{Direct finite-pool inner solve and neural projection}
 \label{sec:finite-pool-solve}
 \kekim_gpt{\textbf{R09 --- Keep three distributions distinct throughout the implementation.} The population proof optimizes over the full contextual simplex; a finite-pool solver optimizes categorical weights over sampled responses; the trained LLM defines a distribution over all possible responses. These are not interchangeable objects. Introduce separate notation for the exact inner solution, the finite-pool teacher, and the fitted neural policy. State which one generates each opponent and supplies each surplus in the dual update. This distinction is especially important with only four candidates and $R=1$: a highly accurate teacher solve can coexist with a poor neural projection. It should be possible to trace one outer update from sampled data to teacher weights to neural parameters without inferring undocumented computations.}
-\reviewresponse{\textbf{R09 --- Addressed in notation and diagnostics.} The method distinguishes the population solution $\pi_t^\star(\lambda)$, finite-pool target $p_{t,x}^\star(\lambda)$ and neural policy $\pi_\theta$. Pool opponents and prompt-averaged surpluses drive the dual solve; one neural fit follows. Table~\ref{tab:target-transfer} evaluates exact targets, importance-reweighted fitted pools and fresh responses separately, without identifying them as the same distribution.}
+\reviewresponse{\textbf{R09 --- Addressed.} The method now separates the population inner solution $\pi_t^\star(\lambda)$, finite-pool target $p_{t,x}^\star(\lambda)$, and neural policy $\pi_\theta$. Finite-pool opponents and prompt-averaged surpluses drive the numerical dual solve; one neural fit follows the frozen target, and its importance-reweighted pool distribution is diagnosed separately.}
 
 At outer stage $t$, draw learner occurrences $\mathcal Y_x=\{y_{x,i}\}_{i=1}^{n_x}$ from $\pi_t$ and comparator occurrences $\mathcal Z_x=\{z_{x,j}\}_{j=1}^{m_x}$ from $\piref$. Write $\widehat A_{k,x}[i,j]=\widehat\Delta_k(y_{x,i},z_{x,j}\mid x)$. Retaining duplicate draws with multiplicity gives empirical base measures $p_{t,x}(i)=1/n_x$ and $\mu_x(j)=1/m_x$. These are importance-sampling occurrence weights, not normalized LM likelihoods. For $p\in\Delta^{n_x}$, define
 \begin{align}
@@ -645,7 +566,7 @@ h_t(\pi_\theta;x,y,y')
 \end{equation}
 
 \kekim_gpt{\textbf{R10 --- Full-support identification does not follow from complete pairing within four candidates.} All six pairs among four sampled responses determine their relative probabilities, but do not control mass on unseen responses. For example, if only pair $(1,2)$ is observed with zero log-ratio-change target under a uniform three-response anchor, every policy $(a,a,1-2a)$ fits that pair while assigning different mass to response 3. State the support on which the regression-identification claim applies. Test candidate-pool expansion and fresh generations outside the training pool, and compare the exact teacher distribution with its neural realization. Separately qualify unbiasedness: the binary target has the displayed conditional mean under an exact opponent; the sampled, exponentially reweighted approximation in Appendix~\ref{app:labeling} requires its own error analysis (R34).}
-\reviewresponse{\textbf{R10 --- Partially addressed.} Identification is restricted to connected sampled support, with an unseen-mass counterexample. Independent fitted-pool and fresh-response measurements are now available, but their valid prompt sets differ and they do not control unseen probability mass. Candidate-count pilots do not constitute a controlled neural pool-expansion study; quantitative finite-sampling error remains pending.}
+\reviewresponse{\textbf{R10 --- Partially addressed.} Identification is restricted to connected sampled support, with an explicit unseen-mass counterexample and a separate neural pool diagnostic. Fresh-response UF-4 evaluation now complements target fitting, but controlled candidate-pool expansion and quantitative finite-sampling error remain unreported; generated-policy gains do not establish full-support identification.}
 
 
 We project the finite-pool target into the LLM with
@@ -663,7 +584,7 @@ We project the finite-pool target into the LLM with
 \end{equation}
 
 \kekim_gpt{\textbf{R11 --- Critical: the displayed regression objective is not the objective used in the proof.} The square is outside the expectation, giving $(\E[\mathrm{residual}])^2$, whereas conditional-mean regression requires $\E[(\mathrm{residual})^2]$. These are mathematically different: large positive and negative residuals can cancel in the first expression; with symmetric ordered-pair sampling, that objective can even become uninformative. Move the square inside the expectation and verify the actual training loss, not only the typography. The appendix's argument that the regression minimizer recovers the desired pairwise target depends on minimizing squared error for individual examples. This is a substantive correctness issue because the policy-identification claim is otherwise unsupported.}
-\reviewresponse{\textbf{R11 --- Partially addressed.} Equation~\eqref{eq:regression-loss} places each example's squared residual inside the expectation. The reported pilot checks the explicit-pair/centered all-candidate identity in value and gradient to $2.8\times10^{-14}$ on solver targets. This supports that algebraic check, not an independent audit of the complete training implementation, which was not included in the supplied artifacts.}
+\reviewresponse{\textbf{R11 --- Partially addressed.} Equation~\eqref{eq:regression-loss} now places each example's squared residual inside the expectation, and the diagnostics use the same mean-squared-error definition. This fixes the manuscript's objective; checking the actual training loss still requires the implementation, which was not supplied with these attachments.}
 
 
 The target is frozen during fitting. Complete pair coverage identifies only the reweighted sampled support, not unseen responses. At the inner optimum,
@@ -684,13 +605,13 @@ where $\widehat Q_{k,x}^\star=\widehat A_{k,x}\nu_{k,x}(p_{t,x}^\star)$. This id
 T(p)=\operatorname{softmax}\!\left(\log q+4A\operatorname{softmax}(\log q+Ap/\beta)\right).
 \]
 Its fixed point is approximately $(.33618258,.32907171,.33474571)$, but both tangent Jacobian eigenvalues are approximately $-1.33316$, implying local instability of undamped iteration. Full support holds, and this point improves value from about $-3.30\times10^{-5}$ at $q$ to $1.42\times10^{-5}$, so the joint-improvement assumption does not exclude the example. Replace ``produces a fixed point'' with the conditional statement proved. Supply a justified inner solver, an appropriate damping/contraction condition, or a different convergent scheme, and validate its residuals. Merely increasing $R$ is not a principled repair.}
-\reviewresponse{\textbf{R12 --- Addressed in the algorithmic claim.} Unconditional convergence of best-response alternation is replaced by direct optimization of the strictly concave finite-pool objective. Appendix~\ref{app:direct-stability} retains the unstable fixed-point example, tangent eigenvalues near $-1.333163$, derivatives and numerical-residual conditions. These establish the appropriate finite-pool formulation, not convergence of a neural approximation.}
+\reviewresponse{\textbf{R12 --- Addressed.} The unconditional alternation claim is replaced by direct optimization of the strictly concave finite-pool objective. Appendix~\ref{app:direct-stability} includes the unstable fixed-point example, its approximately $-1.333163$ tangent eigenvalues, the objective's gradient/Hessian, and explicit numerical-residual requirements.}
 
 Neural pool diagnostics use $\widetilde p_{\theta,x}(i)\propto p_{t,x}(i)\pi_\theta(y_{x,i}\mid x)/\pi_t(y_{x,i}\mid x)$, not normalized raw LM likelihoods. Appendix~\ref{app:solver-neural} compares regression with weighted behavior cloning of the same target.
 
 
 \kekim_gpt{\textbf{R13 --- A bounded dual box can change the optimization problem.} The exact multiplier satisfies $\lambda_k^\star=1/s_k(\pi_{t+1})$. Therefore a legitimate positive surplus below $10^{-3}$ can require a multiplier above the implemented upper bound $10^3$; strict feasibility supplies no numerical lower bound on surplus. At a box boundary, projected stationarity need not imply the original condition $s_k-1/\lambda_k=0$. Report coordinatewise boundary-hit rates, unprojected KKT residuals, and sensitivity to the bounds. Explain whether the $5\times10^{-3}$ surplus floor changes the objective, only stabilizes estimation, or is used only in the rescaling diagnostic. Justify the box from a measured feasible margin where possible. Do not use clipped-solver convergence as a certificate for the original Nash proximal problem.}
-\reviewresponse{\textbf{R13 --- Partially addressed.} The manuscript separates box-projected stationarity from the original KKT condition. UF-4 reports inactive bounds, multipliers $7.30$--$11.04$, dual residual $3.74\times10^{-14}$ and maximum inner stationarity spread $1.88\times10^{-10}$. This single interior solve does not replace bound-sensitivity or boundary-hit sweeps; the historical surplus floor still requires implementation reconciliation.}
+\reviewresponse{\textbf{R13 --- Partially addressed.} Projected box stationarity is distinguished from the original unprojected KKT condition. The added UF-4 reconstruction reports multipliers $7.30$--$11.04$, a $3.74\times10^{-14}$ dual residual, and a $1.88\times10^{-10}$ maximum inner stationarity spread. Bound-sensitivity and boundary-hit sweeps, and the historical surplus floor's role, still require verification.}
 
 \begin{algorithm}[t]
 \caption{Nash Bargaining Preference Optimization}
@@ -717,22 +638,22 @@ Acceptance is empirical, uses development rather than final-test data, and provi
 
 
 \kekim_gpt{\textbf{R14 --- Reconcile Algorithm~\ref{alg:nbpo} with the reported computation.} The pseudocode calls \textsc{PolicyFit} at every dual iteration, but the configuration lists $40{,}000$--$300{,}000$ dual iterations and only 300 neural optimizer updates per stage. This suggests a finite-pool teacher solve followed by one neural fitting stage, rather than a fresh neural inner solve for every multiplier update. If that is the implementation, show it explicitly as a teacher solver plus a neural realization algorithm; if not, explain the actual update counts and costs. Recompute surplus, policy--opponent consistency, and KKT diagnostics after neural realization. A residual near $10^{-15}$ for the frozen teacher is not a certificate for the deployed LLM. Audit the implementation before deciding which algorithmic claim the paper can defend.}
-\reviewresponse{\textbf{R14 --- Partially addressed.} Algorithm~\ref{alg:nbpo} separates the finite-pool solve from one subsequent neural fit; UF-4 reports $1{,}250$ neural updates. Independent target, fitted-pool and fresh-response results now quantify their distinct outcomes. The fitted-pool finite-bank surplus is not a complete post-fit population KKT or opponent-consistency audit, which remains pending.}
+\reviewresponse{\textbf{R14 --- Partially addressed.} The algorithm explicitly separates the finite-pool solve from one subsequent neural fit. UF-4 now reports independently reconstructed teacher residuals and $1{,}250$ neural updates, followed by development fitting diagnostics and fresh-response evaluation. Full post-fit surplus, opponent-consistency, and KKT checks remain pending; teacher residuals do not certify the neural policy.}
 
 
 \kekim_gpt{\textbf{R15 --- Test the acceptance safeguard near the boundary.} The existing disclaimer correctly avoids claiming a finite-sample guarantee, but positivity of noisy estimates is still the decisive practical acceptance criterion. With four comparators and small surpluses, an update can be falsely accepted or a genuinely feasible update repeatedly rejected. On known finite games, measure both error rates as functions of pool size, $L$, temperature, and true feasibility margin. Include all objectives jointly and report rejection frequency, especially at $t=0$. Keep the monitoring data separate from final evaluation; repeatedly using a held-out set to choose policies makes it validation data. A conservative simultaneous lower-confidence-bound check is worth testing, but do not apply a bounded-mean formula blindly to biased nonlinear game-value estimates.}
-\reviewresponse{\textbf{R15 --- Partially addressed.} Acceptance is explicitly empirical and uses development data, with numerical-unresolved and neural-rejected outcomes distinguished. Nonlinear estimation bias is acknowledged. Near-boundary false acceptance, false rejection and joint-objective error-rate sweeps remain unmeasured; the fixed-panel missing-data bounds are not a substitute for those tests.}
+\reviewresponse{\textbf{R15 --- Partially addressed.} Acceptance is now explicitly empirical and uses development data, with numerical-unresolved and neural-rejected outcomes recorded separately. Appendix~\ref{app:feasibility} acknowledges nonlinear estimation bias, but the requested near-boundary false-acceptance/rejection and joint-objective error-rate sweeps remain unmeasured.}
 
 \paragraph{Last-iterate convergence.}
 The following Bregman proximal-point guarantee concerns exact population solves, not finite-pool fitting or empirical acceptance; $T$ counts exact solves rather than neural updates. Under Assumption~\ref{ass:joint}, with $\pi_0=\piref$ and \eqref{eq:prox-subproblem} solved exactly at every outer iteration with arbitrary $\eta_t>0$, the Nash welfare is monotone, $F(\pi_{t+1})\ge F(\pi_t)$ for $t\ge1$, and $F(\pi^\star)-F(\pi_T)\le D(\pi^\star\|\piref)/\sum_{t<T}\eta_t$: a constant proximal step gives an $O(1/T)$ final-iterate gap. Theorem~\ref{thm:last-iterate} and its proof are in Appendix~\ref{app:convergence}.
 
 
 \kekim_gpt{\textbf{R16 --- Calibrate the theorem's contribution and computational meaning.} This is an exact Bregman proximal-point guarantee, not a convergence theorem for finite regression, one opponent refresh, a clipped dual, and empirical acceptance. State that distinction beside the headline claim. INPO already studies last-iterate convergence, and EGPO establishes linear convergence for a different regularized equilibrium problem \citep{zhang2025iterative,zhou2025egpo}; their rates are not comparable by exponent alone because targets and access assumptions differ. Here $T$ counts exact inner solves, not labels or neural steps, and all reported LLM configurations use $T=1$. Show finite-game convergence against total oracle/solver work, including an approximate-solve variant. A useful theoretical extension would relate an inner variational or primal--dual residual to outer error; preserving a last-iterate statement also needs a separate argument, for example control of approximate monotonicity.}
-\reviewresponse{\textbf{R16 --- Partially addressed.} The convergence statement explicitly concerns exact population proximal solves; $T$ counts solves, and the reported LLM runs use $T=1$. Neither the projection pilot nor teacher residuals verify this rate for neural training. A work-normalized outer study and a residual-to-outer-error extension remain absent; the planned finite-game study is identified as additional evidence, not a completed theorem.}
+\reviewresponse{\textbf{R16 --- Partially addressed.} The headline convergence statement now specifies exact population Bregman proximal solves, defines $T$ as their count, and separates this guarantee from finite fitting and empirical acceptance; the source also states that LLM runs use $T=1$. A work-normalized outer convergence study and an approximate-solve residual-to-outer-error extension are not supplied.}
 
 \section{Experiments}
 \label{sec:experiments}
-We test generated-policy quality, bargaining trade-offs, and adaptive opponents. UltraFeedback (UF-4) provides score-induced four-objective supervision; SafeRLHF provides human pairwise feedback. Controlled games isolate nontransitivity. UF labels are transitive by construction, and a separate $60{,}000$-judgment audit finds no significant repeated-cycle excess (Appendix~\ref{app:within-rubric-audit}); neither natural panel currently establishes an advantage from cyclic feedback.
+We test generated-policy quality, bargaining trade-offs, and adaptive opponents. UltraFeedback (UF-4) supplies score-induced four-objective supervision; SafeRLHF supplies human pairwise feedback. Controlled games isolate nontransitivity. The released UF labels are transitive by construction, while a separate $60{,}000$-judgment audit detects no significant repeated-cycle excess (Appendix~\ref{app:within-rubric-audit}). Neither natural panel currently establishes an advantage from cyclic feedback.
 
 \subsection{Generated-policy quality under score-induced supervision}
 \label{sec:uf-exp}
@@ -741,12 +662,12 @@ The panel uses Llama-3.1-8B-Instruct and UltraFeedback instruction-following (IF
 
 
 \paragraph{Matched comparisons.}
-Fixed-reference Nash changes opponent adaptation; BT-RM--Nash changes preference representation; game-utilitarian and global game-maxmin change aggregation over the same prompt-averaged game values. External rows use uniform scalarized DPO and PROSPER/MOPO adaptations, whose implementation contracts are in Appendix~\ref{app:uf-protocol}. PROSPER uses prompt-dependent aggregation; the matched maxmin control uses global aggregation. The MOPO row is a plug-in adaptation, not the full published robustified method. Matching coefficient L1 norms does not match realized policy KL.
+Fixed-reference Nash changes opponent adaptation; BT-RM--Nash changes preference representation; game-utilitarian and global game-maxmin change aggregation over the same prompt-averaged game values. The external rows are uniform-weight scalarized DPO and the reported PROSPER and MOPO adaptations. Their implementation contracts are given in Appendix~\ref{app:uf-protocol}; an adaptation is not automatically a reproduction of the published method. PROSPER's prompt-dependent aggregation is distinct from the matched global-maxmin control. L1 coefficient matching does not match realized policy KL.
 
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
-\caption{UF-4 reference wins on $\tabonecommon$ common prompts, averaging orders and counting ties as $0.5$. Attributes are seed means; $\overline{W_{\min}}=S^{-1}\sum_s\min_kW_{k,s}$ averages seed-specific minima. Sample SD appears below each row. Bold denotes a reference-win interval above $0.5$ at every evaluated seed; prompt uncertainty is separate (Appendix~\ref{app:evaluation}).}
+\caption{UF-4 reference win rates on $\tabonecommon$ common prompts; ties count as $0.5$ and presentation orders are averaged. Attribute columns are policy-seed means; $\overline{W_{\min}}=S^{-1}\sum_{s=1}^S\min_k W_{k,s}$ averages the $S$ seed-specific minima. Sample SD is below each row. Bold entries have reported reference-win intervals above $0.5$ at every evaluated seed. Prompt uncertainty and method-valid counts (\tabonevalidrange) are separate (Appendix~\ref{app:evaluation}).}
 \label{tab:uf-objectives}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -784,21 +705,30 @@ MOPO (adapt.) & $3$ & $\mathbf{0.5205}$ & $0.5171$ & $0.5028$ & $\mathbf{0.5278}
 All policies use the same planned $2000$ final prompts and cached base responses. A prompt enters Table~\ref{tab:uf-objectives} only if every reported arm has both orders parsed for all four attributes; results are recomputed when this intersection changes. Whole-prompt bootstrap replicates recompute the minimum objective, with prompt uncertainty kept separate from policy-seed variation. No reported minimum-objective interval excludes $0.5$, and these results do not establish a Nash advantage.
 
 \kekim_gpt{\textbf{R18 --- Verify that the HT-MNPO baseline corresponds to the published method.} Heterogeneous MNPO trains an interacting population with players associated with different preference oracles \citep{wu2026mnpo}; independent single-objective runs are not automatically the same method. State the player count, oracle assignments, opponent mixture, joint update schedule, and how each reported checkpoint is obtained. Explain what ``single-objective HT-MNPO'' means in this implementation. Select the ``best corner'' using a prespecified validation criterion that does not access test results, and report whether any deployment-time mixture is allowed. The relevant distinction is one compromise policy versus a heterogeneous interacting population, not simply multi-objective versus single-objective learning. Consult the August 2026 revision, especially its heterogeneous extension.}
-\reviewresponse{\textbf{R18 --- Partially addressed.} The manuscript removes the unsupported HT-MNPO ``best corner'' comparison. A faithful heterogeneous population implementation, including player assignments, opponent mixtures, updates and validation selection, is not supplied. No HT-MNPO reproduction or population-versus-single-policy advantage is claimed.}
+\reviewresponse{\textbf{R18 --- Partially addressed.} The revised manuscript no longer presents an unsupported HT-MNPO ``best corner'' comparison. A faithful heterogeneous-population implementation and its player, opponent, update, and validation-selection contract have not been supplied; no HT-MNPO reproduction claim is made.}
 
 
 \subsection{Bargaining and empirical trade-offs}
 \label{sec:tradeoffs}
-The matched mechanisms yield similar reference-win estimates, without a resolved advantage for Nash aggregation or adaptive opponents (Table~\ref{tab:uf-objectives}); this does not establish equivalence. Uniform DPO exceeds each matched mechanism's mean on all four attributes, with NBPO gaps of \tabonedpoovernbpo{}. Its capability and safety losses motivate comparison at matched policy movement or capability retention (Section~\ref{sec:general-capability}). PROSPER and MOPO produce different trade-offs, with substantial PROSPER seed variation; neither establishes superiority across all outcomes.
+The matched mechanisms give similar reference-win point estimates, with no resolved advantage for Nash aggregation or adaptive opponents (Table~\ref{tab:uf-objectives}); this is not an equivalence result. Uniform scalarized DPO has higher means than every matched mechanism on all four attributes across three policy seeds. Its gains over NBPO are \tabonedpoovernbpo{} for IF, truthfulness, honesty, and helpfulness. Its one-seed capability panel also shows substantial instruction-following and safety losses (Section~\ref{sec:general-capability}), motivating comparison at matched policy movement or capability retention. MOPO's three-seed results and PROSPER's \taboneprosperseedphrase{} give different outcome vectors; neither establishes superiority in the full trade-off space. PROSPER's second seed also reversed its first: at one seed it held the table's highest minimum at $0.5072$ and sat above the whole five-mechanism band on three attributes, and at \taboneprosperseedphrase{} its minimum is \taboneprospermin{} with its minimum \taboneprosperminplace{} and its instruction-following seed spread of \taboneprospermaxsd{} the largest in the table. Four single-seed orderings in this table have now failed replication out of four, which is why none is reported as a result.
 
-Nash and utilitarian targets are close: mean TV is $0.0195$ on UF-4 and $0.0008$ on SafeRLHF (Appendix~\ref{app:solver-neural}). Weak target separation and neural realization error are examined in Appendix~\ref{app:additional-policy-results}.
+Nash and utilitarian finite-pool targets are close: mean target TV is $0.0195$ on UF-4 and $0.0008$ on SafeRLHF (Appendix~\ref{app:solver-neural}). Weak target separation and neural realization error are candidate explanations for the small mechanism differences, not established causes.
 
-Appendix Figure~\ref{fig:uf-tradeoffs} projects the four-objective outcomes. The declared seven-setting DPO sweep has reconciled uniform and two specialist settings: the IF specialist reaches $.5845$ IF but $.4775$ honesty, and the truthfulness specialist reaches $.5819$ truthfulness and $.5241$ honesty. The specialist points each use one seed; the sweep remains incomplete. Operating points are selected on development data, and dominance requires the full four-dimensional vector (Appendix~\ref{app:pareto-evaluation}).
+Figure~\ref{fig:uf-tradeoffs} shows two projections of the four-objective outcomes. The declared DPO sweep includes four specialist weights, uniform weights, and two fixed interior weights; the uniform setting is the main table's row, and two specialist weights have since been reconciled against the same
+judgments and plotted: the instruction-following weight reaches $.5845$ on its own objective while its honesty falls to
+$.4775$, below the reference, and the truthfulness weight reaches $.5819$ on truthfulness at $.5241$ honesty, against the
+uniform setting's $.5615$--$.5728$ and $.5000$--$.5083$. One seed per weight, three of seven settings, so this is the
+shape of a frontier rather than a measured one. All seven settings are retained, with operating-point selection on development data. Dominance requires the full four-dimensional vector; neither two-dimensional projections nor a chosen aggregate prove that one compromise rule is best. Appendix~\ref{app:pareto-evaluation} specifies uncertainty and tuning-cost reporting.
 
-
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/uf_tradeoffs.pdf}
+\caption{UF-4 projections from Table~\ref{tab:uf-objectives} on $\tabonecommon$ common prompts. Points are method means; bars show one sample SD over policy seeds, not prompt-bootstrap intervals. PROSPER now has \taboneprosperseeds{} seeds and an SD bar; the \figtradeoffpendingcount{} remaining declared DPO weights do not. The base is $(.5,.5)$. Full four-objective vectors determine descriptive dominance; the declared DPO weight sweep is incomplete.}
+\label{fig:uf-tradeoffs}
+\end{figure}
 
 \kekim_gpt{\textbf{R21 --- Evaluate the compromise rule relative to an attainable trade-off.} Average wins, worst-objective wins, and Nash welfare each express a different preference over outcomes; no single one proves that Nash is universally the best compromise. For the two-objective SafeRLHF panel, estimate an empirical trade-off curve using a reasonably tuned weight/constraint sweep and locate each method relative to that curve and the fallback. Use a common validation-only operating-point rule and disclose tuning effort. Combine this with objective-wise results so an aggregation advantage is distinguishable from simply training a stronger policy. The planned training-seed variation measures a different uncertainty source from finite evaluation prompts: report both, using paired prompt resampling and recomputing the worst-objective statistic within each replicate.}
-\reviewresponse{\textbf{R21 --- Partially addressed.} The declared seven-weight DPO sweep is retained, with uniform and two specialist settings currently represented. This incomplete sweep is not an estimated Pareto frontier. Seed variation is separated from paired prompt uncertainty, and dominance requires all objective coordinates. A validation-selected, independently judged SafeRLHF frontier remains to be completed under the new panel contract.}
+\reviewresponse{\textbf{R21 --- Partially addressed.} The manuscript retains the two-projection UF figure and all seven declared DPO weights, separates prompt uncertainty from seed variation, and limits dominance claims to the full outcome vector. Uniform DPO is represented in the main table; full-sweep artifacts and the independent SafeRLHF frontier remain to be reconciled or completed.}
 
 \subsection{Adaptive opponents and preference representation}
 \label{sec:adaptive-exp}
@@ -828,7 +758,7 @@ Worst-bank wins measure vulnerability to these comparators, not population explo
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
-\caption{One-seed cross-play on $500$ planned prompts. Reference counts are row-specific; bank counts span $446$--$480$, with $417$ prompts common to all pairs and rubrics. These unequal-denominator summaries are descriptive. All trained-policy surplus intervals include zero.}
+\caption{Reported one-seed cross-play summary on $500$ planned prompts. $N_{\rm ref}$ gives row-specific reference-pair valid counts; bank statistics use $446$--$480$ prompts, and the strict intersection over all pairs and rubrics is $417$. These unequal-denominator values are descriptive until recomputed on one common set. Every trained policy's reported surplus interval includes zero.}
 \label{tab:independent-crossplay}
 \begin{tabular}{lrrrrr}
 \toprule
@@ -845,13 +775,239 @@ Dev-selected competitor (util\_mse\_s42) & $1$ & $480$ & $0.4990$ & $0.4897$ & $
 \end{table}
 
 \kekim_gpt{\textbf{R19 --- Independent judges and diverse opponents answer different questions.} Judge independence is appropriate, but a fixed-reference win rate can miss precisely the exploitable weaknesses used to motivate adaptive opponents. Retain this deployment-oriented metric and add an independently judged cross-play matrix containing the reference, NBPO, fixed-reference Nash, and strong competing policies. Select adversarial comparators on a development pool and evaluate them on disjoint prompts/responses; include candidates outside the four-response training pool. Report a common regularized-game diagnostic under the same independently fixed evaluator as a complementary measure. Otherwise, the experiment can favor fixed-reference training by its metric while never testing whether adaptive training reduces vulnerability to other responses. Robustness and direct reference improvement should be reported as separate outcomes, as R06 demonstrates.}
-\reviewresponse{\textbf{R19 --- Partially addressed.} The four-policy cross-play bank and objective-wise matrices are measured. Reference wins, worst-bank wins and regularized-bank surplus are kept distinct. Table~\ref{tab:independent-crossplay} still has unequal valid denominators despite a $417$-prompt strict intersection, so paired method conclusions require recomputation. Stronger external comparators and population exploitability remain unmeasured.}
+\reviewresponse{\textbf{R19 --- Partially addressed.} The four-policy cross-play bank and objective-wise matrices are measured, with distinct reference, worst-bank, and regularized-bank statistics. The summary has unequal valid denominators and requires a common-set paired comparison. Stronger external comparators remain pending; finite-bank performance is not population exploitability.}
 
 \kekim_gpt{\textbf{R22 --- Make the adaptive-opponent falsification test central.} The present point estimates favor fixed-reference Nash in average reference wins ($.561$ versus $.556$); the appendix also reports higher minimum/average game surpluses ($.040/.061$ versus $.028/.056$). First confirm that these game surpluses use the same evaluator, temperature, and prompt set for both policies. The draft already acknowledges this negative result and proposes diagnostics; make those diagnostics the main mechanism experiment. Solve both targets accurately on identical finite matrices at the actual finite temperature, then measure the loss incurred by neural realization. Add a controlled transitive-to-cyclic family while maintaining joint feasibility, and evaluate diverse held-out comparators. The aim is to identify a regime where adaptivity helps, or establish why it does not, not to require NBPO to win every setting.}
-\reviewresponse{\textbf{R22 --- Partially addressed.} The independent exact-target diagnostic is now measured. On the common $78$-prompt categorical panel, NBPO and fixed-reference targets differ by at most $0.0007$ per objective; controlled cyclic games support the adaptive representation but Game-KS and utilitarian controls also perform well. Natural cross-play still needs common-set inference, and neither target-fit error nor historical negative results establish an adaptive benefit.}
+\reviewresponse{\textbf{R22 --- Partially addressed.} Controlled results retain Game-utilitarian and Game-KS to distinguish representation from Nash-specific effects. Natural cross-play is reported descriptively; common-set paired inference and an independent exact-target versus neural-policy comparison remain needed. Historical contrary results are not treated as reconciled.}
 
-\paragraph{Capabilities and target realization.}
-NBPO's IFEval score is $0.7264$ versus the base's $0.7542$, with harmful-completion rate $0.3906$ versus $0.2812$; scalarized DPO also incurs capability regressions (Table~\ref{tab:general-capability}). The independent development diagnostic finds target-versus-source gains in IF and helpfulness, but NBPO's exact target differs from fixed-reference and utilitarian targets by at most $0.0018$ in direct wins. Fitted pools improve several independently judged scores despite imperfect target realization; the projection pilot does not resolve a fresh-policy advantage. Detailed coverage, target/fitted/fresh comparisons and supporting SafeRLHF results are in Appendix~\ref{app:additional-policy-results}. These observations motivate the prospective fixed-objective conflict and cyclicity tests in Appendix~\ref{app:dataset_stress_test}; their results are reported separately from the completed UF panel.
+\subsection{Capability, realization, and supporting results}
+\label{sec:general-capability}
+
+\paragraph{Capability retention.}
+Table~\ref{tab:general-capability} evaluates the UF checkpoints. NBPO's IFEval strict-prompt accuracy is $0.7264$, against $0.7542$ for the base; the matched mechanisms range from $0.7252$ to $0.7437$. Uniform DPO scores $0.6359$ in its one-seed capability panel despite higher judged IF, whereas MOPO scores $0.7579$ across three seeds. This discrepancy between judged and programmatic instruction following requires constraint-type and length analysis. GSM8K and the appendix's ARC-C, HellaSwag, and MMLU point estimates change relatively little, without establishing equivalence.
+
+Safety also worsens under the reported protocol. HarmBench direct-request harmful completion rises from $0.2812$ for the base to $0.3906$--$0.4333$ across matched mechanisms, and to $0.6281$ for one-seed DPO. XSTest safe-prompt over-refusal falls, while unsafe-prompt full refusal also falls (Appendix~\ref{app:capability-complete}). These observations are consistent with increased compliance but do not identify its cause; harmlessness is not among the four UF objectives. Non-refusal alone is not harmful compliance, and direct-request HarmBench is not an attack-search evaluation.
+
+Local reward-model reference wins on AlpacaEval-2 and Arena-Hard-v2 prompts and local-judge MT-Bench scores provide additional descriptive outcomes, not official leaderboard results. DPO leads these measured proxies while its safety and IFEval outcomes deteriorate. Its responses are also longer in the reported panels, but a causal length explanation remains untested. PROSPER and MOPO safety and proxy outcomes are now measured, and MOPO's are the least changed of any trained arm: its harmful-completion rate is $0.3156$ against the base's $0.2812$, where every matched mechanism sits at $0.3906$--$0.4333$ and uniform DPO at $0.6281$, and it is closest to the base on both XSTest columns, $0.0600$ safe-prompt refusal against the base's $0.0683$ where the mechanisms fall to $0.0360$--$0.0414$, and $0.9199$ unsafe-prompt refusal against the base's $0.9550$ where they fall to $0.6769$--$0.8305$. It also keeps the highest IFEval and GSM8K of the trained arms, $0.7579$ and $0.8701$, and the lowest AlpacaEval-2 win rate, $0.5170$. An arm whose constraints bind for free moves the policy least on every one of these axes, which is consistent with the reduction Appendix~\ref{app:pareto-evaluation} predicted. PROSPER at \taboneprosperseedphrase{} sits inside the mechanism band throughout, at $0.3953$ harmful completion and $0.0402$ safe-prompt refusal. Appendix~\ref{app:capability-complete} gives coverage and protocols, including the separate historical SafeRLHF evaluation.
+
+\begin{table}[tbp]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\caption{UF-4 capability and safety, with sample SD beneath multi-seed rows. IFEval: strict-prompt accuracy; GSM8K: exact match; HB: HarmBench harmful completion; XS: XSTest safe-prompt full refusal. $^{\dagger}$AE2/AH2 are local reward-model reference wins on benchmark prompts; MT uses a frozen local judge. These are not official leaderboard scores. DPO capability coverage is one seed although Table~\ref{tab:uf-objectives} has three; dashes are unmeasured. Protocols and coverage are in Appendix~\ref{app:capability-complete}.}
+\label{tab:general-capability}
+\begin{tabular}{lrrrrrrrr}
+\toprule
+Method & Seeds & IFEval & GSM8K & HB$\downarrow$ & XS$\downarrow$ & AE2$^{\dagger}$ & AH2$^{\dagger}$ & MT$^{\dagger}$\\
+\midrule
+% BEGIN AUTO TAB3 BODY
+Base & $1$ & $0.7542$ & $0.8666$ & $0.2812$ & $0.0683$ & -- & -- & $7.53$\\
+NBPO & $3$ & $0.7264$ & $0.8633$ & $0.3906$ & $0.0414$ & $0.5617$ & $0.5143$ & $7.59$\\
+\quad\textit{sample SD over seeds} & & $0.0098$ & $0.0031$ & $0.0094$ & $0.0023$ & $0.0083$ & $0.0206$ & $0.09$\\
+Fixed-reference Nash & $3$ & $0.7289$ & $0.8615$ & $0.3990$ & $0.0360$ & $0.5578$ & $0.5243$ & $7.60$\\
+\quad\textit{sample SD over seeds} & & $0.0059$ & $0.0038$ & $0.0072$ & $0.0001$ & $0.0138$ & $0.0126$ & $0.05$\\
+BT-RM--Nash & $3$ & $0.7375$ & $0.8656$ & $0.4333$ & $0.0387$ & $0.5458$ & $0.5320$ & $7.69$\\
+\quad\textit{sample SD over seeds} & & $0.0115$ & $0.0042$ & $0.0160$ & $0.0046$ & $0.0236$ & $0.0108$ & $0.07$\\
+Game-utilitarian & $3$ & $0.7252$ & $0.8625$ & $0.4021$ & $0.0389$ & $0.5685$ & $0.5363$ & $7.66$\\
+\quad\textit{sample SD over seeds} & & $0.0059$ & $0.0034$ & $0.0130$ & $0.0023$ & $0.0123$ & $0.0196$ & $0.16$\\
+Global game-maxmin & $3$ & $0.7437$ & $0.8678$ & $0.3917$ & $0.0388$ & $0.5636$ & $0.5323$ & $7.60$\\
+\quad\textit{sample SD over seeds} & & $0.0043$ & $0.0024$ & $0.0065$ & $0.0046$ & $0.0169$ & $0.0203$ & $0.11$\\
+Scalarized DPO (uniform) & $1$ & $0.6359$ & $0.8582$ & $0.6281$ & $0.0000$ & $0.7615$ & $0.7910$ & $8.04$\\
+PROSPER (adapt.) & $2$ & $0.7394$ & $0.8654$ & $0.3953$ & $0.0402$ & $0.5441$ & $0.5215$ & $7.51$\\
+\quad\textit{sample SD over seeds} & & $0.0052$ & $0.0102$ & $0.0022$ & $0.0053$ & $0.0035$ & $0.0120$ & $0.13$\\
+MOPO (adapt.) & $3$ & $0.7579$ & $0.8701$ & $0.3156$ & $0.0600$ & $0.5170$ & $0.5450$ & $7.64$\\
+\quad\textit{sample SD over seeds} & & $0.0151$ & $0.0016$ & $0.0108$ & $0.0069$ & $0.0031$ & $0.0330$ & $0.03$\\
+% END AUTO TAB3 BODY
+\bottomrule
+\end{tabular}\end{table}
+
+\kekim_gpt{\textbf{R20 --- Explain the existing capability regression and benchmark score definitions.} Table~\ref{tab:general-benchmark-completion} reports a Llama IFEval decline from $.762$ to $.701$, or 6.1 percentage points, despite instruction following appearing in the training panel. This is a concrete transfer failure worth analyzing, not something that an average judged win rate resolves. Inspect failures by constraint type, answer length, and refusal behavior, and test a matched instruction-following/length control. Also distinguish official benchmark protocols from custom pairwise judging on benchmark prompts: converting MT-Bench or other benchmarks into reference-policy wins changes the metric and should be labeled explicitly. For small differences in judged scores, use paired prompt-level uncertainty and report evaluator disagreement rather than relying on three-decimal point estimates.}
+\reviewresponse{\textbf{R20 --- Partially addressed.} The main text reports measured IFEval and safety losses, distinguishes local benchmark proxies from official scores, and avoids attributing the changes to length or aggregation without controls. Constraint-type analysis, matched length/policy-movement controls, and reconciliation of the historical IFEval protocol remain pending.}
+
+\paragraph{Solver, realization, and cost.}
+Recomputation from stored UF tensors gives a dual residual of $3.74\times10^{-14}$ and maximum inner stationarity spread $1.88\times10^{-10}$. Across three policy seeds, held-out neural nMSE is $0.5861\pm0.0033$, compared with $1$ for the unchanged policy. This measures fitting to the frozen target, not generated-policy quality. The reported seed-42 projection takes $11.2$ GPU-hours; it excludes other pipeline stages. Appendix~\ref{app:solver-neural} gives diagnostics, and Appendix~\ref{app:feedback-cost} separates feedback, generation, teacher, solver, training, evaluation, and tuning costs.
+
+\kekim_gpt{\textbf{R17 --- Match information and computation, not only neural step counts.} The closest-method comparison needs separate accounting for unique semantic comparisons, order-swapped judge calls, generated response tokens, neural training compute, and hyperparameter trials. Equalizing 300 neural updates does not equalize the cost of candidate generation, opponent estimation, or repeated policy fitting. Report a fixed-label-budget comparison and a performance-versus-total-compute curve for NBPO, fixed-reference Nash, and the strongest preference-based competitors. For reward-model methods, use the same underlying preference information where feasible, charge reward fitting to their budget, and disclose extra pretrained supervision. If cached comparisons are reused across many numerical iterations, explain that reuse rather than counting every iteration as new evidence. These controls determine whether the optimizer is practically competitive.}
+\reviewresponse{\textbf{R17 --- Partially addressed.} The main text reports the measured projection cost, and Appendix~\ref{app:feedback-cost} adds a method-wise accounting template for feedback, teacher work, policy training, generation/evaluation, and tuning. The $11.2$ GPU-hours cover only UF seed-42 projection. Matched total-budget results and performance-versus-compute curves remain unmeasured.}
+
+\paragraph{Supporting helpfulness--safety comparison.}
+\label{sec:saferlhf-exp}
+SafeRLHF supplies human helpfulness and harmlessness comparisons on the same response pairs. Its completed $250$-update comparison uses $2000/500/1000$ policy train/dev/held-out prompts and three policy seeds. Nash and L1-matched utilitarian have positive teacher-defined aggregate surplus, without a resolved Nash advantage (Table~\ref{tab:saferlhf-main}). These values are not independent policy outcomes. SafeRLHF IFEval means are $0.748$ and $0.745$, against a historical base value of $0.752$ under a protocol still requiring reconciliation. Teacher truncation affects $26{,}790/84{,}000$ candidate occurrences. The requested independent helpfulness--safety frontier remains pending; UF's four-objective plot does not replace it.
+
+\kekim_gpt{\textbf{R23 --- The current sign test is weaker than invariance of the implemented policy.} Specify whether the experiment rescales completed values or primitive payoffs; R08 gives the required temperature transformation for the latter. Exact dual weights transform as $\lambda'_k=\lambda_k/c_k$. Matching finite projected-gradient trajectories additionally requires transformed initial weights, coordinate bounds, floors, and coordinate step sizes $\gamma'_k=\gamma_k/c_k^2$. Compare full target magnitudes, opponent distributions, finite-pool policy KL, and neural outcomes, not only signs. Explain the identical utilitarian, Uniform-INPO, and MOPO rows: if they use a common frozen-score surrogate rather than each method's actual update, label that restriction. Do not infer algorithm-level scale sensitivity from an undocumented surrogate. Near-zero scores should be separated from substantive direction changes, and numerical covariance should not be described as robustness to arbitrary judge miscalibration.}
+\reviewresponse{\textbf{R23 --- Partially addressed.} The appendix now states the required payoff--temperature transformation and the corresponding scaling of multipliers, initialization, bounds, thresholds, and coordinate step sizes; it also states that target signs alone are insufficient. The earlier sign-only comparison is no longer used as evidence, but full-target, opponent, finite-pool-policy, and neural covariance measurements remain pending.}
+
+
+\subsection{Target quality and neural realization}
+\label{sec:target-transfer}
+The small separation between aggregation targets does not identify whether the remaining bottleneck is target quality or neural realization. We therefore specify a development-only diagnostic on $200$ fixed prompts (Table~\ref{tab:target-transfer}). An independent judge scores the same eight learner candidates against four reference candidates. Without refitting any target, we evaluate the empirical source distribution, each exact target, and the importance-reweighted distribution of a fitted LLM. Fresh generations are evaluated separately against the same reference bank. This isolates whether target improvements survive projection and generation; it does not estimate population exploitability. Protocol and missing-data rules are in Appendix~\ref{app:target-transfer}.
+
+The measured panel separates the three stages. Coverage first: of the $200$ planned prompts, a
+prompt-objective cell enters the complete case only when all $76$ of its rubric-order verdicts
+parse, and $60{,}252$ of $60{,}800$ verdicts do ($99.10\%$), which leaves $143$, $131$, $144$ and
+$167$ complete prompts by objective and $78$ common to all four. Table~\ref{tab:target-transfer}
+reports every categorical row on that one common set so the rows stay paired. Because
+complete-case selection is not outcome-free, the bounds required by
+Appendix~\ref{app:target-transfer} are also computed on all $200$ planned prompts, with each
+unresolved preference put at $0$ and at $1$.
+
+The exact targets do carry independent signal. Against the empirical source distribution on the
+same eight candidates, the \NBPO{} target gains $+0.0271$ $[+0.0023,+0.0518]$ on instruction
+following and $+0.0505$ $[+0.0273,+0.0743]$ on helpfulness, both excluding zero in the
+whole-prompt paired bootstrap, while truthfulness $(+0.0030)$ and honesty $(-0.0044)$ contain it;
+the minimum finite-bank surplus moves from $-0.0054$ to $+0.0054$. The missing-data bounds make
+this robust rather than conditional: over all $200$ prompts the target's win-rate interval lies
+entirely above the source's on every objective, for instance $[0.5722,0.5810]$ against
+$[0.4898,0.5001]$ on helpfulness. The complete case and the bounds disagree on the sign of the
+honesty gap, which is a coverage effect between $78$ and $200$ prompts rather than a contradiction.
+
+What the targets do not do is distinguish the aggregation rules. On the same panel the \NBPO{}
+target beats the utilitarian target by $+0.0010$, $+0.0012$, $+0.0018$ and $+0.0004$ across the
+four objectives and the fixed-reference target by $-0.0007$ to $+0.0003$; the largest of these is
+$0.0018$, against a target-versus-source gap of up to $0.0505$. The null result this paper reports
+at the policy level is therefore already present in the targets themselves, before any neural
+training and under an evaluator that never saw them.
+
+Projection does not lose that advantage on the sampled support, and it does not reproduce the
+target either. The fitted pools score above their own exact targets on instruction following,
+truthfulness and honesty and carry a larger minimum surplus ($+0.0222$ for \NBPO{}, $+0.0163$ for
+utilitarian, against $+0.0054$ and $+0.0036$), yet they sit further from the target in
+distribution than the source they started from: $\KL(p^\star\Vert\widetilde p_\theta)$ averages
+$1.457$ for both arms where $\KL(p^\star\Vert p_t)$ is $1.047$ and $1.075$, with total variation
+$0.58$ and a log-ratio RMS above $3.2$. The policy moved the pool substantially, in a direction
+the independent judge rewards and the regression target does not.
+
+Fresh generations then behave differently by arm. \NBPO{}'s new draws track its fitted pool
+($.5455$, $.5460$, $.5221$, $.5781$), the utilitarian arm's fall below its own pool on
+instruction following and honesty ($.5158$ against $.5500$, $.4926$ against $.5123$), and the
+uniform scalarized DPO arm leads every objective ($.5806$, $.5548$, $.5171$, $.6357$), which is
+the ordering Table~\ref{tab:uf-objectives} reports on the final split. No stage is guaranteed to
+improve on the previous one, and these are single-seed development rows.
+
+One further row was run as a separate optional arm, and it changes how the fresh minimum
+should be read. A new draw from the untrained base, generated and judged under exactly the
+fresh contract, scores $.4789$, $.4700$, $.4700$ and $.4706$ against the same four-response
+bank, and every one of those intervals contains $.5$ -- for instance $[.4451,.5138]$ on
+instruction following -- which is the symmetry a base draw against base draws should show.
+Its minimum is $.4613$ $[.4296,.4917]$ and does exclude $.5$, because the minimum of four
+noisy objective estimates is biased downwards by construction. The fresh minima in
+Table~\ref{tab:target-transfer} and Table~\ref{tab:projection-ablation} therefore have
+their no-change level at about $.461$, not at $.500$: on that scale \NBPO{}'s fresh
+responses sit $+.061$ above it, the uniform DPO baseline $+.056$, the utilitarian arm
+$+.031$, and the two projection pilots $+.044$ and $+.051$. Absolute fresh levels carry this
+offset; differences between fresh rows, which share one generation and judging contract, do
+not.
+
+Two judge-contract checks accompany the panel. Thirty-two pairs in the bank carry byte-identical
+responses on both sides, and their order-averaged value is exactly $0.5$. Presentation order
+changes the verdict on $13{,}312$ of $29{,}893$ pairs, which is why both orders are averaged
+rather than sampled. The surplus columns remain a finite-matrix quantity at $m_{\rm eval}=4$ with
+$\beta^E=0.25$ fixed before the panel ran, not a population game value; the $[0,1]$ bounds for the
+surplus span $[-0.16,+0.18]$ and are uninformative, unlike the direct-win bounds.
+
+
+\begin{table}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{4pt}
+\caption{Independent target-to-policy evaluation, measured. All rows share prompt IDs, judge and reference bank. IF/Truth/Honesty/Help are direct win rates. $\min_k s_k^{E}$ is a finite-response-bank surplus, defined only for categorical rows. $N$ is the common valid prompt count. Dashes are unmeasured; n/a excludes a quantity not estimated by this protocol.}
+\label{tab:target-transfer}
+\begin{tabular}{lrrrrrr}
+\toprule
+Representation & $N$ & IF & Truth & Honesty & Help & $\min_k s_k^{E}$\\
+\midrule
+% BEGIN AUTO TARGET TRANSFER BODY
+Reference on evaluation bank & $78$ & $.500$ & $.500$ & $.500$ & $.500$ & $.000$\\
+Empirical source on learner pool & $78$ & $.5056$ & $.5099$ & $.5105$ & $.4937$ & $-.0054$\\
+\addlinespace
+NBPO exact target & $78$ & $.5327$ & $.5129$ & $.5061$ & $.5442$ & $.0054$\\
+Fixed-reference exact target & $78$ & $.5323$ & $.5130$ & $.5068$ & $.5448$ & $.0058$\\
+Utilitarian exact target & $78$ & $.5316$ & $.5117$ & $.5043$ & $.5437$ & $.0036$\\
+\addlinespace
+NBPO fitted pool, seed 42 & $78$ & $.5494$ & $.5369$ & $.5198$ & $.5402$ & $.0222$\\
+Utilitarian fitted pool, seed 42 & $78$ & $.5500$ & $.5336$ & $.5123$ & $.5399$ & $.0163$\\
+\addlinespace
+NBPO fresh responses, seed 42 & $186$ & $.5455$ & $.5460$ & $.5221$ & $.5781$ & n/a\\
+Utilitarian fresh responses, seed 42 & $188$ & $.5158$ & $.5279$ & $.4926$ & $.5575$ & n/a\\
+DPO fresh responses, seed 42 & $187$ & $.5806$ & $.5548$ & $.5171$ & $.6357$ & n/a\\
+% END AUTO TARGET TRANSFER BODY
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\IfFileExists{figures/target_transfer.pdf}{%
+  \includegraphics[width=.96\linewidth]{figures/target_transfer.pdf}%
+}{%
+\fbox{\begin{minipage}[c][1.00in][c]{.44\linewidth}\centering\small
+\textbf{(a) Independent objective wins}\par\medskip
+Exact target / fitted pool / fresh responses\par
+Four objectives; paired prompt intervals\par\medskip
+\textit{Results pending}
+\end{minipage}}\hfill
+\fbox{\begin{minipage}[c][1.00in][c]{.44\linewidth}\centering\small
+\textbf{(b) NBPO minus utilitarian}\par\medskip
+Same stages, prompts and evaluator\par
+Four objective differences; zero reference\par\medskip
+\textit{Results pending}
+\end{minipage}}%
+}
+\caption{Target-to-policy diagnostic, measured. Panel (a) tracks each objective across the three representations of the \NBPO{} seed-42 run; panel (b) shows paired NBPO-minus-utilitarian differences at the same three stages. Bars and points carry whole-prompt paired intervals and condition on that policy seed. The stages do not share a denominator: the two categorical stages use the $78$ prompts where every rubric-order verdict parsed, and the fresh stage uses the $174$ prompts complete on all four objectives for that arm. The dotted line is the untrained base draw's weakest objective, which is where a policy that changed nothing would sit on the fresh scale.}
+\label{fig:target-transfer}
+\end{figure}
+
+To test projection without changing the target, we compare sampled-pair regression with an equivalent all-candidate evaluation of Eq.~\eqref{eq:regression-loss}. The two pilot runs share the base checkpoint, $200$ training prompts, frozen targets and a declared token budget; evaluation uses the $200$ development prompts above. Table~\ref{tab:projection-ablation} reports the fit and generated-policy results separately. A single-seed pilot diagnoses the implementation and does not establish a method-level improvement.
+
+Both pilot arms consume the identical row multiset -- $5{,}600$ pair rows, every unordered pair of
+every one of the $200$ training prompts exactly once -- in $200$ updates of $28$ rows each, at the
+campaign's learning rate, schedule, precision and seed, for $6{,}597{,}080$ non-padding response
+tokens apiece. The budget is therefore matched by construction rather than by adjustment. What
+differs is coverage inside an update: the sampled-pair arm draws its $28$ rows across prompts
+through the campaign's sampler, while the all-candidate arm reads them in written order so each
+update carries one prompt's complete pair graph, which evaluates
+Eq.~\eqref{eq:all-candidate-regression} exactly. We verified that identity separately, in value
+and in gradient, to $2.8\times10^{-14}$ on the real solver numbers, so this is a coverage control
+and not a second implementation of the loss.
+
+The two arms fail in different directions. Complete coverage fits the direction of the target
+better on the development panel -- nMSE $0.83$ against $0.95$, Pearson $0.42$ against $0.23$,
+sign agreement $0.60$ against $0.56$ -- while overshooting its scale badly on the training panel,
+where its prediction RMS reaches $13.5$ against a target RMS of $5.5$ and its nMSE of $3.52$ is
+worse than predicting zero. The sampled-pair arm does the opposite: it fits the training panel
+($0.17$) and transfers almost nothing ($0.95$), with a prediction RMS of $1.6$ that is less than a
+third of the target scale. Seven appearances of each candidate in one update evidently make the
+per-prompt step far larger than the same twenty-eight rows spread over twenty-eight prompts, which
+is a learning-rate interaction rather than a property of either objective. Neither arm brings the
+pool closer to the target than doing nothing: development $\KL(p^\star\Vert\widetilde p_\theta)$ is
+$1.31$ and $1.41$ against the source's $1.05$. The fresh outputs settle the question the fit cannot. On the $157$ prompts where both arms
+parsed completely, the all-candidate arm's new responses beat the sampled-pair arm's by
+$+0.0167$ on instruction following, $-0.0032$ on truthfulness, $-0.0008$ on honesty and
+$+0.0056$ on helpfulness, and by $+0.0044$ on the minimum; every one of those paired
+intervals contains zero, the widest being $[-0.0366,+0.0426]$ for the minimum. The
+development-fit advantage therefore does not reach generated text at a level this panel can
+detect, so it is reported as a fit difference and not as a better recipe. Both pilots also
+sit below the full $1{,}250$-update \NBPO{} run's fresh minimum of $0.5221$, which is what
+$200$ updates on $200$ prompts should give. This is one seed on $200$ development prompts and
+diagnoses the implementation; it is not a recipe change, and the $10$k-prompt runs in
+Table~\ref{tab:uf-objectives} are untouched.
+
+
+\begin{table}[t]
+\centering\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\caption{Projection pilot, seed 42, measured. Train/dev nMSE and development pool KL measure target realization; fresh $W_{\min}=\min_k W_k$ uses independent judgments. Report actual optimizer steps, non-padding response tokens and GPU-hours for each run. No winning pilot replaces the existing final-test results.}
+\label{tab:projection-ablation}
+\begin{tabular}{lrrrrrrr}
+\toprule
+Projection & Steps & Train nMSE & Dev nMSE & Pool KL & Fresh $W_{\min}$ & Tokens & GPU-h\\
+\midrule
+% BEGIN AUTO PROJECTION ABLATION BODY
+Sampled pairs & $200$ & $.1665$ & $.9519$ & $1.3112$ & $.5055$ & $6{,}597{,}080$ & $1.07$\\
+All candidates & $200$ & $3.5157$ & $.8282$ & $1.4054$ & $.5121$ & $6{,}597{,}080$ & $0.93$\\
+% END AUTO PROJECTION ABLATION BODY
+\bottomrule
+\end{tabular}
+\end{table}
+
 
 \section{Related Work}
 \label{sec:related}
@@ -861,14 +1017,14 @@ NLHF and its scalable variants optimize directly against general pairwise prefer
 \paragraph{Multi-objective alignment.}
 
 \kekim_gpt{\textbf{R24 --- Separate the aggregation rule from the order of aggregation over prompts.} PROSPER's adversarial objective weights are prompt-dependent, whereas NBPO's inverse-surplus weights operate on objective values averaged over prompts \citep{zhang2026prosper}. Thus the comparison changes both the compromise criterion and the ability to compensate for poor performance on one prompt with improvement on another. Write the two objectives side by side and include a two-prompt example showing the distinction. Retain a faithful prompt-wise PROSPER baseline and the matched global-maxmin control over NBPO's game values. Without this separation, an empirical difference cannot be attributed specifically to Nash bargaining. Make clear that the individual-rationality guarantee is about population-average objective game values, not every prompt or every stakeholder.}
-\reviewresponse{\textbf{R24 --- Partially addressed.} Global Nash, matched global maxmin and prompt-wise PROSPER aggregation are distinguished, with the two-prompt example retained. PROSPER is labeled an adaptation, not a full reproduction. Its selected-policy negative prompt surpluses are not infeasibility certificates. Any checklist-based extension must preserve fixed semantic objective identities before applying NBPO's shared multipliers.}
+\reviewresponse{\textbf{R24 --- Partially addressed.} The global-maxmin and prompt-wise PROSPER rows are distinguished, with the two-prompt example retained. Current policy results and seed counts are in Table~\ref{tab:uf-objectives}; the adaptation contract does not imply reproduction of every published training step. Per-prompt negative surplus is reported as a selected-policy violation, not an infeasibility certificate.}
 
 MODPO, Rewarded Soups, and Panacea expose trade-offs through scalarization, policy interpolation, or preference conditioning \citep{zhou2024beyond,rame2023rewarded,zhong2024panacea}. MaxMin-RLHF and RMOD optimize weakest-objective criteria \citep{chakraborty2024maxmin,son2026rmod}. MOPO uses pairwise preferences without point-wise rewards, selecting a primary objective and lower-bound constraints with a lagged reference in its practical algorithm \citep{agnihotri2026mopo}. RACO resolves conflicts between DPO-style objective gradients \citep{chen2026raco}. These approaches differ from bargaining over reference-relative robust policy values.
 
 \paragraph{Social choice and bargaining.}
 
 \kekim_gpt{\textbf{R25 --- Correct the substantive classification of MOPO and discuss RACO.} The preceding paragraph incorrectly includes MOPO among methods requiring scalar objective rewards or transitive preference models. MOPO explicitly uses pairwise preferences without a point-wise reward assumption; its June 2026 revision also refreshes a lagged reference and constraint schedule \citep{agnihotri2026mopo}. Distinguish its primary-objective/constraint selection and reference-based comparisons from NBPO's symmetric surplus bargaining and policy-dependent adversarial opponent. Also position RACO, a recent reward-free method for conflicting objectives using preference-loss updates \citep{chen2026raco}; reward-free training alone is not new. A matched RACO comparison is useful, but distinguish its DPO-style representation from unrestricted cyclic preference modeling. This correction is necessary for a credible novelty argument, not merely broader citation coverage.}
-\reviewresponse{\textbf{R25 --- Addressed in positioning; empirical comparison remains limited.} MOPO is correctly described as pairwise and reward-free, with a primary objective and constraints; RACO's preference-loss gradients are included. The measured MOPO row drops the original robustification and is explicitly a plug-in adaptation, not a faithful reproduction. A matched RACO experiment is not reported.}
+\reviewresponse{\textbf{R25 --- Addressed.} Related Work now describes MOPO as using pairwise preferences without point-wise rewards, with a primary objective, lower-bound constraints, and a lagged reference. It also positions RACO through DPO-style objective gradients, so reward-free training alone is not presented as NBPO's novelty; a matched RACO experiment is not reported.}
 
 The Nash solution and its Pareto, uniqueness, and affine-invariance properties are classical \citep{nash1950}. Social-choice work argues that alignment should state its aggregation rule explicitly \citep{conitzer2024social}. Multi-party RLHF studies utilitarian, Nash, and leximin welfare over party-specific learned rewards and separately considers reward-free von Neumann solutions \citep{zhong2024nashwelfare}; Nash bargaining also selects immediate task-gradient improvements in multi-task learning \citep{navon2022nashmtl}. Our contribution is not a new bargaining axiom, but a formulation and practical optimizer for applying the classical Nash rule to policy-dependent objective-wise preference-game values.
 
@@ -876,9 +1032,9 @@ The Nash solution and its Pareto, uniqueness, and affine-invariance properties a
 \label{sec:conclusion}
 
 \kekim_gpt{\textbf{R26 --- Compare against the current Nash-welfare literature at the level of the optimized object.} The \href{https://arxiv.org/abs/2403.05006v2}{September 7, 2026 revision of Zhong et al.}, now titled \emph{Provable Pluralistic Alignment: Multi-Party RLHF under Offline Human Feedback}, includes disagreement-adjusted bargaining and separately treats general preferences through a von Neumann formulation. Update the bibliography/positioning rather than relying on the older title. Explain that its welfare analysis concerns learned party rewards, Nash-MTL bargains over immediate gradient improvements, and NBPO bargains over robust policy-value surpluses. Nash welfare, inverse-improvement weighting, and reference subtraction are therefore not individually sufficient novelty. Besides fixed-reference Nash, fit scalar rewards to the same comparisons and apply Nash aggregation as a controlled baseline; this isolates the incremental value of the game representation without confounding it with the welfare choice.}
-\reviewresponse{\textbf{R26 --- Partially addressed.} Related Work distinguishes welfare over learned party rewards, von Neumann solutions, gradient bargaining and robust policy-value surpluses. BT-RM--Nash is included in controlled and UF comparisons. The natural results and direct-feedback audit do not establish a representation advantage; Nash welfare, reference subtraction and inverse-surplus weighting are not presented as individually novel.}
+\reviewresponse{\textbf{R26 --- Partially addressed.} Related Work distinguishes Nash welfare over learned rewards, von Neumann solutions, gradient bargaining and robust policy-value surpluses. Controlled and UF BT-RM--Nash comparisons are present. These observations do not establish a representation advantage on natural feedback.}
 
-\NBPO{} combines reference-surplus bargaining with adaptive preference-game evaluation and a direct finite-pool proximal solver. Controlled experiments support the adaptive representation; the current one-stage natural-language results do not establish a Nash advantage. The development diagnostic finds weak target separation and imperfect neural realization; their contributions to fresh-response differences remain unresolved. Joint improvement may be infeasible, and exact population guarantees do not certify a fitted neural policy, direct reference wins or per-prompt safety.
+\NBPO{} combines reference-surplus bargaining with adaptive preference-game evaluation and a direct finite-pool proximal solver. Controlled experiments support the adaptive representation; the current one-stage natural-language results do not establish a Nash advantage. The proposed development diagnostic separates target quality, projection and fresh generation before further scaling. Joint improvement may be infeasible, and exact population guarantees do not certify a fitted neural policy, direct reference wins or per-prompt safety.
 
 \subsection*{AI use statement}
 In this work, generative AI tools were used to critique the problem formulation, assist with mathematical derivations and proof presentation, propose experimental checks, and edit manuscript text. The authors are responsible for independently verifying every theorem, citation, implementation, empirical result, and disclosure in the final submission.
@@ -1133,7 +1289,7 @@ This check is declared and unmeasured. It prespecifies a duplication or merge of
 \label{app:rule-witnesses}
 
 \kekim_gpt{\textbf{R27 --- Compare with a strong bargaining alternative, not only unnormalized maxmin.} Table~\ref{tab:rule-guarantees} characterizes the particular rules as defined; it does not establish that Nash is the only reasonable scale-invariant compromise. The Pareto counterexample for maxmin exploits a dominated member of an optimum set, so a Pareto-refining tie-break can remove that failure. Consider a normalized relative-improvement maxmin or Kalai--Smorodinsky control, using each objective's attainable improvement above the fallback; \citet{han2026fair} is a directly relevant 2026 treatment, and \citet{kalai1975} supplies the classical alternative. Explain the additional ideal-point estimation cost and use validation data fairly. Comparing Nash with this stronger alternative would test the substantive bargaining choice; demonstrating that unnormalized maxmin depends on units mainly confirms a known algebraic property.}
-\reviewresponse{\textbf{R27 --- Partially addressed.} The rule comparison acknowledges Pareto-refining maxmin and ideal-point-normalized bargaining. Game-KS is measured in Table~\ref{tab:controlled-full} and performs comparably to NBPO, so Nash is not claimed uniquely admissible or superior. A matched natural-language KS or normalized-maxmin control remains pending; ideal-point estimation must count toward its budget.}
+\reviewresponse{\textbf{R27 --- Partially addressed.} The rule comparison acknowledges Pareto-refining maxmin tie-breaking and relative-improvement bargaining, including the cost of ideal-value estimation. Table~\ref{tab:controlled-full} now reports a Game-KS control, so Nash is not presented as uniquely admissible or empirically superior. A matched natural-language KS or normalized-maxmin comparison remains pending.}
 
 
 The positive guarantees in Table~\ref{tab:rule-guarantees} follow
@@ -1453,7 +1609,7 @@ Thus the finite target is unique, and direct optimization includes opponent feed
 
 
 \kekim_gpt{\textbf{R34 --- Quantify the approximation introduced before binary regression even starts.} An unbiased estimate of $m$ does not give an unbiased opponent after exponentiation and normalization, nor an unbiased log-sum-exp game-value estimate. The practical target therefore refers to a random finite-pool opponent, not automatically to the population $Q_k^\pi$ in the proof. With $L=4$ and four reference candidates, this discrepancy may be important, especially at small $\beta$ and near zero surplus. On a finite game with known preference probabilities, vary $L$, comparator count, and temperature; measure opponent-distribution error, target bias/variance, surplus bias, and final policy error against exact quantities. State whether labels used to select/reweight opponents are reused in the target; use fresh labels or cross-fitting to diagnose selection effects. Separate this estimation error from neural regression error and numerical dual accuracy.}
-\reviewresponse{\textbf{R34 --- Partially addressed.} The target is explicitly a finite-pool teacher; nonlinear opponent normalization and game-value estimation need not be unbiased. Numerical, sampling and neural errors remain distinct. The planned controlled audit varies sampling and comparator counts and compares exact quantities, but no completed bias/variance or label-reuse/cross-fitting result is reported.}
+\reviewresponse{\textbf{R34 --- Partially addressed.} The implementation now defines a finite-pool teacher explicitly and acknowledges that exponentiation, normalization, and log-sum-exp do not preserve unbiasedness of noisy margins. It separates numerical solver accuracy from sampling and neural errors, but the requested sampling-count, comparator-count, temperature, and label-reuse or cross-fitting error audit remains pending.}
 
 \paragraph{Finite-pool feasibility and failure reporting.}
 \label{app:feasibility}
@@ -1567,164 +1723,6 @@ Applying this inequality to $s=s(\pi_T)$ and using
 \eqref{eq:last-iterate-rate} proves \eqref{eq:last-iterate-surplus}.
 \end{proof}
 
-\section{Additional Policy and Realization Results}
-\label{app:additional-policy-results}
-The following measured results and diagnostics complement the main comparison; they retain their original evaluation contracts and reported numerical entries.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.92\textwidth]{figures/uf_tradeoffs.pdf}
-\caption{UF-4 method means from Table~\ref{tab:uf-objectives} on $\tabonecommon$ common prompts; bars show one sample SD over policy seeds, not prompt intervals. PROSPER has two seeds and other trained rows have three. Projections do not establish full-dimensional Pareto dominance; the DPO weight sweep is incomplete.}
-\label{fig:uf-tradeoffs}
-\end{figure}
-
-\subsection{Capability, realization, and supporting results}
-\label{sec:general-capability}
-
-\paragraph{Capability retention.}
-Table~\ref{tab:general-capability} reports UF checkpoint outcomes. NBPO's IFEval strict-prompt accuracy falls from the base's $0.7542$ to $0.7264$; one-seed DPO reaches $0.6359$ despite higher judged IF. MOPO reaches $0.7579$. This discrepancy requires constraint-type and length analysis. GSM8K and the appendix's ARC-C, HellaSwag and MMLU change relatively little, without establishing equivalence.
-
-HarmBench harmful completion rises from $0.2812$ to $0.3906$--$0.4333$ across matched mechanisms and $0.6281$ for one-seed DPO. XSTest refusal falls on both safe and unsafe prompts. These observations are consistent with increased compliance; harmlessness is not among the four UF objectives. Non-refusal alone is not harmful compliance, and direct-request HarmBench is not an attack-search evaluation.
-
-DPO leads the reported local AlpacaEval-2, Arena-Hard-v2 and MT-Bench proxies while its safety and IFEval outcomes deteriorate; these proxies are not official leaderboard scores. MOPO retains outcomes closest to the base on the safety measures, but this alone does not establish smaller policy movement or identify an effect of its constraints. Longer DPO responses are descriptive, not a demonstrated explanation. Appendix~\ref{app:capability-complete} supplies protocols, coverage and historical SafeRLHF results.
-
-\begin{table}[tbp]
-\centering\small
-\setlength{\tabcolsep}{4pt}
-\caption{UF-4 capability and safety; sample SD is below multi-seed rows. IFEval: strict-prompt accuracy; GSM8K: exact match; HB: harmful completion; XS: safe-prompt full refusal. AE2/AH2/MT are local proxies, not official leaderboard scores. DPO has one capability seed. Coverage and protocols: Appendix~\ref{app:capability-complete}.}
-\label{tab:general-capability}
-\begin{tabular}{lrrrrrrrr}
-\toprule
-Method & Seeds & IFEval & GSM8K & HB$\downarrow$ & XS$\downarrow$ & AE2$^{\dagger}$ & AH2$^{\dagger}$ & MT$^{\dagger}$\\
-\midrule
-% BEGIN AUTO TAB3 BODY
-Base & $1$ & $0.7542$ & $0.8666$ & $0.2812$ & $0.0683$ & -- & -- & $7.53$\\
-NBPO & $3$ & $0.7264$ & $0.8633$ & $0.3906$ & $0.0414$ & $0.5617$ & $0.5143$ & $7.59$\\
-\quad\textit{sample SD over seeds} & & $0.0098$ & $0.0031$ & $0.0094$ & $0.0023$ & $0.0083$ & $0.0206$ & $0.09$\\
-Fixed-reference Nash & $3$ & $0.7289$ & $0.8615$ & $0.3990$ & $0.0360$ & $0.5578$ & $0.5243$ & $7.60$\\
-\quad\textit{sample SD over seeds} & & $0.0059$ & $0.0038$ & $0.0072$ & $0.0001$ & $0.0138$ & $0.0126$ & $0.05$\\
-BT-RM--Nash & $3$ & $0.7375$ & $0.8656$ & $0.4333$ & $0.0387$ & $0.5458$ & $0.5320$ & $7.69$\\
-\quad\textit{sample SD over seeds} & & $0.0115$ & $0.0042$ & $0.0160$ & $0.0046$ & $0.0236$ & $0.0108$ & $0.07$\\
-Game-utilitarian & $3$ & $0.7252$ & $0.8625$ & $0.4021$ & $0.0389$ & $0.5685$ & $0.5363$ & $7.66$\\
-\quad\textit{sample SD over seeds} & & $0.0059$ & $0.0034$ & $0.0130$ & $0.0023$ & $0.0123$ & $0.0196$ & $0.16$\\
-Global game-maxmin & $3$ & $0.7437$ & $0.8678$ & $0.3917$ & $0.0388$ & $0.5636$ & $0.5323$ & $7.60$\\
-\quad\textit{sample SD over seeds} & & $0.0043$ & $0.0024$ & $0.0065$ & $0.0046$ & $0.0169$ & $0.0203$ & $0.11$\\
-Scalarized DPO (uniform) & $1$ & $0.6359$ & $0.8582$ & $0.6281$ & $0.0000$ & $0.7615$ & $0.7910$ & $8.04$\\
-PROSPER (adapt.) & $2$ & $0.7394$ & $0.8654$ & $0.3953$ & $0.0402$ & $0.5441$ & $0.5215$ & $7.51$\\
-\quad\textit{sample SD over seeds} & & $0.0052$ & $0.0102$ & $0.0022$ & $0.0053$ & $0.0035$ & $0.0120$ & $0.13$\\
-MOPO (adapt.) & $3$ & $0.7579$ & $0.8701$ & $0.3156$ & $0.0600$ & $0.5170$ & $0.5450$ & $7.64$\\
-\quad\textit{sample SD over seeds} & & $0.0151$ & $0.0016$ & $0.0108$ & $0.0069$ & $0.0031$ & $0.0330$ & $0.03$\\
-% END AUTO TAB3 BODY
-\bottomrule
-\end{tabular}\end{table}
-
-\kekim_gpt{\textbf{R20 --- Explain the existing capability regression and benchmark score definitions.} Table~\ref{tab:general-benchmark-completion} reports a Llama IFEval decline from $.762$ to $.701$, or 6.1 percentage points, despite instruction following appearing in the training panel. This is a concrete transfer failure worth analyzing, not something that an average judged win rate resolves. Inspect failures by constraint type, answer length, and refusal behavior, and test a matched instruction-following/length control. Also distinguish official benchmark protocols from custom pairwise judging on benchmark prompts: converting MT-Bench or other benchmarks into reference-policy wins changes the metric and should be labeled explicitly. For small differences in judged scores, use paired prompt-level uncertainty and report evaluator disagreement rather than relying on three-decimal point estimates.}
-\reviewresponse{\textbf{R20 --- Partially addressed.} The current panel reports NBPO IFEval $0.7264$ versus base $0.7542$ and harmful-completion rate $0.3906$ versus $0.2812$; DPO also shows substantial regressions. Local judge-based benchmark proxies are distinguished from official protocols. Constraint-type, length/refusal and matched-policy-movement analyses remain pending, as does reconciliation of the historical IFEval panel.}
-
-\paragraph{Solver, realization, and cost.}
-Recomputation from stored UF tensors gives a dual residual of $3.74\times10^{-14}$ and maximum inner stationarity spread $1.88\times10^{-10}$. Across three policy seeds, held-out neural nMSE is $0.5861\pm0.0033$, compared with $1$ for the unchanged policy. This measures fitting to the frozen target, not generated-policy quality. The reported seed-42 projection takes $11.2$ GPU-hours; it excludes other pipeline stages. Appendix~\ref{app:solver-neural} gives diagnostics, and Appendix~\ref{app:feedback-cost} separates feedback, generation, teacher, solver, training, evaluation, and tuning costs.
-
-\kekim_gpt{\textbf{R17 --- Match information and computation, not only neural step counts.} The closest-method comparison needs separate accounting for unique semantic comparisons, order-swapped judge calls, generated response tokens, neural training compute, and hyperparameter trials. Equalizing 300 neural updates does not equalize the cost of candidate generation, opponent estimation, or repeated policy fitting. Report a fixed-label-budget comparison and a performance-versus-total-compute curve for NBPO, fixed-reference Nash, and the strongest preference-based competitors. For reward-model methods, use the same underlying preference information where feasible, charge reward fitting to their budget, and disclose extra pretrained supervision. If cached comparisons are reused across many numerical iterations, explain that reuse rather than counting every iteration as new evidence. These controls determine whether the optimizer is practically competitive.}
-\reviewresponse{\textbf{R17 --- Partially addressed.} UF seed-42 projection costs $11.2$ GPU-hours; the two smaller projection pilots use identical pair rows, $200$ updates and $6{,}597{,}080$ non-padding response tokens each. These component matches do not establish equal total cost across methods. Appendix~\ref{app:feedback-cost} retains missing generation, judge, solver and tuning costs; the new experiment contract requires this accounting before total-budget claims.}
-
-\paragraph{Supporting helpfulness--safety comparison.}
-\label{sec:saferlhf-exp}
-SafeRLHF supplies human helpfulness and harmlessness comparisons on the same response pairs. Its completed $250$-update comparison uses $2000/500/1000$ policy train/dev/held-out prompts and three policy seeds. Nash and L1-matched utilitarian have positive teacher-defined aggregate surplus, without a resolved Nash advantage (Table~\ref{tab:saferlhf-main}). These values are not independent policy outcomes. SafeRLHF IFEval means are $0.748$ and $0.745$, against a historical base value of $0.752$ under a protocol still requiring reconciliation. Teacher truncation affects $26{,}790/84{,}000$ candidate occurrences. The requested independent helpfulness--safety frontier remains pending; UF's four-objective plot does not replace it.
-
-\kekim_gpt{\textbf{R23 --- The current sign test is weaker than invariance of the implemented policy.} Specify whether the experiment rescales completed values or primitive payoffs; R08 gives the required temperature transformation for the latter. Exact dual weights transform as $\lambda'_k=\lambda_k/c_k$. Matching finite projected-gradient trajectories additionally requires transformed initial weights, coordinate bounds, floors, and coordinate step sizes $\gamma'_k=\gamma_k/c_k^2$. Compare full target magnitudes, opponent distributions, finite-pool policy KL, and neural outcomes, not only signs. Explain the identical utilitarian, Uniform-INPO, and MOPO rows: if they use a common frozen-score surrogate rather than each method's actual update, label that restriction. Do not infer algorithm-level scale sensitivity from an undocumented surrogate. Near-zero scores should be separated from substantive direction changes, and numerical covariance should not be described as robustness to arbitrary judge miscalibration.}
-\reviewresponse{\textbf{R23 --- Partially addressed.} The appendix states payoff--temperature covariance and the corresponding transformations of multipliers, initialization, bounds, floors and coordinate step sizes. Sign-only comparisons are not used as evidence of policy invariance. Full-target, opponent-distribution, finite-pool-policy and neural covariance measurements remain pending.}
-
-
-\subsection{Target quality and neural realization}
-\label{sec:target-transfer}
-We evaluate target quality and neural realization on $200$ fixed development prompts (Table~\ref{tab:target-transfer}). An independent judge compares eight learner candidates with four reference candidates. Frozen targets, empirical source weights and fitted-policy weights share these candidates; fresh generations are evaluated separately. This distinguishes categorical target quality from deployment outcomes (Appendix~\ref{app:target-transfer}).
-
-Of $60{,}800$ rubric-order verdicts, $60{,}252$ parse ($99.10\%$). Requiring all $76$ verdicts per prompt-objective leaves $143/131/144/167$ complete prompts and $78$ common to all objectives. Categorical comparisons use this shared set; fresh rows have different valid counts. Complete-case selection can affect outcomes, so missing judgments are also bounded in $[0,1]$ over all $200$ planned prompts.
-
-On the $78$ common prompts, the exact NBPO target improves over the empirical source by $+0.0271$ $[+0.0023,+0.0518]$ in IF and $+0.0505$ $[+0.0273,+0.0743]$ in helpfulness. Truthfulness ($+0.0030$) and honesty ($-0.0044$) intervals include zero. Its minimum finite-bank surplus rises from $-0.0054$ to $+0.0054$. For helpfulness, the reported all-prompt missing-data bounds are $[0.5722,0.5810]$ for NBPO and $[0.4898,0.5001]$ for the source. These bound unresolved verdicts on this fixed panel; they are not population confidence intervals. The corresponding surplus bounds, $[-0.16,+0.18]$, are uninformative.
-
-The exact NBPO target differs from fixed-reference and utilitarian targets by at most $0.0018$ in direct wins, so weak mechanism separation is already visible before neural fitting. Fitted pools improve several independent objective scores and attain minimum surplus $+0.0222$ (NBPO) and $+0.0163$ (utilitarian), despite worse target KL: about $1.457$ versus source KL $1.047/1.075$, TV about $0.58$, and log-ratio RMS above $3.2$. Thus better independent quality need not mean faithful target realization.
-
-Fresh DPO responses have higher IF, truthfulness and helpfulness means than NBPO, while NBPO has higher honesty ($.5221$ versus $.5171$). These single-seed rows and the categorical stages use unequal prompt sets; their differences do not identify a causal projection or generation effect. Common-prompt paired comparisons are required.
-
-A separate base draw reports objective means $.4789/.4700/.4700/.4706$, with each interval containing $.5$, and a minimum statistic $.4613$ $[.4296,.4917]$. The latter differs from the minimum of those means ($.4700$), so its aggregation and coverage require reconciliation. It is not a universal no-change level or a common offset to subtract from other policies. The $32$ byte-identical response pairs average exactly $.5$; $13{,}312/29{,}893$ pairs change verdict with presentation order, motivating order averaging. Finite-bank surpluses use the prespecified $m_{\rm eval}=4$ and $\beta^E=.25$ and are not population game values.
-
-\begin{table}[t]
-\centering\scriptsize
-\setlength{\tabcolsep}{4pt}
-\caption{Independent target-to-policy evaluation. Categorical rows share $78$ complete prompts; fresh rows have row-specific $N$. All use the same judge and reference-bank protocol. $\min_k s_k^E$ is a finite-bank surplus, estimated only for categorical rows.}
-\label{tab:target-transfer}
-\begin{tabular}{lrrrrrr}
-\toprule
-Representation & $N$ & IF & Truth & Honesty & Help & $\min_k s_k^{E}$\\
-\midrule
-% BEGIN AUTO TARGET TRANSFER BODY
-Reference on evaluation bank & $78$ & $.500$ & $.500$ & $.500$ & $.500$ & $.000$\\
-Empirical source on learner pool & $78$ & $.5056$ & $.5099$ & $.5105$ & $.4937$ & $-.0054$\\
-\addlinespace
-NBPO exact target & $78$ & $.5327$ & $.5129$ & $.5061$ & $.5442$ & $.0054$\\
-Fixed-reference exact target & $78$ & $.5323$ & $.5130$ & $.5068$ & $.5448$ & $.0058$\\
-Utilitarian exact target & $78$ & $.5316$ & $.5117$ & $.5043$ & $.5437$ & $.0036$\\
-\addlinespace
-NBPO fitted pool, seed 42 & $78$ & $.5494$ & $.5369$ & $.5198$ & $.5402$ & $.0222$\\
-Utilitarian fitted pool, seed 42 & $78$ & $.5500$ & $.5336$ & $.5123$ & $.5399$ & $.0163$\\
-\addlinespace
-NBPO fresh responses, seed 42 & $186$ & $.5455$ & $.5460$ & $.5221$ & $.5781$ & n/a\\
-Utilitarian fresh responses, seed 42 & $188$ & $.5158$ & $.5279$ & $.4926$ & $.5575$ & n/a\\
-DPO fresh responses, seed 42 & $187$ & $.5806$ & $.5548$ & $.5171$ & $.6357$ & n/a\\
-% END AUTO TARGET TRANSFER BODY
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[t]
-\centering
-\IfFileExists{figures/target_transfer.pdf}{%
-  \includegraphics[width=.96\linewidth]{figures/target_transfer.pdf}%
-}{%
-\fbox{\begin{minipage}[c][1.00in][c]{.44\linewidth}\centering\small
-\textbf{(a) Independent objective wins}\par\medskip
-Exact target / fitted pool / fresh responses\par
-Four objectives; paired prompt intervals\par\medskip
-\textit{Results pending}
-\end{minipage}}\hfill
-\fbox{\begin{minipage}[c][1.00in][c]{.44\linewidth}\centering\small
-\textbf{(b) NBPO minus utilitarian}\par\medskip
-Same stages, prompts and evaluator\par
-Four objective differences; zero reference\par\medskip
-\textit{Results pending}
-\end{minipage}}%
-}
-\caption{Descriptive reconstruction from Table~\ref{tab:target-transfer}. Left: exact and fitted-pool means on the same $78$ prompts. Right: fresh-response means on method-specific sets ($186/188/187$ prompts for NBPO/utilitarian/DPO). Raw interval arrays were not supplied, so no error bars or unpaired difference estimates are reconstructed. The $0.5$ line is the direct-win symmetry reference, not an estimated minimum-objective baseline.}
-\label{fig:target-transfer}
-\end{figure}
-
-The projection pilot holds targets fixed and changes within-update pair coverage (Table~\ref{tab:projection-ablation}). Both seed-42 runs process the same $5{,}600$ rows---all $28$ unordered pairs per training prompt---in $200$ updates, with $6{,}597{,}080$ non-padding response tokens each. The sampled arm mixes prompts within an update; the all-candidate arm uses one prompt's complete pair graph. The all-pair identity in Eq.~\eqref{eq:all-candidate-regression} was checked in value and gradient to $2.8\times10^{-14}$. The implemented comparison changes batching; it does not benchmark the identity's one-likelihood-per-candidate implementation.
-
-Complete coverage improves development nMSE ($.8282$ versus $.9519$), correlation ($.42$ versus $.23$), and sign agreement ($.60$ versus $.56$), but overshoots on training data: prediction RMS $13.5$ versus target RMS $5.5$, with nMSE $3.5157$. The sampled arm has train nMSE $.1665$ and prediction RMS $1.6$. Repeated candidate appearances under an averaged loss do not by themselves imply a larger gradient; the effect of batch correlation and learning rate remains untested. Neither arm improves development pool KL over the source's approximately $1.05$.
-
-On $157$ shared fresh-response prompts, all-candidate minus sampled-pair differences are $+.0167/-.0032/-.0008/+.0056$ across the four objectives and $+.0044$ for the minimum. All paired intervals include zero; the minimum interval is $[-.0366,+.0426]$. The pilot therefore establishes a development-fit difference, without a resolved fresh-response gain, and does not replace the $10$k-prompt, $1{,}250$-update results.
-
-\begin{table}[t]
-\centering\scriptsize
-\setlength{\tabcolsep}{3.5pt}
-\caption{Seed-42 projection pilot with identical pair rows and token budgets. nMSE and development pool KL measure fitting; fresh $W_{\min}$ uses independent judgments. Common-prompt paired differences are reported in the text.}
-\label{tab:projection-ablation}
-\begin{tabular}{lrrrrrrr}
-\toprule
-Projection & Steps & Train nMSE & Dev nMSE & Pool KL & Fresh $W_{\min}$ & Tokens & GPU-h\\
-\midrule
-% BEGIN AUTO PROJECTION ABLATION BODY
-Sampled pairs & $200$ & $.1665$ & $.9519$ & $1.3112$ & $.5055$ & $6{,}597{,}080$ & $1.07$\\
-All candidates & $200$ & $3.5157$ & $.8282$ & $1.4054$ & $.5121$ & $6{,}597{,}080$ & $0.93$\\
-% END AUTO PROJECTION ABLATION BODY
-\bottomrule
-\end{tabular}
-\end{table}
-
-
-
-
 \section{Controlled Benchmark: Construction and Full Results}
 \label{app:controlled}
 
@@ -1833,7 +1831,7 @@ Projected skew-symmetric & $0.50$ & 3 & $+0.0448$ $[+0.0165,+0.0730]$ & $+0.0449
 \section{Natural Supervision and Preference Models}
 \label{app:natural-supervision}
 \paragraph{Dataset audit.}
-Table~\ref{tab:data-audit} records the empirical role of each released dataset. \textsc{UltraFeedback} supplies complete per-completion ordinal attributes, so score-induced pairwise labels are transitive by construction. \textsc{SafeRLHF} supplies direct helpfulness and safety comparisons but almost exclusively isolated edges; zero observed triangles means the data cannot test within-objective cycles. Its cross-objective disagreement motivates a bargaining diagnostic; joint feasibility and separation of targets must be checked on generated responses.
+Table~\ref{tab:data-audit} records the empirical role of each released dataset. \textsc{UltraFeedback} supplies complete per-completion ordinal attributes, so score-induced pairwise labels are transitive by construction. \textsc{SafeRLHF} supplies direct helpfulness and safety comparisons but almost exclusively isolated edges; zero observed triangles means the data cannot test within-objective cycles. It nevertheless contains substantial cross-objective disagreement and is therefore appropriate for the bargaining experiment.
 
 \begin{table*}[t]
 \centering\scriptsize
@@ -1854,7 +1852,7 @@ dataset & rows & prompts & responses & obs.\ triangles & human conflict & superv
 \label{app:within-rubric-audit}
 
 \kekim_gpt{\textbf{R32 --- Make the planned cycle-conditioned analysis distinguish misspecification from estimation noise.} Define the cyclicity statistic and subset threshold before examining which method wins. Report strict majority cycles separately from ties, presentation-order disagreement, and unstable edges. Repeat a subset of judgments under a specified randomness source: rerunning an identical deterministic judge prompt does not create independent evidence. Fit a BT projection to the same comparison matrices and compare original-matrix versus projected-matrix bargaining under matched budgets. Combine this with a synthetic sweep of cycle strength/frequency at finite $\beta$ and full-support references, while preserving joint feasibility. These controls test whether nontransitivity itself explains adaptive-opponent performance; merely stratifying noisy four-response matrices can instead select difficult prompts or judgment variance.}
-\reviewresponse{\textbf{R32 --- Partially addressed.} The $60{,}000$-judgment audit reports repeated cycles, order sensitivity, fitted BT-noise comparisons and held-out prediction. No corrected repeated-cycle excess is resolved and no order-robust witness is eligible; this does not prove transitivity. Original-versus-BT-projected bargaining remains pending. Appendix~\ref{app:dataset_stress_test} specifies a separate cycle/conflict audit and controlled factorial test before new policy conclusions.}
+\reviewresponse{\textbf{R32 --- Partially addressed.} The completed $60{,}000$-judgment audit reports repeated cycles, coverage, order sensitivity, fitted BT-noise comparisons, and held-out prediction. No repeated-cycle excess is statistically resolved; no order-robust witness is eligible, so no additional confirmation judgments are collected. Original-versus-BT-projected bargaining remains pending, and the null findings are not interpreted as proof of transitivity.}
 
 Across $100$ reserved prompts and $60{,}000$ judgments, no rubric shows a repeated-cycle excess over the fitted BT noise control. No triangle satisfies the order-robust witness rule, so no confirmation judgments were collected. These results neither establish transitivity nor demonstrate cyclicity in human feedback.
 We test whether directly elicited preferences remain cyclic within each training rubric. PROSPER reports residual cycles when LLM judges evaluate checklist items separately \citep{zhang2026prosper}; we adapt this comparison to our fixed objectives and add independent repeat judgments and a fitted sampling-noise control. This audit concerns new pairwise feedback on natural prompts, not cycles in UltraFeedback's score-induced labels.
@@ -2168,11 +2166,11 @@ The selected target has a negative minimum per-prompt surplus on $642/10{,}000$ 
 \label{app:hyperparameters}
 
 \kekim_gpt{\textbf{R28 --- Diagnose the failure cases already present in the objective-wise table.} In Table~\ref{tab:objectivewise-appendix}, TL;DR conciseness has NBPO surplus $-.001$. On SafeRLHF, NBPO's vector $(.118,.101)$ is strictly dominated in both reported coordinates by PROSPER $(.151,.116)$, utilitarian aggregation $(.157,.138)$, and both maxmin controls. These estimates do not refute the exact population theorem: finite proximal regularization, estimation, and neural error can all prevent its limiting outcome properties from appearing. They do prevent interpreting this trained policy as empirically individually rational or Pareto efficient on these diagnostics. Verify the comparisons under identical prompts, evaluator, comparators, and temperature with paired uncertainty. Then localize the gap to finite-pool optimization or neural realization, and discuss the verified failure cases in the main results rather than only the appendix.}
-\reviewresponse{\textbf{R28 --- Partially addressed.} The main text retains the natural-policy null result and separates teacher values from independently judged quality. The new UF diagnostic shows close exact targets before fitting and does not prove neural error caused the method comparison. Historical TL;DR violations and SafeRLHF dominance claims still require source/protocol reconciliation and paired evaluation; no empirical Pareto or individual-rationality certificate is claimed for those policies.}
+\reviewresponse{\textbf{R28 --- Partially addressed.} The main text retains the unresolved Nash--utilitarian comparison and the limits of teacher-defined gains after moving detailed fit tables to the appendix. The legacy TL;DR violation and SafeRLHF dominance comparisons still require source/protocol reconciliation and paired evaluation; moving tables does not resolve these failures.}
 
 
 \kekim_gpt{\textbf{R29 --- Complete the planned split change before using validation as evidence of generalization.} The table explicitly distinguishes the current pair-level split from a planned prompt-level split. The reason is substantive: six unordered pairs can share the same four responses, so random pair splitting allows training and validation to contain overlapping prompts and candidates. Group by source prompt before generating or allocating pairs, keep swapped orders together, and remove cross-split duplicates. Explain which existing numbers use the old split and which use the corrected protocol; do not combine them as one held-out evaluation. The 657-prompt main panel and 698-prompt diagnostic panel also need explicit identities/overlap so apparent metric differences can be separated from changes in evaluation population.}
-\reviewresponse{\textbf{R29 --- Partially addressed.} The stated protocol splits normalized prompt groups and keeps derived pairs and reversed orders together. UF reports $39{,}743$ near-duplicate-merged groups, nine benchmark-overlap removals and $38{,}240$ eligible groups. Split hashes are reported but raw manifests were not supplied for independent verification. Historical $657$/$698$ panels and the current $78$-prompt categorical versus row-specific fresh panels remain distinct.}
+\reviewresponse{\textbf{R29 --- Partially addressed.} The protocol groups normalized source prompts before splitting and keeps derived pairs and reversed orders together. Realized UF counts report $39{,}743$ groups after near-duplicate merging, nine benchmark-overlap removals, and $38{,}240$ eligible groups. Immutable split manifests, duplicate checks, and overlap of the historical $657$- and $698$-prompt panels still require artifact verification; historical and repaired panels remain separate.}
 
 The completed Nash/utilitarian comparison uses one outer stage and policy seeds $42/43/44$. Earlier WBC and long-schedule diagnostics each use one policy seed. Comparisons within the repaired panel share the stated prompts, teacher, pools, and realization settings. Equal update counts do not imply equal FLOPs. Table~\ref{tab:policy-hparams} records the original recipe; resolved configurations and external-baseline results still require source verification.
 
@@ -2248,7 +2246,7 @@ Utilitarian (L1-matched) & $3$ & $0.6737\pm0.0242$ & $0.7040\pm0.0058$ & $0.1220
 
 
 \kekim_gpt{\textbf{R30 --- Separate changing the training temperature from changing the evaluation ruler.} The temperature study is only interpretable if every trained policy is also evaluated at a common fixed diagnostic temperature and under common independent metrics. Evaluating each policy with its own $V_{k,\beta_k}$ changes both the optimizer and the quantity being compared. Show a small train-temperature by evaluation-temperature comparison, while retaining one prespecified common evaluation column for the main conclusion. Opponent entropy is useful but does not diagnose correctness: with only four candidates, concentration may reflect noisy margin estimates rather than meaningful adversarial pressure. Pair the temperature sweep with comparator-pool/$L$ scaling and exact-versus-estimated opponent error on a finite game, instead of reading lower entropy as evidence that robustness improved.}
-\reviewresponse{\textbf{R30 --- Partially addressed.} The independent diagnostic fixes $\beta^E=0.25$ and four evaluation comparators for every method, separately from training temperatures. Finite-matrix surplus is not a population value. A train-temperature by evaluation-temperature matrix, together with exact-versus-estimated opponent errors across sample and pool sizes, remains unreported.}
+\reviewresponse{\textbf{R30 --- Partially addressed.} The evaluation contract now fixes the evaluator, comparator bank, and diagnostic temperatures within each panel regardless of training temperature. A controlled temperature study is described, but a train-temperature by evaluation-temperature matrix and exact-versus-estimated opponent errors across sampling and pool sizes are not documented as completed.}
 
 
 \begin{table}[t]
@@ -2290,7 +2288,7 @@ It fits a scalar on the evaluation observations and can reverse sign. It is neit
 
 
 \kekim_gpt{\textbf{R31 --- Critical diagnostic: the reported regression fit may not beat predicting zero.} The existing target RMS of $8.56$ implies zero-output MSE $8.56^2=73.2736$, slightly below the reported fitted MSE $73.9$, if both use identical examples, targets, and weighting. This would mean the learned log-ratio change is no better in this metric than making no update. First reconcile the measurement conventions and report initial/final loss against the same zero baseline. Then separate error against the conditional-mean target from irreducible binary-label variance using the frozen preference matrices, and run an oracle-target regression control. Vary target magnitude, neural optimization budget, and pair coverage. A very accurate frozen dual cannot compensate for failure to realize its target in the language model; resolve this before interpreting the main optimizer claim.}
-\reviewresponse{\textbf{R31 --- Partially addressed.} UF development nMSE is $0.5861\pm0.0033$, below the zero-predictor value $1$. Yet fitted-pool KL can worsen while independent objective wins improve. The matched $200$-step pilot improves dev nMSE with prompt-blocked pairs but gives no resolved fresh-response gain on $157$ common prompts. Historical loss conventions and sampling/neural error decomposition remain open; Table~\ref{tab:target-signal} gives descriptive error scales, not causal attribution.}
+\reviewresponse{\textbf{R31 --- Partially addressed.} Inlined diagnostics now show UF-4 development nMSE $0.5861\pm0.0033$ across three policy seeds, below the zero-predictor baseline of $1$, with sign accuracy and correlation reported separately. This establishes improved fitting to the frozen finite-pool target. The historical RMS/MSE conventions and a complete sampling-error versus neural-error decomposition remain unreconciled.}
 
 The $1750$-update comparison was specified first. The $250$-update schedules were chosen after inspecting development trajectories and declared before their runs. Each uses its own warmup and cosine horizon. A checkpoint at step $250$ of the long run is therefore a different condition. Diagnostic thresholds were retained, but their use in development precludes describing the entire $2\times2$ as an untouched preregistered comparison.
 
@@ -2506,7 +2504,7 @@ UltraFeedback policy evaluation uses the frozen $2000$-prompt final split and th
 
 
 \kekim_gpt{\textbf{R33 --- Make label provenance and rubric identity auditable for every reported run.} The note distinguishing Beaver-head precursor runs from prompted comparisons is important. Scalar-head-induced rankings are transitive by construction and therefore cannot substantiate the paper's claim about preserving within-objective cycles. Attach an unambiguous label-source identifier to each checkpoint/result and ensure that the main adaptive versus fixed-reference comparison differs only in the intended component. Also provide the actual per-panel rubric mapping: the prose lists correctness/coherence, whereas some tables use honesty, truthfulness, and instruction following. This is not just terminology because changing or splitting an objective changes both the preference matrices and the bargaining outcome. Measure rubric agreement and show independent evaluator results separately before pooling them.}
-\reviewresponse{\textbf{R33 --- Partially addressed.} UF uses released GPT-4 ratings, SafeRLHF uses human pairwise labels, and new direct-judge audits and independent evaluation are separately identified. Objective co-ranking under the training teacher is not a cycle audit. The evaluator revision is recorded locally but lacks a verified upstream snapshot identifier; checkpoint, rubric and split manifests still require independent artifact verification. No new human cyclic-preference evidence is claimed.}
+\reviewresponse{\textbf{R33 --- Partially addressed.} The manuscript separates score-induced UF labels, human-pairwise SafeRLHF, direct-judgment audits and independent policy evaluation. Current measured rows are preserved. Rectangular tensor diagnostics and derived fit-pair counts are no longer treated as evidence of nontransitivity or elicited-label equivalence; raw manifest verification remains necessary.}
 
 SafeRLHF surplus uses the frozen training preference models on held-out prompts, common comparator pools, and the same definition of $\widehat d$. Greedy responses define point-mass decoders; they are not unbiased samples of the trained stochastic policy. Their positive surplus does not certify Algorithm~\ref{alg:nbpo} acceptance. Any stochastic-policy evaluation must sample both the trained policy and reference under a common declared protocol and account for prompt uncertainty.
 
@@ -2615,7 +2613,7 @@ We record unique semantic comparisons separately from order-swapped calls, gener
 
 The source reports $11.17$--$11.20$ GPU-hours of trainer time per completed mechanism seed, $12.25$ including loading/checkpointing, and $10.1$ additional GPU-hours for two failed NBPO seed-42 attempts. Shared teacher preparation is reported as $1.8$ GPU-hours plus $7.3$ CPU-hours; target solving adds $1.2$ CPU-hours. Generation/evaluation spans $0.90$--$1.56$ GPU-hours per measured arm. Panel-level costs, excluded from per-policy totals, are $12.6$ GPU-hours for capability, $1.2$ for the three general-instruction evaluations, $3.3$ for cross-play and $0.9$ for competitor selection. These source-reported entries require stage-ledger attribution; they are not a claim of equal total compute across algorithms.
 
-The nominal $1.12\times10^6=4\times10{,}000\times\binom82$ entries count derived learner-pair/rubric slots. They must not be equated with new human labels or unique teacher comparisons. The learner--reference block has $4\times10{,}000\times8\times8$ rubric entries, with reference--reference scoring and preference-model training accounted for separately: the cross block is $2{,}560{,}000$ teacher entries on the training split and $256{,}000$ on the development split, the reference block another $2{,}560{,}000$, and the GPT-4-generated UltraFeedback supervision behind the teacher is $318{,}729$ pointwise UltraFeedback ratings over $80{,}000$ completions on the disjoint $20{,}000$-prompt fitting split plus $31{,}889$ on its $2{,}000$-prompt development split, honesty being the only objective with missing ratings ($78{,}729$ of $80{,}000$). A semantic comparison is identified by the prompt, actual response IDs and objective; swapped-order requests are additional calls. Reconcile these counts from manifests before claiming a matched feedback budget. The source reports shared pool hashes across targets. DPO retains $87.9$--$90.7\%$ of candidate pairs under its standardized $0.05$ tie threshold; MOPO consumes candidate rather than pair rows. These are different optimization exposures.
+The nominal $1.12\times10^6=4\times10{,}000\times\binom82$ entries count derived learner-pair/rubric slots. They must not be equated with new human labels or unique teacher comparisons. The learner--reference block has $4\times10{,}000\times8\times8$ rubric entries, with reference--reference scoring and preference-model training accounted for separately: the cross block is $2{,}560{,}000$ teacher entries on the training split and $256{,}000$ on the development split, the reference block another $2{,}560{,}000$, and the human supervision behind the teacher is $318{,}729$ pointwise UltraFeedback ratings over $80{,}000$ completions on the disjoint $20{,}000$-prompt fitting split plus $31{,}889$ on its $2{,}000$-prompt development split, honesty being the only objective with missing ratings ($78{,}729$ of $80{,}000$). A semantic comparison is identified by the prompt, actual response IDs and objective; swapped-order requests are additional calls. Reconcile these counts from manifests before claiming a matched feedback budget. The source reports shared pool hashes across targets. DPO retains $87.9$--$90.7\%$ of candidate pairs under its standardized $0.05$ tie threshold; MOPO consumes candidate rather than pair rows. These are different optimization exposures.
 
 Because learner and reference occurrences are independent, an $8\times8$ cross block need not have a zero diagonal or satisfy $A_{ij}=-A_{ji}$. The previously reported index-wise residuals do not establish general-preference structure. Verify $A(y,z)=-A(z,y)$ using the same response identities and check actual self-pairs separately. No automatic symmetrization of cross-block indices is justified. Both checks are now measured on the training tensor. Temperature-$1$ sampling repeats a learner text in the comparator pool on $144$ of the $10{,}000$ prompts, giving $2{,}166$ \emph{actual} self-pairs; their margins are exactly $0$, so $P(y,y)=\tfrac12$ holds by measurement and not only by convention. Those repeats also make the reverse direction available: the same text scored against the other comparators appears once in the cross block and once in the reference block, and across $15{,}162$ such identity-matched comparisons the two agree to $8.9\times10^{-8}$, within float32 rounding. Since the reference block is exactly antisymmetric with an exactly zero diagonal, this establishes $A(y,z)=-A(z,y)$ on those identities and shows the teacher score depends on the response texts rather than on which block evaluated them. By contrast the cross block's index-wise residuals are large, $\lvert A+A^{\top}\rvert$ averaging $0.1925$ and $\lvert\mathrm{diag}\rvert$ averaging $0.1289$, which is what independent pools predict and is not a defect. Final evaluation uses $16{,}000$ rubric-order calls per arm on $8{,}000$ semantic rubric comparisons, separate from training feedback.
 
@@ -2649,7 +2647,7 @@ Report generated/scored token counts, order-swapped and repeated judgments, solv
 \label{app:pareto-evaluation}
 The population Nash optimum is Pareto efficient under the stated assumptions; a single proximal step and approximate neural realization do not inherit this certificate. The instruction comparison evaluates all four attributes using a fixed independent local judge; the measured methods and seed counts are given in Table~\ref{tab:uf-objectives}. A policy is empirically nondominated only relative to the evaluated policies and evaluator in this four-dimensional space. The two projections in Figure~\ref{fig:uf-tradeoffs} cannot establish four-dimensional dominance.
 
-Scalarized DPO \citep{rafailov2023direct} uses development-calibrated scalar BT rewards. Its declared weights are the four coordinate vectors, $(.25,.25,.25,.25)$, $(.1,.1,.1,.7)$ and $(.1,.7,.1,.1)$ in IF/Truth/Honesty/Help order. The main table represents the uniform setting. The supplied source reports $3/7$ weight settings in progress or completed. Only the uniform setting is reconstructed in the main figure; the complete sweep requires its original artifacts.
+Scalarized DPO \citep{rafailov2023direct} uses development-calibrated scalar BT rewards. Its declared weights are the four coordinate vectors, $(.25,.25,.25,.25)$, $(.1,.1,.1,.7)$ and $(.1,.7,.1,.1)$ in IF/Truth/Honesty/Help order. The main table represents the uniform setting. The source status reports $3/7$ weights in progress/completed while the earlier figure text listed six pending; resolve this from artifacts rather than inferring additional scores. Preserve all seven settings and their selection history.
 
 The reported MOPO adaptation fixes IF as primary and constrains the other objectives. It uses the stated adaptive-bound parameters $\beta=0.9995$, $\tau=0.08$, and the main setting $t_0=\infty$; a $t_0=250$ variant must be labeled separately. The original robustification radius $\varepsilon=0.15$ produced reference constraint deficits of $0.061$--$0.083$, versus nominal slack $2.5\times10^{-4}$, and an increasing multiplier ($73.8$ after $300$ iterations). The reported run therefore removes that robustification and applies plug-in constraints. Exact evaluation of a cached tensor removes numerical integration error on this pool, not preference-model, sampling or generalization error. This is a MOPO-inspired plug-in adaptation, not a faithful reproduction of the robust algorithm \citep{agnihotri2026mopo}. It also uses the shared full-parameter training budget rather than the original LoRA recipe.
 
@@ -2772,7 +2770,7 @@ which Appendix~\ref{app:within-rubric-audit} measures separately.
 \begin{table}[htbp]
 \centering\scriptsize
 \setlength{\tabcolsep}{5pt}
-\caption{Measured target diagnostics on the same $200$ development prompts and pair measure. Target differences and fit-error differences are descriptive scales, not a causal attribution of policy performance.}
+\caption{Planned same-panel target diagnostics on $200$ development prompts. All columns use the same candidates and pair weighting. The conflict report accompanying this table retains each objective pair and its non-tie denominator. Existing whole-panel values in Table~\ref{tab:aggregation-targets} are not copied here.}
 \label{tab:target-signal}
 \begin{tabular}{lrrrrr}
 \toprule
@@ -2787,88 +2785,5 @@ NBPO / fixed reference & $200$ & $.0240$ & $.4178$ & $4.2117$ & $1.2321$\\
 \end{table}
 Also report the fraction of prompts where the NBPO target has positive surplus on every objective. This is selected-target behavior, not an infeasibility certificate. Per-prompt and aggregate positivity differ.
 
-
-% BEGIN INLINE EXPERIMENT TEMPLATES
-% Inline experiment templates. Preserve structure and update the result-value definitions above.
-\section{Prospective Conflict and Cyclicity Stress Tests}
-\label{app:dataset_stress_test}
-This section is a preregistered extension template; dashes denote unmeasured quantities, not zero. It does not change the completed UF experiments. Selection uses development data and measured cost before final-test access. A negative screening result is retained.
-
-\paragraph{Separate the mechanisms.}
-Within-objective cycles test preference representation and opponent adaptation; cross-objective disagreement tests compromise selection. Neither guarantees a Nash advantage over other game-based methods. We first measure stable cycles, objective conflict, joint strict feasibility, and separation of exact targets. A large raw cycle count alone is insufficient: it increases with the number of candidate triples and can involve only weak responses.
-
-\paragraph{Dataset contract.}
-We screen fresh responses on SafeRLHF prompts under fixed helpfulness and harmlessness rubrics, and WildChecklists prompts under their native checklist items. PROSPER uses the latter with prompt-dependent objectives \citep{zhang2026prosper}. Native checklist positions are not shared objective identities and cannot be substituted for the global $k$ in NBPO. WildChecklists fine-tuning requires a separately frozen set of semantically constant global rubrics; such feedback is an adaptation. Existing SafeRLHF pair labels support a conflict audit but do not by themselves supply complete response triangles. New LLM judgments are AI feedback, not new human annotations.
-
-\paragraph{Screening.}
-Use $200$ development prompts per new source and eight responses per prompt. On the same $28$ unordered pairs, collect both orders and two independent repetitions per order; use a preselected $50$-prompt subset for five additional judgments per order. Report normalized cyclic-triangle rates, repeatability, no-Condorcet rates, order sensitivity, and a fitted-BT noise control. Estimate objective conflict on the same non-tied pairs. Report prompt-level variation rather than pooling checklist positions as global parties. Table~\ref{tab:dataset_readiness} is a compact index; per-objective denominators and uncertainty remain in the accompanying result artifact.
-
-\begin{table}[H]
-\centering\scriptsize\setlength{\tabcolsep}{3pt}
-\caption{Development screening template. $N$ is the common prompt count; $C$ is the repeated cyclic-triangle fraction; $D$ is cross-objective pair disagreement; $\gamma^\star=\max_p\min_k[V_k(p)-d_k]$ uses the specified aggregate finite problem. TV compares exact NBPO and utilitarian targets. Checklist-native feasibility and target columns are inapplicable until fixed objective identities are defined.}
-\label{tab:dataset_readiness}
-\begin{tabular}{lrrrrr}
-\toprule
-Feedback contract & $N$ & $C$ & $D$ & $\gamma^\star$ & Target TV\\
-\midrule
-UF / fresh fixed rubrics & \nbpocell{ufN} & \nbpocell{ufC} & \nbpocell{ufD} & \nbpocell{ufGamma} & \nbpocell{ufTV}\\
-SafeRLHF / help--safe & \nbpocell{safeN} & \nbpocell{safeC} & \nbpocell{safeD} & \nbpocell{safeGamma} & \nbpocell{safeTV}\\
-WildChecklists / native items & \nbpocell{wildN} & \nbpocell{wildC} & \nbpocell{wildD} & n/a & n/a\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\paragraph{Factorial mechanism control.}
-Cross low/high cyclicity with low/high objective conflict using matched finite games, fixed payoff scales and reference distributions. Record realized factors and the joint-feasibility margin; do not select games by method ranking. Evaluate exact targets before fitting a policy. In Table~\ref{tab:factorial_game}, $\Delta M$ is the NBPO-minus-fixed-reference difference in normalized worst surplus under the same adaptive evaluator. TV compares NBPO with utilitarian targets. These constructed games identify mechanisms and are not evidence of naturally cyclic human preferences; no cell is required to favor NBPO.
-\begin{table}[H]
-\centering\scriptsize\setlength{\tabcolsep}{5pt}
-\caption{Controlled factorial template. All cells retain the same declared game seeds and evaluation contract; $C,D$ are measured factor checks. Report means and uncertainty in the result artifact.}
-\label{tab:factorial_game}
-\begin{tabular}{llrrrrr}
-\toprule
-Cycle setting & Conflict setting & $C$ & $D$ & $\gamma^\star$ & $\Delta M$ & Target TV\\
-\midrule
-Low & Low & \nbpocell{llC} & \nbpocell{llD} & \nbpocell{llGamma} & \nbpocell{llDelta} & \nbpocell{llTV}\\
-Low & High & \nbpocell{lhC} & \nbpocell{lhD} & \nbpocell{lhGamma} & \nbpocell{lhDelta} & \nbpocell{lhTV}\\
-High & Low & \nbpocell{hlC} & \nbpocell{hlD} & \nbpocell{hlGamma} & \nbpocell{hlDelta} & \nbpocell{hlTV}\\
-High & High & \nbpocell{hhC} & \nbpocell{hhD} & \nbpocell{hhGamma} & \nbpocell{hhDelta} & \nbpocell{hhTV}\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\paragraph{One confirmatory policy panel.}
-Select at most one compatible feedback contract, with $2{,}000/500/1{,}000$ disjoint train/development/test prompts (a cost-based reduction is frozen before outcome inspection). Keep the completed UF panel as a transitive-supervision control. All new methods share source pools, feedback, base initialization, token accounting, and a declared tuning budget. The default two objectives are helpfulness and harmlessness; changing them requires a separately named contract. The full test distribution is primary; a conflict stratum defined before policy evaluation is secondary. Seeds and missing-data coverage cannot be silently reduced. BT-projected Nash is a projection control, not a reproduction of a globally trained reward model.
-
-\begin{table}[H]
-\centering\scriptsize\setlength{\tabcolsep}{3pt}
-\caption{New fixed-objective policy panel template; dashes denote unmeasured values. $W_1,W_2$ are independent reference wins, and $\overline{W_{\min}}$ averages seed-specific minima. $\Delta$ is the paired difference in this statistic versus NBPO, with a $95\%$ prompt interval in the underlying artifact. One fresh response does not identify a policy game value.}
-\label{tab:stress_results}
-\begin{tabular}{lrrrrrr}
-\toprule
-Method & Seeds & $N$ & $W_1$ & $W_2$ & $\overline{W_{\min}}$ & $\Delta$\\
-\midrule
-Base fresh draw & \nbpocell{baseS} & \nbpocell{baseN} & \nbpocell{baseWone} & \nbpocell{baseWtwo} & \nbpocell{baseMin} & \nbpocell{baseDiff}\\
-NBPO & \nbpocell{nbpoS} & \nbpocell{nbpoN} & \nbpocell{nbpoWone} & \nbpocell{nbpoWtwo} & \nbpocell{nbpoMin} & \nbpocell{nbpoDiff}\\
-Fixed-reference Nash & \nbpocell{fixedS} & \nbpocell{fixedN} & \nbpocell{fixedWone} & \nbpocell{fixedWtwo} & \nbpocell{fixedMin} & \nbpocell{fixedDiff}\\
-Game-utilitarian & \nbpocell{utilS} & \nbpocell{utilN} & \nbpocell{utilWone} & \nbpocell{utilWtwo} & \nbpocell{utilMin} & \nbpocell{utilDiff}\\
-Global game-maxmin & \nbpocell{maxminS} & \nbpocell{maxminN} & \nbpocell{maxminWone} & \nbpocell{maxminWtwo} & \nbpocell{maxminMin} & \nbpocell{maxminDiff}\\
-BT-projected Nash & \nbpocell{btS} & \nbpocell{btN} & \nbpocell{btWone} & \nbpocell{btWtwo} & \nbpocell{btMin} & \nbpocell{btDiff}\\
-PROSPER (matched adaptation) & \nbpocell{prosperS} & \nbpocell{prosperN} & \nbpocell{prosperWone} & \nbpocell{prosperWtwo} & \nbpocell{prosperMin} & \nbpocell{prosperDiff}\\
-Scalarized DPO (uniform) & \nbpocell{dpoS} & \nbpocell{dpoN} & \nbpocell{dpoWone} & \nbpocell{dpoWtwo} & \nbpocell{dpoMin} & \nbpocell{dpoDiff}\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-\centering
-\IfFileExists{figures/stress_test.pdf}{\includegraphics[width=.96\linewidth]{figures/stress_test.pdf}}{%
-\fbox{\begin{minipage}[c][.80in][c]{.92\linewidth}\centering\small
-Results pending: exact target / fitted pool / fresh-response objective vectors\\[4pt]
-Paired contrasts on common prompts; full test and prespecified conflict stratum
-\end{minipage}}}
-\caption{Prospective mechanism-to-policy figure. Report target and fitted-pool contrasts on identical development candidates, and fresh-policy contrasts on a separate fixed common test set. Use paired prompt intervals within each panel and display all applicable arms at each stage (undefined stages are n/a), with all predeclared arms in the fresh panel. Do not subtract development and test stages as a transfer effect. No monotone transfer or superiority is assumed.}
-\label{fig:stress_test}
-\end{figure}
-% END INLINE EXPERIMENT TEMPLATES
 
 \end{document}

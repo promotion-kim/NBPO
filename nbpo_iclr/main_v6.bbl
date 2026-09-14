@@ -1,4 +1,4 @@
-\begin{thebibliography}{30}
+\begin{thebibliography}{31}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -120,6 +120,11 @@ Seongho Son, William Bankes, Sangwoong Yoon, Shyam~Sundhar Ramesh, Xiaohang Tang
 Benjamin Warner, Antoine Chaffin, Benjamin Clavi{\'e}, et~al.
 \newblock Smarter, better, faster, longer: A modern bidirectional encoder for fast, memory efficient, and long context finetuning and inference, 2024.
 \newblock URL \url{https://arxiv.org/abs/2412.13663}.
+
+\bibitem[Wu et~al.(2026)Wu, Huang, Xuan, Zhang, Xiao, Wan, Li, Hu, Xia, Leskovec, and Choi]{wu2026mnpo}
+Fang Wu, Xu~Huang, Weihao Xuan, Zhiwei Zhang, Yijia Xiao, Guancheng Wan, Xiaomin Li, Bing Hu, Peng Xia, Jure Leskovec, and Yejin Choi.
+\newblock Multiplayer nash preference optimization.
+\newblock In \emph{International Conference on Learning Representations}, 2026.
 
 \bibitem[Wu et~al.(2025)Wu, Sun, Yuan, Ji, Yang, and Gu]{wu2025sppo}
 Yue Wu, Zhiqing Sun, Huizhuo Yuan, Kaixuan Ji, Yiming Yang, and Quanquan Gu.

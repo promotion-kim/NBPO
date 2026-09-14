@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-14 10:14:18",
+  "generated_kst": "2026-09-14 13:16:59",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -142,10 +142,10 @@
     ]
   },
   "state_counts": {
-    "DONE": 52,
+    "DONE": 53,
     "PENDING": 5,
-    "READY": 5,
     "RUNNING": 1,
+    "READY": 4,
     "NOT_STARTED": 100
   },
   "rows": [
@@ -687,11 +687,11 @@
       "method": "prosper_adapt",
       "seed_or_weight": "seed 44 (train)",
       "checkpoint_id": "prosper_mse_s44",
-      "config_hash": "",
+      "config_hash": "46fb166206b3bb8ce75a7f2144ca9db264d9cb33408187308e78f51fa0bbd939",
       "dependency": "target solve",
       "job_id": "uf4_train_prosper_mse_s44",
-      "state": "READY",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "step 1209/1250",
       "artifact_path": "/work/uf4_20260910/arms/prosper_mse_s44/config.json",
       "eta_min": 184
     },
@@ -820,8 +820,8 @@
       "config_hash": "2e8c5719c100fe5f916d5f39af5f0cf92b1387a0956dee8f94fcd99a428dca3d",
       "dependency": "uf4_train_dpo_truth_only_mse_s42",
       "job_id": "uf4_finaleval_judge_dpo_truth_only_mse_s42",
-      "state": "RUNNING",
-      "progress": "elapsed 4m",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_truth_only_mse_s42/complete.json",
       "eta_min": 24
     },
