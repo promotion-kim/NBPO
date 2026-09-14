@@ -1,0 +1,126 @@
+{
+ "kst": "14:07",
+ "protected_ok": true,
+ "builds": {
+  "main_v6": {
+   "ok": true,
+   "pages": "53",
+   "errors": 0
+  },
+  "main_clean": {
+   "ok": true,
+   "pages": "44",
+   "errors": 0
+  }
+ },
+ "queue": {
+  "counts": {
+   "DONE": 483,
+   "READY": 17,
+   "PENDING": 24,
+   "RUNNING": 4
+  },
+  "running": {
+   "uf4_finaleval_judge_prosper_mse_s44": [
+    1
+   ],
+   "uf4_cap_prosper_mse_s44_hellaswag": [
+    3
+   ],
+   "uf4_cap_prosper_mse_s44_mmlu": [
+    2
+   ],
+   "sub_judge_safe_rest_s0": [
+    0
+   ]
+  },
+  "ready": [
+   [
+    66,
+    "sub_judge_safe_rest_s1"
+   ],
+   [
+    67,
+    "uf4_genab_prosper_mse_s44"
+   ],
+   [
+    67,
+    "uf4_genhb3_prosper_mse_s44"
+   ],
+   [
+    67,
+    "uf4_genmt_prosper_mse_s44"
+   ],
+   [
+    67,
+    "uf4_genxs_prosper_mse_s44"
+   ],
+   [
+    68,
+    "sub_judge_safe_confirm_s0"
+   ],
+   [
+    68,
+    "sub_judge_safe_confirm_s1"
+   ],
+   [
+    69,
+    "sub_pool_safe_dev_v1_shard0"
+   ],
+   [
+    69,
+    "sub_pool_safe_dev_v1_shard1"
+   ],
+   [
+    69,
+    "sub_pool_safe_v1_shard0"
+   ],
+   [
+    69,
+    "sub_pool_safe_v1_shard1"
+   ],
+   [
+    69,
+    "sub_pool_safe_v1_shard2"
+   ],
+   [
+    69,
+    "sub_pool_safe_v1_shard3"
+   ],
+   [
+    88,
+    "uf4_train_dpo_honesty_only_mse_s42"
+   ],
+   [
+    89,
+    "uf4_train_dpo_help_only_mse_s42"
+   ],
+   [
+    90,
+    "uf4_train_dpo_help_heavy_mse_s42"
+   ],
+   [
+    91,
+    "uf4_train_dpo_truth_heavy_mse_s42"
+   ]
+  ],
+  "stale_rows": 22,
+  "live_failed": []
+ },
+ "campaign": {
+  "judged": [
+   {
+    "tag": "safe_pilot10_panelA",
+    "prompts": 10,
+    "verdicts": 2240,
+    "rate": 40.16538436494985,
+    "parse": 0.9982142857142857
+   }
+  ],
+  "pools": [],
+  "factor_cells": 0,
+  "factor_summary": null
+ },
+ "measured_cells": 0,
+ "render": "Rendered 81 cells; 0 measured. Artifact hashes are provenance declarations; verify source bytes separately."
+}

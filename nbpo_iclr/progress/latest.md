@@ -1,8 +1,9 @@
-[KST 13:17] 본문 완료: objective 9/9, cross-play 6/6, DPO 가중치 3/7, capability 61/63 (판정된 DPO arm 5, lm-eval 66)
-진행/다음: 큐 BLOCKED 1(대체완료 1), DONE 484, FAILED 6(대체완료 6), PENDING 43(대체완료 5), READY 14(대체완료 10), RUNNING 1 → uf4_train_dpo_honesty_only_mse_s42 (prio 73)
-GPU0: uf4_train_prosper_mse_s44, 99%, 96401/143771 MiB | GPU1: uf4_train_prosper_mse_s44, 98%, 98085/143771 MiB
-GPU2: uf4_train_prosper_mse_s44, 99%, 95161/143771 MiB | GPU3: uf4_train_prosper_mse_s44, 98%, 96273/143771 MiB
-ETA: 핵심 기전 [완료] / 본문 첫 전체 평가 [완료] / 본문 최종 [15.3-20.9h]
-이번 완료: 새 완료 결과 없음
-PDF: 실패, 최신 성공본 main_v6_20260914_1247_KST.pdf 유지
-Blocker/복구: 없음
+[KST 14:07] 새 panel PKU-SafeRLHF/help-safe · 보호 검증: PASS
+완료: audit 0/2, finite cells 0/4, methods×seeds 0/7, final eval 0/8, template cell 0/81
+진행: 판정 누적 2240 verdict, 실측 40.2 verdict/s/GPU · 큐 {'DONE': 483, 'READY': 17, 'PENDING': 24, 'RUNNING': 4} · 다음 READY sub_judge_safe_rest_s1
+GPU0: sub_judge_safe_rest_s0, 44%, 128519/143771 MiB | GPU1: uf4_finaleval_judge_prosper_mse_s44, 86%, 130761/143771 MiB
+GPU2: uf4_cap_prosper_mse_s44_mmlu, 89%, 128243/143771 MiB | GPU3: uf4_cap_prosper_mse_s44_hellaswag, 72%, 125013/143771 MiB
+ETA: 별도 보고 참조(실측 기반)
+이번 결과: 새 template cell 없음
+PDF: main_v6 53쪽, main_clean 44쪽
+Blocker: 없음
