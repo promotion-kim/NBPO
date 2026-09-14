@@ -73,6 +73,8 @@ def main():
                     help="allow overwriting cells that already carry a record")
     ap.add_argument("--reason", default="", help="why a replacement is correct")
     ap.add_argument("--render", action="store_true", help="run render_results.py after")
+    ap.add_argument("--campaign-id", default="sub_20260914",
+                    help="document-level frozen campaign id")
     args = ap.parse_args()
 
     declared = set(json.loads(KEYS.read_text()))
@@ -113,7 +115,12 @@ def main():
                         "reason": args.reason,
                         "at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
 
-    doc["contract_id"] = doc.get("contract_id") or contract
+    # The delivered file ships contract_id="UNMEASURED", which the renderer
+    # asserts against, and a truthy placeholder would survive `or`. The
+    # document-level id is the campaign; each record keeps the id of the
+    # specific frozen sub-contract it was measured under.
+    if doc.get("contract_id") in (None, "", "UNMEASURED"):
+        doc["contract_id"] = args.campaign_id
     doc["cells"].update(prepared)
     measured = sum(1 for v in doc["cells"].values() if v is not None)
     tmp = RESULTS.with_suffix(".json.tmp")

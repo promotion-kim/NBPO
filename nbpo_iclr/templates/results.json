@@ -1,5 +1,5 @@
 {
-  "contract_id": "UNMEASURED",
+  "contract_id": "sub_20260914",
   "notes": "No new experiments executed in this editorial revision. Record all results, including negative results.",
   "cells": {
     "ufN": null,
@@ -15,26 +15,286 @@
     "wildN": null,
     "wildC": null,
     "wildD": null,
-    "llC": null,
-    "llD": null,
-    "llGamma": null,
-    "llDelta": null,
-    "llTV": null,
-    "lhC": null,
-    "lhD": null,
-    "lhGamma": null,
-    "lhDelta": null,
-    "lhTV": null,
-    "hlC": null,
-    "hlD": null,
-    "hlGamma": null,
-    "hlDelta": null,
-    "hlTV": null,
-    "hhC": null,
-    "hhD": null,
-    "hhGamma": null,
-    "hhDelta": null,
-    "hhTV": null,
+    "llC": {
+      "value": 0.000375,
+      "ci95": [
+        0.00011742783331145513,
+        0.0006325721666885449
+      ],
+      "sd": 0.000587702932477034,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "llD": {
+      "value": 0.071875,
+      "ci95": [
+        0.06666410617324779,
+        0.0770858938267522
+      ],
+      "sd": 0.01188970695933871,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "llGamma": {
+      "value": 0.06417867876350833,
+      "ci95": [
+        0.06417857639393151,
+        0.06417878113308514
+      ],
+      "sd": 2.335768699859288e-07,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "llDelta": {
+      "value": 2.717987902423058e-06,
+      "ci95": [
+        -5.122090631205572e-05,
+        5.665688211690183e-05
+      ],
+      "sd": 0.00012307248377014762,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "llTV": {
+      "value": 0.0004794790796612379,
+      "ci95": [
+        0.00031490375982630404,
+        0.0006440543994961717
+      ],
+      "sd": 0.00037551183935681786,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "lhC": {
+      "value": 0.00043750000000000006,
+      "ci95": [
+        2.9274136949705406e-05,
+        0.0008457258630502947
+      ],
+      "sd": 0.0009314497754632434,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "lhD": {
+      "value": 0.45187499999999997,
+      "ci95": [
+        0.4374313693239801,
+        0.46631863067601986
+      ],
+      "sd": 0.03295606125865485,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "lhGamma": {
+      "value": 0.06417866999656868,
+      "ci95": [
+        0.06417862666049376,
+        0.0641787133326436
+      ],
+      "sd": 9.888000961251072e-08,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "lhDelta": {
+      "value": 0.0006005057302487571,
+      "ci95": [
+        -0.00031587784974358615,
+        0.0015168893102411002
+      ],
+      "sd": 0.0020909142635994857,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "lhTV": {
+      "value": 0.011471473901831251,
+      "ci95": [
+        0.007963092200702602,
+        0.014979855602959901
+      ],
+      "sd": 0.008005081606877565,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "hlC": {
+      "value": 0.42768750000000005,
+      "ci95": [
+        0.42215098214721475,
+        0.43322401785278536
+      ],
+      "sd": 0.012632683956601167,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "hlD": {
+      "value": 0.031125000000000003,
+      "ci95": [
+        0.027338226098781795,
+        0.03491177390121821
+      ],
+      "sd": 0.008640289651577537,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "hlGamma": {
+      "value": 0.06417862764203838,
+      "ci95": [
+        0.06417856739737984,
+        0.06417868788669692
+      ],
+      "sd": 1.3746035895403954e-07,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "hlDelta": {
+      "value": 0.012341152410333223,
+      "ci95": [
+        0.009639351639893799,
+        0.015042953180772648
+      ],
+      "sd": 0.0061647042697590415,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "hlTV": {
+      "value": 0.00025041127584741427,
+      "ci95": [
+        0.00015006900299402448,
+        0.00035075354870080407
+      ],
+      "sd": 0.00022895116644593,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "hhC": {
+      "value": 0.35937499999999994,
+      "ci95": [
+        0.3535135654935259,
+        0.365236434506474
+      ],
+      "sd": 0.01337404694095798,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "hhD": {
+      "value": 0.13312500000000002,
+      "ci95": [
+        0.1243389138855503,
+        0.14191108611444975
+      ],
+      "sd": 0.02004723041640468,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "hhGamma": {
+      "value": 0.06417868716723084,
+      "ci95": [
+        0.0641786519086155,
+        0.06417872242584617
+      ],
+      "sd": 8.04496537539661e-08,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "hhDelta": {
+      "value": 0.02425412015888128,
+      "ci95": [
+        0.016383145428049903,
+        0.03212509488971266
+      ],
+      "sd": 0.017959218925838853,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
+    "hhTV": {
+      "value": 0.006491073509492094,
+      "ci95": [
+        0.0039267864247564364,
+        0.009055360594227752
+      ],
+      "sd": 0.005850939015605811,
+      "instance_seeds": 20,
+      "uncertainty": "instance-seed variation, not policy seeds",
+      "artifact": "/work/sub_20260914/factorial/summary.json",
+      "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+      "contract_id": "sub_20260914_factorial_v2",
+      "measured_utc": "2026-09-14T05:29:03Z"
+    },
     "baseS": null,
     "baseN": null,
     "baseWone": null,
@@ -83,5 +343,387 @@
     "dpoWtwo": null,
     "dpoMin": null,
     "dpoDiff": null
-  }
+  },
+  "replaced_records": [
+    {
+      "key": "llC",
+      "previous": {
+        "value": 0.000375,
+        "ci95": [
+          0.00011742783331145513,
+          0.0006325721666885449
+        ],
+        "sd": 0.000587702932477034,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "llD",
+      "previous": {
+        "value": 0.071875,
+        "ci95": [
+          0.06666410617324779,
+          0.0770858938267522
+        ],
+        "sd": 0.01188970695933871,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "llGamma",
+      "previous": {
+        "value": 0.06417867876350833,
+        "ci95": [
+          0.06417857639393151,
+          0.06417878113308514
+        ],
+        "sd": 2.335768699859288e-07,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "llDelta",
+      "previous": {
+        "value": 2.717987902423058e-06,
+        "ci95": [
+          -5.122090631205572e-05,
+          5.665688211690183e-05
+        ],
+        "sd": 0.00012307248377014762,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "llTV",
+      "previous": {
+        "value": 0.0004794790796612379,
+        "ci95": [
+          0.00031490375982630404,
+          0.0006440543994961717
+        ],
+        "sd": 0.00037551183935681786,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "lhC",
+      "previous": {
+        "value": 0.00043750000000000006,
+        "ci95": [
+          2.9274136949705406e-05,
+          0.0008457258630502947
+        ],
+        "sd": 0.0009314497754632434,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "lhD",
+      "previous": {
+        "value": 0.45187499999999997,
+        "ci95": [
+          0.4374313693239801,
+          0.46631863067601986
+        ],
+        "sd": 0.03295606125865485,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "lhGamma",
+      "previous": {
+        "value": 0.06417866999656868,
+        "ci95": [
+          0.06417862666049376,
+          0.0641787133326436
+        ],
+        "sd": 9.888000961251072e-08,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "lhDelta",
+      "previous": {
+        "value": 0.0006005057302487571,
+        "ci95": [
+          -0.00031587784974358615,
+          0.0015168893102411002
+        ],
+        "sd": 0.0020909142635994857,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "lhTV",
+      "previous": {
+        "value": 0.011471473901831251,
+        "ci95": [
+          0.007963092200702602,
+          0.014979855602959901
+        ],
+        "sd": 0.008005081606877565,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "hlC",
+      "previous": {
+        "value": 0.42768750000000005,
+        "ci95": [
+          0.42215098214721475,
+          0.43322401785278536
+        ],
+        "sd": 0.012632683956601167,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "hlD",
+      "previous": {
+        "value": 0.031125000000000003,
+        "ci95": [
+          0.027338226098781795,
+          0.03491177390121821
+        ],
+        "sd": 0.008640289651577537,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "hlGamma",
+      "previous": {
+        "value": 0.06417862764203838,
+        "ci95": [
+          0.06417856739737984,
+          0.06417868788669692
+        ],
+        "sd": 1.3746035895403954e-07,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "hlDelta",
+      "previous": {
+        "value": 0.012341152410333223,
+        "ci95": [
+          0.009639351639893799,
+          0.015042953180772648
+        ],
+        "sd": 0.0061647042697590415,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "hlTV",
+      "previous": {
+        "value": 0.00025041127584741427,
+        "ci95": [
+          0.00015006900299402448,
+          0.00035075354870080407
+        ],
+        "sd": 0.00022895116644593,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "hhC",
+      "previous": {
+        "value": 0.35937499999999994,
+        "ci95": [
+          0.3535135654935259,
+          0.365236434506474
+        ],
+        "sd": 0.01337404694095798,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "hhD",
+      "previous": {
+        "value": 0.13312500000000002,
+        "ci95": [
+          0.1243389138855503,
+          0.14191108611444975
+        ],
+        "sd": 0.02004723041640468,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "hhGamma",
+      "previous": {
+        "value": 0.06417868716723084,
+        "ci95": [
+          0.0641786519086155,
+          0.06417872242584617
+        ],
+        "sd": 8.04496537539661e-08,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "hhDelta",
+      "previous": {
+        "value": 0.02425412015888128,
+        "ci95": [
+          0.016383145428049903,
+          0.03212509488971266
+        ],
+        "sd": 0.017959218925838853,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    },
+    {
+      "key": "hhTV",
+      "previous": {
+        "value": 0.006491073509492094,
+        "ci95": [
+          0.0039267864247564364,
+          0.009055360594227752
+        ],
+        "sd": 0.005850939015605811,
+        "instance_seeds": 20,
+        "uncertainty": "instance-seed variation, not policy seeds",
+        "artifact": "/work/sub_20260914/factorial/summary.json",
+        "sha256": "600b175bf88756f492be8b59b9141d7fdd36e3c3bbb88d223fc76521f0e35554",
+        "contract_id": "sub_20260914_factorial_v2",
+        "measured_utc": "2026-09-14T05:28:39Z"
+      },
+      "reason": "the first write set the cells but the render was refused on the UNMEASURED placeholder contract id",
+      "at_utc": "2026-09-14T05:29:03Z"
+    }
+  ]
 }
