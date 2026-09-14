@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 """Submission-campaign reporter: status only, never an edit to the manuscript.
 
-The 2026-09-14 package protects main_v6.tex by whole-file sha256, so the old
-reporter's habit of rewriting the manuscript's AUTO regions every cycle now
-breaks validation on the first tick. This reporter reads state, writes
+The 2026-09-14 package protects the manuscript by whole-file sha256, so the old
+reporter's habit of rewriting its AUTO regions every cycle would break the
+contract on the first tick. This reporter reads state, writes
 progress/latest.md, and touches the paper only through the declared results
 path:
 
-    validate_protected.py -> render_results.py -> pdflatex -> validate_protected.py
+    protection.status() -> render_results.py -> inline_inputs.py
+                        -> pdflatex -> protection.status()
 
-If validation fails at either end, the build is skipped and the last good PDF
+main_v6.tex is self-contained by request, so the rendered result block reaches
+it through inline_inputs.py, and protection.status() is what judges the
+contract: eleven files byte-identical, and main_v6.tex accepted only while it
+collapses back to the declared bytes.
+
+If that verdict fails at either end the build is skipped and the last good PDF
 is kept, because a protected-file mismatch is a reason to stop writing PDFs,
 not to overwrite one. latexmk is unavailable on this host (perl Time::HiRes is
 missing), so the build is pdflatex + bibtex + two passes.
@@ -125,9 +131,10 @@ def campaign():
 
 
 def protected():
-    r = subprocess.run([sys.executable, "validate_protected.py"], cwd=PAPER,
-                       capture_output=True, text=True)
-    return r.returncode == 0, (r.stdout or r.stderr).strip().splitlines()[0][:160] if (r.stdout or r.stderr) else ""
+    """The whole contract in one verdict, see progress/protection.py."""
+    sys.path.insert(0, str(PROG))
+    from protection import status                                 # noqa: PLC0415
+    return status()
 
 
 def measured_cells():
@@ -172,6 +179,9 @@ def cycle():
     ok_before, msg_before = protected()
     render = subprocess.run([sys.executable, "render_results.py"], cwd=PAPER,
                             capture_output=True, text=True)
+    # carry the rendered result block into the self-contained manuscript
+    subprocess.run([sys.executable, "progress/inline_inputs.py"], cwd=PAPER,
+                   capture_output=True, text=True)
     ok_after, msg_after = protected()
     builds = {}
     if ok_before and ok_after:

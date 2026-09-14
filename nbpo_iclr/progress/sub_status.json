@@ -1,5 +1,5 @@
 {
- "kst": "14:07",
+ "kst": "15:02",
  "protected_ok": true,
  "builds": {
   "main_v6": {
@@ -15,77 +15,53 @@
  },
  "queue": {
   "counts": {
-   "DONE": 483,
-   "READY": 17,
-   "PENDING": 24,
+   "DONE": 501,
+   "READY": 11,
+   "PENDING": 39,
    "RUNNING": 4
   },
   "running": {
-   "uf4_finaleval_judge_prosper_mse_s44": [
+   "uf4_score_alpaca_arena_22arm": [
     1
    ],
-   "uf4_cap_prosper_mse_s44_hellaswag": [
-    3
-   ],
-   "uf4_cap_prosper_mse_s44_mmlu": [
+   "sub_pool_safe_v1_shard0": [
     2
    ],
-   "sub_judge_safe_rest_s0": [
+   "sub_pool_safe_v1_shard1": [
     0
+   ],
+   "sub_pool_safe_v1_shard2": [
+    3
    ]
   },
   "ready": [
    [
-    66,
-    "sub_judge_safe_rest_s1"
-   ],
-   [
-    67,
-    "uf4_genab_prosper_mse_s44"
-   ],
-   [
-    67,
-    "uf4_genhb3_prosper_mse_s44"
-   ],
-   [
-    67,
-    "uf4_genmt_prosper_mse_s44"
-   ],
-   [
-    67,
-    "uf4_genxs_prosper_mse_s44"
-   ],
-   [
-    68,
-    "sub_judge_safe_confirm_s0"
-   ],
-   [
-    68,
-    "sub_judge_safe_confirm_s1"
-   ],
-   [
-    69,
-    "sub_pool_safe_dev_v1_shard0"
-   ],
-   [
-    69,
-    "sub_pool_safe_dev_v1_shard1"
-   ],
-   [
-    69,
-    "sub_pool_safe_v1_shard0"
-   ],
-   [
-    69,
-    "sub_pool_safe_v1_shard1"
-   ],
-   [
-    69,
-    "sub_pool_safe_v1_shard2"
-   ],
-   [
     69,
     "sub_pool_safe_v1_shard3"
+   ],
+   [
+    71,
+    "sub_label_safe_dev_v1_s0"
+   ],
+   [
+    71,
+    "sub_label_safe_dev_v1_s1"
+   ],
+   [
+    71,
+    "sub_label_safe_dev_v1_s2"
+   ],
+   [
+    71,
+    "sub_label_safe_dev_v1_s3"
+   ],
+   [
+    75,
+    "sub_gen_fresh_base_test"
+   ],
+   [
+    75,
+    "sub_gen_ref4_test"
    ],
    [
     88,
@@ -110,17 +86,83 @@
  "campaign": {
   "judged": [
    {
+    "tag": "safe_confirm_panelB_s0",
+    "prompts": 25,
+    "verdicts": 14000,
+    "rate": 32.89323183626063,
+    "parse": 0.9985
+   },
+   {
+    "tag": "safe_confirm_panelB_s1",
+    "prompts": 25,
+    "verdicts": 14000,
+    "rate": 28.588679904066296,
+    "parse": 0.9991428571428571
+   },
+   {
     "tag": "safe_pilot10_panelA",
     "prompts": 10,
     "verdicts": 2240,
     "rate": 40.16538436494985,
     "parse": 0.9982142857142857
+   },
+   {
+    "tag": "safe_rest_panelA_s0",
+    "prompts": 95,
+    "verdicts": 21280,
+    "rate": 25.467100216409037,
+    "parse": 0.9989661654135338
+   },
+   {
+    "tag": "safe_rest_panelA_s1",
+    "prompts": 95,
+    "verdicts": 21280,
+    "rate": 25.356880784151468,
+    "parse": 0.9992951127819549
    }
   ],
-  "pools": [],
-  "factor_cells": 0,
-  "factor_summary": null
+  "pools": [
+   "/work/uf4_20260910/pools/safe_dev_v1/shard0/complete_shard0.json",
+   "/work/uf4_20260910/pools/safe_dev_v1/shard1/complete_shard1.json",
+   "/work/uf4_20260910/pools/safe_dev_v1/shard2/complete_shard2.json",
+   "/work/uf4_20260910/pools/safe_dev_v1/shard3/complete_shard3.json"
+  ],
+  "factor_cells": 4,
+  "factor_summary": {
+   "ll": {
+    "C": 0.000375,
+    "D": 0.071875,
+    "gamma": 0.06417867876350833,
+    "dM": 2.717987902423058e-06,
+    "TV": 0.0004794790796612379,
+    "n": 20
+   },
+   "lh": {
+    "C": 0.00043750000000000006,
+    "D": 0.45187499999999997,
+    "gamma": 0.06417866999656868,
+    "dM": 0.0006005057302487571,
+    "TV": 0.011471473901831251,
+    "n": 20
+   },
+   "hl": {
+    "C": 0.42768750000000005,
+    "D": 0.031125000000000003,
+    "gamma": 0.06417862764203838,
+    "dM": 0.012341152410333223,
+    "TV": 0.00025041127584741427,
+    "n": 20
+   },
+   "hh": {
+    "C": 0.35937499999999994,
+    "D": 0.13312500000000002,
+    "gamma": 0.06417868716723084,
+    "dM": 0.02425412015888128,
+    "TV": 0.006491073509492094,
+    "n": 20
+   }
+  }
  },
- "measured_cells": 0,
- "render": "Rendered 81 cells; 0 measured. Artifact hashes are provenance declarations; verify source bytes separately."
+ "measured_cells": 20,
+ "render": "Rendered 81 cells; 20 measured. Artifact hashes are provenance declarations; verify source bytes separately."
 }

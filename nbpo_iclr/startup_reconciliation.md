@@ -98,3 +98,41 @@ held-out prompt는 독립 judge가 아니라 teacher-held-out 진단으로만 �
 `tab:dataset_readiness`의 UF 행은 이번 N=8·2 repeat 계약으로 다시 실행해야 채운다. 기존 N=4
 audit 값을 복사하지 않는다. 필수 GPU 작업보다 후순위이며, 실행하지 않으면 해당 cell은 미측정으로
 남긴다.
+
+## 8. main_v6.tex를 self-contained로 전환 (15:00 KST, 사용자 지시)
+
+요청: "figure를 제외하고 `\input`을 할 필요가 없게 작성해줘. 논문 내용은 그대로 유지해."
+
+원고에는 `\input`이 두 개뿐이었다(`templates/results_auto.tex` 73행,
+`templates/experiment_templates.tex` 2708행). `math_commands.tex`는 어디서도 참조되지 않는
+ICLR 템플릿 잔여 파일이고, `main_clean.tex`의 `\input{main_v6.tex}`는 리뷰를 숨기는 wrapper이므로
+원고 자신의 input이 아니다. 그림은 `\includegraphics` 4곳으로 그대로 남는다.
+
+두 파일을 marker 구역으로 펼쳐 넣고 `\input`을 0개로 만들었다. **내용은 바꾸지 않았다** —
+재빌드한 두 PDF의 추출 텍스트가 펼치기 전 빌드와 **완전히 동일**하고(9,058행 / 8,178행 diff 0),
+53쪽·44쪽·error 0·undefined 0도 같다.
+
+### 보호 계약을 어떻게 유지했는가
+
+`validate_protected.py`는 전체 파일 sha256을 보므로 `main_v6.tex`는 이제 필연적으로 불일치한다.
+**manifest의 기준 hash는 고치지 않았다.** 대신 더 강한 검사로 대체했다:
+
+- `provenance/main_v6_inputs.tex` = 저자의 `\input` 형식 원본, sha256 `f0a76f61…`
+  (manifest가 `main_v6.tex`에 대해 선언한 값과 동일).
+- `progress/verify_inline_equivalence.py`는 펼친 구역을 다시 `\input` 한 줄로 접어
+  **`f0a76f61…`이 그대로 재현되는지** 검사하고, 각 구역이 원본 파일의 현재 bytes와
+  같은지도 확인한다. 현재 결과: `equivalent: true`.
+- `progress/protection.py`가 이 둘을 하나의 판정으로 묶는다 — 11개 파일은 byte 동일,
+  `main_v6.tex`은 접었을 때 선언 bytes를 재현할 때만 통과. 그 외 차이는 실패로 남는다.
+
+### 결과 경로
+
+`main_v6.tex`가 self-contained가 되면 `results_auto.tex`만 갱신해도 원고에 닿지 않는다. 그래서
+`progress/inline_inputs.py`를 만들어 렌더된 구역을 원고 안으로 옮기고, 결과 경로를
+
+```
+templates/results.json → render_results.py → inline_inputs.py → pdflatex
+```
+
+로 확장했다. `fill_results_json.py`와 `sub_reporter.py`가 모두 이 순서를 쓴다. 재실행해도
+결과가 같고(idempotent), `\input` 형식과 이미 펼쳐진 형식 어느 쪽에서도 동작한다.

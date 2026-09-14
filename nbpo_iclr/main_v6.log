@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.6.24)  14 SEP 2026 14:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.6.24)  14 SEP 2026 15:03
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -357,8 +357,7 @@ Package: placeins 2005/04/18  v 2.2
 \c@assumption=\count330
 \c@definition=\count331
 \c@remark=\count332
- (./templates/results_auto.tex)
-LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 87.
+LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 170.
  (/home/sjkim/MNPO/.TinyTeX/texmf-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 ) (/home/sjkim/MNPO/.TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
@@ -367,42 +366,42 @@ File: l3backend-pdftex.def 2026-02-18 L3 backend support: PDF output (pdfTeX)
 ) (./main_v6.aux)
 \openout1 = `main_v6.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 170.
+LaTeX Font Info:    ... okay on input line 170.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 170.
+LaTeX Font Info:    ... okay on input line 170.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 170.
+LaTeX Font Info:    ... okay on input line 170.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 170.
+LaTeX Font Info:    ... okay on input line 170.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 170.
+LaTeX Font Info:    ... okay on input line 170.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 170.
+LaTeX Font Info:    ... okay on input line 170.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 170.
+LaTeX Font Info:    ... okay on input line 170.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 170.
+LaTeX Font Info:    ... okay on input line 170.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 170.
+LaTeX Font Info:    ... okay on input line 170.
  (/home/sjkim/MNPO/.TinyTeX/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
  (/home/sjkim/MNPO/.TinyTeX/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring OFF on input line 87.
+Package hyperref Info: Link coloring OFF on input line 170.
  (./main_v6.out) (./main_v6.out)
 \@outlinefile=\write3
 \openout3 = `main_v6.out'.
 
-LaTeX Info: Redefining \microtypecontext on input line 87.
-Package microtype Info: Applying patch `item' on input line 87.
-Package microtype Info: Applying patch `toc' on input line 87.
-Package microtype Info: Applying patch `eqnum' on input line 87.
-Package microtype Info: Applying patch `footnote' on input line 87.
-Package microtype Info: Applying patch `verbatim' on input line 87.
-LaTeX Info: Redefining \microtypesetup on input line 87.
+LaTeX Info: Redefining \microtypecontext on input line 170.
+Package microtype Info: Applying patch `item' on input line 170.
+Package microtype Info: Applying patch `toc' on input line 170.
+Package microtype Info: Applying patch `eqnum' on input line 170.
+Package microtype Info: Applying patch `footnote' on input line 170.
+Package microtype Info: Applying patch `verbatim' on input line 170.
+LaTeX Info: Redefining \microtypesetup on input line 170.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
@@ -418,13 +417,13 @@ File: mt-ptm.cfg 2006/04/20 v1.7 microtype config. file: Times (RS)
 ) (/home/sjkim/MNPO/.TinyTeX/texmf-dist/tex/latex/microtype/mt-cmr.cfg
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 177.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 260.
  (/home/sjkim/MNPO/.TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (/home/sjkim/MNPO/.TinyTeX/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 177.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 260.
  (/home/sjkim/MNPO/.TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/home/sjkim/MNPO/.TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.cfg
@@ -438,15 +437,15 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [2]
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 221.
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 304.
  (/home/sjkim/MNPO/.TinyTeX/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 ) [3] [4] [5] [6] [7]
-LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 564.
+LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 647.
  (/home/sjkim/MNPO/.TinyTeX/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 ) [8]
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 613.
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 696.
  [9]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
@@ -460,7 +459,7 @@ Underfull \vbox (badness 7379) has occurred while \output is active []
 <figures/controlled_primary.pdf, id=434, 314.17375pt x 126.4725pt>
 File: figures/controlled_primary.pdf Graphic file (type pdf)
 <use figures/controlled_primary.pdf>
-Package pdftex.def Info: figures/controlled_primary.pdf  used on input line 728.
+Package pdftex.def Info: figures/controlled_primary.pdf  used on input line 811.
 (pdftex.def)             Requested size: 310.0378pt x 124.81253pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -472,7 +471,7 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 <figures/uf_tradeoffs.pdf, id=748, 527.57097pt x 191.5155pt>
 File: figures/uf_tradeoffs.pdf Graphic file (type pdf)
 <use figures/uf_tradeoffs.pdf>
-Package pdftex.def Info: figures/uf_tradeoffs.pdf  used on input line 1493.
+Package pdftex.def Info: figures/uf_tradeoffs.pdf  used on input line 1576.
 (pdftex.def)             Requested size: 365.68546pt x 132.74782pt.
 
 Underfull \vbox (badness 4193) has occurred while \output is active []
@@ -484,13 +483,13 @@ Underfull \vbox (badness 4967) has occurred while \output is active []
 <figures/target_transfer.pdf, id=789, 527.57097pt x 173.448pt>
 File: figures/target_transfer.pdf Graphic file (type pdf)
 <use figures/target_transfer.pdf>
-Package pdftex.def Info: figures/target_transfer.pdf  used on input line 1614.
+Package pdftex.def Info: figures/target_transfer.pdf  used on input line 1697.
 (pdftex.def)             Requested size: 381.58824pt x 125.45412pt.
 
 Underfull \vbox (badness 1490) has occurred while \output is active []
 
  [30 <./figures/target_transfer.pdf>] [31] [32] [33] [34] [35]
-Underfull \hbox (badness 10000) in paragraph at lines 2004--2004
+Underfull \hbox (badness 10000) in paragraph at lines 2087--2087
 []\OT1/ptm/m/n/7 (+20) NBPO-MSE, three
  []
 
@@ -516,10 +515,10 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
  [44]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [45] [46] [47] [48] [49] [50] (./templates/experiment_templates.tex
+ [45] [46] [47] [48] [49] [50]
 Underfull \vbox (badness 2689) has occurred while \output is active []
 
- [51] [52]) [53] (./main_v6.aux)
+ [51] [52] [53] (./main_v6.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-06-18>
@@ -528,10 +527,10 @@ Package rerunfilecheck Info: File `main_v6.out' has not changed.
 (rerunfilecheck)             Checksum: 9A53BE5A71F127844C6A361A40D93505;9128.
  ) 
 Here is how much of TeX's memory you used:
- 14766 strings out of 469158
- 229226 string characters out of 5460257
+ 14753 strings out of 469158
+ 228830 string characters out of 5460257
  726401 words of memory out of 5000000
- 42772 multiletter control sequences out of 15000+600000
+ 42766 multiletter control sequences out of 15000+600000
  683620 words of font info for 388 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  74i,12n,90p,1625b,690s stack positions out of 10000i,1000n,20000p,200000b,200000s

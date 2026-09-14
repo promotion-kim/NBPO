@@ -130,13 +130,25 @@ def main():
                       "measured_cells": measured, "declared_cells": len(declared)}))
 
     if args.render:
-        for step in (["python3", "validate_protected.py"],
-                     ["python3", "render_results.py"],
-                     ["python3", "validate_protected.py"]):
+        # main_v6.tex is self-contained, so the rendered block has to be carried
+        # into it by inline_inputs.py; without that step a measured cell would
+        # sit in templates/results_auto.tex and never reach a build.
+        sys.path.insert(0, str(PAPER / "progress"))
+        from protection import status                             # noqa: PLC0415
+        ok, message = status()
+        print("  %-26s %s" % ("protection (before)", message))
+        if not ok:
+            fail("protection check failed before rendering")
+        for step in (["python3", "render_results.py"],
+                     ["python3", "progress/inline_inputs.py"]):
             r = subprocess.run(step, cwd=PAPER, capture_output=True, text=True)
-            print("  %-24s %s" % (" ".join(step[1:]), (r.stdout or r.stderr).strip()[:160]))
+            print("  %-26s %s" % (step[-1], (r.stdout or r.stderr).strip()[:160]))
             if r.returncode != 0:
                 fail("%s exited %d" % (step[-1], r.returncode))
+        ok, message = status()
+        print("  %-26s %s" % ("protection (after)", message))
+        if not ok:
+            fail("protection check failed after rendering")
     return 0
 
 
