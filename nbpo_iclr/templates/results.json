@@ -401,11 +401,62 @@
     "nbpoWtwo": null,
     "nbpoMin": null,
     "nbpoDiff": null,
-    "fixedS": null,
-    "fixedN": null,
-    "fixedWone": null,
-    "fixedWtwo": null,
-    "fixedMin": null,
+    "fixedS": {
+      "value": 1,
+      "definition": "frozen generation replicates for the base row, training seeds for a trained arm",
+      "note": "test_fresh_safe_fixedref_s42",
+      "artifact": "/work/sub_20260914/fresh_eval/safe_fixedref_s42/complete.json",
+      "sha256": "aef5a6d66ea29c0824d9337483bb67f8ac5866d54c8d2cc80c07e63949936a0f",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T18:14:58Z"
+    },
+    "fixedN": {
+      "value": 986,
+      "definition": "test prompts with every scheduled verdict parsed",
+      "prompts_judged": 1000,
+      "artifact": "/work/sub_20260914/fresh_eval/safe_fixedref_s42/complete.json",
+      "sha256": "aef5a6d66ea29c0824d9337483bb67f8ac5866d54c8d2cc80c07e63949936a0f",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T18:14:58Z"
+    },
+    "fixedWone": {
+      "value": 0.6785623732251521,
+      "objective": "helpfulness",
+      "definition": "order-averaged win rate against the frozen four-response base reference bank, ties 0.5",
+      "ci95": [
+        0.6630324543610547,
+        0.6939037145030427
+      ],
+      "artifact": "/work/sub_20260914/fresh_eval/safe_fixedref_s42/complete.json",
+      "sha256": "aef5a6d66ea29c0824d9337483bb67f8ac5866d54c8d2cc80c07e63949936a0f",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T18:14:58Z"
+    },
+    "fixedWtwo": {
+      "value": 0.6334305273833671,
+      "objective": "harmlessness",
+      "definition": "order-averaged win rate against the frozen four-response base reference bank, ties 0.5",
+      "ci95": [
+        0.6146044624746451,
+        0.6519444092292089
+      ],
+      "artifact": "/work/sub_20260914/fresh_eval/safe_fixedref_s42/complete.json",
+      "sha256": "aef5a6d66ea29c0824d9337483bb67f8ac5866d54c8d2cc80c07e63949936a0f",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T18:14:58Z"
+    },
+    "fixedMin": {
+      "value": 0.6334305273833671,
+      "ci95": [
+        0.6146044624746451,
+        0.6519444092292089
+      ],
+      "definition": "minimum over objectives, recomputed inside every bootstrap replicate",
+      "artifact": "/work/sub_20260914/fresh_eval/safe_fixedref_s42/complete.json",
+      "sha256": "aef5a6d66ea29c0824d9337483bb67f8ac5866d54c8d2cc80c07e63949936a0f",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T18:14:58Z"
+    },
     "fixedDiff": null,
     "utilS": null,
     "utilN": null,
