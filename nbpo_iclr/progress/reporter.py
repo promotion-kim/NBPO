@@ -82,9 +82,14 @@ def snapshot():
     # with no spec to schedule. Those entries are history, not open problems,
     # and counting them with live failures buries a genuinely new one in a
     # constant of six. Report the two separately.
+    # The same applies to READY and PENDING: ten genhb rows were superseded by
+    # genhb2 specs on 09-11 and their old records still say READY, so a queue
+    # line of "READY 14" claimed ten dispatchable jobs that no controller can
+    # ever pick up. Mark every state's spec-less rows, not just the failures.
     stale = {s: sorted(n for n, e in jobs.items()
                        if e.get("state") == s and n not in live_specs)
-             for s in ("FAILED", "BLOCKED")}
+             for s in ("FAILED", "BLOCKED", "READY", "PENDING")}
+    stale = {s: v for s, v in stale.items() if v}
     return {"gpus": gpus, "jobs": jobs, "state_counts": counts,
             "live_specs": sorted(live_specs), "superseded": stale,
             "unreachable": not bool(out.strip())}
@@ -149,7 +154,14 @@ def completion():
              "2>/dev/null; true")
     crossplay_done = len([q for q in cp.split() if q.strip()
                           and "." not in q.split("/")[-2]])
-    dpo_done = len([a for a in evaluated if a.startswith("dpo_")])
+    # The denominator is declared weight SETTINGS, so the numerator must be
+    # settings too. Counting judged arms reported 5/7 while three settings were
+    # measured, because uniform carries three seeds.
+    dpo_settings = ("uniform", "if_only", "truth_only", "honesty_only",
+                    "help_only", "help_heavy", "truth_heavy")
+    dpo_arms = sorted(a for a in evaluated if a.startswith("dpo_"))
+    dpo_done = len([w for w in dpo_settings
+                    if any(a.startswith("dpo_%s_" % w) for a in dpo_arms)])
     lm_cells = pod("ls -d /work/uf4_20260910/evaluation/capability/*/*/results.json 2>/dev/null")
     lm_cells = len([p for p in lm_cells.split() if p.strip()])
     cap_cells = capability_cells_in_manuscript()
@@ -166,6 +178,7 @@ def completion():
         "crossplay_total": (len(m["crossplay"]["entries"])
                             * (len(m["crossplay"]["entries"]) - 1)) // 2,
         "dpo_done": dpo_done, "dpo_total": len(m["dpo_weights"]["weights"]),
+        "dpo_arms_judged": len(dpo_arms),
         "capability_cells_done": cap_cells,
         "capability_cells_total": len(m["capability"]["methods"]) * len(m["capability"]["benchmarks"]),
         "lm_eval_cells_done": lm_cells,
@@ -328,11 +341,12 @@ def korean_summary(snap, comp, build, extra):
         last = sorted((PROG / "pdfs").glob("*.pdf"))
         pdfline = "PDF: 실패, 최신 성공본 %s 유지" % (last[-1].name if last else "없음")
     return "\n".join([
-        "[KST %s] 본문 완료: objective %d/%d, cross-play %d/%d, DPO weights %d/7, capability %d/%d"
+        "[KST %s] 본문 완료: objective %d/%d, cross-play %d/%d, DPO 가중치 %d/7, capability %d/%d"
         % (t, comp["objective_rows_done"], comp["objective_rows_total"],
            comp["crossplay_done"], comp["crossplay_total"], comp["dpo_done"],
            comp["capability_cells_done"], comp["capability_cells_total"])
-        + " (lm-eval %d)" % comp["lm_eval_cells_done"],
+        + " (판정된 DPO arm %d, lm-eval %d)" % (comp.get("dpo_arms_judged", 0),
+                                                 comp["lm_eval_cells_done"]),
         "진행/다음: 큐 %s → %s" % (counts, extra.get("next", "READY 최상위")),
         gl(0) + " | " + gl(1),
         gl(2) + " | " + gl(3),
