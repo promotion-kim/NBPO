@@ -631,6 +631,16 @@ def cycle():
 
 
 def main():
+    # The 2026-09-14 submission package protects main_v6.tex by whole-file
+    # sha256, and every cycle of this reporter rewrites the manuscript's AUTO
+    # regions in place. Running it now would fail validate_protected.py on the
+    # first tick, so it refuses to start while the protection contract is
+    # installed. Status reporting for the submission campaign belongs to
+    # progress/sub_reporter.py, which never edits the manuscript.
+    if (PAPER / "protected_manifest.json").exists():
+        print("protected_manifest.json is installed; this reporter edits "
+              "main_v6.tex and must not run. Use progress/sub_reporter.py.")
+        return
     PROG.mkdir(parents=True, exist_ok=True)
     (PROG / "logs").mkdir(exist_ok=True)
     (PROG / "pdfs").mkdir(exist_ok=True)

@@ -1,0 +1,20 @@
+{
+  "gpt_review_originals_preserved": 34,
+  "review_responses_updated": 34,
+  "existing_tabular_bodies_preserved": 36,
+  "original_labels_retained": true,
+  "core_theory_and_proofs_preserved_except_review_responses": true,
+  "style_bibliography_unchanged": true,
+  "main_text_last_page_without_reviews": 9,
+  "clean_total_pages": 44,
+  "annotated_total_pages": 53,
+  "new_template_tables": 3,
+  "new_template_figure": 1,
+  "new_result_cells": 81,
+  "new_measured_cells": 0,
+  "pdf_builds_successful": true,
+  "undefined_refs_or_citations": false,
+  "overfull_boxes": false,
+  "new_ml_experiments_executed": false,
+  "raw_result_execution_verified": false
+}

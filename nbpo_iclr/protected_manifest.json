@@ -1,0 +1,17 @@
+{
+  "main_v6.tex": "f0a76f615c3cf0809f882623ee72118814031d9b970faac2e35d031a28766fac",
+  "main_clean.tex": "7c90c52e989e655024c902c322e76b0217dfd95f97b8621140f79d8f3e943509",
+  "iclr2027_conference.bib": "53b88918e3f6834172606c21fd981914de82622674bdf9b1e4e2f3a477b53d93",
+  "iclr2027_conference.bst": "2d67552db7ed38ccfccb5957b52f95656e25c249724761d3cf5f7922ad1844c5",
+  "iclr2027_conference.sty": "797deef41724e93761426ac0cbcca46279a91cc650dd1f0ce76a4f08d2098ea6",
+  "math_commands.tex": "90473c4d0542070db244cea73ef962d6cddc5b2a746757e6a40ddf5fdfb90ba9",
+  "templates/experiment_templates.tex": "9aa5fd14139ed238d3f1c0a16edf4a2cc1d20826d2d44f75c1a4e902b5d7f00f",
+  "templates/result_keys.json": "64138bf3c8e3718cdb1de22bcea393d021fb75a8a078b8ccdc13d914f509caa5",
+  "render_results.py": "c4761001a8d4143f3e45e66c2892a9f4220df1fbdb54f05dd50488fcd394f7c0",
+  "validate_protected.py": "0e3b873352888aae7b24b346329c93ed6e40497b82d37320a5e0087a4c1ef250",
+  "figures/controlled_primary.pdf": "df907892cad1f55474c76973e6d3325526d816f07d7f291822b3f9e649144a5c",
+  "figures/uf_tradeoffs.pdf": "a6738c25534230d16e602909235f1c59555c9d4d21270ddbb8fc1032e9740279",
+  "figures/target_transfer.pdf": "61aef29c9e1094b992065917cf21a8cc2b7951d3bc514e115b18ae9e7bd75da5",
+  "figures/replot_reported_results.py": "f77515c755a92bb139d27afee46d75a9a63be290e7a3f2a1be9b667301df276e",
+  "figures/reconstruction_data.json": "fe68813b456ed3a170b0be1daef5e299b89eba0c33bf9ecb0994c0706e6d81ae"
+}
