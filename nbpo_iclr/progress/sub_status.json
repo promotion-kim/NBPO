@@ -1,5 +1,5 @@
 {
- "kst": "18:08",
+ "kst": "18:38",
  "protected_ok": true,
  "builds": {
   "main_v6": {
@@ -17,7 +17,7 @@
   "counts": {
    "DONE": 509,
    "READY": 7,
-   "PENDING": 35,
+   "PENDING": 39,
    "RUNNING": 4
   },
   "running": {
@@ -150,9 +150,9 @@
     "n": 20
    }
   },
-  "label_verdicts": 864800,
-  "label_chunks": 25
+  "label_verdicts": 1048800,
+  "label_chunks": 30
  },
- "measured_cells": 20,
+ "measured_cells": 25,
  "render": "Rendered 81 cells; 20 measured. Artifact hashes are provenance declarations; verify source bytes separately."
 }
