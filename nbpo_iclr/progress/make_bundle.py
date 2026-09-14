@@ -115,9 +115,22 @@ def fresh_cells(doc, prefix, seeds):
     return out
 
 
+def delta_cells(doc, prefix):
+    """The Delta column for one row: the paired difference against NBPO."""
+    return {prefix + "Diff": {
+        "value": doc["delta_min"], "ci95": doc["delta_min_ci95"],
+        "definition": ("this row's seed-wise minimum minus NBPO's, paired by prompt, "
+                       "with the minimum recomputed inside every bootstrap replicate"),
+        "n_common_prompts": doc["n_common_prompts"],
+        "row_min_on_common": doc["row_min_on_common"],
+        "nbpo_min_on_common": doc["reference_min_on_common"],
+        "excludes_zero": doc["excludes_zero"]}}
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--group", required=True, choices=("screen", "factorial", "fresh"))
+    ap.add_argument("--group", required=True,
+                    choices=("screen", "factorial", "fresh", "delta"))
     ap.add_argument("--prefix", help="fresh only: the row prefix, e.g. base or nbpo")
     ap.add_argument("--seeds", type=int, default=1,
                     help="fresh only: replicates for the base row, seeds for an arm")
@@ -131,10 +144,14 @@ def main():
         cells = screen_cells(doc)
     elif args.group == "factorial":
         cells = factorial_cells(doc)
-    else:
+    elif args.group == "fresh":
         if not args.prefix:
             raise SystemExit("--prefix is required for the fresh group")
         cells = fresh_cells(doc, args.prefix, args.seeds)
+    else:
+        if not args.prefix:
+            raise SystemExit("--prefix is required for the delta group")
+        cells = delta_cells(doc, args.prefix)
     if not cells:
         raise SystemExit("no measured cells in %s" % args.artifact)
     bundle = {"contract_id": args.contract_id, "artifact": args.artifact,

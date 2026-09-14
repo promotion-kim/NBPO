@@ -1,5 +1,5 @@
 {
- "kst": "04:38",
+ "kst": "07:38",
  "protected_ok": true,
  "builds": {
   "main_v6": {
@@ -15,19 +15,15 @@
  },
  "queue": {
   "counts": {
-   "DONE": 551,
-   "PENDING": 35,
+   "DONE": 553,
+   "PENDING": 33,
    "BLOCKED": 1,
-   "FAILED": 1,
    "READY": 3,
    "RUNNING": 1
   },
   "running": {
-   "uf4_train_safe_nbpo_s42": [
-    0,
-    1,
-    2,
-    3
+   "sub_judge_fresh_safe_nbpo_s42": [
+    0
    ]
   },
   "ready": [
@@ -44,10 +40,8 @@
     "uf4_train_safe_btrm_s42"
    ]
   ],
-  "stale_rows": 22,
-  "live_failed": [
-   "sub_solve_prosper"
-  ]
+  "stale_rows": 23,
+  "live_failed": []
  },
  "campaign": {
   "judged": [

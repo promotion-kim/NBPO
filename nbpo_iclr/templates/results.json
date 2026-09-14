@@ -394,12 +394,78 @@
       "contract_id": "sub_20260914_safe_policy_v1",
       "measured_utc": "2026-09-14T12:16:42Z"
     },
-    "baseDiff": null,
-    "nbpoS": null,
-    "nbpoN": null,
-    "nbpoWone": null,
-    "nbpoWtwo": null,
-    "nbpoMin": null,
+    "baseDiff": {
+      "value": -0.12648348813209498,
+      "ci95": [
+        -0.15150928792569657,
+        -0.10184468524251805
+      ],
+      "definition": "this row's seed-wise minimum minus NBPO's, paired by prompt, with the minimum recomputed inside every bootstrap replicate",
+      "n_common_prompts": 969,
+      "row_min_on_common": 0.4887125902992776,
+      "nbpo_min_on_common": 0.6151960784313726,
+      "excludes_zero": true,
+      "artifact": "/work/sub_20260914/analysis/delta_base_vs_nbpo.json",
+      "sha256": "fd74c758e0e71c501cf43d12765159e3837242d16a00c5c481f8873b388be9a8",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T22:52:22Z"
+    },
+    "nbpoS": {
+      "value": 1,
+      "definition": "frozen generation replicates for the base row, training seeds for a trained arm",
+      "note": "test_fresh_safe_nbpo_s42",
+      "artifact": "/work/sub_20260914/fresh_eval/safe_nbpo_s42/complete.json",
+      "sha256": "d30f70f5ea3ed9c822fc578d0b57e2e231f239cdf2b783d63b766c9925495fe3",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T22:51:25Z"
+    },
+    "nbpoN": {
+      "value": 982,
+      "definition": "test prompts with every scheduled verdict parsed",
+      "prompts_judged": 1000,
+      "artifact": "/work/sub_20260914/fresh_eval/safe_nbpo_s42/complete.json",
+      "sha256": "d30f70f5ea3ed9c822fc578d0b57e2e231f239cdf2b783d63b766c9925495fe3",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T22:51:25Z"
+    },
+    "nbpoWone": {
+      "value": 0.678780549898167,
+      "objective": "helpfulness",
+      "definition": "order-averaged win rate against the frozen four-response base reference bank, ties 0.5",
+      "ci95": [
+        0.6625493253564154,
+        0.6941891547861507
+      ],
+      "artifact": "/work/sub_20260914/fresh_eval/safe_nbpo_s42/complete.json",
+      "sha256": "d30f70f5ea3ed9c822fc578d0b57e2e231f239cdf2b783d63b766c9925495fe3",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T22:51:25Z"
+    },
+    "nbpoWtwo": {
+      "value": 0.6161532586558045,
+      "objective": "harmlessness",
+      "definition": "order-averaged win rate against the frozen four-response base reference bank, ties 0.5",
+      "ci95": [
+        0.5973125636456211,
+        0.6356304098778004
+      ],
+      "artifact": "/work/sub_20260914/fresh_eval/safe_nbpo_s42/complete.json",
+      "sha256": "d30f70f5ea3ed9c822fc578d0b57e2e231f239cdf2b783d63b766c9925495fe3",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T22:51:25Z"
+    },
+    "nbpoMin": {
+      "value": 0.6161532586558045,
+      "ci95": [
+        0.5973125636456211,
+        0.6356304098778004
+      ],
+      "definition": "minimum over objectives, recomputed inside every bootstrap replicate",
+      "artifact": "/work/sub_20260914/fresh_eval/safe_nbpo_s42/complete.json",
+      "sha256": "d30f70f5ea3ed9c822fc578d0b57e2e231f239cdf2b783d63b766c9925495fe3",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T22:51:25Z"
+    },
     "nbpoDiff": null,
     "fixedS": {
       "value": 1,
@@ -457,7 +523,22 @@
       "contract_id": "sub_20260914_safe_policy_v1",
       "measured_utc": "2026-09-14T18:14:58Z"
     },
-    "fixedDiff": null,
+    "fixedDiff": {
+      "value": 0.01393188854489158,
+      "ci95": [
+        -0.008967040763673976,
+        0.03695981682146546
+      ],
+      "definition": "this row's seed-wise minimum minus NBPO's, paired by prompt, with the minimum recomputed inside every bootstrap replicate",
+      "n_common_prompts": 969,
+      "row_min_on_common": 0.6303534571723426,
+      "nbpo_min_on_common": 0.616421568627451,
+      "excludes_zero": false,
+      "artifact": "/work/sub_20260914/analysis/delta_fixed_vs_nbpo.json",
+      "sha256": "83a9799de6461eb09b4d95a379fc27ef84c0bc0667c9e0f01fd8ea6aafff3761",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T22:52:22Z"
+    },
     "utilS": null,
     "utilN": null,
     "utilWone": null,
