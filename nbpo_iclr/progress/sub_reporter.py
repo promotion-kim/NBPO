@@ -111,6 +111,14 @@ def campaign():
               "                          'rate': d['judgments_per_second'], 'parse': d['valid_fraction']})\n"
               "for f in sorted(glob.glob('%s/pools/safe*/shard*/complete*.json')):\n"
               "    out['pools'].append(f)\n"
+              # the policy panel's labelling lives under pool_judgments, and
+              # counting only judgments/ hid 533,600 finished verdicts from
+              # latest.md while the panel was being labelled
+              "out['label_verdicts'] = 0\n"
+              "out['label_chunks'] = 0\n"
+              "for f in glob.glob(S + '/pool_judgments/*/shard*/chunk*.manifest.json'):\n"
+              "    out['label_verdicts'] += json.load(open(f))['verdicts']\n"
+              "    out['label_chunks'] += 1\n"
               "p = S + '/factorial/summary.json'\n"
               "if os.path.exists(p):\n"
               "    d = json.load(open(p))\n"
@@ -227,9 +235,9 @@ def cycle():
         "완료: audit %d/%d, finite cells %d/%d, methods×seeds %d/%d, final eval %d/%d, template cell %d/%d"
         % (int(safe_done), AUDITS, camp["factor_cells"], FACTOR_CELLS,
            0, METHODS, 0, EVAL_ARMS, measured, declared),
-        "진행: 판정 누적 %d verdict, 실측 %.1f verdict/s/GPU · 큐 %s · 다음 READY %s"
-        % (verdicts, max(rates), q.get("counts", {}),
-           ready[0][1] if ready else "없음"),
+        "진행: audit 판정 %d verdict · policy labelling %d verdict(%d chunk) · 큐 %s · 다음 READY %s"
+        % (verdicts, camp.get("label_verdicts", 0), camp.get("label_chunks", 0),
+           q.get("counts", {}), ready[0][1] if ready else "없음"),
         gl(0) + " | " + gl(1),
         gl(2) + " | " + gl(3),
         "ETA: 별도 보고 참조(실측 기반)",

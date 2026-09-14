@@ -1,5 +1,5 @@
 {
- "kst": "15:02",
+ "kst": "17:38",
  "protected_ok": true,
  "builds": {
   "main_v6": {
@@ -15,42 +15,26 @@
  },
  "queue": {
   "counts": {
-   "DONE": 501,
-   "READY": 11,
-   "PENDING": 39,
+   "DONE": 509,
+   "READY": 7,
+   "PENDING": 35,
    "RUNNING": 4
   },
   "running": {
-   "uf4_score_alpaca_arena_22arm": [
+   "sub_label_safe_train_v1_s0": [
     1
    ],
-   "sub_pool_safe_v1_shard0": [
+   "sub_label_safe_train_v1_s1": [
     2
    ],
-   "sub_pool_safe_v1_shard1": [
+   "sub_label_safe_train_v1_s2": [
     0
    ],
-   "sub_pool_safe_v1_shard2": [
+   "sub_label_safe_train_v1_s3": [
     3
    ]
   },
   "ready": [
-   [
-    69,
-    "sub_pool_safe_v1_shard3"
-   ],
-   [
-    71,
-    "sub_label_safe_dev_v1_s0"
-   ],
-   [
-    71,
-    "sub_label_safe_dev_v1_s1"
-   ],
-   [
-    71,
-    "sub_label_safe_dev_v1_s2"
-   ],
    [
     71,
     "sub_label_safe_dev_v1_s3"
@@ -125,7 +109,11 @@
    "/work/uf4_20260910/pools/safe_dev_v1/shard0/complete_shard0.json",
    "/work/uf4_20260910/pools/safe_dev_v1/shard1/complete_shard1.json",
    "/work/uf4_20260910/pools/safe_dev_v1/shard2/complete_shard2.json",
-   "/work/uf4_20260910/pools/safe_dev_v1/shard3/complete_shard3.json"
+   "/work/uf4_20260910/pools/safe_dev_v1/shard3/complete_shard3.json",
+   "/work/uf4_20260910/pools/safe_v1/shard0/complete_shard0.json",
+   "/work/uf4_20260910/pools/safe_v1/shard1/complete_shard1.json",
+   "/work/uf4_20260910/pools/safe_v1/shard2/complete_shard2.json",
+   "/work/uf4_20260910/pools/safe_v1/shard3/complete_shard3.json"
   ],
   "factor_cells": 4,
   "factor_summary": {
@@ -161,7 +149,9 @@
     "TV": 0.006491073509492094,
     "n": 20
    }
-  }
+  },
+  "label_verdicts": 680800,
+  "label_chunks": 20
  },
  "measured_cells": 20,
  "render": "Rendered 81 cells; 20 measured. Artifact hashes are provenance declarations; verify source bytes separately."
