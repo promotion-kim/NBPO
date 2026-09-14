@@ -1,5 +1,5 @@
 {
- "kst": "17:38",
+ "kst": "18:08",
  "protected_ok": true,
  "builds": {
   "main_v6": {
@@ -150,8 +150,8 @@
     "n": 20
    }
   },
-  "label_verdicts": 680800,
-  "label_chunks": 20
+  "label_verdicts": 864800,
+  "label_chunks": 25
  },
  "measured_cells": 20,
  "render": "Rendered 81 cells; 20 measured. Artifact hashes are provenance declarations; verify source bytes separately."
