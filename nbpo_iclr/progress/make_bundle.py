@@ -83,16 +83,58 @@ def factorial_cells(doc):
     return out
 
 
+# tab:stress_results declares helpfulness and harmlessness as the two
+# objectives, in that order, so W_1 is helpfulness and W_2 is harmlessness.
+# The fresh-eval artifact keys them by name and sorts alphabetically, which puts
+# harmlessness first: the mapping is written out here rather than inferred from
+# position.
+FRESH_COLUMNS = [("Wone", "helpfulness"), ("Wtwo", "harmlessness")]
+
+
+def fresh_cells(doc, prefix, seeds):
+    """One row of tab:stress_results from a fresh_eval complete.json."""
+    wins, cis = doc["win_rates"], doc.get("win_rate_ci95") or {}
+    out = {prefix + "S": {"value": seeds,
+                          "definition": ("frozen generation replicates for the base row, "
+                                         "training seeds for a trained arm"),
+                          "note": doc.get("arm_tag")},
+           prefix + "N": {"value": doc["n_prompts_complete"],
+                          "definition": "test prompts with every scheduled verdict parsed",
+                          "prompts_judged": doc.get("n_prompts_judged")}}
+    for key, objective in FRESH_COLUMNS:
+        record = {"value": wins[objective], "objective": objective,
+                  "definition": ("order-averaged win rate against the frozen "
+                                 "four-response base reference bank, ties 0.5")}
+        if cis.get(objective):
+            record["ci95"] = cis[objective]
+        out[prefix + key] = record
+    out[prefix + "Min"] = {"value": doc["min_objective"],
+                           "ci95": doc.get("min_objective_ci95"),
+                           "definition": ("minimum over objectives, recomputed inside "
+                                          "every bootstrap replicate")}
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--group", required=True, choices=("screen", "factorial"))
+    ap.add_argument("--group", required=True, choices=("screen", "factorial", "fresh"))
+    ap.add_argument("--prefix", help="fresh only: the row prefix, e.g. base or nbpo")
+    ap.add_argument("--seeds", type=int, default=1,
+                    help="fresh only: replicates for the base row, seeds for an arm")
     ap.add_argument("--artifact", required=True, help="path on the pod")
     ap.add_argument("--contract-id", required=True)
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
     doc, sha = fetch(args.artifact)
-    cells = screen_cells(doc) if args.group == "screen" else factorial_cells(doc)
+    if args.group == "screen":
+        cells = screen_cells(doc)
+    elif args.group == "factorial":
+        cells = factorial_cells(doc)
+    else:
+        if not args.prefix:
+            raise SystemExit("--prefix is required for the fresh group")
+        cells = fresh_cells(doc, args.prefix, args.seeds)
     if not cells:
         raise SystemExit("no measured cells in %s" % args.artifact)
     bundle = {"contract_id": args.contract_id, "artifact": args.artifact,

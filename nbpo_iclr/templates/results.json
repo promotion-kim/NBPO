@@ -338,11 +338,62 @@
       "contract_id": "sub_20260914_factorial_v2",
       "measured_utc": "2026-09-14T05:29:03Z"
     },
-    "baseS": null,
-    "baseN": null,
-    "baseWone": null,
-    "baseWtwo": null,
-    "baseMin": null,
+    "baseS": {
+      "value": 1,
+      "definition": "frozen generation replicates for the base row, training seeds for a trained arm",
+      "note": "test_fresh_base",
+      "artifact": "/work/sub_20260914/fresh_eval/base_fresh/complete.json",
+      "sha256": "5ff76be6f1cfef615c6421be68949d4527c01c918d91972e33643f10eaa3f0d2",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T12:16:42Z"
+    },
+    "baseN": {
+      "value": 986,
+      "definition": "test prompts with every scheduled verdict parsed",
+      "prompts_judged": 1000,
+      "artifact": "/work/sub_20260914/fresh_eval/base_fresh/complete.json",
+      "sha256": "5ff76be6f1cfef615c6421be68949d4527c01c918d91972e33643f10eaa3f0d2",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T12:16:42Z"
+    },
+    "baseWone": {
+      "value": 0.5010775862068966,
+      "objective": "helpfulness",
+      "definition": "order-averaged win rate against the frozen four-response base reference bank, ties 0.5",
+      "ci95": [
+        0.4857378296146045,
+        0.5159752155172415
+      ],
+      "artifact": "/work/sub_20260914/fresh_eval/base_fresh/complete.json",
+      "sha256": "5ff76be6f1cfef615c6421be68949d4527c01c918d91972e33643f10eaa3f0d2",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T12:16:42Z"
+    },
+    "baseWtwo": {
+      "value": 0.489604462474645,
+      "objective": "harmlessness",
+      "definition": "order-averaged win rate against the frozen four-response base reference bank, ties 0.5",
+      "ci95": [
+        0.4726768509127789,
+        0.5063403270791076
+      ],
+      "artifact": "/work/sub_20260914/fresh_eval/base_fresh/complete.json",
+      "sha256": "5ff76be6f1cfef615c6421be68949d4527c01c918d91972e33643f10eaa3f0d2",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T12:16:42Z"
+    },
+    "baseMin": {
+      "value": 0.489604462474645,
+      "ci95": [
+        0.4726768509127789,
+        0.5051359660243409
+      ],
+      "definition": "minimum over objectives, recomputed inside every bootstrap replicate",
+      "artifact": "/work/sub_20260914/fresh_eval/base_fresh/complete.json",
+      "sha256": "5ff76be6f1cfef615c6421be68949d4527c01c918d91972e33643f10eaa3f0d2",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-14T12:16:42Z"
+    },
     "baseDiff": null,
     "nbpoS": null,
     "nbpoN": null,

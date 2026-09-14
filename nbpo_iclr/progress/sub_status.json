@@ -1,5 +1,5 @@
 {
- "kst": "18:38",
+ "kst": "21:08",
  "protected_ok": true,
  "builds": {
   "main_v6": {
@@ -15,42 +15,22 @@
  },
  "queue": {
   "counts": {
-   "DONE": 509,
-   "READY": 7,
-   "PENDING": 39,
-   "RUNNING": 4
+   "DONE": 521,
+   "READY": 3,
+   "RUNNING": 1,
+   "PENDING": 22,
+   "FAILED": 5,
+   "BLOCKED": 7
   },
   "running": {
-   "sub_label_safe_train_v1_s0": [
-    1
-   ],
-   "sub_label_safe_train_v1_s1": [
-    2
-   ],
-   "sub_label_safe_train_v1_s2": [
-    0
-   ],
-   "sub_label_safe_train_v1_s3": [
+   "uf4_train_dpo_honesty_only_mse_s42": [
+    0,
+    1,
+    2,
     3
    ]
   },
   "ready": [
-   [
-    71,
-    "sub_label_safe_dev_v1_s3"
-   ],
-   [
-    75,
-    "sub_gen_fresh_base_test"
-   ],
-   [
-    75,
-    "sub_gen_ref4_test"
-   ],
-   [
-    88,
-    "uf4_train_dpo_honesty_only_mse_s42"
-   ],
    [
     89,
     "uf4_train_dpo_help_only_mse_s42"
@@ -65,7 +45,13 @@
    ]
   ],
   "stale_rows": 22,
-  "live_failed": []
+  "live_failed": [
+   "sub_dpo_materialize",
+   "sub_solve_btrm",
+   "sub_solve_fixedref",
+   "sub_solve_nash",
+   "sub_solve_prosper"
+  ]
  },
  "campaign": {
   "judged": [
@@ -150,9 +136,9 @@
     "n": 20
    }
   },
-  "label_verdicts": 1048800,
-  "label_chunks": 30
+  "label_verdicts": 1840000,
+  "label_chunks": 52
  },
  "measured_cells": 25,
- "render": "Rendered 81 cells; 20 measured. Artifact hashes are provenance declarations; verify source bytes separately."
+ "render": "Rendered 81 cells; 25 measured. Artifact hashes are provenance declarations; verify source bytes separately."
 }
