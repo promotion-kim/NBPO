@@ -1,0 +1,195 @@
+--- main_v6.tex	2026-09-14 13:29:22.836584378 +0900
++++ /tmp/claude-1330802213/-home-sjkim-MNPO/fe2fbf83-be68-4517-95d5-ba20d0958153/scratchpad/patchwork/main_v6.tex	2026-09-14 14:16:25.983527844 +0900
+@@ -91,85 +91,85 @@
+ % Factual counts written by progress/fill_exhibits.py. The caption prose reads
+ % these macros, so the table body and the sentence describing it cannot drift
+ % apart. Interpretive sentences are NOT auto-written.
+-\newcommand{\tabonecommon}{1{,}236}
++\newcommand{\tabonecommon}{1{,}217}
+ \newcommand{\tabonevalidrange}{$1{,}884$--$1{,}941$}
+-\newcommand{\tabonearms}{25}
+-\newcommand{\tabonearmsnum}{25}
+-\newcommand{\tabonematchedminlist}{$0.4955$, $0.5002$, $0.4980$ and $0.4944$}
+-\newcommand{\tabonematchedminspread}{$0.0058$}
+-\newcommand{\tabonematchedminrange}{$0.4944$--$0.5002$}
+-\newcommand{\tabonematchedbelowhalf}{three}
+-\newcommand{\tabonematchedagreeall}{$0.0059$}
+-\newcommand{\tabonematchedagreeif}{$0.0048$}
+-\newcommand{\tabonematchedagreehelp}{$0.0030$}
+-\newcommand{\tabonemechif}{$0.5056$--$0.5130$}
+-\newcommand{\tabonemechtruth}{$0.5076$--$0.5136$}
+-\newcommand{\tabonemechhonesty}{$0.4944$--$0.5032$}
+-\newcommand{\tabonemechhelp}{$0.5466$--$0.5508$}
+-\newcommand{\tabonemechmin}{$0.4944$--$0.5021$}
++\newcommand{\tabonearms}{26}
++\newcommand{\tabonearmsnum}{26}
++\newcommand{\tabonematchedminlist}{$0.4940$, $0.4994$, $0.4961$ and $0.4932$}
++\newcommand{\tabonematchedminspread}{$0.0062$}
++\newcommand{\tabonematchedminrange}{$0.4932$--$0.4994$}
++\newcommand{\tabonematchedbelowhalf}{four}
++\newcommand{\tabonematchedagreeall}{$0.0063$}
++\newcommand{\tabonematchedagreeif}{$0.0055$}
++\newcommand{\tabonematchedagreehelp}{$0.0026$}
++\newcommand{\tabonemechif}{$0.5053$--$0.5134$}
++\newcommand{\tabonemechtruth}{$0.5064$--$0.5131$}
++\newcommand{\tabonemechhonesty}{$0.4932$--$0.5040$}
++\newcommand{\tabonemechhelp}{$0.5471$--$0.5501$}
++\newcommand{\tabonemechmin}{$0.4932$--$0.5024$}
+ \newcommand{\tabonedposeeds}{three}
+ \newcommand{\tabonedposeedphrase}{three seeds}
+-\newcommand{\tabonedpoif}{$0.5653$}
+-\newcommand{\tabonedpotruth}{$0.5647$}
+-\newcommand{\tabonedpohonesty}{$0.5044$}
+-\newcommand{\tabonedpohelp}{$0.6282$}
+-\newcommand{\tabonedpomin}{$0.5044$}
+-\newcommand{\tabonedpomaxsd}{$0.0065$}
++\newcommand{\tabonedpoif}{$0.5651$}
++\newcommand{\tabonedpotruth}{$0.5638$}
++\newcommand{\tabonedpohonesty}{$0.5036$}
++\newcommand{\tabonedpohelp}{$0.6276$}
++\newcommand{\tabonedpomin}{$0.5036$}
++\newcommand{\tabonedpomaxsd}{$0.0061$}
+ \newcommand{\tabonedpoexcl}{instruction following, truthfulness and helpfulness}
+-\newcommand{\tabonedpoabove}{instruction following, truthfulness, honesty and helpfulness}
++\newcommand{\tabonedpoabove}{instruction following, truthfulness and helpfulness}
+ \newcommand{\tabonedpobelow}{no attribute}
+ \newcommand{\tabonedpominplace}{above all five of them}
+ \newcommand{\tabonemoposeeds}{three}
+ \newcommand{\tabonemoposeedphrase}{three seeds}
+-\newcommand{\tabonemopoif}{$0.5205$}
+-\newcommand{\tabonemopotruth}{$0.5171$}
+-\newcommand{\tabonemopohonesty}{$0.5028$}
+-\newcommand{\tabonemopohelp}{$0.5278$}
+-\newcommand{\tabonemopomin}{$0.5028$}
+-\newcommand{\tabonemopomaxsd}{$0.0117$}
+-\newcommand{\tabonemopoexcl}{instruction following and helpfulness}
++\newcommand{\tabonemopoif}{$0.5207$}
++\newcommand{\tabonemopotruth}{$0.5166$}
++\newcommand{\tabonemopohonesty}{$0.5021$}
++\newcommand{\tabonemopohelp}{$0.5282$}
++\newcommand{\tabonemopomin}{$0.5021$}
++\newcommand{\tabonemopomaxsd}{$0.0122$}
++\newcommand{\tabonemopoexcl}{instruction following}
+ \newcommand{\tabonemopoabove}{instruction following and truthfulness}
+ \newcommand{\tabonemopobelow}{helpfulness}
+-\newcommand{\tabonemopominplace}{above all five of them}
+-\newcommand{\taboneprosperseeds}{two}
+-\newcommand{\taboneprosperseedphrase}{two seeds}
+-\newcommand{\taboneprosperif}{$0.5109$}
+-\newcommand{\taboneprospertruth}{$0.5095$}
+-\newcommand{\taboneprosperhonesty}{$0.5031$}
+-\newcommand{\taboneprosperhelp}{$0.5452$}
+-\newcommand{\taboneprospermin}{$0.4990$}
+-\newcommand{\taboneprospermaxsd}{$0.0303$}
++\newcommand{\tabonemopominplace}{inside their band}
++\newcommand{\taboneprosperseeds}{three}
++\newcommand{\taboneprosperseedphrase}{three seeds}
++\newcommand{\taboneprosperif}{$0.5137$}
++\newcommand{\taboneprospertruth}{$0.5079$}
++\newcommand{\taboneprosperhonesty}{$0.4975$}
++\newcommand{\taboneprosperhelp}{$0.5451$}
++\newcommand{\taboneprospermin}{$0.4954$}
++\newcommand{\taboneprospermaxsd}{$0.0216$}
+ \newcommand{\taboneprosperexcl}{helpfulness}
+-\newcommand{\taboneprosperabove}{no attribute}
++\newcommand{\taboneprosperabove}{instruction following}
+ \newcommand{\taboneprosperbelow}{helpfulness}
+ \newcommand{\taboneprosperminplace}{inside their band}
+-\newcommand{\tabonedpomargins}{$0.052$, $0.051$ and $0.077$}
+-\newcommand{\tabonedpohonestymargin}{$0.0013$}
+-\newcommand{\tabonerowsathalf}{Fixed-reference Nash at $0.5002$, BT-RM--Nash at $0.5021$, scalarized DPO at $0.5044$ and MOPO at $0.5028$}
+-\newcommand{\tabonerowsathalfcount}{four}
+-\newcommand{\tabonehonestybinds}{22 of the 25}
++\newcommand{\tabonedpomargins}{$0.052$, $0.051$ and $0.078$}
++\newcommand{\tabonedpohonestymargin}{$-0.0005$}
++\newcommand{\tabonerowsathalf}{BT-RM--Nash at $0.5024$, scalarized DPO at $0.5036$ and MOPO at $0.5021$}
++\newcommand{\tabonerowsathalfcount}{three}
++\newcommand{\tabonehonestybinds}{23 of the 26}
+ \newcommand{\tabonebindsother}{instruction following and truthfulness}
+ \newcommand{\tabonetruthexclmech}{two of fifteen}
+-\newcommand{\taboneleadsplit}{Fixed-reference Nash on honesty and the minimum; Game-utilitarian on helpfulness; Global game-maxmin on instruction following and truthfulness}
++\newcommand{\taboneleadsplit}{Fixed-reference Nash on truthfulness, honesty and the minimum; Game-utilitarian on helpfulness; Global game-maxmin on instruction following}
+ \newcommand{\tabonenolead}{NBPO}
+ \newcommand{\tabonenoleadclause}{NBPO leads nothing}
+ \newcommand{\tabonewidestfamily}{Game-utilitarian}
+ \newcommand{\tabonewidestcount}{two of the four attributes}
+-\newcommand{\tabonewidestif}{$0.0140$ against a next largest of $0.0109$}
+-\newcommand{\capdpojudgedif}{$0.5728$}
+-\newcommand{\tabonebtrmtraj}{$0.5091$ at one seed; $0.5014$ at two seeds; $0.5021$ at three seeds}
+-\newcommand{\tabonebtrmfirst}{$0.5091$}
+-\newcommand{\tabonebtrmlast}{$0.5021$}
+-\newcommand{\tabonedpoovernbpo}{$0.0571$, $0.0560$, $0.0090$ and $0.0804$}
+-\newcommand{\tabonetopmin}{Scalarized DPO (uniform) at $0.5044$}
++\newcommand{\tabonewidestif}{$0.0141$ against a next largest of $0.0109$}
++\newcommand{\capdpojudgedif}{$0.5721$}
++\newcommand{\tabonebtrmtraj}{$0.5097$ at one seed; $0.5014$ at two seeds; $0.5024$ at three seeds}
++\newcommand{\tabonebtrmfirst}{$0.5097$}
++\newcommand{\tabonebtrmlast}{$0.5024$}
++\newcommand{\tabonedpoovernbpo}{$0.0573$, $0.0564$, $0.0095$ and $0.0802$}
++\newcommand{\tabonetopmin}{Scalarized DPO (uniform) at $0.5036$}
+ \newcommand{\tabonetopminrow}{Scalarized DPO (uniform)}
+ \newcommand{\tabonerowstatus}{all eight declared methods}
+ \newcommand{\tabonerowsmissing}{none}
+-\newcommand{\figtradeoffpoints}{25}
++\newcommand{\figtradeoffpoints}{26}
+ \newcommand{\figtradeoffpending}{Scalarized DPO (help heavy), Scalarized DPO (help only), Scalarized DPO (honesty only) and Scalarized DPO (truth heavy)}
+ \newcommand{\figtradeoffpendingcount}{four}
+-\newcommand{\taboneshrink}{$1{,}719$, $1{,}644$, $1{,}616$, $1{,}588$, $1{,}569$, $1{,}544$, $1{,}512$, $1{,}486$, $1{,}466$, $1{,}408$, $1{,}377$, $1{,}345$, $1{,}329$, $1{,}310$, $1{,}295$, $1{,}284$, $1{,}270$, $1{,}250$}
+-\newcommand{\taboneshrinkcount}{eighteen}
++\newcommand{\taboneshrink}{$1{,}719$, $1{,}644$, $1{,}616$, $1{,}588$, $1{,}569$, $1{,}544$, $1{,}512$, $1{,}486$, $1{,}466$, $1{,}408$, $1{,}377$, $1{,}345$, $1{,}329$, $1{,}310$, $1{,}295$, $1{,}284$, $1{,}270$, $1{,}250$, $1{,}236$}
++\newcommand{\taboneshrinkcount}{nineteen}
+ % END AUTO EXHIBIT NUMBERS
+ 
+ % BEGIN SOURCE SNAPSHOT STATUS
+@@ -673,24 +673,24 @@
+ Base (defined reference) & -- & $0.500$ & $0.500$ & $0.500$ & $0.500$ & $0.500$\\
+ \addlinespace
+ \multicolumn{7}{l}{\textit{Matched mechanism controls}}\\
+-NBPO & $3$ & $0.5082$ & $0.5087$ & $0.4955$ & $\mathbf{0.5478}$ & $0.4955$\\
+-\quad\textit{sample SD over seeds} & & $0.0085$ & $0.0039$ & $0.0017$ & $0.0039$ & $0.0017$\\
+-Fixed-reference Nash & $3$ & $0.5118$ & $0.5134$ & $0.5002$ & $\mathbf{0.5485}$ & $0.5002$\\
+-\quad\textit{sample SD over seeds} & & $0.0081$ & $0.0016$ & $0.0058$ & $0.0026$ & $0.0058$\\
+-BT-RM--Nash & $3$ & $0.5056$ & $0.5131$ & $0.5032$ & $\mathbf{0.5466}$ & $0.5021$\\
+-\quad\textit{sample SD over seeds} & & $0.0109$ & $0.0047$ & $0.0061$ & $0.0060$ & $0.0078$\\
+-Game-utilitarian & $3$ & $0.5115$ & $0.5076$ & $0.4997$ & $\mathbf{0.5508}$ & $0.4980$\\
+-\quad\textit{sample SD over seeds} & & $0.0043$ & $0.0079$ & $0.0097$ & $0.0055$ & $0.0091$\\
+-Global game-maxmin & $3$ & $0.5130$ & $0.5136$ & $0.4944$ & $\mathbf{0.5500}$ & $0.4944$\\
+-\quad\textit{sample SD over seeds} & & $0.0140$ & $0.0077$ & $0.0066$ & $0.0050$ & $0.0066$\\
++NBPO & $3$ & $0.5078$ & $0.5074$ & $0.4940$ & $\mathbf{0.5475}$ & $0.4940$\\
++\quad\textit{sample SD over seeds} & & $0.0082$ & $0.0040$ & $0.0026$ & $0.0038$ & $0.0026$\\
++Fixed-reference Nash & $3$ & $0.5109$ & $0.5127$ & $0.4994$ & $\mathbf{0.5486}$ & $0.4994$\\
++\quad\textit{sample SD over seeds} & & $0.0083$ & $0.0007$ & $0.0058$ & $0.0010$ & $0.0058$\\
++BT-RM--Nash & $3$ & $0.5053$ & $0.5131$ & $0.5040$ & $\mathbf{0.5471}$ & $0.5024$\\
++\quad\textit{sample SD over seeds} & & $0.0109$ & $0.0047$ & $0.0058$ & $0.0062$ & $0.0084$\\
++Game-utilitarian & $3$ & $0.5109$ & $0.5064$ & $0.4982$ & $\mathbf{0.5501}$ & $0.4961$\\
++\quad\textit{sample SD over seeds} & & $0.0040$ & $0.0084$ & $0.0104$ & $0.0061$ & $0.0095$\\
++Global game-maxmin & $3$ & $0.5134$ & $0.5125$ & $0.4932$ & $\mathbf{0.5500}$ & $0.4932$\\
++\quad\textit{sample SD over seeds} & & $0.0141$ & $0.0076$ & $0.0059$ & $0.0051$ & $0.0059$\\
+ \addlinespace
+ \multicolumn{7}{l}{\textit{External baselines}}\\
+-Scalarized DPO (uniform) & $3$ & $\mathbf{0.5653}$ & $\mathbf{0.5647}$ & $0.5044$ & $\mathbf{0.6282}$ & $0.5044$\\
+-\quad\textit{sample SD over seeds} & & $0.0065$ & $0.0018$ & $0.0042$ & $0.0017$ & $0.0042$\\
+-PROSPER (adapt.) & $2$ & $0.5109$ & $0.5095$ & $0.5031$ & $\mathbf{0.5452}$ & $0.4990$\\
+-\quad\textit{sample SD over seeds} & & $0.0303$ & $0.0066$ & $0.0076$ & $0.0070$ & $0.0134$\\
+-MOPO (adapt.) & $3$ & $\mathbf{0.5205}$ & $0.5171$ & $0.5028$ & $\mathbf{0.5278}$ & $0.5028$\\
+-\quad\textit{sample SD over seeds} & & $0.0019$ & $0.0072$ & $0.0029$ & $0.0117$ & $0.0029$\\
++Scalarized DPO (uniform) & $3$ & $\mathbf{0.5651}$ & $\mathbf{0.5638}$ & $0.5036$ & $\mathbf{0.6276}$ & $0.5036$\\
++\quad\textit{sample SD over seeds} & & $0.0061$ & $0.0023$ & $0.0043$ & $0.0014$ & $0.0043$\\
++PROSPER (adapt.) & $3$ & $0.5137$ & $0.5079$ & $0.4975$ & $\mathbf{0.5451}$ & $0.4954$\\
++\quad\textit{sample SD over seeds} & & $0.0216$ & $0.0042$ & $0.0084$ & $0.0039$ & $0.0095$\\
++MOPO (adapt.) & $3$ & $\mathbf{0.5207}$ & $0.5166$ & $0.5021$ & $0.5282$ & $0.5021$\\
++\quad\textit{sample SD over seeds} & & $0.0013$ & $0.0066$ & $0.0041$ & $0.0122$ & $0.0041$\\
+ % END AUTO TAB1 BODY
+ \bottomrule
+ \end{tabular}
+@@ -1527,8 +1527,8 @@
+ Global game-maxmin & $3$ & $0.7437$ & $0.8678$ & $0.3917$ & $0.0388$ & $0.5636$ & $0.5323$ & $7.60$\\
+ \quad\textit{sample SD over seeds} & & $0.0043$ & $0.0024$ & $0.0065$ & $0.0046$ & $0.0169$ & $0.0203$ & $0.11$\\
+ Scalarized DPO (uniform) & $1$ & $0.6359$ & $0.8582$ & $0.6281$ & $0.0000$ & $0.7615$ & $0.7910$ & $8.04$\\
+-PROSPER (adapt.) & $2$ & $0.7394$ & $0.8654$ & $0.3953$ & $0.0402$ & $0.5441$ & $0.5215$ & $7.51$\\
+-\quad\textit{sample SD over seeds} & & $0.0052$ & $0.0102$ & $0.0022$ & $0.0053$ & $0.0035$ & $0.0120$ & $0.13$\\
++PROSPER (adapt.) & $2$--$3$ & $0.7425$ & $0.8653$ & $0.3953$ & $0.0402$ & $0.5441$ & $0.5215$ & $7.51$\\
++\quad\textit{sample SD over seeds} & & $0.0065$ & $0.0072$ & $0.0022$ & $0.0053$ & $0.0035$ & $0.0120$ & $0.13$\\
+ MOPO (adapt.) & $3$ & $0.7579$ & $0.8701$ & $0.3156$ & $0.0600$ & $0.5170$ & $0.5450$ & $7.64$\\
+ \quad\textit{sample SD over seeds} & & $0.0151$ & $0.0016$ & $0.0108$ & $0.0069$ & $0.0031$ & $0.0330$ & $0.03$\\
+ % END AUTO TAB3 BODY
