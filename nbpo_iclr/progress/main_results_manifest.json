@@ -1,5 +1,5 @@
 {
-  "generated_kst": "2026-09-14 08:14:19",
+  "generated_kst": "2026-09-14 10:14:18",
   "execution_matrix": {
     "frozen_at_kst": "2026-09-11 15:40",
     "note": "Denominators for the main-body completion counters. Methods and weights are never removed to raise a percentage; a method that is not started counts against the denominator.",
@@ -142,11 +142,10 @@
     ]
   },
   "state_counts": {
-    "DONE": 51,
-    "PENDING": 6,
-    "FAILED": 1,
+    "DONE": 52,
+    "PENDING": 5,
+    "READY": 5,
     "RUNNING": 1,
-    "READY": 4,
     "NOT_STARTED": 100
   },
   "rows": [
@@ -688,10 +687,10 @@
       "method": "prosper_adapt",
       "seed_or_weight": "seed 44 (train)",
       "checkpoint_id": "prosper_mse_s44",
-      "config_hash": "8b4516089b056b5eb398e4fa1c740155cb43bb747af155f84aeac8fd9ff38999",
+      "config_hash": "",
       "dependency": "target solve",
       "job_id": "uf4_train_prosper_mse_s44",
-      "state": "FAILED",
+      "state": "READY",
       "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/prosper_mse_s44/config.json",
       "eta_min": 184
@@ -818,11 +817,11 @@
       "method": "scalarized_dpo",
       "seed_or_weight": "truth_only",
       "checkpoint_id": "dpo_truth_only_mse_s42",
-      "config_hash": "",
+      "config_hash": "2e8c5719c100fe5f916d5f39af5f0cf92b1387a0956dee8f94fcd99a428dca3d",
       "dependency": "uf4_train_dpo_truth_only_mse_s42",
       "job_id": "uf4_finaleval_judge_dpo_truth_only_mse_s42",
-      "state": "PENDING",
-      "progress": "",
+      "state": "RUNNING",
+      "progress": "elapsed 4m",
       "artifact_path": "/work/uf4_20260910/evaluation/final_eval/dpo_truth_only_mse_s42/complete.json",
       "eta_min": 24
     },
@@ -834,8 +833,8 @@
       "config_hash": "f6ff9880a32a2279952a6dbb1eadba6eb117a10a18db715fb8685e24d5f4c6ed",
       "dependency": "uf4_build_dpo_datasets",
       "job_id": "uf4_train_dpo_truth_only_mse_s42",
-      "state": "RUNNING",
-      "progress": "elapsed 15m",
+      "state": "DONE",
+      "progress": "",
       "artifact_path": "/work/uf4_20260910/arms/dpo_truth_only_mse_s42/config.json",
       "eta_min": 184
     },
@@ -2300,12 +2299,6 @@
       "job_id": "uf4_make_train_prosper_s42",
       "state": "NOT_APPLICABLE",
       "reason": "every declared artifact is on disk from a later successful retry"
-    },
-    {
-      "job_id": "uf4_train_prosper_mse_s44",
-      "state": "FAILED",
-      "reason": "no successful retry found; artifact still missing",
-      "missing": []
     }
   ]
 }

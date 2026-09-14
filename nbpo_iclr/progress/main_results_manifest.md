@@ -1,8 +1,8 @@
 # Main-body result manifest
 
-Generated 2026-09-14 08:14:19 KST. DONE requires the proving artifact on disk.
+Generated 2026-09-14 10:14:18 KST. DONE requires the proving artifact on disk.
 
-State counts: DONE 51, FAILED 1, NOT_STARTED 100, PENDING 6, READY 4, RUNNING 1
+State counts: DONE 52, NOT_STARTED 100, PENDING 5, READY 5, RUNNING 1
 
 | exhibit | method | seed/weight | checkpoint | job | state | progress | ETA (min) |
 |---|---|---|---|---|---|---|---|
@@ -47,7 +47,7 @@ State counts: DONE 51, FAILED 1, NOT_STARTED 100, PENDING 6, READY 4, RUNNING 1
 | tab:uf-objectives | prosper_adapt | seed 43 | prosper_mse_s43 | uf4_finaleval_judge_prosper_mse_s43 | DONE | - | 24 |
 | tab:uf-objectives | prosper_adapt | seed 43 (train) | prosper_mse_s43 | uf4_train_prosper_mse_s43 | DONE | - | 184 |
 | tab:uf-objectives | prosper_adapt | seed 44 | prosper_mse_s44 | uf4_finaleval_judge_prosper_mse_s44 | PENDING | - | 24 |
-| tab:uf-objectives | prosper_adapt | seed 44 (train) | prosper_mse_s44 | uf4_train_prosper_mse_s44 | FAILED | - | 184 |
+| tab:uf-objectives | prosper_adapt | seed 44 (train) | prosper_mse_s44 | uf4_train_prosper_mse_s44 | READY | - | 184 |
 | tab:uf-objectives | mopo_adapt | seed 42 | mopo_mse_s42 | uf4_finaleval_judge_mopo_mse_s42 | DONE | - | 24 |
 | tab:uf-objectives | mopo_adapt | seed 42 (train) | mopo_mse_s42 | uf4_train_mopo_mse_s42 | DONE | - | 184 |
 | tab:uf-objectives | mopo_adapt | seed 43 | mopo_mse_s43 | uf4_finaleval_judge_mopo_mse_s43 | DONE | - | 24 |
@@ -57,8 +57,8 @@ State counts: DONE 51, FAILED 1, NOT_STARTED 100, PENDING 6, READY 4, RUNNING 1
 | tab:uf-objectives | base | reference | Llama-3.1-8B-Instruct | uf4_pool_finaleval_shard0 | DONE | - | 9 |
 | fig:uf-tradeoffs | scalarized_dpo | if_only | dpo_if_only_mse_s42 | uf4_finaleval_judge_dpo_if_only_mse_s42 | DONE | - | 24 |
 | fig:uf-tradeoffs | scalarized_dpo | if_only (train) | dpo_if_only_mse_s42 | uf4_train_dpo_if_only_mse_s42 | DONE | - | 184 |
-| fig:uf-tradeoffs | scalarized_dpo | truth_only | dpo_truth_only_mse_s42 | uf4_finaleval_judge_dpo_truth_only_mse_s42 | PENDING | - | 24 |
-| fig:uf-tradeoffs | scalarized_dpo | truth_only (train) | dpo_truth_only_mse_s42 | uf4_train_dpo_truth_only_mse_s42 | RUNNING | elapsed 15m | 184 |
+| fig:uf-tradeoffs | scalarized_dpo | truth_only | dpo_truth_only_mse_s42 | uf4_finaleval_judge_dpo_truth_only_mse_s42 | RUNNING | elapsed 4m | 24 |
+| fig:uf-tradeoffs | scalarized_dpo | truth_only (train) | dpo_truth_only_mse_s42 | uf4_train_dpo_truth_only_mse_s42 | DONE | - | 184 |
 | fig:uf-tradeoffs | scalarized_dpo | honesty_only | dpo_honesty_only_mse_s42 | uf4_finaleval_judge_dpo_honesty_only_mse_s42 | PENDING | - | 24 |
 | fig:uf-tradeoffs | scalarized_dpo | honesty_only (train) | dpo_honesty_only_mse_s42 | uf4_train_dpo_honesty_only_mse_s42 | READY | - | 184 |
 | fig:uf-tradeoffs | scalarized_dpo | help_only | dpo_help_only_mse_s42 | uf4_finaleval_judge_dpo_help_only_mse_s42 | PENDING | - | 24 |
@@ -180,4 +180,3 @@ State counts: DONE 51, FAILED 1, NOT_STARTED 100, PENDING 6, READY 4, RUNNING 1
 | uf4_cap_base_hellaswag | NOT_APPLICABLE | every declared artifact is on disk from a later successful retry |
 | uf4_cap_base_mmlu_retry1 | NOT_APPLICABLE | stopped by operator; superseded by a later retry |
 | uf4_make_train_prosper_s42 | NOT_APPLICABLE | every declared artifact is on disk from a later successful retry |
-| uf4_train_prosper_mse_s44 | FAILED | no successful retry found; artifact still missing |
