@@ -1,5 +1,5 @@
 {
- "kst": "07:38",
+ "kst": "10:08",
  "protected_ok": true,
  "builds": {
   "main_v6": {
@@ -15,22 +15,18 @@
  },
  "queue": {
   "counts": {
-   "DONE": 553,
-   "PENDING": 33,
+   "DONE": 556,
+   "PENDING": 31,
    "BLOCKED": 1,
-   "READY": 3,
+   "READY": 2,
    "RUNNING": 1
   },
   "running": {
-   "sub_judge_fresh_safe_nbpo_s42": [
+   "sub_judge_fresh_safe_util_s42": [
     0
    ]
   },
   "ready": [
-   [
-    76,
-    "uf4_train_safe_util_s42"
-   ],
    [
     77,
     "uf4_train_safe_maxmin_s42"
@@ -129,6 +125,6 @@
   "label_verdicts": 1840000,
   "label_chunks": 52
  },
- "measured_cells": 35,
- "render": "Rendered 81 cells; 35 measured. Artifact hashes are provenance declarations; verify source bytes separately."
+ "measured_cells": 42,
+ "render": "Rendered 81 cells; 42 measured. Artifact hashes are provenance declarations; verify source bytes separately."
 }
