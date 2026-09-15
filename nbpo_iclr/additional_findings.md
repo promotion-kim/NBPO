@@ -56,3 +56,32 @@ fixed-reference Nash의 승률(도움됨 0.6786, 무해성 0.6334)은 base fresh
 graph는 400개 중 3.25%뿐이다. 통제 2×2에서 ΔM이 0을 배제한 것은 순환이 있는 cell뿐이었으므로,
 이 데이터에서 adaptive 대 fixed 표현의 차이가 크게 나오기를 기대할 구조적 근거는 약하다.
 이는 데이터 이름을 바꿔 해결되는 문제가 아니다.
+
+## 4. Table 37 세 행의 D는 같은 이름이지만 같은 양이 아니다
+
+`tab:dataset_readiness`의 D 열은 세 행에서 이렇게 정의된다.
+
+| 행 | D의 단위 | 정의 |
+|---|---|---|
+| UF / fresh fixed rubrics | 선언된 4개 목표 | 6개 목표쌍(C(4,2))에 대해, 두 목표가 모두 strict 방향을 낸 (prompt, 응답쌍) cell 중 반대로 정렬한 비율의 **평균** |
+| SafeRLHF / help–safe | 선언된 2개 목표 | 목표쌍이 1개뿐이므로 위 정의와 정확히 같은 수 (K=2에서 bit 단위로 일치함을 확인) |
+| WildChecklists / native items | **prompt별 checklist 항목** | 각 prompt 안에서 그 prompt 자신의 항목쌍에 대해, 두 항목이 모두 strict 방향을 낸 (항목쌍, 응답쌍) cell 중 반대로 정렬한 비율 |
+
+앞의 두 행은 **고정된 전역 목표**에 대한 값이고, Wild 행은 **prompt 내부의 항목 불일치**다.
+Wild 행에서 prompt P의 항목 k와 prompt Q의 항목 k는 서로 다른 기준이므로 같은 party로
+묶지 않는다(template도 "report prompt-level variation rather than pooling checklist
+positions as global parties"라고 요구한다). 따라서 Wild 행의 D를 위 두 행의 D와 **칸 대
+칸으로 비교하면 안 된다.** 같은 이유로 Wild 행의 γ*와 Target TV는 `n/a`이다 — 고정된 목표
+정체성이 없으면 aggregate finite game을 정의할 대상 자체가 없다.
+
+Wild 행의 D는 두 가지 가중으로 계산해 artifact에 모두 기록한다. 표에 들어가는 값은
+cell을 pooling한 값(앞 두 행과 같은 "strict하게 풀린 cell의 비율" 형태)이고, prompt마다
+항목 수가 다르므로(2–12개) prompt별 비율의 평균과 표준편차도 함께 기록한다. 항목이 많은
+prompt가 pooled 값을 지배할 수 있으므로 두 수가 크게 다르면 그 사실을 보고한다.
+
+**구현 근거.** `analyze_wild.py`는 edge 판정(p_hat, δ=0.05 tie band), oriented 3-cycle
+열거, Condorcet 판정을 `analyze_screen.py`에서 **import**한다. 재구현하지 않았으므로 세 행의
+정의가 서로 어긋날 수 없다. 다른 점은 데이터와 기준의 단위뿐이다. `analyze_wild.py`는
+손으로 계산한 합성 패널(`code/wild_selftest.py`)로 검증했다: C=1/336, D=29/84,
+no-weak-Condorcet=1/6을 정확히 재현한다. K=2 일반화가 기존 Safe 행을 바꾸지 않는지도
+확인했다 — D=0.12688927943760983로 기록된 값과 bit 단위로 동일하다.
