@@ -2,11 +2,95 @@
   "contract_id": "sub_20260914",
   "notes": "No new experiments executed in this editorial revision. Record all results, including negative results.",
   "cells": {
-    "ufN": null,
-    "ufC": null,
-    "ufD": null,
-    "ufGamma": null,
-    "ufTV": null,
+    "ufN": {
+      "value": 191,
+      "denominator": "prompts whose whole screening panel parsed",
+      "prompts_read": 200,
+      "unit_of_analysis": null,
+      "artifact": "/work/sub_20260914/analysis/uf_screen200.json",
+      "sha256": "2615cdf957703b6c717464234df260d7b8742cce168869fe5c2efc492b556070",
+      "contract_id": "sub_20260914_uf_screen_v1",
+      "measured_utc": "2026-09-15T03:09:22Z"
+    },
+    "ufC": {
+      "value": 0.0002087246921310791,
+      "definition": "repeated oriented 3-cycle fraction, both repeat panels",
+      "eligible_triples": 9582,
+      "single_panel_rate": 0.012444672525498749,
+      "unique_response_rate": 0.0002097975453687192,
+      "tie_margin": 0.05,
+      "artifact": "/work/sub_20260914/analysis/uf_screen200.json",
+      "sha256": "2615cdf957703b6c717464234df260d7b8742cce168869fe5c2efc492b556070",
+      "contract_id": "sub_20260914_uf_screen_v1",
+      "measured_utc": "2026-09-15T03:09:22Z"
+    },
+    "ufD": {
+      "value": 0.15034911853030186,
+      "definition": "mean over the C(K,2) unordered objective pairs of the fraction of strictly-resolved (prompt, response pair) cells the two objectives order oppositely",
+      "denominator": 13392,
+      "D_per_objective_pair": {
+        "honesty|helpfulness": {
+          "disagreements": 385,
+          "resolved_cells": 1949,
+          "fraction": 0.19753719856336582
+        },
+        "instruction_following|helpfulness": {
+          "disagreements": 207,
+          "resolved_cells": 2007,
+          "fraction": 0.1031390134529148
+        },
+        "instruction_following|honesty": {
+          "disagreements": 662,
+          "resolved_cells": 2782,
+          "fraction": 0.23795830337886412
+        },
+        "instruction_following|truthfulness": {
+          "disagreements": 274,
+          "resolved_cells": 2189,
+          "fraction": 0.12517131110095933
+        },
+        "truthfulness|helpfulness": {
+          "disagreements": 147,
+          "resolved_cells": 1666,
+          "fraction": 0.08823529411764706
+        },
+        "truthfulness|honesty": {
+          "disagreements": 420,
+          "resolved_cells": 2799,
+          "fraction": 0.15005359056806003
+        }
+      },
+      "artifact": "/work/sub_20260914/analysis/uf_screen200.json",
+      "sha256": "2615cdf957703b6c717464234df260d7b8742cce168869fe5c2efc492b556070",
+      "contract_id": "sub_20260914_uf_screen_v1",
+      "measured_utc": "2026-09-15T03:09:22Z"
+    },
+    "ufGamma": {
+      "value": 0.15395909960795667,
+      "definition": "max_p min_k [V_k(p)-d_k] on the 8-response audit surrogate",
+      "beta": 0.25,
+      "not_the_policy_contract": true,
+      "certificate": {
+        "certified_upper_bound": 0.15412890958020706,
+        "rho_star_gap": 0.0001698099722503843,
+        "slsqp_status": 9,
+        "slsqp_iterations": 400,
+        "converged": false,
+        "hit_iteration_cap": true
+      },
+      "artifact": "/work/sub_20260914/analysis/uf_screen200.json",
+      "sha256": "2615cdf957703b6c717464234df260d7b8742cce168869fe5c2efc492b556070",
+      "contract_id": "sub_20260914_uf_screen_v1",
+      "measured_utc": "2026-09-15T03:09:22Z"
+    },
+    "ufTV": {
+      "value": 0.04231248525815635,
+      "definition": "total variation between exact NBPO and utilitarian targets",
+      "artifact": "/work/sub_20260914/analysis/uf_screen200.json",
+      "sha256": "2615cdf957703b6c717464234df260d7b8742cce168869fe5c2efc492b556070",
+      "contract_id": "sub_20260914_uf_screen_v1",
+      "measured_utc": "2026-09-15T03:09:22Z"
+    },
     "safeN": {
       "value": 199,
       "denominator": "prompts whose whole screening panel parsed",
@@ -55,9 +139,40 @@
       "contract_id": "sub_20260914_safe_screen_v1",
       "measured_utc": "2026-09-14T09:38:23Z"
     },
-    "wildN": null,
-    "wildC": null,
-    "wildD": null,
+    "wildN": {
+      "value": 191,
+      "denominator": "prompts whose whole screening panel parsed",
+      "prompts_read": 200,
+      "unit_of_analysis": "one checklist item of one prompt; item k of two different prompts is never the same objective",
+      "artifact": "/work/sub_20260914/analysis/wild200.json",
+      "sha256": "7a0bb94b77fcda858acecd7dafb332edfd9bfb059342b157b67bd5ec1992efe0",
+      "contract_id": "sub_20260914_wild_items_v1",
+      "measured_utc": "2026-09-15T03:09:22Z"
+    },
+    "wildC": {
+      "value": 0.00012106537530266344,
+      "definition": "repeated oriented 3-cycle fraction, both repeat panels",
+      "eligible_triples": 16520,
+      "single_panel_rate": 0.005322795274002984,
+      "unique_response_rate": 0.0001210800339024095,
+      "tie_margin": 0.05,
+      "artifact": "/work/sub_20260914/analysis/wild200.json",
+      "sha256": "7a0bb94b77fcda858acecd7dafb332edfd9bfb059342b157b67bd5ec1992efe0",
+      "contract_id": "sub_20260914_wild_items_v1",
+      "measured_utc": "2026-09-15T03:09:22Z"
+    },
+    "wildD": {
+      "value": 0.10334777042303397,
+      "definition": "within each prompt, over the unordered pairs of that prompt's own checklist items, the fraction of strictly-resolved (item pair, response pair) cells ordered oppositely; pooled over prompts",
+      "denominator": 36711,
+      "D_disagreement_prompt_mean": 0.12237109677746516,
+      "D_disagreement_prompt_sd": 0.11504483716205932,
+      "D_prompts_contributing": 199,
+      "artifact": "/work/sub_20260914/analysis/wild200.json",
+      "sha256": "7a0bb94b77fcda858acecd7dafb332edfd9bfb059342b157b67bd5ec1992efe0",
+      "contract_id": "sub_20260914_wild_items_v1",
+      "measured_utc": "2026-09-15T03:09:22Z"
+    },
     "llC": {
       "value": 0.000375,
       "ci95": [

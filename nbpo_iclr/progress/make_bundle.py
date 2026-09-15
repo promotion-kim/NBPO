@@ -7,7 +7,8 @@ cell with its value and, where the artifact carries one, a 95% interval.
 
 Two groups are supported, each a direct read of the declared statistics:
 
-  screen   tab:dataset_readiness   safeN safeC safeD safeGamma safeTV
+  screen   tab:dataset_readiness   {safe,uf,wild} x {N,C,D,Gamma,TV}, whichever
+           the artifact's own cells block declares
   factorial tab:factorial_game     {ll,lh,hl,hh} x {C,D,Gamma,Delta,TV}
 
 Nothing is computed here beyond selecting fields: if a statistic is absent from
@@ -41,28 +42,71 @@ def fetch(path):
     return json.loads(raw), sha
 
 
+SCREEN_SUFFIXES = ("Gamma", "TV", "N", "C", "D")   # Gamma/TV before the single letters
+
+
 def screen_cells(doc):
+    """tab:dataset_readiness cells, for whichever row the artifact declares.
+
+    The artifact names its own row prefix in its cells block (safe, uf or
+    wild), so one function serves all three rows and the prefix is never
+    guessed here. A statistic the artifact does not carry is simply absent:
+    the checklist-native row has no gamma* or TV because prompt-specific items
+    give no fixed objective identity to define the aggregate game over, and
+    those cells stay unmeasured rather than being filled with a substitute.
+    """
     cells = doc.get("cells")
     if not cells:
         raise SystemExit("the screening artifact has no cells block")
-    out = {"safeN": {"value": cells["safeN"],
-                     "denominator": "prompts whose whole screening panel parsed",
-                     "prompts_read": doc.get("n_prompts_read")},
-           "safeC": {"value": cells["safeC"],
-                     "definition": "repeated oriented 3-cycle fraction, both repeat panels",
-                     "eligible_triples": doc.get("eligible_triples_repeated"),
-                     "single_panel_rate": doc.get("C_single_panel"),
-                     "unique_response_rate": doc.get("C_repeated_unique"),
-                     "tie_margin": doc.get("delta_tie_margin")},
-           "safeD": {"value": cells["safeD"],
-                     "definition": "cross-objective disagreement on strictly resolved pairs",
-                     "denominator": doc.get("disagreement_denominator")},
-           "safeGamma": {"value": cells["safeGamma"],
-                         "definition": "max_p min_k [V_k(p)-d_k] on the 8-response audit surrogate",
-                         "beta": (doc.get("surrogate") or {}).get("beta"),
-                         "not_the_policy_contract": True},
-           "safeTV": {"value": cells["safeTV"],
-                      "definition": "total variation between exact NBPO and utilitarian targets"}}
+    surrogate = doc.get("surrogate") or {}
+    out = {}
+    for key, value in cells.items():
+        suffix = next((s for s in SCREEN_SUFFIXES if key.endswith(s)), None)
+        if suffix is None:
+            raise SystemExit("unrecognized screening cell %r" % key)
+        if value is None:
+            continue
+        if suffix == "N":
+            rec = {"value": value,
+                   "denominator": "prompts whose whole screening panel parsed",
+                   "prompts_read": doc.get("n_prompts_read"),
+                   "unit_of_analysis": doc.get("unit_of_analysis")}
+        elif suffix == "C":
+            rec = {"value": value,
+                   "definition": "repeated oriented 3-cycle fraction, both repeat panels",
+                   "eligible_triples": doc.get("eligible_triples_repeated"),
+                   "single_panel_rate": doc.get("C_single_panel"),
+                   "unique_response_rate": doc.get("C_repeated_unique"),
+                   "tie_margin": doc.get("delta_tie_margin")}
+        elif suffix == "D":
+            rec = {"value": value,
+                   "definition": doc.get("D_definition",
+                       "cross-objective disagreement on strictly resolved pairs"),
+                   "denominator": doc.get("disagreement_denominator")}
+            # the mean over objective pairs can hide one conflicting pair, and
+            # the pooled and per-prompt weightings can disagree, so carry both
+            for extra in ("D_per_objective_pair", "D_disagreement_prompt_mean",
+                          "D_disagreement_prompt_sd", "D_prompts_contributing"):
+                if doc.get(extra) is not None:
+                    rec[extra] = doc[extra]
+        elif suffix == "Gamma":
+            rec = {"value": value,
+                   "definition": "max_p min_k [V_k(p)-d_k] on the 8-response audit surrogate",
+                   "beta": surrogate.get("beta"),
+                   "not_the_policy_contract": True}
+            cert = surrogate.get("gamma_star_certificate")
+            if cert:
+                # SLSQP stops at the 400-iteration cap on these panels, so the
+                # achieved value is a feasible lower bound and the certificate
+                # carries the tangent-plane upper bound and the gap.
+                rec["certificate"] = {k: cert.get(k) for k in
+                                      ("certified_upper_bound", "rho_star_gap",
+                                       "slsqp_status", "slsqp_iterations",
+                                       "converged", "hit_iteration_cap")}
+        else:   # TV
+            rec = {"value": value,
+                   "definition": "total variation between exact NBPO and utilitarian targets"}
+        out[key] = rec
     return out
 
 
