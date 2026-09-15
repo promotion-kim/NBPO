@@ -611,12 +611,78 @@
       "contract_id": "sub_20260914_safe_policy_v1",
       "measured_utc": "2026-09-15T01:09:29Z"
     },
-    "maxminS": null,
-    "maxminN": null,
-    "maxminWone": null,
-    "maxminWtwo": null,
-    "maxminMin": null,
-    "maxminDiff": null,
+    "maxminS": {
+      "value": 1,
+      "definition": "frozen generation replicates for the base row, training seeds for a trained arm",
+      "note": "test_fresh_safe_maxmin_s42",
+      "artifact": "/work/sub_20260914/fresh_eval/safe_maxmin_s42/complete.json",
+      "sha256": "b371b8ae840094f5605005c4737a1e07e18333ed9af0e63c4452541ab01732ff",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-15T02:39:32Z"
+    },
+    "maxminN": {
+      "value": 983,
+      "definition": "test prompts with every scheduled verdict parsed",
+      "prompts_judged": 1000,
+      "artifact": "/work/sub_20260914/fresh_eval/safe_maxmin_s42/complete.json",
+      "sha256": "b371b8ae840094f5605005c4737a1e07e18333ed9af0e63c4452541ab01732ff",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-15T02:39:32Z"
+    },
+    "maxminWone": {
+      "value": 0.6806332655137335,
+      "objective": "helpfulness",
+      "definition": "order-averaged win rate against the frozen four-response base reference bank, ties 0.5",
+      "ci95": [
+        0.6637827441505595,
+        0.6967875762970499
+      ],
+      "artifact": "/work/sub_20260914/fresh_eval/safe_maxmin_s42/complete.json",
+      "sha256": "b371b8ae840094f5605005c4737a1e07e18333ed9af0e63c4452541ab01732ff",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-15T02:39:32Z"
+    },
+    "maxminWtwo": {
+      "value": 0.6295778229908443,
+      "objective": "harmlessness",
+      "definition": "order-averaged win rate against the frozen four-response base reference bank, ties 0.5",
+      "ci95": [
+        0.6106911241098677,
+        0.6483977619532044
+      ],
+      "artifact": "/work/sub_20260914/fresh_eval/safe_maxmin_s42/complete.json",
+      "sha256": "b371b8ae840094f5605005c4737a1e07e18333ed9af0e63c4452541ab01732ff",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-15T02:39:32Z"
+    },
+    "maxminMin": {
+      "value": 0.6295778229908443,
+      "ci95": [
+        0.6106911241098677,
+        0.6483977619532044
+      ],
+      "definition": "minimum over objectives, recomputed inside every bootstrap replicate",
+      "artifact": "/work/sub_20260914/fresh_eval/safe_maxmin_s42/complete.json",
+      "sha256": "b371b8ae840094f5605005c4737a1e07e18333ed9af0e63c4452541ab01732ff",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-15T02:39:32Z"
+    },
+    "maxminDiff": {
+      "value": 0.012616459627329157,
+      "ci95": [
+        -0.010031702898550696,
+        0.03591000258799164
+      ],
+      "definition": "this row's seed-wise minimum minus NBPO's, paired by prompt, with the minimum recomputed inside every bootstrap replicate",
+      "n_common_prompts": 966,
+      "row_min_on_common": 0.629593685300207,
+      "nbpo_min_on_common": 0.6169772256728778,
+      "excludes_zero": false,
+      "artifact": "/work/sub_20260914/analysis/delta_maxmin_vs_nbpo.json",
+      "sha256": "527bbdae85d93cc8738755caaba943c2d9911643c7f6f04d9812ed35ae73d37c",
+      "contract_id": "sub_20260914_safe_policy_v1",
+      "measured_utc": "2026-09-15T02:39:32Z"
+    },
     "btS": null,
     "btN": null,
     "btWone": null,
