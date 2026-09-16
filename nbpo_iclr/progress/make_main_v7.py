@@ -16,7 +16,8 @@ Two additions: the WildChecklists policy comparison as a body table with the
 best entry per column in bold, and its setting as an appendix section. A
 third: the general-capability check on the same three policies, in the format
 of PROSPER's Table 2, measured against the arms' own untrained base, and the
-scaled round at two epochs, whose unmeasured arms are left pending.
+scaled round at two epochs, and the same responses re-judged by a much larger
+judge, whose unmeasured cells are left pending.
 """
 from pathlib import Path
 import hashlib
@@ -218,6 +219,41 @@ $n$ common prompts & $490$--$495$ & $798$--$805$\\
 """
 
 src = src.replace(anchor, SCALED_TABLE.lstrip("\n") + "\n" + anchor, 1)
+JUDGE_TABLE = r"""
+\begin{table}[H]
+\centering\small
+\caption{Judge robustness. The \emph{same} response files, panels, released
+baseline answers, template, presentation orders and tie rule are re-judged by a
+$72$B open-weight judge instead of the $14$B one used everywhere else, so the
+judge is the only thing that changes. Judge capacity moves the absolute level by
+about $+0.11$ on every row, so win rates are comparable only within a judge
+column and never across the two; parse validity also rises, from $0.991$--$0.995$
+to $0.999$--$1.000$. The apparent reordering of the two runner-up rules between
+the columns is not resolved under either judge: paired on the common prompts,
+PROSPER minus fixed-reference Nash is $-0.0026$ $[-0.0224,+0.0179]$ at $14$B and
+$+0.0105$ $[-0.0115,+0.0320]$ at $72$B. The larger judge does resolve one
+comparison the smaller one could not, PROSPER above the untrained base at
+$+0.0291$ $[+0.0075,+0.0491]$, while fixed-reference Nash above the base stays
+unresolved at $+0.0175$ $[-0.0030,+0.0401]$. The judge is Qwen2.5-72B-Instruct;
+the paper's default judge is also a Qwen model, so this varies judge capacity
+and not judge family.}
+\label{tab:prosper-setting-judge}
+\begin{tabular}{lcccc}
+\toprule
+& \multicolumn{2}{c}{Arena-Hard} & \multicolumn{2}{c}{AlpacaEval}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Judged by & $14$B & $72$B & $14$B & $72$B\\
+\midrule
+Base policy, untrained & $0.6108$ & $0.7184$ & $0.3979$ & \pending\\
+NBPO (per-prompt weights) & $0.6318$ & \pending & $0.4080$ & \pending\\
+Fixed-reference Nash (per-prompt) & $0.6334$ & $0.7365$ & $0.4055$ & \pending\\
+PROSPER, max-min Blackwell \citep{zhang2026prosper} & $0.6265$ & $0.7470$ & $0.4134$ & \pending\\
+\bottomrule
+\end{tabular}
+\end{table}
+"""
+
+src = src.replace(anchor, JUDGE_TABLE.lstrip("\n") + "\n" + anchor, 1)
 
 APPENDIX = r"""
 \section{Checklist-Native Policy Comparison: Setting}
