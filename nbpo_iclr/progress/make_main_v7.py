@@ -19,7 +19,8 @@ of PROSPER's Table 2, measured against the arms' own untrained base, and the
 scaled round at two epochs, and the same responses re-judged by a much larger
 judge, which reorders the rules without resolving any of them, and the scaled
 round's own capability check, and the length diagnostic that explains the one
-resolved gain over the base.
+resolved gain over the base, together with the win rates those panels give at
+equal length.
 """
 from pathlib import Path
 import hashlib
@@ -347,6 +348,44 @@ Arena-Hard, $72$B & NBPO & $+0.0115$ & $+0.0093$ & $-0.0179$ & $-0.0160$ & $+0.0
 """
 
 src = src.replace(anchor, LENGTH_TABLE.lstrip("\n") + "\n" + anchor, 1)
+LC_TABLE = r"""
+\begin{table}[H]
+\centering\small
+\caption{Win rate at equal length. For each run we fit
+$y_p = a + b\,\tanh\!\big((\ell^{\text{arm}}_p-\ell^{\text{base}}_p)/\sigma\big)$
+over prompts by least squares, where $y_p$ is the arm's order-averaged score and
+$\ell$ are response token counts against the \emph{released baseline answers};
+$a$ is the win rate at zero length difference and $b$ the length slope in
+win-rate units, both with a whole-prompt bootstrap. The slope is positive and
+similar everywhere, $+0.13$ to $+0.23$ per standard deviation of length
+difference, which is a direct measurement of the judge's length preference.
+\textbf{On Arena-Hard the trained arms answer about $1.8\times$ longer than the
+2023 baseline answers ($726$--$746$ against $402$ median tokens), and adjusting
+for that moves every row from $0.61$--$0.63$ to $0.51$--$0.56$, near a coin
+flip.} On AlpacaEval, where the lengths already match, all four rows land on
+$0.399$--$0.403$ and the untrained base is indistinguishable from every trained
+arm. Across both panels no adjusted interval separates any two rows. The
+adjustment is a linear fit on a post-treatment variable, so it is an estimate of
+how much of each raw number survives equal length, not a causal effect.}
+\label{tab:prosper-setting-lengthadjusted}
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{3}{c}{Arena-Hard} & \multicolumn{3}{c}{AlpacaEval}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Two epochs & raw & at equal length & slope & raw & at equal length & slope\\
+\midrule
+Base policy, untrained & $0.6108$ & $0.5127$ \tiny{$[0.4594,0.5679]$} & $+0.186$ & $0.3979$ & $0.3997$ \tiny{$[0.3823,0.4176]$} & $+0.145$\\
+NBPO (per-prompt weights) & $\mathbf{0.6333}$ & $0.5227$ \tiny{$[0.4651,0.5825]$} & $+0.203$ & $\mathbf{0.4124}$ & $\mathbf{0.4033}$ \tiny{$[0.3858,0.4201]$} & $+0.202$\\
+Fixed-reference Nash (per-prompt) & $0.6111$ & $0.5188$ \tiny{$[0.4618,0.5825]$} & $+0.174$ & $0.4118$ & $0.4004$ \tiny{$[0.3825,0.4176]$} & $+0.226$\\
+PROSPER \citep{zhang2026prosper} & $0.6225$ & $\mathbf{0.5628}$ \tiny{$[0.5084,0.6194]$} & $+0.125$ & $0.4071$ & $0.3991$ \tiny{$[0.3815,0.4147]$} & $+0.184$\\
+\midrule
+Median tokens, arm / baseline & \multicolumn{3}{c}{$716$--$746$ / $402$} & \multicolumn{3}{c}{$439$--$464$ / $463$}\\
+\bottomrule
+\end{tabular}
+\end{table}
+"""
+
+src = src.replace(anchor, LC_TABLE.lstrip("\n") + "\n" + anchor, 1)
 
 APPENDIX = r"""
 \section{Checklist-Native Policy Comparison: Setting}
