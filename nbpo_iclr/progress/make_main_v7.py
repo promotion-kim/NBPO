@@ -170,38 +170,48 @@ src = src.replace(anchor, REGRESSION_TABLE.lstrip("\n") + "\n" + anchor, 1)
 SCALED_TABLE = r"""
 \begin{table}[H]
 \centering\small
-\caption{Scaled round, and the paired comparisons it supports. The rules are
-retrained on $522$ prompts ($14{,}616$ learner pairs) for two pipeline epochs,
-against $384$ prompts and one epoch in
+\caption{Scaled round, and the paired comparisons it supports. All three rules
+are retrained on $522$ prompts ($14{,}616$ learner pairs) for two pipeline
+epochs, against $384$ prompts and one epoch in
 Table~\ref{tab:wildchecklists-policy}, and evaluated identically: same panels,
-same static baselines, same judge, temperature $0$, both presentation orders,
-one union-filtered prompt set across arms. Win rates carry a $95\%$ prompt
-bootstrap. Because the arms are judged on the same prompts against the same
-baseline, the lower block resamples whole prompts once and differences the two
-runs inside every replicate rather than comparing marginal intervals; $n$ is the
-number of prompts fully parsed in both runs. \textbf{Every paired interval
-contains zero.} The signs are consistent -- NBPO is up on both benchmarks
-against PROSPER, against its own single-epoch run and against the untrained
-base, and PROSPER is down on both against its own single-epoch run -- but at
-this panel size and with this judge none of these differences is resolved, and
-the trained-versus-base difference is not resolved either. Median response
-lengths move by under $2\%$, so none of this is a length effect.}
+same released baseline answers, same judge, temperature $0$, both presentation
+orders, one union-filtered prompt set across arms. Win rates carry a $95\%$
+prompt bootstrap. Because the arms are judged on the same prompts against the
+same baseline, the lower block resamples whole prompts once and differences the
+two runs inside each replicate instead of comparing marginal intervals; $n$ is
+the number of prompts fully parsed in both runs. Two paired differences exclude
+zero, both on Arena-Hard and both involving the fixed-reference arm: NBPO
+exceeds it by $+0.0243$, and that arm is itself $-0.0250$ below its own
+single-epoch run. The separation therefore comes from the fixed reference
+degrading under the scaled round rather than from NBPO improving, whose own
+change is $+0.0046$. Fifteen paired tests were run in total, so at this level
+roughly one exclusion is expected by chance; the two here are not independent,
+since both involve the same fixed-reference run. Every other comparison,
+including each arm against the untrained base, contains zero. Median response
+lengths move by under $3\%$, so none of this is a length effect.}
 \label{tab:prosper-setting-scaled}
 \begin{tabular}{lcc}
 \toprule
 & Arena-Hard & AlpacaEval\\
 \midrule
 \multicolumn{3}{l}{\emph{Win rate against the released baseline answers, two epochs}}\\
-NBPO (per-prompt weights) & $0.6333$ \tiny{$[0.6045,0.6616]$} & $0.4124$ \tiny{$[0.3946,0.4311]$}\\
+NBPO (per-prompt weights) & $\mathbf{0.6333}$ \tiny{$[0.6045,0.6616]$} & $\mathbf{0.4124}$ \tiny{$[0.3946,0.4311]$}\\
 PROSPER, max-min Blackwell \citep{zhang2026prosper} & $0.6225$ \tiny{$[0.5936,0.6498]$} & $0.4071$ \tiny{$[0.3893,0.4246]$}\\
-Fixed-reference Nash (per-prompt) & \pending & \pending\\
+Fixed-reference Nash (per-prompt) & $0.6111$ \tiny{$[0.5823,0.6394]$} & $0.4118$ \tiny{$[0.3944,0.4304]$}\\
 \midrule
 \multicolumn{3}{l}{\emph{Paired difference, whole-prompt bootstrap on the common prompts}}\\
 NBPO $-$ PROSPER & $+0.0087$ \tiny{$[-0.0122,+0.0305]$} & $+0.0063$ \tiny{$[-0.0087,+0.0206]$}\\
-NBPO, two epochs $-$ one epoch & $+0.0046$ \tiny{$[-0.0163,+0.0265]$} & $+0.0047$ \tiny{$[-0.0091,+0.0197]$}\\
-PROSPER, two epochs $-$ one epoch & $-0.0056$ \tiny{$[-0.0265,+0.0153]$} & $-0.0056$ \tiny{$[-0.0206,+0.0091]$}\\
+NBPO $-$ fixed-reference Nash & $\mathbf{+0.0243}$ \tiny{$[+0.0040,+0.0446]$} & $+0.0012$ \tiny{$[-0.0134,+0.0147]$}\\
 NBPO $-$ untrained base & $+0.0188$ \tiny{$[-0.0025,+0.0407]$} & $+0.0147$ \tiny{$[-0.0016,+0.0304]$}\\
-$n$ common prompts & $491$ & $798$--$801$\\
+PROSPER $-$ untrained base & $+0.0138$ \tiny{$[-0.0092,+0.0362]$} & $+0.0091$ \tiny{$[-0.0063,+0.0247]$}\\
+Fixed-reference Nash $-$ untrained base & $-0.0036$ \tiny{$[-0.0250,+0.0193]$} & $+0.0137$ \tiny{$[-0.0025,+0.0293]$}\\
+\midrule
+\multicolumn{3}{l}{\emph{Paired difference, two epochs minus one epoch, same rule}}\\
+NBPO & $+0.0046$ \tiny{$[-0.0163,+0.0265]$} & $+0.0047$ \tiny{$[-0.0091,+0.0197]$}\\
+PROSPER & $-0.0056$ \tiny{$[-0.0265,+0.0153]$} & $-0.0056$ \tiny{$[-0.0206,+0.0091]$}\\
+Fixed-reference Nash & $\mathbf{-0.0250}$ \tiny{$[-0.0459,-0.0051]$} & $+0.0066$ \tiny{$[-0.0075,+0.0210]$}\\
+\midrule
+$n$ common prompts & $490$--$495$ & $798$--$805$\\
 \bottomrule
 \end{tabular}
 \end{table}
