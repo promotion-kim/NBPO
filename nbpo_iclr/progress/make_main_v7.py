@@ -17,7 +17,8 @@ best entry per column in bold, and its setting as an appendix section. A
 third: the general-capability check on the same three policies, in the format
 of PROSPER's Table 2, measured against the arms' own untrained base, and the
 scaled round at two epochs, and the same responses re-judged by a much larger
-judge, which reorders the rules without resolving any of them.
+judge, which reorders the rules without resolving any of them, and the scaled
+round's own capability check.
 """
 from pathlib import Path
 import hashlib
@@ -261,6 +262,38 @@ PROSPER $-$ untrained base & --- & $\mathbf{+0.0291}$ \tiny{$[+0.0075,+0.0491]$}
 """
 
 src = src.replace(anchor, JUDGE_TABLE.lstrip("\n") + "\n" + anchor, 1)
+SCALED_CAP_TABLE = r"""
+\begin{table}[H]
+\centering\small
+\caption{General capability after the scaled round, for the three checkpoints of
+Table~\ref{tab:prosper-setting-scaled}. Same harness, recipe, few-shot counts and
+tokenizer as Table~\ref{tab:prosper-setting-capability}, so the two rounds are
+comparable; MMLU is accuracy, ARC-C and HellaSwag length-normalized accuracy,
+each $\pm$ the harness standard error, and IFEval is strict prompt accuracy with
+its paired difference from the base. Bold marks the highest trained entry per
+column. Doubling the epochs and enlarging the prompt set costs no capability and
+buys none: the spread across all four columns is at most $0.0056$, every column
+is inside a single standard error except ARC-C at a quarter of one, no trained
+arm exceeds the base on MMLU or IFEval, and all three IFEval paired differences
+contain zero. NBPO leads the trained rows on MMLU alone, by $0.0007$. The
+per-benchmark ordering of the rules disagrees with their preference-panel
+ordering, which is what one expects when none of these differences is resolved.}
+\label{tab:prosper-setting-capability-scaled}
+\begin{tabular}{lcccc}
+\toprule
+Two epochs, $522$ prompts & MMLU & ARC-C & HellaSwag & IFEval\\
+\midrule
+Base policy, untrained & $0.7427$ \tiny{$\pm 0.0035$} & $0.6724$ \tiny{$\pm 0.0137$} & $0.8141$ \tiny{$\pm 0.0039$} & $0.7283$ \tiny{$[0.6876,0.7652]$}\\
+\midrule
+NBPO (per-prompt weights) & $\mathbf{0.7423}$ \tiny{$\pm 0.0035$} & $0.6698$ \tiny{$\pm 0.0137$} & $0.8141$ \tiny{$\pm 0.0039$} & $0.7227$ \tiny{$\Delta\,{-}0.0055$}\\
+Fixed-reference Nash (per-prompt) & $0.7416$ \tiny{$\pm 0.0035$} & $\mathbf{0.6732}$ \tiny{$\pm 0.0137$} & $\mathbf{0.8144}$ \tiny{$\pm 0.0039$} & $\mathbf{0.7264}$ \tiny{$\Delta\,{+}0.0000$}\\
+PROSPER, max-min Blackwell \citep{zhang2026prosper} & $0.7415$ \tiny{$\pm 0.0035$} & $0.6715$ \tiny{$\pm 0.0137$} & $0.8140$ \tiny{$\pm 0.0039$} & $0.7227$ \tiny{$\Delta\,{-}0.0055$}\\
+\bottomrule
+\end{tabular}
+\end{table}
+"""
+
+src = src.replace(anchor, SCALED_CAP_TABLE.lstrip("\n") + "\n" + anchor, 1)
 
 APPENDIX = r"""
 \section{Checklist-Native Policy Comparison: Setting}
