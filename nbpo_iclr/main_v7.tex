@@ -939,48 +939,47 @@ PROSPER, max-min Blackwell \citep{zhang2026prosper} & $0.7426$ \tiny{$\pm 0.0035
 
 \begin{table}[H]
 \centering\small
-\caption{Scaled round, and the paired comparisons it supports. All three rules
-are retrained on $522$ prompts ($14{,}616$ learner pairs) for two pipeline
-epochs, against $384$ prompts and one epoch in
-Table~\ref{tab:wildchecklists-policy}, and evaluated identically: same panels,
-same released baseline answers, same judge, temperature $0$, both presentation
-orders, one union-filtered prompt set across arms. Win rates carry a $95\%$
-prompt bootstrap. Because the arms are judged on the same prompts against the
-same baseline, the lower block resamples whole prompts once and differences the
-two runs inside each replicate instead of comparing marginal intervals; $n$ is
-the number of prompts fully parsed in both runs. Two paired differences exclude
-zero, both on Arena-Hard and both involving the fixed-reference arm: NBPO
-exceeds it by $+0.0243$, and that arm is itself $-0.0250$ below its own
-single-epoch run. The separation therefore comes from the fixed reference
-degrading under the scaled round rather than from NBPO improving, whose own
-change is $+0.0046$. Fifteen paired tests were run in total, so at this level
-roughly one exclusion is expected by chance; the two here are not independent,
-since both involve the same fixed-reference run. Every other comparison,
-including each arm against the untrained base, contains zero. Median response
-lengths move by under $3\%$, so none of this is a length effect.}
+\caption{Scaled round under both judges. All three rules are retrained on $522$
+prompts ($14{,}616$ learner pairs) for two pipeline epochs, against $384$
+prompts and one epoch in Table~\ref{tab:wildchecklists-policy}, and evaluated
+identically: same panels, same released baseline answers, temperature $0$, both
+presentation orders, one union-filtered prompt set. The same response files are
+then judged again by a $72$B judge; parse validity rises from $0.994$--$1.000$
+to $1.000$. \textbf{The one separation this campaign found does not survive the
+judge change.} Under the $14$B judge NBPO exceeds fixed-reference Nash on
+Arena-Hard by $+0.0243$ $[+0.0040,+0.0446]$, the only paired arm-versus-arm
+interval anywhere to exclude zero; under the $72$B judge the same comparison is
+$+0.0035$ $[-0.0170,+0.0235]$, and the spread across all three rules falls from
+$0.0222$ to $0.0035$. Every other paired arm-versus-arm comparison, under either
+judge and on either panel, contains zero. Median response lengths move by under
+$3\%$ across arms, so this is not a length ordering; what the raw levels owe to
+length is separated out in Table~\ref{tab:prosper-setting-lengthadjusted}.}
 \label{tab:prosper-setting-scaled}
-\begin{tabular}{lcc}
+\begin{tabular}{lcccc}
 \toprule
-& Arena-Hard & AlpacaEval\\
+& \multicolumn{2}{c}{Arena-Hard} & \multicolumn{2}{c}{AlpacaEval}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Two epochs, judged by & $14$B & $72$B & $14$B & $72$B\\
 \midrule
-\multicolumn{3}{l}{\emph{Win rate against the released baseline answers, two epochs}}\\
-NBPO (per-prompt weights) & $\mathbf{0.6333}$ \tiny{$[0.6045,0.6616]$} & $\mathbf{0.4124}$ \tiny{$[0.3946,0.4311]$}\\
-PROSPER, max-min Blackwell \citep{zhang2026prosper} & $0.6225$ \tiny{$[0.5936,0.6498]$} & $0.4071$ \tiny{$[0.3893,0.4246]$}\\
-Fixed-reference Nash (per-prompt) & $0.6111$ \tiny{$[0.5823,0.6394]$} & $0.4118$ \tiny{$[0.3944,0.4304]$}\\
+\multicolumn{5}{l}{\emph{Win rate against the released baseline answers}}\\
+NBPO (per-prompt weights) & $\mathbf{0.6333}$ & $\mathbf{0.7295}$ & $\mathbf{0.4124}$ & $0.3339$\\
+\quad $95\%$ interval & \tiny{$[0.6045,0.6616]$} & \tiny{$[0.6990,0.7600]$} & \tiny{$[0.3946,0.4311]$} & \tiny{$[0.3099,0.3584]$}\\
+Fixed-reference Nash (per-prompt) & $0.6111$ & $0.7260$ & $0.4118$ & $\mathbf{0.3379}$\\
+\quad $95\%$ interval & \tiny{$[0.5823,0.6394]$} & \tiny{$[0.6945,0.7550]$} & \tiny{$[0.3944,0.4304]$} & \tiny{$[0.3146,0.3627]$}\\
+PROSPER \citep{zhang2026prosper} & $0.6225$ & $0.7260$ & $0.4071$ & $0.3264$\\
+\quad $95\%$ interval & \tiny{$[0.5936,0.6498]$} & \tiny{$[0.6960,0.7575]$} & \tiny{$[0.3893,0.4246]$} & \tiny{$[0.3050,0.3494]$}\\
+Spread across the three rules & $0.0222$ & $\mathbf{0.0035}$ & $0.0053$ & $0.0115$\\
 \midrule
-\multicolumn{3}{l}{\emph{Paired difference, whole-prompt bootstrap on the common prompts}}\\
-NBPO $-$ PROSPER & $+0.0087$ \tiny{$[-0.0122,+0.0305]$} & $+0.0063$ \tiny{$[-0.0087,+0.0206]$}\\
-NBPO $-$ fixed-reference Nash & $\mathbf{+0.0243}$ \tiny{$[+0.0040,+0.0446]$} & $+0.0012$ \tiny{$[-0.0134,+0.0147]$}\\
-NBPO $-$ untrained base & $+0.0188$ \tiny{$[-0.0025,+0.0407]$} & $+0.0147$ \tiny{$[-0.0016,+0.0304]$}\\
-PROSPER $-$ untrained base & $+0.0138$ \tiny{$[-0.0092,+0.0362]$} & $+0.0091$ \tiny{$[-0.0063,+0.0247]$}\\
-Fixed-reference Nash $-$ untrained base & $-0.0036$ \tiny{$[-0.0250,+0.0193]$} & $+0.0137$ \tiny{$[-0.0025,+0.0293]$}\\
+\multicolumn{5}{l}{\emph{Paired difference between two rules, whole-prompt bootstrap}}\\
+NBPO $-$ fixed-reference Nash & $\mathbf{+0.0243}$ & $+0.0035$ & $+0.0012$ & $-0.0040$\\
+\quad $95\%$ interval & \tiny{$[+0.0040,+0.0446]$} & \tiny{$[-0.0170,+0.0235]$} & \tiny{$[-0.0134,+0.0147]$} & \tiny{$[-0.0196,+0.0118]$}\\
+NBPO $-$ PROSPER & $+0.0087$ & $+0.0035$ & $+0.0063$ & $+0.0075$\\
+\quad $95\%$ interval & \tiny{$[-0.0122,+0.0305]$} & \tiny{$[-0.0190,+0.0260]$} & \tiny{$[-0.0087,+0.0206]$} & \tiny{$[-0.0093,+0.0242]$}\\
 \midrule
-\multicolumn{3}{l}{\emph{Paired difference, two epochs minus one epoch, same rule}}\\
-NBPO & $+0.0046$ \tiny{$[-0.0163,+0.0265]$} & $+0.0047$ \tiny{$[-0.0091,+0.0197]$}\\
-PROSPER & $-0.0056$ \tiny{$[-0.0265,+0.0153]$} & $-0.0056$ \tiny{$[-0.0206,+0.0091]$}\\
-Fixed-reference Nash & $\mathbf{-0.0250}$ \tiny{$[-0.0459,-0.0051]$} & $+0.0066$ \tiny{$[-0.0075,+0.0210]$}\\
-\midrule
-$n$ common prompts & $490$--$495$ & $798$--$805$\\
+\multicolumn{5}{l}{\emph{Paired difference, two epochs minus one epoch, $14$B judge}}\\
+NBPO & $+0.0046$ \tiny{$[-0.0163,+0.0265]$} & --- & $+0.0047$ \tiny{$[-0.0091,+0.0197]$} & ---\\
+PROSPER & $-0.0056$ \tiny{$[-0.0265,+0.0153]$} & --- & $-0.0056$ \tiny{$[-0.0206,+0.0091]$} & ---\\
+Fixed-reference Nash & $-0.0250$ \tiny{$[-0.0459,-0.0051]$} & --- & $+0.0066$ \tiny{$[-0.0075,+0.0210]$} & ---\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1119,7 +1118,7 @@ flip.} On AlpacaEval, where the lengths already match, all four rows land on
 $0.399$--$0.403$ and the untrained base is indistinguishable from every trained
 arm. Across both panels no adjusted interval separates any two rows. The
 adjustment is a linear fit on a post-treatment variable, so it is an estimate of
-how much of each raw number survives equal length, not a causal effect.}
+how much of each raw number survives equal length, not a causal effect. The larger judge is \emph{more} length-sensitive on AlpacaEval, slope $+0.43$ against $+0.18$, and under it NBPO has the lowest adjusted Arena-Hard rate of the three rules; every adjusted interval in the table overlaps every other one on its panel.}
 \label{tab:prosper-setting-lengthadjusted}
 \begin{tabular}{lcccccc}
 \toprule
@@ -1131,6 +1130,11 @@ Base policy, untrained & $0.6108$ & $0.5127$ \tiny{$[0.4594,0.5679]$} & $+0.186$
 NBPO (per-prompt weights) & $\mathbf{0.6333}$ & $0.5227$ \tiny{$[0.4651,0.5825]$} & $+0.203$ & $\mathbf{0.4124}$ & $\mathbf{0.4033}$ \tiny{$[0.3858,0.4201]$} & $+0.202$\\
 Fixed-reference Nash (per-prompt) & $0.6111$ & $0.5188$ \tiny{$[0.4618,0.5825]$} & $+0.174$ & $0.4118$ & $0.4004$ \tiny{$[0.3825,0.4176]$} & $+0.226$\\
 PROSPER \citep{zhang2026prosper} & $0.6225$ & $\mathbf{0.5628}$ \tiny{$[0.5084,0.6194]$} & $+0.125$ & $0.4071$ & $0.3991$ \tiny{$[0.3815,0.4147]$} & $+0.184$\\
+\midrule
+\multicolumn{7}{l}{\emph{The same responses judged by the $72$B judge}}\\
+NBPO (per-prompt weights) & $0.7295$ & $0.5884$ \tiny{$[0.5249,0.6600]$} & $+0.268$ & $0.3339$ & $0.3143$ \tiny{$[0.2933,0.3348]$} & $+0.431$\\
+Fixed-reference Nash (per-prompt) & $0.7260$ & $0.6259$ \tiny{$[0.5664,0.6950]$} & $+0.188$ & $0.3379$ & $\mathbf{0.3146}$ \tiny{$[0.2943,0.3355]$} & $+0.459$\\
+PROSPER \citep{zhang2026prosper} & $0.7260$ & $\mathbf{0.6280}$ \tiny{$[0.5666,0.6968]$} & $+0.204$ & $0.3264$ & $0.3072$ \tiny{$[0.2864,0.3273]$} & $+0.433$\\
 \midrule
 Median tokens, arm / baseline & \multicolumn{3}{c}{$716$--$746$ / $402$} & \multicolumn{3}{c}{$439$--$464$ / $463$}\\
 \bottomrule
