@@ -18,7 +18,8 @@ third: the general-capability check on the same three policies, in the format
 of PROSPER's Table 2, measured against the arms' own untrained base, and the
 scaled round at two epochs, and the same responses re-judged by a much larger
 judge, which reorders the rules without resolving any of them, and the scaled
-round's own capability check.
+round's own capability check, and the length diagnostic that explains the one
+resolved gain over the base.
 """
 from pathlib import Path
 import hashlib
@@ -304,6 +305,48 @@ PROSPER, max-min Blackwell \citep{zhang2026prosper} & $0.7415$ \tiny{$\pm 0.0035
 """
 
 src = src.replace(anchor, SCALED_CAP_TABLE.lstrip("\n") + "\n" + anchor, 1)
+LENGTH_TABLE = r"""
+\begin{table}[H]
+\centering\small
+\caption{The trained-versus-base gap conditioned on response length. Pairwise
+judges prefer longer text, so each paired difference is recomputed inside
+quartiles of $d=\log(\text{arm tokens}/\text{base tokens})$, on the subset where
+the two lengths are within ten percent, and on the subset where the arm is no
+longer than the base. $*$ marks an interval excluding zero. \textbf{On
+AlpacaEval the gap is a monotone function of length and reverses sign}: where an
+arm writes no more than the base it \emph{loses} by $0.037$--$0.050$, and where
+it writes most it gains $0.09$--$0.13$. Length matching removes the effect for
+NBPO ($+0.0149$, $[-0.0026,+0.0323]$) and for fixed-reference Nash
+($+0.0058$), and only PROSPER survives it ($+0.0268$,
+$[+0.0095,+0.0441]$). On Arena-Hard, where the arms and the base answer at
+almost the same length ($719$ against $716$ median tokens), no gap is resolved
+at all and the gradient is weak. So the one resolved improvement over the base
+in Table~\ref{tab:prosper-setting-judge} is carried by response length rather
+than by preference quality. Conditioning on length conditions on something the
+training itself changed, so these strata are a diagnostic and not a randomized
+control; they establish that the gap co-varies with length, not that the effect
+is exactly zero. A length-matched decoding or a length-penalized judge is the
+measurement this calls for and is not part of this campaign.}
+\label{tab:prosper-setting-length}
+\begin{tabular}{llccccc}
+\toprule
+& & & \multicolumn{2}{c}{Length-matched} & \multicolumn{2}{c}{Length extremes}\\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Panel, judge & Arm $-$ base & All & within $10\%$ & arm $\le$ base & $d$ lowest & $d$ highest\\
+\midrule
+AlpacaEval, $72$B & NBPO & $+0.0227^{*}$ & $+0.0149$ & $-0.0501^{*}$ & $-0.0821^{*}$ & $+0.1027^{*}$\\
+AlpacaEval, $72$B & Fixed-ref.\ Nash & $+0.0220^{*}$ & $+0.0058$ & $-0.0386^{*}$ & $-0.0896^{*}$ & $+0.1312^{*}$\\
+AlpacaEval, $72$B & PROSPER & $+0.0242^{*}$ & $\mathbf{+0.0268^{*}}$ & $-0.0367^{*}$ & $-0.0734^{*}$ & $+0.0903^{*}$\\
+AlpacaEval, $14$B & NBPO & $+0.0097$ & $+0.0041$ & $-0.0233^{*}$ & $-0.0437^{*}$ & $+0.0350$\\
+Arena-Hard, $72$B & NBPO & $+0.0115$ & $+0.0093$ & $-0.0179$ & $-0.0160$ & $+0.0480$\\
+\midrule
+\multicolumn{2}{l}{$n$ prompts (all / within $10\%$ / arm $\le$ base)} & \multicolumn{5}{l}{AlpacaEval $805$ / $487$ / $354$;\quad Arena-Hard $499$ / $\sim\!\!300$ / $\sim\!\!250$}\\
+\bottomrule
+\end{tabular}
+\end{table}
+"""
+
+src = src.replace(anchor, LENGTH_TABLE.lstrip("\n") + "\n" + anchor, 1)
 
 APPENDIX = r"""
 \section{Checklist-Native Policy Comparison: Setting}

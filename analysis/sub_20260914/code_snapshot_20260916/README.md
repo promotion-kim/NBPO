@@ -58,6 +58,7 @@ Arm to rule:
 - `wild_selftest.py` (50984f97c019e949) - hand-computed synthetic check for analyze_wild
 - `paired_diff.py` (8c02d7c6107a1add) - paired prompt bootstrap for the difference columns
 - `paired_eval_diff.py` (d63433fd17d62928) - paired whole-prompt bootstrap between two evaluation runs, on the prompts fully parsed in both
+- `length_control.py` (5b07c5ae9b88b1ae) - the same paired difference conditioned on response length: quartiles of the arm-to-base log length ratio, a within-ten-percent subset, and the subset where the arm is no longer than the base
 
 ## PROSPER-setting data pipeline
 
