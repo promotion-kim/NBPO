@@ -117,3 +117,28 @@ Safe 패널 판단을 세 데이터로 확장한다 — **데이터 출처를 �
 아니다.** UF 행의 목표쌍별 D는 0.088(truthfulness–helpfulness)에서
 0.238(instruction_following–honesty)까지 벌어지므로, 목표 충돌은 쌍에 따라
 실재하지만 순환성과는 별개의 축이다.
+
+## 6. IFEval strict prompt accuracy는 채점기 자체가 결정적이지 않다
+
+실험 3의 IFEval 열을 읽는 한계다. **같은 응답 파일**을 두 번 채점했더니 base
+정책의 strict prompt accuracy가 541개 중 1개 prompt만큼 달라졌다 —
+0.728281 대 0.726433. 두 실행의 `responses_sha256`(8e54c181fc8255f8)과
+`official_evaluation_lib_sha256`(35decc0600071848)은 동일하다. 즉 정책도
+응답도 채점 코드도 같은데 결과가 다르다.
+
+갈린 prompt는 `ifeval:1122`이고 instruction은
+`["change_case:english_lowercase", "keywords:letter_frequency"]`이다. 공식
+IFEval 구현의 소문자 검사기는 응답이 영어인지를 **통계적 언어 감지기**로
+확인하는데, 이 감지기는 seed를 주지 않으면 실행마다 결과가 흔들린다.
+`/work/pylibs_ifeval`에 langdetect 1.0.9가 들어 있는 것도 확인했다.
+
+**따라서 IFEval에서 약 0.002(= 1/541) 이하의 차이는 정책 차이로 읽을 수 없다.**
+측정된 arm별 base 대비 차이는 NBPO-PW −0.0018, PROSPER −0.0018,
+fixed-reference Nash-PW −0.0129이므로, 앞의 두 값은 이 잡음과 크기가 같다.
+세 값 모두 95% prompt bootstrap 구간이 0을 포함한다.
+
+**seed를 고정하지 않은 이유.** 이 논문의 기존 IFEval 수치는 모두 수정하지 않은
+같은 라이브러리로 측정됐다. 지금 감지기에 seed를 주면 새 숫자는 결정적이 되지만
+기존 표와 비교할 수 없게 된다. 그래서 라이브러리를 건드리지 않고 잡음의 크기를
+측정해 caption과 appendix에 명시하는 쪽을 택했다. 라이브러리를 고정하고 **모든**
+IFEval 행을 다시 측정하는 것은 별도 작업으로 남긴다.

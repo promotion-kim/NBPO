@@ -908,26 +908,31 @@ $\lambda_x$ at each prompt in Section~\ref{sec:algorithm}.
 
 \begin{table}[H]
 \centering\small
-\caption{General-capability check on the same three policies, in the format of
+\caption{General-capability check on the three policies of
+Table~\ref{tab:wildchecklists-policy}, in the format of
 \citet{zhang2026prosper}'s Table~2. One local harness, one recipe and the same
-few-shot count for every row; MMLU is reported as accuracy and ARC-Challenge and
-HellaSwag as length-normalized accuracy, each with the harness standard error.
-Bold marks the highest entry per column among the trained rows. The spread
-across the three aggregation rules is at most $0.0043$ on any column, smaller
-than a single standard error on two of the three, so these numbers establish
-that none of the rules costs general capability and do \emph{not} separate them.
-The base row is the untrained \textsc{Qwen2.5-7B-Instruct} the three arms
-initialize from; it and the two generative benchmarks are still being measured.}
+few-shot count for every row. MMLU is accuracy and ARC-C and HellaSwag are
+length-normalized accuracy, each $\pm$ the harness standard error; IFEval is
+strict prompt accuracy and GSM8K is exact match, each followed by the paired
+difference from the base policy with a $95\%$ prompt bootstrap. The base row is
+the untrained \textsc{Qwen2.5-7B-Instruct} the three arms initialize from. Bold
+marks the highest entry per column among the trained rows. Every paired
+difference has an interval containing zero and every multiple-choice column
+spans at most $0.0043$, so the table says that none of the three aggregation
+rules costs general capability; it does not separate them, and no arm improves
+on the base. IFEval carries about $\pm 0.0018$ (one prompt) of scorer
+nondeterminism, measured by scoring one byte-identical response file twice
+(Appendix~\ref{app:wildchecklists-setting}).}
 \label{tab:prosper-setting-capability}
 \begin{tabular}{lccccc}
 \toprule
 Aggregation rule & MMLU & ARC-C & HellaSwag & IFEval & GSM8K\\
 \midrule
-Base policy, untrained & \pending & \pending & \pending & \pending & \pending\\
+Base policy, untrained & $0.7427$ \tiny{$\pm 0.0035$} & $0.6724$ \tiny{$\pm 0.0137$} & $0.8141$ \tiny{$\pm 0.0039$} & $0.7283$ & $0.9174$\\
 \midrule
-NBPO (per-prompt weights) & $\mathbf{0.7431}$ \tiny{$\pm 0.0035$} & $0.6706$ \tiny{$\pm 0.0137$} & $0.8145$ \tiny{$\pm 0.0039$} & \pending & \pending\\
-Fixed-reference Nash (per-prompt) & $0.7421$ \tiny{$\pm 0.0035$} & $0.6681$ \tiny{$\pm 0.0138$} & $0.8142$ \tiny{$\pm 0.0039$} & \pending & \pending\\
-PROSPER, max-min Blackwell \citep{zhang2026prosper} & $0.7426$ \tiny{$\pm 0.0035$} & $\mathbf{0.6724}$ \tiny{$\pm 0.0137$} & $\mathbf{0.8150}$ \tiny{$\pm 0.0039$} & \pending & \pending\\
+NBPO (per-prompt weights) & $\mathbf{0.7431}$ \tiny{$\pm 0.0035$} & $0.6706$ \tiny{$\pm 0.0137$} & $0.8145$ \tiny{$\pm 0.0039$} & $\mathbf{0.7264}$ \tiny{$\Delta\,{-}0.0018$} & $0.9143$ \tiny{$\Delta\,{-}0.0030$}\\
+Fixed-reference Nash (per-prompt) & $0.7421$ \tiny{$\pm 0.0035$} & $0.6681$ \tiny{$\pm 0.0138$} & $0.8142$ \tiny{$\pm 0.0039$} & $0.7135$ \tiny{$\Delta\,{-}0.0129$} & $\mathbf{0.9158}$ \tiny{$\Delta\,{-}0.0015$}\\
+PROSPER, max-min Blackwell \citep{zhang2026prosper} & $0.7426$ \tiny{$\pm 0.0035$} & $\mathbf{0.6724}$ \tiny{$\pm 0.0137$} & $\mathbf{0.8150}$ \tiny{$\pm 0.0039$} & $\mathbf{0.7264}$ \tiny{$\Delta\,{-}0.0018$} & $0.9128$ \tiny{$\Delta\,{-}0.0045$}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2793,6 +2798,27 @@ format. Exclusion is at prompt granularity because the all-pair format requires
 every one of a prompt's $28$ learner pairs, and the union across arms is removed
 from all arms so the comparison is on one prompt set. The max-min rule was the
 binding constraint at both the certification and the representability step.
+
+\paragraph{General-capability measurement.}
+Table~\ref{tab:prosper-setting-capability} uses one local harness for all rows,
+the same few-shot counts and recipe, and no API call. The base row is untrained
+\textsc{Qwen2.5-7B-Instruct}, the initialization of all three arms; an earlier
+base on the same disk is a different model family and was not used, since a
+paired difference across families would not be interpretable. IFEval and GSM8K
+are generated greedily with the arm's own tokenizer and terminal ids and scored
+programmatically, and their differences from the base are paired per prompt.
+
+One detail limits how finely the IFEval column can be read. Scoring the
+\emph{same} byte-identical response file twice changed the strict prompt
+accuracy of the base policy by one prompt out of $541$ ($0.7283$ versus
+$0.7264$); the responses and the scoring library hashed identically in both
+runs. The flipped prompt carries the \texttt{change\_case:english\_lowercase}
+instruction, whose official checker calls an unseeded statistical language
+detector, so it is the scorer and not the policy that varies. We therefore read
+IFEval differences below about $0.002$ as noise, which covers the differences
+between two of the three arms and the base, and we do not reseed the detector
+because the earlier tables in this paper were scored with the same unmodified
+library.
 
 \subsection{Empirical Pareto evaluation}
 \label{app:pareto-evaluation}
