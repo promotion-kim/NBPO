@@ -15,7 +15,8 @@ variant so the change is visible rather than silent.
 Two additions: the WildChecklists policy comparison as a body table with the
 best entry per column in bold, and its setting as an appendix section. A
 third: the general-capability check on the same three policies, in the format
-of PROSPER's Table 2, measured against the arms' own untrained base.
+of PROSPER's Table 2, measured against the arms' own untrained base, and the
+scaled round at two epochs, whose unmeasured arms are left pending.
 """
 from pathlib import Path
 import hashlib
@@ -166,6 +167,35 @@ PROSPER, max-min Blackwell \citep{zhang2026prosper} & $0.7426$ \tiny{$\pm 0.0035
 """
 
 src = src.replace(anchor, REGRESSION_TABLE.lstrip("\n") + "\n" + anchor, 1)
+SCALED_TABLE = r"""
+\begin{table}[H]
+\centering\small
+\caption{Scaled round. The same three rules are retrained on $522$ prompts
+($14{,}616$ learner pairs) for two pipeline epochs, against $384$ prompts and one
+epoch in Table~\ref{tab:wildchecklists-policy}, and evaluated identically: same
+panels, same static baselines, same judge, temperature $0$, both presentation
+orders. The surviving prompt set is the union-filtered intersection across the
+three arms, so the arms again train on one prompt set. Only NBPO is measured so
+far. Its win rate moves by $+0.0015$ on Arena-Hard and $+0.0044$ on AlpacaEval
+against its own single-epoch row, both far inside the intervals, while its
+median response length moves by under $2\%$: multiplying the data by $1.4$ and
+doubling the epochs does not move this rule's win rate.}
+\label{tab:prosper-setting-scaled}
+\begin{tabular}{lcc}
+\toprule
+Aggregation rule, two epochs & Arena-Hard & AlpacaEval\\
+\midrule
+NBPO (per-prompt weights) & $0.6333$ \tiny{$[0.6045,0.6616]$} & $0.4124$ \tiny{$[0.3946,0.4311]$}\\
+\quad change vs.\ one epoch & $+0.0015$ & $+0.0044$\\
+\midrule
+Fixed-reference Nash (per-prompt) & \pending & \pending\\
+PROSPER, max-min Blackwell \citep{zhang2026prosper} & \pending & \pending\\
+\bottomrule
+\end{tabular}
+\end{table}
+"""
+
+src = src.replace(anchor, SCALED_TABLE.lstrip("\n") + "\n" + anchor, 1)
 
 APPENDIX = r"""
 \section{Checklist-Native Policy Comparison: Setting}
