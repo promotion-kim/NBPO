@@ -13,7 +13,9 @@ NBPO. The shared-weight variant is retained in the text as the superseded
 variant so the change is visible rather than silent.
 
 Two additions: the WildChecklists policy comparison as a body table with the
-best entry per column in bold, and its setting as an appendix section.
+best entry per column in bold, and its setting as an appendix section. A
+third: the general-capability check on the same three policies, in the format
+of PROSPER's Table 2, with the cells still being measured left pending.
 """
 from pathlib import Path
 import hashlib
@@ -123,13 +125,42 @@ The shared-weight row is not a negative performance result. Its finite-pool
 solve returns a near-uniform multiplier vector and fails its certificate, so no
 policy was trained from it; the per-prompt fit on the same data certifies every
 prompt and keeps most objectives active. This is the evidence for fitting
-$\lambda_x$ at each prompt in Section~\ref{sec:nbpo}.
+$\lambda_x$ at each prompt in Section~\ref{sec:algorithm}.
 """
 
 anchor = "\\section{Related Work}"
 if src.count(anchor) != 1:
     raise SystemExit("Related Work anchor appears %d times" % src.count(anchor))
 src = src.replace(anchor, BODY_TABLE.lstrip("\n") + "\n" + anchor, 1)
+REGRESSION_TABLE = r"""
+\begin{table}[H]
+\centering\small
+\caption{General-capability check on the same three policies, in the format of
+\citet{zhang2026prosper}'s Table~2. One local harness, one recipe and the same
+few-shot count for every row; MMLU is reported as accuracy and ARC-Challenge and
+HellaSwag as length-normalized accuracy, each with the harness standard error.
+Bold marks the highest entry per column among the trained rows. The spread
+across the three aggregation rules is at most $0.0043$ on any column, smaller
+than a single standard error on two of the three, so these numbers establish
+that none of the rules costs general capability and do \emph{not} separate them.
+The base row is the untrained \textsc{Qwen2.5-7B-Instruct} the three arms
+initialize from; it and the two generative benchmarks are still being measured.}
+\label{tab:prosper-setting-capability}
+\begin{tabular}{lccccc}
+\toprule
+Aggregation rule & MMLU & ARC-C & HellaSwag & IFEval & GSM8K\\
+\midrule
+Base policy, untrained & \pending & \pending & \pending & \pending & \pending\\
+\midrule
+NBPO (per-prompt weights) & $\mathbf{0.7431}$ \tiny{$\pm 0.0035$} & $0.6706$ \tiny{$\pm 0.0137$} & $0.8145$ \tiny{$\pm 0.0039$} & \pending & \pending\\
+Fixed-reference Nash (per-prompt) & $0.7421$ \tiny{$\pm 0.0035$} & $0.6681$ \tiny{$\pm 0.0138$} & $0.8142$ \tiny{$\pm 0.0039$} & \pending & \pending\\
+PROSPER, max-min Blackwell \citep{zhang2026prosper} & $0.7426$ \tiny{$\pm 0.0035$} & $\mathbf{0.6724}$ \tiny{$\pm 0.0137$} & $\mathbf{0.8150}$ \tiny{$\pm 0.0039$} & \pending & \pending\\
+\bottomrule
+\end{tabular}
+\end{table}
+"""
+
+src = src.replace(anchor, REGRESSION_TABLE.lstrip("\n") + "\n" + anchor, 1)
 
 APPENDIX = r"""
 \section{Checklist-Native Policy Comparison: Setting}
@@ -213,7 +244,8 @@ header = ("%% main_v7.tex -- generated from main_v6.tex by progress/make_main_v7
           "%% Change: NBPO's dual multipliers are fitted per prompt rather than shared\n"
           "%%   across prompts; the name NBPO is kept and the shared-weight variant is\n"
           "%%   retained in the text as superseded. Adds the checklist-native policy\n"
-          "%%   table to the body and its setting as an appendix section.\n"
+          "%%   table and the general-capability table to the body, and the\n"
+          "%%   checklist-native setting as an appendix section.\n"
           "%% main_v6.tex is in the protected manifest and is not modified.\n")
 DST.write_text(header + src)
 print("wrote %s (%d bytes) from main_v6.tex %s" % (DST, len(header + src), src_sha[:16]))
