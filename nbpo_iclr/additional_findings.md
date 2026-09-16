@@ -142,3 +142,25 @@ fixed-reference Nash-PW −0.0129이므로, 앞의 두 값은 이 잡음과 크�
 기존 표와 비교할 수 없게 된다. 그래서 라이브러리를 건드리지 않고 잡음의 크기를
 측정해 caption과 appendix에 명시하는 쪽을 택했다. 라이브러리를 고정하고 **모든**
 IFEval 행을 다시 측정하는 것은 별도 작업으로 남긴다.
+
+## 7. judge72b_* 8개 artifact의 `not_the_official_metric` 문장이 사실과 다르다
+
+실험 1(72B judge 재판정)의 `eval_pairwise/judge72b_*/complete.json`에는 다음
+문장이 들어 있다.
+
+```
+This run judges with the local Qwen3-14B to keep the paid-API cost at zero.
+```
+
+**이 문장은 이 실행에 대해 틀렸다.** 실제 판정자는 같은 파일의 `judge` 필드가
+기록한 `/work/models/bases/Qwen2.5-72B-Instruct`(revision
+495f39366efef23836d0cfae4fbe635880d2be31, TP=4)이다. `judge_eval_pairwise.py`가
+판정자 이름을 문자열로 **하드코딩**하고 있었기 때문이고, 숫자에는 영향이 없다 —
+판정은 `--judge`로 전달된 모델로 실행됐다.
+
+**조치.** 스크립트가 실제로 실행된 판정자 이름을 `args.judge`에서 가져오도록
+고쳤다(`os.path.basename`). 이미 기록된 8개 artifact는 다시 쓰지 않았다 — 결과를
+바꾸지 않는 문장을 고치려고 측정 artifact를 덮어쓰는 것보다, **어느 필드가
+권위 있는지 여기에 적어 두는 쪽**이 낫다고 판단했다. `judge`와
+`judge_revision` 필드가 권위 있고, `not_the_official_metric`의 판정자 이름은
+2026-09-16 이전 artifact에서 신뢰할 수 없다.
