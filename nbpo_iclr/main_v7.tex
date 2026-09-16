@@ -939,26 +939,38 @@ PROSPER, max-min Blackwell \citep{zhang2026prosper} & $0.7426$ \tiny{$\pm 0.0035
 
 \begin{table}[H]
 \centering\small
-\caption{Scaled round. The same three rules are retrained on $522$ prompts
-($14{,}616$ learner pairs) for two pipeline epochs, against $384$ prompts and one
-epoch in Table~\ref{tab:wildchecklists-policy}, and evaluated identically: same
-panels, same static baselines, same judge, temperature $0$, both presentation
-orders. The surviving prompt set is the union-filtered intersection across the
-three arms, so the arms again train on one prompt set. Only NBPO is measured so
-far. Its win rate moves by $+0.0015$ on Arena-Hard and $+0.0044$ on AlpacaEval
-against its own single-epoch row, both far inside the intervals, while its
-median response length moves by under $2\%$: multiplying the data by $1.4$ and
-doubling the epochs does not move this rule's win rate.}
+\caption{Scaled round, and the paired comparisons it supports. The rules are
+retrained on $522$ prompts ($14{,}616$ learner pairs) for two pipeline epochs,
+against $384$ prompts and one epoch in
+Table~\ref{tab:wildchecklists-policy}, and evaluated identically: same panels,
+same static baselines, same judge, temperature $0$, both presentation orders,
+one union-filtered prompt set across arms. Win rates carry a $95\%$ prompt
+bootstrap. Because the arms are judged on the same prompts against the same
+baseline, the lower block resamples whole prompts once and differences the two
+runs inside every replicate rather than comparing marginal intervals; $n$ is the
+number of prompts fully parsed in both runs. \textbf{Every paired interval
+contains zero.} The signs are consistent -- NBPO is up on both benchmarks
+against PROSPER, against its own single-epoch run and against the untrained
+base, and PROSPER is down on both against its own single-epoch run -- but at
+this panel size and with this judge none of these differences is resolved, and
+the trained-versus-base difference is not resolved either. Median response
+lengths move by under $2\%$, so none of this is a length effect.}
 \label{tab:prosper-setting-scaled}
 \begin{tabular}{lcc}
 \toprule
-Aggregation rule, two epochs & Arena-Hard & AlpacaEval\\
+& Arena-Hard & AlpacaEval\\
 \midrule
+\multicolumn{3}{l}{\emph{Win rate against the released baseline answers, two epochs}}\\
 NBPO (per-prompt weights) & $0.6333$ \tiny{$[0.6045,0.6616]$} & $0.4124$ \tiny{$[0.3946,0.4311]$}\\
-\quad change vs.\ one epoch & $+0.0015$ & $+0.0044$\\
-\midrule
+PROSPER, max-min Blackwell \citep{zhang2026prosper} & $0.6225$ \tiny{$[0.5936,0.6498]$} & $0.4071$ \tiny{$[0.3893,0.4246]$}\\
 Fixed-reference Nash (per-prompt) & \pending & \pending\\
-PROSPER, max-min Blackwell \citep{zhang2026prosper} & \pending & \pending\\
+\midrule
+\multicolumn{3}{l}{\emph{Paired difference, whole-prompt bootstrap on the common prompts}}\\
+NBPO $-$ PROSPER & $+0.0087$ \tiny{$[-0.0122,+0.0305]$} & $+0.0063$ \tiny{$[-0.0087,+0.0206]$}\\
+NBPO, two epochs $-$ one epoch & $+0.0046$ \tiny{$[-0.0163,+0.0265]$} & $+0.0047$ \tiny{$[-0.0091,+0.0197]$}\\
+PROSPER, two epochs $-$ one epoch & $-0.0056$ \tiny{$[-0.0265,+0.0153]$} & $-0.0056$ \tiny{$[-0.0206,+0.0091]$}\\
+NBPO $-$ untrained base & $+0.0188$ \tiny{$[-0.0025,+0.0407]$} & $+0.0147$ \tiny{$[-0.0016,+0.0304]$}\\
+$n$ common prompts & $491$ & $798$--$801$\\
 \bottomrule
 \end{tabular}
 \end{table}
