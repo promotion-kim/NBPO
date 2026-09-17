@@ -1,0 +1,10 @@
+{
+  "original_file_count": 1993,
+  "modified_or_missing_original_files": [],
+  "untracked_files_after_tests": [
+    ".pytest_cache/.gitignore",
+    ".pytest_cache/CACHEDIR.TAG",
+    ".pytest_cache/README.md",
+    ".pytest_cache/v/cache/nodeids"
+  ]
+}

@@ -1,5 +1,5 @@
 # Generated from solve_pros4_targets_uw1.py by build_panel_solvers.py
-# -- do not edit by hand. source sha256 32d8a051c2f36bb19ac04ea6e0318a7571a874da3a061d37e081c8ecac1f7483
+# -- do not edit by hand. source sha256 43ad471fa90a19c5251aba12062030849fcbea802f08c5dfa34a16ba58634af9
 # change: OBJECTIVES -> item0..item1, the US panel's declared objective
 #         count. The rubric text behind each slot is that panel's frozen
 #         rubric, recorded in panel/us_v1/freeze.json; slot k of two panels
@@ -119,13 +119,52 @@ def split_pool_digest(pool, prompt_ids, roles=("learner", "comparator")):
         for role in roles:
             for index in sorted(entry.get(role, {})):
                 row = entry[role][index]
+                # Recompute from the text rather than trusting the stored
+                # field. A row whose response was edited while its cached
+                # response_sha256 was left alone used to produce an unchanged
+                # digest, which is exactly the binding this digest is for. This
+                # function stays a pure function of content and never raises;
+                # the integrity complaint belongs to verify_pool_row_digests,
+                # which the solve calls, so a diagnostic caller can still get a
+                # digest of what the rows actually say.
                 identity = (str(pid), role, str(index),
                             str(row.get("candidate_id", "")),
-                            str(row.get("response_sha256")
-                                or hashlib.sha256(
-                                    str(row.get("response", "")).encode()).hexdigest()))
+                            hashlib.sha256(
+                                str(row.get("response", "")).encode("utf-8")).hexdigest())
                 h.update(("\x1f".join(identity) + "\x1e").encode())
     return h.hexdigest()
+
+
+def verify_pool_row_digests(pool, prompt_ids, roles=("learner", "comparator")):
+    """Refuse a pool row whose cached response_sha256 disagrees with its text.
+
+    Separated from split_pool_digest so that the digest is a pure function of
+    content while the pipeline still stops on an internally inconsistent pool.
+    load_pool checks each chunk's outer file hash, which catches a corrupted
+    file but not a row whose text was edited and whose cached digest was left
+    behind; that is the case this closes. Returns the number of rows checked.
+    """
+    import hashlib
+    checked = 0
+    for pid in sorted(prompt_ids):
+        entry = pool.get(pid)
+        if entry is None:
+            raise ValueError("split prompt %s is absent from the pool" % pid)
+        for role in roles:
+            for index in sorted(entry.get(role, {})):
+                row = entry[role][index]
+                claimed = row.get("response_sha256")
+                if not claimed:
+                    continue
+                actual = hashlib.sha256(
+                    str(row.get("response", "")).encode("utf-8")).hexdigest()
+                if str(claimed) != actual:
+                    raise ValueError(
+                        "pool row %s/%s/%s carries response_sha256 %s but its text hashes "
+                        "to %s; a stale cached digest is refused rather than hashed around"
+                        % (pid, role, index, claimed, actual))
+                checked += 1
+    return checked
 
 
 def quantize_canonical_row(row):
@@ -211,6 +250,35 @@ def load_scores(score_root, shards):
             if file_hash(path) != meta["sha256"]:
                 raise ValueError(f"Score chunk hash mismatch: {path}")
             arrays = np.load(path, allow_pickle=True)
+            # The schema string is a declaration; this checks it. A shard that
+            # says lr_rr_v2 but whose A_policy is not its own A_LR, or whose
+            # A_ref is not its own A_RR, is mislabeled rather than merely old,
+            # and mislabeled is the case a version tag cannot catch on its own.
+            aliases = (("A_policy", "A_LR"), ("A_ref", "A_RR"))
+            if all(name in arrays.files for pair in aliases for name in pair):
+                for alias, semantic in aliases:
+                    if not np.array_equal(arrays[alias], arrays[semantic]):
+                        raise ValueError(
+                            f"{path} declares {required} but its {alias} is not its "
+                            f"{semantic}; the tensor roles do not match the schema it "
+                            "claims, so this shard cannot be solved as the declared game")
+                # A_LL must not be the policy game: if it were, the surplus would
+                # carry the sign defect the schema exists to rule out
+                if "A_LL" in arrays.files and np.array_equal(arrays["A_policy"],
+                                                             arrays["A_LL"]):
+                    raise ValueError(
+                        f"{path} has A_policy equal to A_LL, which is the pre-fix "
+                        "wiring under a post-fix label")
+            expected_banks = {"A_policy": ["learner", "comparator"],
+                              "A_ref": ["comparator", "comparator"],
+                              "A_LL": ["learner", "learner"]}
+            banks = meta.get("bank_ids")
+            if banks is not None:
+                for name, want in expected_banks.items():
+                    got = banks.get(name)
+                    if got is not None and list(got) != want:
+                        raise ValueError(
+                            f"{path} records {name} drawn from {got}, not {want}")
             pids = [str(p) for p in arrays["prompt_ids"]]
             A, Aref = arrays["A_policy"], arrays["A_ref"]
             # r_bt is the scalar BT projection. The union contract uses direct
@@ -560,6 +628,7 @@ def main():
                           "learner_capped_fraction": capped / (len(pids) * POOL),
                           "reference_skew_residual": skew,
                           "seconds": time.monotonic() - split_start}
+        verify_pool_row_digests(pool, pids)
         split_digests[split] = split_pool_digest(pool, pids)
         write_json(out / split / "complete.json", outputs[split])
         print(json.dumps({"split": split, "n_pairs": len(pids) * 28,

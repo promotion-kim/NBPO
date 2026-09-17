@@ -76,8 +76,8 @@ def load(judged: Path, baseline: Path, panel: Path, length=None, dropped=None):
         d = normalized_difference(arm[pid], base[pid])
         for order in sorted(byorder):
             rows.append((pid, byorder[order], d))
-    # reported through the caller's dict rather than a third return value, so an
-    # existing two-value caller keeps working and still gets the both-order rule
+    # reported through the caller's dict rather than a third return value, so a
+    # two-value caller keeps working and still gets the both-order rule
     dropped["single_order_prompts"] = single_order
     return complete["arm"], rows
 

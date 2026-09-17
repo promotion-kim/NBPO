@@ -1,0 +1,134 @@
+{
+  "commit": "97e03c053e08892f72b68aec4203de071537ce5a",
+  "issues": [
+    {
+      "id": "A02",
+      "severity": "P0",
+      "status": "RESOLVED",
+      "title": "Canonical API missing from public package",
+      "verified_by": [
+        "15 actual module imports",
+        "value-carrying build_rows",
+        "generic artifact write/load and tamper test"
+      ]
+    },
+    {
+      "id": "A05",
+      "severity": "P1",
+      "status": "RESOLVED",
+      "title": "Fixed-decimal target rounding across panels",
+      "verified_by": [
+        "7 serializers",
+        "28 pairs with minimum mass 1e-12",
+        "JSON and actual canonical validator"
+      ]
+    },
+    {
+      "id": "A01",
+      "severity": "P0",
+      "status": "RESOLVED_FOR_VALID_INPUTS",
+      "title": "LL/LR/RR semantic wiring",
+      "verified_by": [
+        "K2/K4 scorer equality",
+        "RR order completeness",
+        "default legacy-scorer refusal",
+        "stale-schema rejection"
+      ]
+    },
+    {
+      "id": "A07",
+      "severity": "P1",
+      "status": "RESOLVED",
+      "title": "Legacy gate accepted NaN",
+      "verified_by": [
+        "actual NaN/Inf/zero/negative/positive filesystem tests"
+      ]
+    },
+    {
+      "id": "B01_B02_B03",
+      "severity": "P1",
+      "status": "RESOLVED_WITH_SCOPE",
+      "title": "Style length units, convergence reporting and complete orders",
+      "scope": "actual words-mode CLI and fit/load; default model tokenizer not executed"
+    },
+    {
+      "id": "A04",
+      "severity": "P1",
+      "status": "OPEN",
+      "title": "Current prompt-wise training path lacks local acceptance integration",
+      "paths": [
+        "analysis/sub_20260914/code_snapshot_20260917_union/make_pros_train_jobs.py",
+        "analysis/sub_20260914/code_snapshot_20260917_union/panel_stage2.py",
+        "mnpo_scripts/run_mnpo.py",
+        "scripts/nbpo/run_nbpo_stage.py",
+        "scripts/nbpo/eval_game_value.py"
+      ],
+      "evidence": [
+        "E10",
+        "E11",
+        "E12",
+        "E13",
+        "E14",
+        "E15"
+      ],
+      "fix": "Preserve Global Nash control. Add a separate current prompt-wise stage controller, local monitoring and declared dev checks, candidate/accepted checkpoint separation and parent retention. Do not infer historical use.",
+      "acceptance": [
+        "Actual training command dispatches local gate",
+        "Any invalid/missing/negative local condition fails per declared policy",
+        "Success creates versioned accepted artifact; failure returns parent",
+        "Evaluation is bound to accepted checkpoint and exact manifests"
+      ]
+    },
+    {
+      "id": "C01",
+      "severity": "P2",
+      "status": "HARDENING",
+      "title": "v2 tag does not validate semantic alias contents or bank IDs",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw3.py",
+      "evidence": [
+        "E05"
+      ],
+      "fixture": "Correct v2 tag and updated chunk hash, but A_policy replaced by A_LL, is accepted",
+      "fix": "Validate A_policy equals A_LR, A_ref equals A_RR, shapes, finiteness, prompt counts and response-bank mapping for v2; do not migrate legacy files by tag alone",
+      "acceptance": [
+        "Valid generalized scorer output accepted",
+        "Mismatched aliases/banks rejected with diagnostic"
+      ],
+      "scope": "No evidence actual corrected artifacts have these inconsistencies"
+    },
+    {
+      "id": "C02",
+      "severity": "P2",
+      "status": "HARDENING",
+      "title": "Pool digest trusts existing response_sha256 without recomputing",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw3.py",
+      "evidence": [
+        "E05"
+      ],
+      "fix": "Recompute per-row text digest and validate cached hash; include/verify token event identity where used",
+      "acceptance": [
+        "Consistent content/hash changes update split digest",
+        "Stale cached hash rejected",
+        "Outside-split mutation has no effect"
+      ],
+      "scope": "Original split-name-only hashing is fixed. This is an inconsistent-input check, not observed corrupted experiments."
+    },
+    {
+      "id": "C03",
+      "severity": "P2",
+      "status": "OPEN_METADATA",
+      "title": "UW1 base retains PANEL_LABEL=UF-4",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1.py",
+      "line": 93,
+      "evidence": [
+        "E16",
+        "E17"
+      ],
+      "fix": "Set the UW1 runtime label correctly and update generator anchor or make panel a parameter",
+      "acceptance": [
+        "UW1 output identifies correct panel",
+        "Regenerated UW1C/UW3/US1/UT1 labels remain correct"
+      ]
+    }
+  ]
+}

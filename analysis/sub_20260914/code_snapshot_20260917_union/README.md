@@ -106,6 +106,47 @@ module whose `--help` contained the substring `uw1`, which fires on `uw1c` —
 correctly repointed — after the files had already been written. It now compares
 whole tokens and exempts the panel being generated.
 
+## Third audit pass, 2026-09-18 (97e03c0)
+
+Six of the previous round's items were confirmed resolved. Four remained, and
+all four are closed here.
+
+**A04, the one that mattered: Algorithm 1's acceptance step was never wired into
+the prompt-wise training path.** The traced path was job generator —
+`torch.distributed.run` — `run_mnpo` — `train()` — `save_model()`, with
+nothing between or after it that evaluated, rejected or promoted a candidate. A
+certified solver residual does not substitute: it certifies the finite target,
+not the policy fitted to it. `nbpo_local_gate.py` now performs that step. It
+builds ONE REPRESENTATION PER PROMPT — the batched `game_values` divides by
+the prompt count, so a batch containing +.2 and -.1 averages to +.05 and passes
+while the compromise failed on one of those prompts — and applies three
+declared checks: every surplus finite, the fraction of development prompts
+positive on every objective at least `--coverage-min`, and the held-out nMSE at
+most `--nmse-max`. On a pass it writes a versioned accepted directory carrying
+the checkpoint's fingerprint; on a failure it promotes nothing and returns the
+parent. `scripts/nbpo/eval_game_value.py` stays global and now says so in its
+own docstring, because global is correct for the Global Nash control.
+
+The gate exists from 2026-09-18 and is not retroactive. Every number already
+reported came from an ungated projection, and a later gate cannot change that;
+anything described as gated must name a promotion record this file wrote.
+
+**C01: the schema tag was a declaration with nothing behind it.** A shard could
+say `lr_rr_v2` while its `A_policy` was not its own `A_LR`. The loader now checks
+the aliases against the semantic arrays, refuses a shard whose `A_policy` equals
+its `A_LL` (the pre-fix wiring under a post-fix label), and checks the recorded
+bank ids.
+
+**C02: the pool digest trusted a cached hash.** A row whose response text was
+edited while its `response_sha256` was left behind produced an unchanged digest.
+`split_pool_digest` now recomputes from the text, and the refusal lives in a
+separate `verify_pool_row_digests` that the solve calls first — so the digest
+stays a pure function of content while an internally inconsistent pool still
+stops the run.
+
+**C03: the UW1 base still labelled itself UF-4.** It is `UW1` now, and the
+generator's substitution anchor follows.
+
 ## The prompt-wise NBPO line
 
 The prompt-wise change is in the solver, not the trainer: NBPO's dual
@@ -268,7 +309,7 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `abl_analysis.py` | `a1ae9271f1a860e1` |
 | `ahv2_breakdown.py` | `d4e97430d4f537bb` |
 | `ahv2_paired.py` | `85038b4b314c5943` |
-| `ahv2_sc_paired.py` | `668adab4d7f31fb5` |
+| `ahv2_sc_paired.py` | `9906157bc602e742` |
 | `ahv2_style_control.py` | `ee230bf19864ed5a` |
 | `analyze_screen.py` | `841409da20c363de` |
 | `analyze_wild.py` | `f1226378f4072081` |
@@ -276,7 +317,7 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `build_eval_panel_ahv2.py` | `63bbabb8ba9a4c97` |
 | `build_eval_panels.py` | `8183ed5efbec9580` |
 | `build_panel_softlabels.py` | `567ef4618851beb0` |
-| `build_panel_solvers.py` | `e96df0927515180c` |
+| `build_panel_solvers.py` | `d958a4ffd5bc3a4b` |
 | `build_prosper_dataset.py` | `7eb3d18acde431d0` |
 | `build_pw_solvers.py` | `1683a631a93918e0` |
 | `cc_split.py` | `c2ad798e746ee7ae` |
@@ -322,6 +363,8 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `mtbench_generate.py` | `5f57d2c8740e2494` |
 | `mtbench_judge.py` | `1007bf7e9f74f674` |
 | `mtbench_judge_batch.py` | `733864ed29ad2ed8` |
+| `nbpo_local_gate.py` | `a5acfd5dbe44b483` |
+| `nbpo_local_gate_selftest.py` | `5d96083801cf0306` |
 | `paired_diff.py` | `8c02d7c6107a1add` |
 | `paired_eval_diff.py` | `d63433fd17d62928` |
 | `panel_eval_judge.py` | `43c34dc22a5fb653` |
@@ -367,32 +410,32 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `solve_mopo_targets_ut1.py` | `d4d88c0f3240f98e` |
 | `solve_pros.py` | `6437b4763d8bae50` |
 | `solve_pros4_prosper.py` | `4acef1091e95e5d1` |
-| `solve_pros4_prosper_us1.py` | `96bedd9cbdd9dec3` |
-| `solve_pros4_prosper_ut1.py` | `32c616a65db7a858` |
-| `solve_pros4_prosper_uw1.py` | `756e28a2cd7f1ef9` |
-| `solve_pros4_prosper_uw1c.py` | `a7cb42cd49df7d85` |
-| `solve_pros4_prosper_uw3.py` | `09ae3ce81b5b9e5a` |
+| `solve_pros4_prosper_us1.py` | `a424790acb05c120` |
+| `solve_pros4_prosper_ut1.py` | `f3f164f01e67691f` |
+| `solve_pros4_prosper_uw1.py` | `9bc12258adb0f362` |
+| `solve_pros4_prosper_uw1c.py` | `24813e435311a09d` |
+| `solve_pros4_prosper_uw3.py` | `882ed6e6698420e4` |
 | `solve_pros4_prosper_v2.py` | `e5788f0897387777` |
 | `solve_pros4_pw_fixedref.py` | `7a9f2b4fc4820b7b` |
-| `solve_pros4_pw_fixedref_us1.py` | `4eda66cd663f503d` |
-| `solve_pros4_pw_fixedref_ut1.py` | `5b7a6690d4987370` |
-| `solve_pros4_pw_fixedref_uw1.py` | `7fa7013b8b907794` |
-| `solve_pros4_pw_fixedref_uw1c.py` | `b7463f59910f76db` |
-| `solve_pros4_pw_fixedref_uw3.py` | `3bac26988d121e3a` |
+| `solve_pros4_pw_fixedref_us1.py` | `f28d388b740106b6` |
+| `solve_pros4_pw_fixedref_ut1.py` | `93db4e6c6443b50e` |
+| `solve_pros4_pw_fixedref_uw1.py` | `154bdf73323a8782` |
+| `solve_pros4_pw_fixedref_uw1c.py` | `3ab9c86049b3617f` |
+| `solve_pros4_pw_fixedref_uw3.py` | `96f091b8084e43cb` |
 | `solve_pros4_pw_fixedref_v2.py` | `e3fdc6beaa2a352c` |
 | `solve_pros4_pw_nbpo.py` | `1d9b0953162ca88f` |
-| `solve_pros4_pw_nbpo_us1.py` | `4dd83f7dbdf06baa` |
-| `solve_pros4_pw_nbpo_ut1.py` | `b28c565152a6fd72` |
-| `solve_pros4_pw_nbpo_uw1.py` | `b82911d4d3bdd2d2` |
-| `solve_pros4_pw_nbpo_uw1c.py` | `0aaefa776bfcc3a8` |
-| `solve_pros4_pw_nbpo_uw3.py` | `edbbb366099cb865` |
+| `solve_pros4_pw_nbpo_us1.py` | `2ff143d2361e8492` |
+| `solve_pros4_pw_nbpo_ut1.py` | `459eabc33fd2a3cb` |
+| `solve_pros4_pw_nbpo_uw1.py` | `d9b0fa546f1660d1` |
+| `solve_pros4_pw_nbpo_uw1c.py` | `5d7f022f99f3f300` |
+| `solve_pros4_pw_nbpo_uw3.py` | `95b3090e0b6be64c` |
 | `solve_pros4_pw_nbpo_v2.py` | `575eeff8d0f9a9a3` |
 | `solve_pros4_targets.py` | `dc9a8ac57dbbece5` |
-| `solve_pros4_targets_us1.py` | `13a2b2cd86388f7c` |
-| `solve_pros4_targets_ut1.py` | `edc71ba98b127378` |
-| `solve_pros4_targets_uw1.py` | `32d8a051c2f36bb1` |
-| `solve_pros4_targets_uw1c.py` | `e3c6d8b8fdf1bc42` |
-| `solve_pros4_targets_uw3.py` | `ec8226dd9b8202d1` |
+| `solve_pros4_targets_us1.py` | `001d378f0ddf3cd7` |
+| `solve_pros4_targets_ut1.py` | `dc71344084bdfa51` |
+| `solve_pros4_targets_uw1.py` | `43ad471fa90a19c5` |
+| `solve_pros4_targets_uw1c.py` | `f392ff5452639e5a` |
+| `solve_pros4_targets_uw3.py` | `a524b3d7e4f3774c` |
 | `solve_pros4_targets_v2.py` | `dc9a8ac57dbbece5` |
 | `solve_safe_prosper.py` | `b7f23de80f1d5a45` |
 | `solve_safe_targets.py` | `74e3181a39074b3c` |

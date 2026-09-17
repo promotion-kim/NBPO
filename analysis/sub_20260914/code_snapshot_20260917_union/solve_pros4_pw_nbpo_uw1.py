@@ -260,6 +260,7 @@ def main():
                           "all_certified": bool(certified.all()),
                           "solver_solution_sha256": solver_hash,
                           "seconds": time.monotonic() - split_start}
+        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
         split_digests[split] = digest_of(pool, pids)
         base.write_json(out / split / "complete.json", outputs[split])
         print(json.dumps({k: v for k, v in outputs[split].items()

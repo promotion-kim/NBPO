@@ -1,0 +1,45 @@
+{
+  "old": {
+    "name": "NBPO-main(1).zip",
+    "zip_comment": "b9499195ebd88d9161eda487bb7fd6167e4b8f80",
+    "sha256": "e7ceabe88667efa202260d069dd556d8d3adea498ea1ee7c423314a271c41537",
+    "files": 1975,
+    "total_uncompressed": 232524277
+  },
+  "new": {
+    "name": "NBPO-main(2).zip",
+    "zip_comment": "97e03c053e08892f72b68aec4203de071537ce5a",
+    "sha256": "512259b037e9ea77a1457fb2b64350ad7150f74706783187e06008bc65f86622",
+    "files": 1993,
+    "total_uncompressed": 232935749
+  },
+  "paper_sha256": "c16f447ca05b757c7637fc9b1df8277c701870d4e1bf681f4eccfbc600cb0477",
+  "environment": {
+    "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.17.0",
+      "torch": "2.10.0+cpu",
+      "pytest": "9.0.2",
+      "PyYAML": "6.0.3"
+    },
+    "unavailable": [
+      "transformers",
+      "accelerate",
+      "datasets",
+      "pyarrow",
+      "trl"
+    ],
+    "gpu_training_executed": false
+  },
+  "tracked_source_integrity": {
+    "original_file_count": 1993,
+    "modified_or_missing_original_files": [],
+    "untracked_files_after_tests": [
+      ".pytest_cache/.gitignore",
+      ".pytest_cache/CACHEDIR.TAG",
+      ".pytest_cache/README.md",
+      ".pytest_cache/v/cache/nodeids"
+    ]
+  }
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "module": "solve_pros4_pw_nbpo_uw1",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_pw_fixedref_uw1",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_prosper_uw1",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_pw_nbpo_uw1c",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_pw_fixedref_uw1c",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_prosper_uw1c",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_pw_nbpo_uw3",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_pw_fixedref_uw3",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_prosper_uw3",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_pw_nbpo_us1",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_pw_fixedref_us1",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_prosper_us1",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_pw_nbpo_ut1",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_pw_fixedref_ut1",
+    "status": "PASS"
+  },
+  {
+    "module": "solve_pros4_prosper_ut1",
+    "status": "PASS"
+  }
+]

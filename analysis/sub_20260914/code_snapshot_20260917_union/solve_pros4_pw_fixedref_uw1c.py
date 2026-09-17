@@ -1,5 +1,5 @@
 # Generated from solve_pros4_pw_fixedref_uw1.py by build_panel_solvers.py -- do not edit by hand.
-# source sha256 7fa7013b8b90779451876afe66e77e45409201066eddf83a85d34acea803b7ed
+# source sha256 154bdf73323a87827ba1a0e453cfc8c2e86122707699f72de73933c10bb32ac2
 # change: score/pool roots -> uw1c, restricted split -> uw_v1cp, base module ->
 #         solve_pros4_targets_uw1c. The rule this arm implements is
 #         untouched.
@@ -265,6 +265,7 @@ def main():
                           "all_certified": bool(certified.all()),
                           "solver_solution_sha256": solver_hash,
                           "seconds": time.monotonic() - split_start}
+        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
         split_digests[split] = digest_of(pool, pids)
         base.write_json(out / split / "complete.json", outputs[split])
         print(json.dumps({k: v for k, v in outputs[split].items()

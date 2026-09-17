@@ -1,0 +1,274 @@
+[
+  {
+    "id": "E01",
+    "path": "README.md",
+    "sha256": "3022c115e46e6061a3cbf3d2d0012bb4b9735e526927b5ed321fd546ee73d2fd",
+    "line_ranges": [
+      [
+        25,
+        73
+      ]
+    ]
+  },
+  {
+    "id": "E02",
+    "path": "scripts/nbpo/build_nbpo_pairs.py",
+    "sha256": "e931faed478feae7c9ddee3501beb6d0fdbcf8dffe2b99f01e8e490013bb1549",
+    "line_ranges": [
+      [
+        56,
+        87
+      ],
+      [
+        110,
+        260
+      ]
+    ]
+  },
+  {
+    "id": "E03",
+    "path": "scripts/nbpo/solve_nbpo_dual.py",
+    "sha256": "d9a2b91837dce03f297ad1ce9e6faf86fa66595e9541347a61f479f10cb936d4",
+    "line_ranges": [
+      [
+        200,
+        306
+      ]
+    ]
+  },
+  {
+    "id": "E04",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/union_score_panel.py",
+    "sha256": "e3bd9c1c2486715f0e1e4a07efe15419fc499507f5d2c633039cde6b2d17da83",
+    "line_ranges": [
+      [
+        71,
+        87
+      ],
+      [
+        151,
+        216
+      ],
+      [
+        236,
+        288
+      ]
+    ]
+  },
+  {
+    "id": "E05",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw3.py",
+    "sha256": "ec8226dd9b8202d19e36f58b6ba521f9e3a669650a7566f482d323f61db91a82",
+    "line_ranges": [
+      [
+        87,
+        236
+      ]
+    ]
+  },
+  {
+    "id": "E06",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw3.py",
+    "sha256": "edbbb366099cb865b3e9b858610d26c148756deb4fb0fb0d7ab6ca1f9cae0920",
+    "line_ranges": [
+      [
+        48,
+        104
+      ],
+      [
+        124,
+        165
+      ],
+      [
+        180,
+        306
+      ]
+    ]
+  },
+  {
+    "id": "E07",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/union_score_uw.py",
+    "sha256": "3752827f4cd0fcda933c2d3057dbe76ff7eb9cac0c055aca70080a707f6c732a",
+    "line_ranges": [
+      [
+        65,
+        113
+      ]
+    ]
+  },
+  {
+    "id": "E08",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/ahv2_style_control.py",
+    "sha256": "ee230bf19864ed5a4b3e8ebb3c5f151f052123211df7523402189ad212541bef",
+    "line_ranges": [
+      [
+        62,
+        144
+      ],
+      [
+        155,
+        261
+      ],
+      [
+        267,
+        303
+      ]
+    ]
+  },
+  {
+    "id": "E09",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/ahv2_sc_paired.py",
+    "sha256": "668adab4d7f31fb5e3614f9284b059ed40302ee30ac943d550a66f08c8ac52c0",
+    "line_ranges": [
+      [
+        25,
+        106
+      ],
+      [
+        115,
+        175
+      ]
+    ]
+  },
+  {
+    "id": "E10",
+    "path": "scripts/nbpo/run_nbpo_stage.py",
+    "sha256": "303e15682a26ebd4158c4a54b551185eb439dbafbd2caa02040772b120878db6",
+    "line_ranges": [
+      [
+        708,
+        765
+      ]
+    ]
+  },
+  {
+    "id": "E11",
+    "path": "scripts/nbpo/eval_game_value.py",
+    "sha256": "0f4c17b91c3ab2ff6524ae1eefcf1847f75ce77acfcbf33aa51becbed6364f03",
+    "line_ranges": [
+      [
+        41,
+        68
+      ]
+    ]
+  },
+  {
+    "id": "E12",
+    "path": "scripts/nbpo/run_nbpo_stage.py",
+    "sha256": "303e15682a26ebd4158c4a54b551185eb439dbafbd2caa02040772b120878db6",
+    "line_ranges": [
+      [
+        279,
+        312
+      ],
+      [
+        935,
+        976
+      ],
+      [
+        1182,
+        1209
+      ]
+    ]
+  },
+  {
+    "id": "E13",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/make_pros_train_jobs.py",
+    "sha256": "bcabadf496632acbcefd6334b84aae5e95f5a85f129885cd4b526f0ee3feba62",
+    "line_ranges": [
+      [
+        148,
+        188
+      ]
+    ]
+  },
+  {
+    "id": "E14",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/panel_stage2.py",
+    "sha256": "e0528503bf22fa970cc2d9a963b35a183bd3a970719240c2d3e6b87c6667734b",
+    "line_ranges": [
+      [
+        309,
+        365
+      ]
+    ]
+  },
+  {
+    "id": "E15",
+    "path": "mnpo_scripts/run_mnpo.py",
+    "sha256": "def0546b64f7d2d5dd6360a7a3ff6995c126a06ff0e63326c965443cdd05d36a",
+    "line_ranges": [
+      [
+        318,
+        330
+      ],
+      [
+        347,
+        390
+      ]
+    ]
+  },
+  {
+    "id": "E16",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1.py",
+    "sha256": "32d8a051c2f36bb19ac04ea6e0318a7571a874da3a061d37e081c8ecac1f7483",
+    "line_ranges": [
+      [
+        87,
+        130
+      ],
+      [
+        232,
+        275
+      ]
+    ]
+  },
+  {
+    "id": "E17",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/build_panel_solvers.py",
+    "sha256": "e96df0927515180c114ff2880d330dcc1701ea35b1fbfd7a9c325527477d3f87",
+    "line_ranges": [
+      [
+        34,
+        93
+      ],
+      [
+        139,
+        174
+      ]
+    ]
+  },
+  {
+    "id": "E18",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/README.md",
+    "sha256": "794f584b4dca4a5ca8546a8743ed3f72207b3cd8f29b7ed9c72e48baa322954d",
+    "line_ranges": [
+      [
+        61,
+        108
+      ]
+    ]
+  },
+  {
+    "id": "E19",
+    "path": "mnpo_scripts/nbpo_neural.py",
+    "sha256": "b6df54c0771bc5d9b55092a117655fd08da609a19a25cdbeebbb2605a8b67ddc",
+    "line_ranges": [
+      [
+        125,
+        206
+      ]
+    ]
+  },
+  {
+    "id": "E20",
+    "path": "mnpo_scripts/nbpo_generic.py",
+    "sha256": "2b3502dbd78e6d3228df32b0830182f28bfc3c997dcf2e751a21a086226c2af5",
+    "line_ranges": [
+      [
+        880,
+        995
+      ]
+    ]
+  }
+]

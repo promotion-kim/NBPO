@@ -1,5 +1,5 @@
 # Generated from solve_pros4_pw_nbpo_uw1.py by build_panel_solvers.py -- do not edit by hand.
-# source sha256 b82911d4d3bdd2d2c17f76be40987e8a70e695c671fb5d4093c2b8c959bd93c6
+# source sha256 d9b0fa546f1660d1608852317f684b87eb29580dd7ddd8b51b816fc3981a09d5
 # change: score/pool roots -> ut1, restricted split -> ut_v1p, base module ->
 #         solve_pros4_targets_ut1. The rule this arm implements is
 #         untouched.
@@ -265,6 +265,7 @@ def main():
                           "all_certified": bool(certified.all()),
                           "solver_solution_sha256": solver_hash,
                           "seconds": time.monotonic() - split_start}
+        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
         split_digests[split] = digest_of(pool, pids)
         base.write_json(out / split / "complete.json", outputs[split])
         print(json.dumps({k: v for k, v in outputs[split].items()

@@ -51,7 +51,7 @@ def main():
                  "OBJECTIVES = (%s)" % objs),
                 # the panel label travels with the module, so a US/UT/UW run does
                 # not record the UF-4 label of the file it was generated from
-                ('PANEL_LABEL = "UF-4"', 'PANEL_LABEL = "%s"' % p.upper())],
+                ('PANEL_LABEL = "UW1"', 'PANEL_LABEL = "%s"' % p.upper())],
             src.name)
     header = ("# Generated from solve_pros4_targets_uw1.py by build_panel_solvers.py\n"
               "# -- do not edit by hand. source sha256 %s\n"

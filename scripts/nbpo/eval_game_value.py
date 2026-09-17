@@ -15,6 +15,17 @@ On held-out prompts with a separately generated reference comparator pool
 The legacy ``scripts/bpo/eval_bpo_surplus.py`` is a fixed-reference
 (beta = infinity) diagnostic that clamps nonpositive surpluses; it is kept,
 separately labeled, and is NOT this evaluator.
+
+SCOPE: this evaluator is GLOBAL, and deliberately so. Its margins are taken
+over the whole prompt batch, so the surplus it reports is a prompt-AVERAGED
+quantity and its minimum is a minimum over objectives, not over prompts. That is
+the right object for the shared-weight Global Nash control, whose multipliers are
+one vector for all prompts, and it is the wrong object for gating a prompt-wise
+arm: two prompts whose local surpluses are +.2 and -.1 average to +.05 and would
+pass, while the compromise failed on one of them. Do not reuse this to accept or
+reject a prompt-wise candidate. The prompt-wise gate is
+``analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate.py``, which
+builds one representation per prompt and applies its checks to the array.
 """
 from __future__ import annotations
 
