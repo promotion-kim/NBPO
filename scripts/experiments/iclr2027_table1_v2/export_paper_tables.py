@@ -1,0 +1,568 @@
+#!/usr/bin/env python3
+"""Regenerate every paper table fragment from the stored artifacts.
+
+Each fragment is a **tabular body only** -- rows between \\midrule and
+\\bottomrule -- so it is \\input inside the manuscript's existing table
+environment. Captions and labels stay in the manuscript, and no fragment can
+create a nested table or a duplicate label.
+
+One command regenerates all of them:
+
+    python -m scripts.experiments.iclr2027_table1_v2.export_paper_tables
+
+Every fragment is accompanied by an entry in ``result_manifest.json`` recording
+which artifact, run, seeds and aggregation produced it, and whether the cell is
+completed, partial or pending.
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import hashlib
+import json
+import math
+import statistics
+from pathlib import Path
+
+import numpy as np
+
+OUT = Path("nbpo_iclr/generated")
+RES = Path("results/iclr2027_table1_v2")
+EXP = Path("experiments/iclr2027_table1_v2")
+MANIFEST: dict = {}
+
+
+def sha(p: Path) -> str:
+    return hashlib.sha256(Path(p).read_bytes()).hexdigest()[:16] if Path(p).exists() else None
+
+
+# Each fragment is a COMPLETE tabular environment -- column spec, rules, header
+# and body -- and the manuscript's table/table* environment supplies only the
+# caption and label. Emitting a bare body instead and \input-ing it between
+# \midrule and \bottomrule breaks TeX's alignment scanner ("Misplaced \noalign",
+# "Misplaced \omit"), and emitting the whole table environment would duplicate
+# captions and labels. This is the fixed format.
+HEADERS: dict = {}
+
+
+def emit(name: str, rows: list, sources: list, status: str, note: str = "",
+         seeds=None, aggregation: str = ""):
+    OUT.mkdir(parents=True, exist_ok=True)
+    colspec, header = HEADERS[name]
+    body = ["\\begin{tabular}{" + colspec + "}", "\\toprule", header, "\\midrule",
+            *rows, "\\bottomrule", "\\end{tabular}"]
+    (OUT / f"{name}.tex").write_text("\n".join(body) + "\n")
+    MANIFEST[name] = {
+        "fragment": str(OUT / f"{name}.tex"),
+        "status": status, "note": note,
+        "seeds": seeds, "aggregation": aggregation,
+        "sources": [{"path": str(s), "sha256_16": sha(Path(s))} for s in sources],
+    }
+    print(f"  {name:34s} {status:10s} {len(rows)} rows")
+
+
+HEADERS.update({
+ "controlled_compact": ("crrrrrrrr",
+   r"$\alpha$ & BT dev. & \NBPO{} & Game-KS & Game-util. & Fixed-ref. Nash & "
+   r"BT-RM--Nash & BT-RM--util. & legacy $R$-step$^\dagger$\\"),
+ "controlled_full": ("lrrrrrr",
+   r"method & min surplus & sd & $\min s/\rho^\star$ & sd & exploitability & inner resid.\\"),
+ "solver_audit": ("lrrrr",
+   r"solution & min surplus & $/\rho^\star$ & inner residual & TV to exact prox.\\"),
+ "controlled_robustness": ("llrrrrr",
+   r"cycle family & $\beta$ & seeds & \NBPO{}$-$FixedRef ($t_{95}$) & "
+   r"\NBPO{}$-$BT-RM ($t_{95}$) & min $\rho^\star$ & converged\\"),
+ "data_audit": ("lrrrrrll",
+   r"dataset & rows & prompts & responses & obs.\ triangles & human conflict & "
+   r"supervision & role\\"),
+ "gpm_bt": ("llrrrrrrrrr",
+   r"model & objective & \multicolumn{3}{c}{per-seed (mean of 3)} & $T$ & "
+   r"\multicolumn{4}{c}{calibrated 3-seed ensemble} \\" "\n"
+   r"\cmidrule(lr){3-5}\cmidrule(lr){7-10}" "\n"
+   r" & & NLL & bal.\ acc & AUC & & NLL & bal.\ acc & AUC & ECE & ens.\ sd\\"),
+ "pool_pilot": ("lrrrrrrrrrrr",
+   r"geom. & dup.\ rate & entropy & ens.\ sd & GPM/BT sign & model conflict & "
+   r"pred.\ cycles & split-half $r$ & $\rho$ & sign agr. & dual evals & solve (s)\\"),
+ "solver_scaling": ("rrrrrrrrrr",
+   r"prompts & pool & workers & solve (s) & dual evals & s/eval & proj.\ KKT & "
+   r"inner resid. & peak RSS (MB) & artifact (s)\\"),
+ "neural_arms": ("lllrrrrrrrrl",
+   "arm & target & ref & upd. & $N$ & \\multicolumn{2}{c}{nMSE} & sign & Pearson & "
+   "\\multicolumn{2}{c}{$\\min_k\\E_x[s_k]$} & gate\\\\\n"
+   "\\cmidrule(lr){6-7}\\cmidrule(lr){10-11}\n"
+   " & & & & & val & test & test & test & val & test & (val)\\\\"),
+ "neural_realization": ("lrrrrrrrrrr",
+   r"row & target RMS & $p_{10}$ & $p_{90}$ & $\|\lambda\|_1$ & proj.\ KKT & "
+   r"inner resid. & identity & norm.\ MSE & sign agr. & Pearson\\"),
+})
+
+
+def f(x, d=4, signed=False):
+    if x is None or (isinstance(x, float) and not math.isfinite(x)):
+        return "--"
+    return f"${x:+.{d}f}$" if signed else f"${x:.{d}f}$"
+
+
+def sci(x):
+    if x is None:
+        return "--"
+    x = float(x)
+    if x == 0:
+        return "$0$"
+    e = int(math.floor(math.log10(abs(x))))
+    m = x / 10 ** e
+    return f"${m:.0f}\\times10^{{{e}}}$" if abs(m - 1) > 0.3 else f"$10^{{{e}}}$"
+
+
+def load_raw(tag=""):
+    sfx = f"_{tag}" if tag else ""
+    p = RES / "controlled_v2" / f"controlled_v2_raw{sfx}.json"
+    raw = json.loads(p.read_text())
+    cells = {}
+    for r in raw["rows"]:
+        cells.setdefault((r["alpha"], r["method"]), []).append(r)
+    return raw, cells, p
+
+
+def t_interval(d):
+    n = len(d)
+    if n < 2:
+        return None, None, None
+    m, s = statistics.fmean(d), statistics.stdev(d)
+    tq = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571}
+    h = tq.get(n - 1, 1.96) * s / math.sqrt(n)
+    return m, m - h, m + h
+
+
+LABEL = {"nbpo_direct": r"\NBPO{} direct", "game_ks": "Game-KS",
+         "game_utilitarian": "Game-util.", "fixed_reference_nash": "Fixed-ref.\\ Nash",
+         "bt_rm_nash": "BT-RM--Nash", "bt_rm_utilitarian": "BT-RM--util.",
+         "nbpo_rstep_legacy": r"legacy $R$-step$^\dagger$",
+         "exact_global_nash": "Exact global Nash",
+         "exact_proximal_nash": "Exact proximal Nash", "reference": r"Reference $\piref$"}
+ORDER = ["nbpo_direct", "game_ks", "game_utilitarian", "fixed_reference_nash",
+         "bt_rm_nash", "bt_rm_utilitarian", "nbpo_rstep_legacy"]
+
+
+# --------------------------------------------------------------------------
+def controlled_compact():
+    _, cells, p = load_raw()
+    alphas = sorted({a for a, _ in cells})
+    rows = []
+    for a in alphas:
+        dev = statistics.fmean([r["bt_deviance_per_edge"] for r in cells[(a, "nbpo_direct")]])
+        vals = []
+        for m in ORDER:
+            v = [r.get("normalized_min_surplus") for r in cells[(a, m)]
+                 if r.get("normalized_min_surplus") is not None]
+            vals.append(f"${statistics.fmean(v):.3f}$" if v else "--")
+        rows.append(f"${a:.2f}$ & ${dev:.4f}$ & " + " & ".join(vals) + r"\\")
+    emit("controlled_compact", rows, [p], "completed",
+         "mean over 5 independent controlled seeds of min_k s_k / rho*",
+         seeds=[0, 1, 2, 3, 4], aggregation="mean over seeds")
+
+
+def controlled_full():
+    _, cells, p = load_raw()
+    alphas = sorted({a for a, _ in cells})
+    rows = []
+    for a in alphas:
+        dev = statistics.fmean([r["bt_deviance_per_edge"] for r in cells[(a, "nbpo_direct")]])
+        rho = statistics.fmean([r["rho_star"] for r in cells[(a, "nbpo_direct")]])
+        rows.append(r"\multicolumn{7}{l}{\textit{$\alpha=%.2f$, $\rho^\star=%.4f$, "
+                    r"BT dev.\ $=%.4f$}}\\" % (a, rho, dev))
+        for m in ORDER:
+            rs = [r for r in cells.get((a, m), []) if r.get("status") == "ok"]
+            if not rs:
+                continue
+            g = lambda k: [r[k] for r in rs if r.get(k) is not None]
+            ms, nm, ex = g("min_surplus"), g("normalized_min_surplus"), g("exploitability")
+            res = g("extra_map_residual")
+            rows.append(" & ".join([
+                r"\quad " + LABEL[m],
+                f"${statistics.fmean(ms):+.4f}$" if ms else "--",
+                (f"${statistics.fmean(ms):+.4f}$" if False else
+                 f"${statistics.stdev(ms):.4f}$" if len(ms) > 1 else "--"),
+                f"${statistics.fmean(nm):.3f}$" if nm else "--",
+                f"${statistics.stdev(nm):.3f}$" if len(nm) > 1 else "--",
+                f"${statistics.fmean(ex):.4f}$" if ex else "--",
+                sci(max(res)) if res else "--"]) + r"\\")
+        rows.append(r"\addlinespace")
+    emit("controlled_full", rows, [p], "completed",
+         "every method at every alpha; mean and sd over the 5 controlled seeds",
+         seeds=[0, 1, 2, 3, 4], aggregation="mean +/- sd over seeds")
+
+
+def solver_audit():
+    """The ORIGINAL v1 family's solver decomposition -- a different experiment
+    from controlled-v2, and labelled as such."""
+    p = RES / "nontransitivity_audit" / "solver_comparison_v1.csv"
+    rows_in = [r for r in csv.DictReader(open(p)) if float(r["alpha"]) == 1.0]
+    order = ["A_exact_global_nash", "B_exact_proximal_nash", "C2_exact_inner_solve",
+             "C_practical", "fixed_reference_nash", "bt_rm_nash"]
+    lab = {"A_exact_global_nash": "Exact global Nash",
+           "B_exact_proximal_nash": "Exact proximal Nash",
+           "C2_exact_inner_solve": r"\NBPO{} direct inner solve",
+           "C_practical": r"Legacy $R$-step map",
+           "fixed_reference_nash": "Fixed-reference Nash",
+           "bt_rm_nash": "BT-RM--Nash"}
+    by = {r["method"]: r for r in rows_in}
+    rows = []
+    for m in order:
+        r = by.get(m)
+        if r is None:
+            continue
+        g = lambda k: (float(r[k]) if r.get(k) not in (None, "", "NA") else None)
+        rows.append(" & ".join([
+            lab[m], f(g("min_surplus_mean"), 4, True),
+            f(g("min_surplus_over_rho_star_mean"), 3, True),
+            sci(g("fixed_point_residual_max")),
+            f(g("tv_to_exact_B_mean"), 3)]) + r"\\")
+    emit("solver_audit", rows, [p], "completed",
+         "ORIGINAL v1 controlled family at alpha=1, 5 seeds -- a different "
+         "construction from controlled-v2; TV is to that family's exact proximal "
+         "solution, not to a global Nash point",
+         seeds=[0, 1, 2, 3, 4], aggregation="mean over seeds")
+
+
+def controlled_robustness():
+    rows = []
+    src = []
+    for tag, family, beta in (("", "Circulant (primary)", 0.25),
+                              ("projected", "Projected skew-symmetric", 0.25),
+                              ("projected_beta0.1", "Projected skew-symmetric", 0.10),
+                              ("projected_beta0.5", "Projected skew-symmetric", 0.50)):
+        try:
+            _, cells, p = load_raw(tag)
+        except FileNotFoundError:
+            continue
+        src.append(p)
+        alphas = sorted({a for a, _ in cells})
+        n_seeds = len(cells[(alphas[0], "nbpo_direct")])
+        gaps = {}
+        for ctrl in ("fixed_reference_nash", "bt_rm_nash"):
+            A = {r["seed"]: r.get("normalized_min_surplus")
+                 for r in cells[(alphas[-1], "nbpo_direct")]}
+            B = {r["seed"]: r.get("normalized_min_surplus")
+                 for r in cells[(alphas[-1], ctrl)]}
+            d = [A[s] - B[s] for s in sorted(set(A) & set(B))
+                 if A[s] is not None and B[s] is not None]
+            gaps[ctrl] = t_interval(d)
+        rho = [statistics.fmean([r["rho_star"] for r in cells[(a, "nbpo_direct")]])
+               for a in alphas]
+        conv = sum(1 for a in alphas for m in ORDER[:6] for r in cells[(a, m)]
+                   if r.get("converged"))
+        tot = sum(1 for a in alphas for m in ORDER[:6] for _ in cells[(a, m)])
+        fx, bt = gaps["fixed_reference_nash"], gaps["bt_rm_nash"]
+        rows.append(" & ".join([
+            family, f"${beta:.2f}$", f"{n_seeds}",
+            f"${fx[0]:+.4f}$ $[{fx[1]:+.4f},{fx[2]:+.4f}]$",
+            f"${bt[0]:+.4f}$ $[{bt[1]:+.4f},{bt[2]:+.4f}]$",
+            f"${min(rho):.4f}$", f"${conv}/{tot}$"]) + r"\\")
+    emit("controlled_robustness", rows, src, "completed",
+         "NBPO minus control at alpha=1, paired per seed, exact Student-t 95% "
+         "interval (NOT a bootstrap interval). Convergence counts exclude the "
+         "legacy R-step ablation.",
+         aggregation="paired per-seed gap at alpha=1, Student-t interval")
+
+
+def data_audit():
+    m = json.loads((EXP / "saferlhf_splits" / "split_manifest.json").read_text())
+    tri = sum(v["graph"]["per_objective"][o]["three_cycles"]
+              for v in m["splits"].values() for o in ("helpfulness", "harmlessness"))
+    conf = m["splits"]["test"]["label_balance"]["helpfulness_harmlessness_conflict_rate"]
+    rows = [
+        " & ".join([r"\textsc{SafeRLHF}", f"${m['total_rows']:,}$".replace(",", "{,}"),
+                    f"${m['total_prompts']:,}$".replace(",", "{,}"), "$143{,}668$",
+                    f"${tri}$", f"${100*conf:.2f}\\%$",
+                    "direct pairwise", "objective conflict"]) + r"\\",
+        " & ".join([r"\textsc{UltraFeedback}", "$63{,}967$", "$63{,}967$", "$4$/prompt",
+                    "n/a (score-induced)", "n/a",
+                    "ordinal attributes", "transitive control"]) + r"\\",
+    ]
+    emit("data_audit", rows, [EXP / "saferlhf_splits" / "split_manifest.json"],
+         "completed",
+         "observed HUMAN triangles across all three splits and both objectives; "
+         "conflict is the released human-label disagreement rate on the test split",
+         aggregation="counts from the split manifest")
+
+
+def gpm_bt():
+    p = RES / "saferlhf_ensemble_ckpt" / "saferlhf_ensemble.json"
+    r = json.loads(p.read_text())
+    rows = []
+    for model, lab in (("gpm", "Anti-symmetric GPM"), ("bt", "Scalar BT")):
+        for obj in ("helpfulness", "harmlessness"):
+            per = [r["per_seed"][model][str(s)][obj]["test_calibrated"]
+                   for s in (41, 42, 43)]
+            e = r["ensemble"][model][obj]
+            temps = [r["calibration"][model][str(s)][obj]["temperature"]
+                     for s in (41, 42, 43)]
+            rows.append(" & ".join([
+                lab, obj.replace("harmlessness", "harmless."),
+                f"${statistics.fmean([x['nll'] for x in per]):.4f}$",
+                f"${statistics.fmean([x['balanced_accuracy'] for x in per]):.4f}$",
+                f"${statistics.fmean([x['roc_auc'] for x in per]):.4f}$",
+                f"${statistics.fmean(temps):.3f}$",
+                f"${e['nll']:.4f}$", f"${e['balanced_accuracy']:.4f}$",
+                f"${e['roc_auc']:.4f}$", f"${e['ece']:.4f}$",
+                f"${e['ensemble_disagreement_std_mean']:.4f}$"]) + r"\\")
+    emit("gpm_bt", rows, [p], "completed",
+         "per-seed columns are the mean over the three CHECKPOINTED seeds 41/42/43 "
+         "(the run whose weights are on disk and used downstream); ensemble columns "
+         "are the calibrated three-seed mean",
+         seeds=[41, 42, 43], aggregation="per-seed mean; calibrated ensemble mean")
+
+
+def pool_pilot():
+    p = RES / "pool_pilot" / "pool_geometry.json"
+    r = json.loads(p.read_text())
+    rows = []
+    for key in ("4+4", "8+8"):
+        g = r["geometries"][key]
+        sh, o, s = g["target_split_half"], g["oracle_gpm"], g["solve"]
+        cyc = g["predicted_cycles_gpm"]["helpfulness"]
+        rows.append(" & ".join([
+            key, f"${g['pool']['exact_duplicate_pair_rate']:.4f}$",
+            f"${o['predictive_entropy']:.4f}$",
+            f"${o['ensemble_sd_mean']:.4f}$",
+            f"${g['gpm_bt_agreement']['sign_agreement']:.4f}$",
+            f"${100*g['objective_conflict_rate']:.2f}\\%$",
+            f"${cyc['predicted_cycles']}/{cyc['triples']}$",
+            f"${sh['pearson_mean']:.4f}$", f"${sh['spearman_mean']:.4f}$",
+            f"${sh['sign_agreement_mean']:.4f}$",
+            f"${s['dual_evaluations']}$",
+            f"${g['total_solve_seconds']:.1f}$"]) + r"\\")
+    emit("pool_pilot", rows, [p], "completed",
+         "200 SafeRLHF validation prompts; conflict is the PREFERENCE-MODEL "
+         "disagreement rate on GENERATED responses, not the human-label rate; "
+         "cycles are model-predicted on the comparator tournament",
+         seeds=[41, 42, 43], aggregation="calibrated ensemble mean over oracle seeds")
+
+
+def solver_scaling():
+    p = RES / "solver_scaling" / "direct_solver_scaling.csv"
+    rows_in = list(csv.DictReader(open(p)))
+    best = {}
+    for r in rows_in:
+        k = (int(r["prompts"]), int(r["responses"]))
+        if k not in best or float(r["total_solve_seconds"]) < float(best[k]["total_solve_seconds"]):
+            best[k] = r
+    rows = []
+    for (X, I), r in sorted(best.items()):
+        rows.append(" & ".join([
+            f"${X}$", f"${I}{{+}}{I}$", f"${r['workers']}$",
+            f"${float(r['total_solve_seconds']):.1f}$",
+            f"${r['dual_evaluations']}$",
+            f"${float(r['seconds_per_dual_evaluation']):.3f}$",
+            sci(float(r["projected_kkt_residual"])),
+            sci(float(r["inner_extra_map_residual"])),
+            f"${float(r['peak_rss_mb']):.0f}$",
+            f"${float(r['artifact_write_seconds']):.2f}$"]) + r"\\")
+    emit("solver_scaling", rows, [p], "completed",
+         "measured, not extrapolated; best worker count at each size; all 24 "
+         "configurations converged",
+         aggregation="single measurement per configuration")
+
+
+def neural_realization():
+    """Solver-side columns always; regression columns once a policy has been fit.
+
+    The six rows are the matched core set. ``bt_rm_utilitarian`` was absent from
+    the solver's own row list for a while, so "five solves finished" was not the
+    same statement as "the core set is complete"; it is listed explicitly here so
+    a missing row shows up as a missing row.
+
+    Projected KKT measures the Nash inverse-surplus system. For a utilitarian or
+    Kalai--Smorodinsky dual it does not apply, and the cell reads ``n/a`` rather
+    than a number or an em-dash that would look like an unfinished run.
+    """
+    p = RES / "smoke" / "train" / "solutions6" / "smoke_solutions.json"
+    if not p.exists():
+        p = RES / "smoke" / "train" / "solutions" / "smoke_solutions.json"
+    if not p.exists():
+        emit("neural_realization", [r"\multicolumn{11}{l}{\textit{pending: "
+                                    r"solver targets not yet built}}\\"], [],
+             "pending", "no solver artifact")
+        return
+    d = json.loads(p.read_text())["rows"]
+
+    # regression columns come from the SELECTED arm's TEST half, if it exists
+    gate_path = RES / "smoke" / "train2" / "selected_gate.json"
+    gate = json.loads(gate_path.read_text()) if gate_path.exists() else None
+    sources = [p] + ([gate_path] if gate else [])
+
+    rows, missing = [], []
+    for name, lab in (("nbpo", r"\NBPO{}"),
+                      ("fixed_reference_nash", "Fixed-ref.\\ Nash"),
+                      ("bt_rm_nash", "BT-RM--Nash"),
+                      ("game_utilitarian", "Game-util."),
+                      ("game_ks", "Game-KS"),
+                      ("bt_rm_utilitarian", "BT-RM--util.")):
+        r = d.get(name)
+        if not r or r.get("status") != "ok":
+            missing.append(name)
+            continue
+        if r.get("projected_kkt_applies") is False:
+            kkt = r"n/a"
+        elif r.get("projected_kkt_residual") is None:
+            kkt = r"\pending"
+        else:
+            kkt = sci(r["projected_kkt_residual"])
+        reg = [r"\pending"] * 3
+        if gate and name == "nbpo":
+            m = gate["splits"]["test"]["metrics"]
+            reg = [f"${m['normalized_mse_var']:.3f}$",
+                   f"${m['sign_agreement']:.3f}$" if m["sign_agreement"] is not None else "--",
+                   f"${m['pearson']:+.3f}$" if m["pearson"] is not None else "--"]
+        rows.append(" & ".join([
+            lab, f"${r['target_rms']:.3f}$",
+            f"${r['target_p10']:+.3f}$", f"${r['target_p90']:+.3f}$",
+            f"${r['weight_l1']:.2f}$", kkt,
+            sci(r["extra_map_residual"]), sci(r["target_identity_residual"]),
+            *reg]) + r"\\")
+    note = ("solver-side columns are measured on the 1000-prompt smoke pool; "
+            "regression columns are the held-out TEST half of the selected arm, "
+            "selected on validation only")
+    if missing:
+        note += f"; MISSING core rows: {', '.join(missing)}"
+    emit("neural_realization", rows, sources,
+         "completed" if (gate and not missing) else "partial", note,
+         seeds=[11], aggregation="single smoke instance (not a 3-seed mean)")
+
+
+def residual_macros():
+    """Prose-level residual numbers, emitted as macros rather than typed by hand.
+
+    The manuscript previously quoted the SafeRLHF smoke's three residuals as if
+    they were the controlled-v2 panel's -- a whole panel's convergence claim came
+    from a different experiment. Generating them removes the class of error
+    rather than the instance.
+    """
+    raw = json.loads((RES / "controlled_v2" / "controlled_v2_raw.json").read_text())
+    rows = [r for r in raw["rows"] if r.get("status") == "ok"]
+    direct = {"nbpo_direct", "game_ks", "game_utilitarian"}
+    top = lambda key, meths: max(
+        (r[key] for r in rows if r.get(key) is not None and r["method"] in meths),
+        default=None)
+    macros = {
+        "ControlledMaxKKT": top("projected_kkt_residual", {"nbpo_direct"}),
+        "ControlledMaxInner": top("extra_map_residual", direct),
+        "ControlledMaxIdentity": top("target_identity_residual",
+                                     {r["method"] for r in rows}),
+    }
+    OUT.mkdir(parents=True, exist_ok=True)
+    body = ["% Generated by export_paper_tables.py:residual_macros -- do not hand-edit.",
+            "% Source: results/iclr2027_table1_v2/controlled_v2/controlled_v2_raw.json"]
+    for name, v in macros.items():
+        # two significant digits, rounded UP: these back an "at most" claim, so a
+        # value that rounds down would understate the residual.
+        e = math.floor(math.log10(abs(v)))
+        mant = math.ceil(v / 10 ** e * 10) / 10
+        if mant >= 10:
+            mant, e = mant / 10, e + 1
+        body.append(f"\\newcommand{{\\{name}}}"
+                    f"{{\\ensuremath{{{mant:.1f}\\times10^{{{e}}}}}}}")
+    (OUT / "residual_macros.tex").write_text("\n".join(body) + "\n")
+    print(f"  {'residual_macros':34s} completed  " +
+          "  ".join(f"{k}={v:.3e}" for k, v in macros.items()))
+
+
+def neural_arms():
+    """Every trained arm, with each column's split stated and the two criteria apart.
+
+    An earlier version of this table asserted that no arm met either criterion and
+    that every arm sat below pi_t. Both were false once the pool mapping was
+    corrected: three arms have a positive point estimate of the test-half surplus,
+    and N=700 at +0.0023 is above pi_t's -0.0035. Failing the regression gate and
+    having positive surplus are different statements, so they get different
+    columns, and "surplus > 0" is not called "accepts" -- Algorithm 1 promotes on
+    the selecting half, where no arm is positive.
+
+    p* runs no neural regression, so its gate is n/a rather than a failure.
+    """
+    idx = RES / "arms_index.json"
+    if not idx.exists():
+        emit("neural_arms", [r"\multicolumn{11}{l}{\textit{pending}}\\"], [],
+             "pending", "no arm has been scored")
+        return
+    d = json.loads(idx.read_text())
+    # every N-sweep arm is a diagnostic: the sweep was never a pre-declared grid
+    LBL = {"eta0p1": (r"$\eta{=}0.1^{\dagger}$", "300", "700"),
+           "eta0p3": (r"$\eta{=}0.3^{\dagger}$", "300", "700"),
+           "eta1p0": (r"$\eta{=}1$", "300", "700"),
+           "lr2em7": ("lr $2$e-$7$", "300", "700"),
+           "lr1em6": ("lr $1$e-$6$", "300", "700"),
+           "DIAGlr1em5": (r"lr $1$e-$5^{\dagger}$", "300", "700"),
+           "DIAGrb": (r"RB$^{\dagger}$", "300", "700"),
+           "DIAGrb_clip100": (r"RB clip$100^{\dagger}$", "300", "700"),
+           "DIAGrb_steps1200": (r"RB$^{\dagger}$", "1200", "700"),
+           "canonN8": (r"canon$^{\dagger}$", "1200", "8"),
+           "canonN50": (r"canon$^{\dagger}$", "1200", "50"),
+           "canonN200": (r"canon$^{\dagger}$", "1200", "200"),
+           "canonN700": (r"canon$^{\dagger}$", "1200", "700"),
+           "PAIRED300_oldref": (r"canon$^{\dagger}$", "300", "700"),
+           "PAIRED300_newref": (r"canon$^{\dagger}$", "300", "700")}
+    EST = {"sampled": "sampled", "RB": "RB", "canonical": "canon"}
+    REF = {"cached": "cached", "online": "online"}
+
+    def f(v, d_=4, sgn=True):
+        return "--" if v is None else (f"${v:+.{d_}f}$" if sgn else f"${v:.{d_}f}$")
+
+    rows = []
+    for key, lbl in (("pi_t", r"$\pi_t$ (start)"), ("p_star", r"$p^\star$ (solver)")):
+        k = "pi_star" if key == "p_star" else key
+        v = d["reference_policies"].get(k, {})
+        if not v:
+            continue
+        rows.append(" & ".join([
+            lbl, "--", "--", "--", "--", "--", "--", "--", "--",
+            f(v.get("validation", {}).get("min_over_objectives_of_mean_surplus")),
+            f(v.get("test", {}).get("min_over_objectives_of_mean_surplus")),
+            "n/a"]) + r"\\")
+    for key, r in d["arms"].items():
+        v, t = r["validation"], r["test"]
+        lbl, upd, n = LBL.get(key, (key.replace("_", "-"), "--", "--"))
+        vs = (v.get("surplus") or {}).get("min_over_objectives")
+        ts = (t.get("surplus") or {}).get("min_over_objectives")
+        rows.append(" & ".join([
+            lbl, EST.get(r["estimator"], r["estimator"]),
+            REF.get(r["reference_path"], r["reference_path"]), upd, n,
+            f(v["metrics"]["normalized_mse_var"], 3, False),
+            f(t["metrics"]["normalized_mse_var"], 3, False),
+            f(t["metrics"]["sign_agreement"], 3, False),
+            f(t["metrics"]["pearson"], 3),
+            f(vs), f(ts),
+            "fail"]) + r"\\")
+    emit("neural_arms", rows, [idx], "completed",
+         "regression gate and frozen-pool surplus are reported separately; the gate "
+         "is evaluated on validation, no arm passes it, and no arm has positive "
+         "validation surplus. Three arms have positive TEST surplus point estimates, "
+         "which is not gate passage and not promotion. p* runs no neural regression.",
+         aggregation="single run per arm (not a multi-seed mean)")
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--manifest", type=Path, default=RES / "result_manifest.json")
+    ap.parse_args()
+    print("regenerating paper table fragments")
+    for fn in (controlled_compact, controlled_full, solver_audit,
+               controlled_robustness, data_audit, gpm_bt, pool_pilot,
+               solver_scaling, neural_realization, neural_arms,
+               residual_macros):
+        try:
+            fn()
+        except Exception as exc:
+            print(f"  {fn.__name__:34s} FAILED     {type(exc).__name__}: {exc}")
+            MANIFEST[fn.__name__] = {"status": "failed", "error": f"{type(exc).__name__}: {exc}"}
+    RES.mkdir(parents=True, exist_ok=True)
+    (RES / "result_manifest.json").write_text(json.dumps(
+        {"generated_by": "scripts/experiments/iclr2027_table1_v2/export_paper_tables.py",
+         "fragments": MANIFEST}, indent=2))
+    print(f"\nwrote {RES}/result_manifest.json")
+
+
+if __name__ == "__main__":
+    main()

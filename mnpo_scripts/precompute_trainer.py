@@ -19,7 +19,7 @@ from transformers.trainer_utils import EvalLoopOutput
 from trl import DPOTrainer, DPOConfig
 from accelerate.utils import is_deepspeed_available, tqdm
 
-from mnpo_scripts.pair_tokenization import tokenize_preference_pair
+from mnpo_scripts.pair_tokenization import tokenize_preference_pair, immutable_pair_tokens
 
 @dataclass
 class PreferenceDataCollatorWithPadding:
@@ -118,6 +118,11 @@ class PreferenceDataCollatorWithPadding:
         tokenized_batch = []
 
         for feature in features:
+            immutable = immutable_pair_tokens(
+                feature, self.max_length, self.max_prompt_length, self.label_pad_token_id)
+            if immutable is not None:
+                tokenized_batch.append(immutable)
+                continue
             prompt = feature["prompt"]
             chosen = feature["chosen"]
             rejected = feature["rejected"]

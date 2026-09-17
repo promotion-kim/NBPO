@@ -169,6 +169,13 @@ def dataset_file_manifest(dataset_dir: str) -> dict:
         for fn in sorted(names):
             if fn in (PRECOMPUTE_META_FILENAME, PRECOMPUTE_MANIFEST_FILENAME):
                 continue          # written after, and hashed by, this manifest
+            # datasets writes map caches (cache-<fingerprint>.arrow) into the saved dataset the
+            # first time a trainer maps over it. They are derived, regenerated on demand, and never
+            # read as artifact content -- hashing them would make a precomputed dataset usable
+            # exactly once, so a second fit (another seed, another step size) on the same targets
+            # would be rejected.
+            if fn.startswith("cache-") and fn.endswith(".arrow"):
+                continue
             if not fn.endswith(_DATASET_SUFFIXES):
                 continue
             full = os.path.join(root, fn)

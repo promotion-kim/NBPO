@@ -48,6 +48,90 @@ TOKENIZATION_SCHEMA_VERSION = 1
 TRUNCATION_MODES = ("keep_start", "keep_end")
 BOS_POLICY = "add_if_absent"
 EOS_POLICY = "add_if_absent"
+IMMUTABLE_TOKENIZATION_SCHEMA = "sampled_candidate_event_v2"
+
+
+def candidate_token_sha256(input_ids, attention_mask, labels):
+    return hashlib.sha256(json.dumps(
+        {"input_ids": list(input_ids), "attention_mask": list(attention_mask),
+         "labels": list(labels)}, sort_keys=True, separators=(",", ":")
+    ).encode()).hexdigest()
+
+
+def candidate_event_tokens(prompt_ids, candidate, max_length=2048,
+                           max_prompt_length=1024, label_pad_token_id=-100):
+    """Validate one already sampled event; never retokenize, truncate or add EOS."""
+    prompt_ids = list(prompt_ids)
+    if "input_ids" in candidate:
+        ids = list(candidate["input_ids"])
+        mask = list(candidate.get("attention_mask", [1] * len(ids)))
+        labels = list(candidate.get("labels", [label_pad_token_id] * len(prompt_ids)
+                                    + ids[len(prompt_ids):]))
+    else:
+        response = candidate.get("response_token_ids", candidate.get("token_ids"))
+        if response is None:
+            raise ValueError("Candidate has no immutable sampled token IDs")
+        ids = prompt_ids + list(response)
+        mask = [1] * len(ids)
+        labels = [label_pad_token_id] * len(prompt_ids) + list(response)
+    if not prompt_ids or len(prompt_ids) > max_prompt_length:
+        raise ValueError("Immutable prompt exceeds budget or is empty; filter before sampling")
+    if len(ids) > max_length or len(ids) <= len(prompt_ids):
+        raise ValueError("Immutable response event is empty or exceeds sequence budget")
+    if ids[:len(prompt_ids)] != prompt_ids:
+        raise ValueError("Candidate conditioning context differs from the pool prompt")
+    if mask != [1] * len(ids):
+        raise ValueError("Immutable unpadded candidate must attend to every real token")
+    expected = [label_pad_token_id] * len(prompt_ids) + ids[len(prompt_ids):]
+    if labels != expected:
+        raise ValueError("Immutable candidate response labels/masks disagree with sampled event")
+    if any(isinstance(token, bool) or not isinstance(token, int) or token < 0 for token in ids):
+        raise ValueError("Sampled token IDs must be nonnegative integers")
+    digest = candidate_token_sha256(ids, mask, labels)
+    if candidate.get("token_sha256") not in (None, digest):
+        raise ValueError("Candidate token hash mismatch")
+    return {"input_ids": ids, "attention_mask": mask, "labels": labels,
+            "token_sha256": digest}
+
+
+def pair_from_candidate_events(prompt_ids, chosen, rejected, max_length=2048,
+                               max_prompt_length=1024, label_pad_token_id=-100):
+    batch = {"prompt_input_ids": list(prompt_ids),
+             "prompt_attention_mask": [1] * len(prompt_ids),
+             "candidate_token_schema": IMMUTABLE_TOKENIZATION_SCHEMA}
+    for side, candidate in (("chosen", chosen), ("rejected", rejected)):
+        event = candidate_event_tokens(prompt_ids, candidate, max_length,
+                                       max_prompt_length, label_pad_token_id)
+        for key, value in event.items():
+            batch[f"{side}_{key}"] = value
+    return batch
+
+
+def immutable_pair_tokens(feature, max_length=2048, max_prompt_length=1024,
+                          label_pad_token_id=-100):
+    """Select existing candidate tokens in trainer and precompute identically."""
+    required = {f"{side}_{key}" for side in ("chosen", "rejected")
+                for key in ("input_ids", "attention_mask", "labels")}
+    if not required.intersection(feature):
+        return None
+    if not required.issubset(feature):
+        raise ValueError("Incomplete immutable preference pair token fields")
+    prompt_ids = feature.get("prompt_input_ids", feature.get("prompt_token_ids"))
+    if prompt_ids is None:
+        labels = feature["chosen_labels"]
+        n_prompt = next((i for i, token in enumerate(labels) if token != label_pad_token_id), len(labels))
+        prompt_ids = feature["chosen_input_ids"][:n_prompt]
+    result = pair_from_candidate_events(
+        prompt_ids, {key: feature[f"chosen_{key}"] for key in
+                     ("input_ids", "attention_mask", "labels")},
+        {key: feature[f"rejected_{key}"] for key in
+         ("input_ids", "attention_mask", "labels")},
+        max_length, max_prompt_length, label_pad_token_id)
+    for side in ("chosen", "rejected"):
+        key = f"{side}_token_sha256"
+        if feature.get(key) not in (None, result[key]):
+            raise ValueError(f"{side} candidate token hash mismatch")
+    return result
 
 
 def tokenization_config(max_length: int, max_prompt_length: int, truncation_mode: str,

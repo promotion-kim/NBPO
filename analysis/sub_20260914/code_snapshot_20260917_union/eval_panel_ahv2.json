@@ -1,0 +1,60 @@
+{
+  "panel": "/work/sub_20260914/panel/eval_arenahard_v2.jsonl",
+  "panel_sha256": "7451085e235ed2f6d06096df163d38a8558254a213cba0471311b84cd9414142",
+  "prompts": 750,
+  "duplicate_prompts_dropped": 0,
+  "question_source": "arena-hard-v2.0 question.jsonl",
+  "question_file": "/work/sub_20260914/prosper/evalsets/ah_v2_src/data/arena-hard-v2.0/question.jsonl",
+  "question_sha256": "6cfe75abb0e09cd39e7f9b0b18ea96d41be2d4d9ddf76dc1d07d78b6accb2039",
+  "baseline": "gpt-4.1",
+  "baseline_file": "/work/sub_20260914/prosper/evalsets/ahv2_baseline_gpt41.jsonl",
+  "baseline_sha256": "fdeb4990897cf1e34b3570a4bf6a4bd0d6ad08c9301acb6ee072b8ecba38fe58",
+  "categories": {
+    "hard_prompt": 500,
+    "creative_writing": 250
+  },
+  "languages": {
+    "English": 504,
+    "Chinese": 78,
+    "Russian": 64,
+    "Vietnamese": 27,
+    "Japanese": 17,
+    "Spanish": 15,
+    "Korean": 8,
+    "French": 7,
+    "German": 4,
+    "Portuguese": 4,
+    "Czech": 4,
+    "Italian": 2,
+    "Indonesian": 2,
+    "Finnish": 2,
+    "Turkish": 1,
+    "Armenian": 1,
+    "Greek": 1,
+    "Thai": 1,
+    "Polish": 1,
+    "Persian": 1,
+    "Malayalam": 1,
+    "Arabic": 1,
+    "Traditional Chinese": 1,
+    "Cantonese": 1,
+    "Hebrew": 1,
+    "Serbian": 1
+  },
+  "english_fraction": 0.672,
+  "differences_from_v0_1": {
+    "prompts": "750 versus 500",
+    "categories": "hard_prompt 500 (coding, math) plus creative_writing 250; v0.1 has one category",
+    "languages": "26 languages, 504 of 750 in English; v0.1 is English only",
+    "baseline": "gpt-4.1 versus gpt-4-0314",
+    "conclusion": "v2.0 is a different benchmark, not a refresh of v0.1; the two win rates are not two measurements of one quantity"
+  },
+  "unchanged_from_the_v0_1_run": [
+    "prompt_id hashing and its namespace",
+    "official static question and baseline files only",
+    "no generation or judging in this step",
+    "no paid API"
+  ],
+  "not_the_official_metric": "the official v2.0 pipeline judges with gpt-4.1 and applies style control; this campaign judges locally with Qwen2.5-72B-Instruct and reports the raw order-averaged win rate, so these numbers are comparable across our arms and are not leaderboard numbers",
+  "source_sha256": "63bbabb8ba9a4c97079da89fa0c47fb72b50d0315db650714b2f97c8b79ae2b7"
+}
