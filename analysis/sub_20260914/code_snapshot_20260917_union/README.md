@@ -12,6 +12,55 @@ and several of its files have since been edited here, so the two disagree by
 design. Where a file appears in both, the 20260916 hash is the provenance of
 the published number and the hash here is the code as it now stands.
 
+## Corrected tensor roles (2026-09-18)
+
+An external implementation audit found that this scorer wired the game tensors
+against the paper's own definition, and the fix is the most consequential change
+in this directory:
+
+    was:  A_policy <- learner-learner      A_ref <- learner-reference
+    now:  A_policy <- learner-reference    A_ref <- reference-reference
+
+Section 5.2 defines the policy game on the learner bank against the comparator
+bank, and `compute_disagreement_point` documents its own argument as "centered
+payoffs of reference responses (as learner) against reference comparators". The
+old wiring satisfied neither. It is not a naming slip: with every learner tied
+to every other learner, every reference tied to every other reference, and every
+learner beating every reference at .75, the paper's wiring gives policy value
++.25, disagreement 0 and surplus +.25, while the old wiring gives 0, +.25 and
+surplus **-.25**. The sign of the surplus flips, and the surplus is what
+finite-pool feasibility tests, so the solver was solving a different finite
+problem exactly rather than the declared one approximately.
+
+`A_LL` also cannot carry the policy game: it is antisymmetric with a zero
+diagonal, so a symmetric strategy scores identically zero against itself and the
+surplus carries almost no signal about the learner bank — consistent with the
+near-zero target correlations the UW and US rounds measured.
+
+`union_score_panel.py` now writes `A_LL`, `A_LR` and `A_RR` each under its own
+name and aliases `A_policy`/`A_ref` to `A_LR`/`A_RR`, so an existing reader gets
+the paper's game unchanged while a pair-label consumer can ask for the learner
+block explicitly. `build_panel_softlabels.py` was reading `A_policy` and
+expecting the learner block, so it now reads `A_LL` and refuses a score
+directory written before this fix instead of silently taking the cross block.
+The reference triangle was previously kept only as a scalar diagnostic and is
+now required for a prompt to be retained, because `d` is not defined without it.
+
+`prosper_targets_panel.py` separates the roles itself from the raw judgments and
+is unaffected. Re-scoring needs no new judging: all three role blocks were
+already fully judged on every panel.
+
+Serialization changed with it. `quantize_canonical_row` used to round both solver
+masses to ten FIXED decimals and rebuild the target from the rounded values; a
+per-prompt Nash solve concentrates mass down to the 1e-12 probability floor, and
+1e-12 at ten decimals is exactly 0, which the canonical validator rejects. Fixed
+decimals are the wrong instrument for a quantity spanning twelve orders of
+magnitude, so masses are now written at exact float64 round-trip precision and
+the target is rebuilt from those same doubles. The identity holds to ~1e-16,
+inside the 1e-9 gate, with the certified solution intact. Rows written before
+this carry `canonical_target_quantized_decimals = 10`; new rows carry
+`canonical_target_serialization = "exact_float64_round_trip"`.
+
 ## The prompt-wise NBPO line
 
 The prompt-wise change is in the solver, not the trainer: NBPO's dual
@@ -43,6 +92,11 @@ so the arms cannot drift apart in anything except the rule they implement.
   absolute max-min, per round and per panel.
 - `solve_mopo_targets_us1.py`, `solve_mopo_targets_ut1.py` — MOPO importance
   weights, which are per-candidate rather than per-pair.
+- `*_uw1c.py` — the corrected UW round: the same rules on the re-scored
+  tensors, reading `scores/uw1c` and `splits/uw_v1cp` so the published `uw1`
+  artifacts are never overwritten.
+- `*_uw3.py` — the re-decoded UW pool round (T .8, top-p .9, 2,048 tokens),
+  reading `scores/uw3` and `splits/uw_v3p`.
 
 ## Panel construction
 
@@ -105,6 +159,19 @@ intersect the arms onto one prompt set; `filter_prompt_level.py` and
   that bug because its synthetic rows only ever carried order 0, so it now
   builds both orders.
 - `xplay_judge.py`, `xplay_matrix.py` — arm-versus-arm cross-play.
+- `ahv2_style_control.py` — the style-controlled Arena-Hard v2.0 win rate, read
+  off judgments already in hand. A per-arm logistic fit of the judged outcome on
+  the normalized answer-length, header, bold-span and list-item differences
+  against the frozen baseline, evaluated at zero style difference, with a
+  2,000-replicate whole-prompt bootstrap that refits the regression in every
+  replicate. It is NOT the official Arena-Hard style control — that fits one
+  Bradley-Terry model over the whole arena under the official judge — and the
+  output says so in its own `not_the_official_metric` field.
+- `ahv2_sc_paired.py` — the paired bootstrap of the style-controlled DIFFERENCE
+  between two arms. Two arms' unpaired intervals can overlap heavily and still
+  separate, because they are read on the same prompts, so this resamples prompts
+  once per replicate and refits BOTH regressions on that resample. An interval
+  containing zero is reported as containing zero, never as equivalence.
 - `upload_e2_arms.py`, `upload_uw_arms.py` — checkpoint upload.
 
 ## Statistics and diagnostics
@@ -156,12 +223,14 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `abl_analysis.py` | `a1ae9271f1a860e1` |
 | `ahv2_breakdown.py` | `d4e97430d4f537bb` |
 | `ahv2_paired.py` | `85038b4b314c5943` |
+| `ahv2_sc_paired.py` | `cc0e229136f1aee2` |
+| `ahv2_style_control.py` | `52ab5d10515a6440` |
 | `analyze_screen.py` | `841409da20c363de` |
 | `analyze_wild.py` | `f1226378f4072081` |
 | `build_dpo_safe.py` | `f39441a6d0be257f` |
 | `build_eval_panel_ahv2.py` | `63bbabb8ba9a4c97` |
 | `build_eval_panels.py` | `8183ed5efbec9580` |
-| `build_panel_softlabels.py` | `e534b35d1813072f` |
+| `build_panel_softlabels.py` | `567ef4618851beb0` |
 | `build_panel_solvers.py` | `d75eddc160e6bf86` |
 | `build_prosper_dataset.py` | `7eb3d18acde431d0` |
 | `build_pw_solvers.py` | `1683a631a93918e0` |
@@ -188,8 +257,8 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `gate_uf_arms.py` | `8c57291dad0a83f3` |
 | `gen_candidates.py` | `38d4ac85a7460659` |
 | `generate_pros_pool.py` | `7792cdc6dee904c3` |
-| `judge_eval_batch_ahv2.py` | `3131fe76a233fc01` |
 | `judge_eval_batch.py` | `72dadb73533bd1d3` |
+| `judge_eval_batch_ahv2.py` | `3131fe76a233fc01` |
 | `judge_eval_pairwise.py` | `9cbbfff767d21966` |
 | `judge_fresh_safe.py` | `729e204f81a5f265` |
 | `judge_pairs.py` | `cbdcbf7d5e65a635` |
@@ -200,14 +269,14 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `lc_winrate.py` | `e37049402ba47c3d` |
 | `length_control.py` | `5b07c5ae9b88b1ae` |
 | `make_pros_train_jobs.py` | `bcabadf496632acb` |
-| `make_safe_solvers2.py` | `993e0e101de32a29` |
 | `make_safe_solvers.py` | `7d757cf041f1e3c6` |
+| `make_safe_solvers2.py` | `993e0e101de32a29` |
 | `make_splits_and_queue.py` | `33422276d76041e4` |
 | `make_train_v2.py` | `b2e65a54d032a0cc` |
 | `merge_ext.py` | `f4a16ea8e9dd158e` |
 | `mtbench_generate.py` | `5f57d2c8740e2494` |
-| `mtbench_judge_batch.py` | `733864ed29ad2ed8` |
 | `mtbench_judge.py` | `1007bf7e9f74f674` |
+| `mtbench_judge_batch.py` | `733864ed29ad2ed8` |
 | `paired_diff.py` | `8c02d7c6107a1add` |
 | `paired_eval_diff.py` | `d63433fd17d62928` |
 | `panel_eval_judge.py` | `43c34dc22a5fb653` |
@@ -222,9 +291,11 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `probe_feasible_us1.py` | `3ea83b98426213d4` |
 | `probe_feasible_ut1.py` | `3d1dded1cc3ff48e` |
 | `probe_feasible_uw1.py` | `53beb08ef84e4cd9` |
+| `probe_feasible_uw1c.py` | `31a0be3911903894` |
+| `probe_feasible_uw3.py` | `acde1da41b4895dc` |
 | `probe_surrogate_cost.py` | `af89f21cf1e1d840` |
-| `prosper_targets_panel.py` | `b12c3a216820c543` |
 | `prosper_targets.py` | `c5c56d17cd050e63` |
+| `prosper_targets_panel.py` | `b12c3a216820c543` |
 | `queue2.py` | `8010700db9e51882` |
 | `queue_base_row.py` | `0d7ad2d55d88f51e` |
 | `queue_controller.py` | `669509117674289f` |
@@ -249,27 +320,35 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `setup_panel_eval.py` | `bb1b4f30b05cdf33` |
 | `solve_mopo_targets_us1.py` | `29ffdad4c60edf68` |
 | `solve_mopo_targets_ut1.py` | `d4d88c0f3240f98e` |
+| `solve_pros.py` | `6437b4763d8bae50` |
 | `solve_pros4_prosper.py` | `4acef1091e95e5d1` |
 | `solve_pros4_prosper_us1.py` | `6128dd04dfd9cb9f` |
 | `solve_pros4_prosper_ut1.py` | `64867293f51c2eb8` |
 | `solve_pros4_prosper_uw1.py` | `cb15a0ed8ac037ca` |
+| `solve_pros4_prosper_uw1c.py` | `7e1bd8089360a62a` |
+| `solve_pros4_prosper_uw3.py` | `e5aa5c54bfe3f786` |
 | `solve_pros4_prosper_v2.py` | `e5788f0897387777` |
 | `solve_pros4_pw_fixedref.py` | `7a9f2b4fc4820b7b` |
 | `solve_pros4_pw_fixedref_us1.py` | `3a5cf1d3b684f9c9` |
 | `solve_pros4_pw_fixedref_ut1.py` | `8d722281d8ce3920` |
 | `solve_pros4_pw_fixedref_uw1.py` | `3eb36af0a0f5880d` |
+| `solve_pros4_pw_fixedref_uw1c.py` | `d535ec36a2ffeedf` |
+| `solve_pros4_pw_fixedref_uw3.py` | `09d11773d40dedab` |
 | `solve_pros4_pw_fixedref_v2.py` | `e3fdc6beaa2a352c` |
 | `solve_pros4_pw_nbpo.py` | `1d9b0953162ca88f` |
 | `solve_pros4_pw_nbpo_us1.py` | `70d1d10e92e0ef68` |
 | `solve_pros4_pw_nbpo_ut1.py` | `84b7c4daa40387b3` |
 | `solve_pros4_pw_nbpo_uw1.py` | `ba54ce2bf405c857` |
+| `solve_pros4_pw_nbpo_uw1c.py` | `edfc8c47f092ab73` |
+| `solve_pros4_pw_nbpo_uw3.py` | `5b23f08c0bc55d40` |
 | `solve_pros4_pw_nbpo_v2.py` | `575eeff8d0f9a9a3` |
 | `solve_pros4_targets.py` | `f77d773e36e004b6` |
 | `solve_pros4_targets_us1.py` | `841d8e1587384b7c` |
 | `solve_pros4_targets_ut1.py` | `ea3fc9e20f1599a6` |
-| `solve_pros4_targets_uw1.py` | `0d4df3ec3ad1de04` |
+| `solve_pros4_targets_uw1.py` | `3d658469bdd2310e` |
+| `solve_pros4_targets_uw1c.py` | `07d7c7567a56781f` |
+| `solve_pros4_targets_uw3.py` | `c4f3b3100341275b` |
 | `solve_pros4_targets_v2.py` | `f77d773e36e004b6` |
-| `solve_pros.py` | `6437b4763d8bae50` |
 | `solve_safe_prosper.py` | `b7f23de80f1d5a45` |
 | `solve_safe_targets.py` | `74e3181a39074b3c` |
 | `sweep_diag.py` | `f18de8a6a82291a3` |
@@ -280,7 +359,7 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `union_freeze_ut.py` | `6e13bb4739c29d76` |
 | `union_freeze_uw.py` | `9b615f97c2e76f65` |
 | `union_judge_uw.py` | `1e58249f87d6cc9d` |
-| `union_score_panel.py` | `18908d465c2af93f` |
+| `union_score_panel.py` | `c1e4c07bd5078678` |
 | `union_score_uw.py` | `aefb140d0af0c027` |
 | `upload_e2_arms.py` | `83a23801b40a64d1` |
 | `upload_uw_arms.py` | `a470d2c7f816d28e` |

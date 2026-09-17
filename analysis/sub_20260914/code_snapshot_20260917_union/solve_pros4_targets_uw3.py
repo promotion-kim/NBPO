@@ -1,3 +1,9 @@
+# Generated from solve_pros4_targets_uw1.py by build_panel_solvers.py
+# -- do not edit by hand. source sha256 0d4df3ec3ad1de0451ca40cb375a71f46fc231a2af32cee7e0bf7b92809694fb
+# change: OBJECTIVES -> item0..item3, the UW panel's declared objective
+#         count. The rubric text behind each slot is that panel's frozen
+#         rubric, recorded in panel/uw_v3p/freeze.json; slot k of two panels
+#         is never pooled as one objective.
 # Copy of solve_pros4_targets.py for the UW union panel. Only change: r_bt may
 # be absent, because the union contract forbids the scalar BT projection for
 # these rows and no placeholder is written.
@@ -80,52 +86,32 @@ def write_jsonl(path, rows):
             stream.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-# Kept for readers of older artifacts: rows written before the A05 fix carry
-# canonical_target_quantized_decimals = 10 and their masses were rounded to that
-# many fixed decimals. New rows are written at exact float64 precision and
-# record canonical_target_serialization instead.
-CANONICAL_DECIMALS_LEGACY = 10
+CANONICAL_DECIMALS = 10
 
 
 def quantize_canonical_row(row):
-    """Serialize the solver masses so they survive the round trip exactly.
+    """Round the solver masses to the loader's precision and rebuild the target.
 
-    prepare_nbpo_dataset reads these rows with a standard JSON parser and then
-    checks target == log(w_a/c_a) - log(w_b/c_b) to 1e-9 absolute. An earlier
-    version of this function rounded both masses to ten FIXED DECIMALS and
-    rebuilt the target from the rounded values, which made the identity hold
-    after the parse but changed the certified solution: a per-prompt Nash solve
-    concentrates mass, its smallest masses reach the 1e-12 probability floor,
-    and 1e-12 rounded to ten decimals is exactly 0. The row then carries a
-    non-positive mass, which the canonical validator rejects outright, and any
-    mass between 1e-10 and 1e-12 that did survive was quantized to a value whose
-    log differs from the certified one by far more than the solver's own
-    residual. That is the audit's A05: a target changed after it was certified.
-
-    Fixed decimals are the wrong instrument for a quantity that spans twelve
-    orders of magnitude. Python's float repr round-trips a float64 exactly and
-    json.dumps emits it, so no rounding is needed at all: the masses are written
-    as they were solved and the target is rebuilt from those same doubles. The
-    identity then holds to the float64 relative error of a logarithm, roughly
-    1e-16, comfortably inside the 1e-9 gate, with the certified solution intact.
-
-    A mass that is genuinely non-positive is left alone here and refused by the
-    validator, which is the correct outcome: it means the inner solve hit the
-    boundary and the canonical log-ratio does not exist for that pair.
+    prepare_nbpo_dataset reads these rows through a JSON parser that keeps ten
+    decimal places, then checks target == log(w_a/c_a) - log(w_b/c_b) to 1e-9.
+    Rounding the masses first and deriving the target from the rounded values
+    makes the row consistent under that parse instead of only before it. A
+    per-prompt Nash solve concentrates mass, so without this the identity
+    survives in memory and fails after the parse.
     """
     import math
 
     for key in ("nbpo_weight_a", "nbpo_weight_b"):
         if key in row:
-            row[key] = float(row[key])
+            row[key] = round(float(row[key]), CANONICAL_DECIMALS)
     if row.get("target_mode") == "canonical_logratio" and "nbpo_weight_a" in row:
         wa, wb = float(row["nbpo_weight_a"]), float(row["nbpo_weight_b"])
         ca = float(row.get("nbpo_center_a", 1.0 / POOL))
         cb = float(row.get("nbpo_center_b", 1.0 / POOL))
         if min(wa, wb) > 0:
-            row["nbpo_logratio_target"] = math.log(wa / ca) - math.log(wb / cb)
-            row["canonical_target_quantized_decimals"] = None
-            row["canonical_target_serialization"] = "exact_float64_round_trip"
+            row["nbpo_logratio_target"] = round(
+                math.log(wa / ca) - math.log(wb / cb), CANONICAL_DECIMALS)
+            row["canonical_target_quantized_decimals"] = CANONICAL_DECIMALS
     return row
 
 

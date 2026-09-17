@@ -11,14 +11,42 @@ its own docstring: one bank of eight responses, A_policy antisymmetric among
 them, and A_ref a copy of A_policy. The union contract asks for something
 different -- a learner bank and a separate reference bank -- so this builds:
 
-  A_policy[k,i,j] = P_k(learner_i > learner_j) - 1/2      from the learner triangle
-  A_ref[k,i,j]    = P_k(learner_i > reference_j) - 1/2    from the 8x8 cross block
+  A_LL[k,i,j] = P_k(learner_i   > learner_j)   - 1/2   learner triangle
+  A_LR[k,i,j] = P_k(learner_i   > reference_j) - 1/2   8x8 cross block
+  A_RR[k,i,j] = P_k(reference_i > reference_j) - 1/2   reference triangle
 
-A_policy is antisymmetric by construction and is checked. A_ref is NOT
-antisymmetric: its two indices name different banks, and its diagonal need not
-be zero, which the contract states explicitly. The reference triangle is not
-part of either matrix; it is kept as the reference-disagreement diagnostic the
-contract asks for.
+and hands the NBPO solver
+
+  A_policy = A_LR      the learner-versus-reference game the policy plays
+  A_ref    = A_RR      the reference-versus-reference game its fallback d uses
+
+An earlier version of this file wired A_policy to A_LL and A_ref to A_LR, and
+kept the reference triangle only as a scalar mean-absolute-margin diagnostic.
+That is not the finite game Section 5.2 defines, and it is not what
+compute_disagreement_point documents its argument to be: "centered payoffs of
+reference responses (as learner, index i) against reference comparators". The
+mis-wiring is not cosmetic. With every learner tied to every other learner,
+every reference tied to every other reference, and every learner beating every
+reference at .75, the paper's wiring gives policy value +.25, disagreement 0 and
+surplus +.25, while the old wiring gives 0, +.25 and surplus -.25. It flips the
+sign of the surplus, and the surplus is what finite-pool feasibility tests.
+
+A_LL is also structurally the wrong object for the policy game: it is forced
+antisymmetric with a zero diagonal, so a symmetric strategy scores identically
+zero against itself and the surplus carries almost no signal about the learner
+bank. That is consistent with the near-zero target correlations the UW and US
+rounds measured.
+
+A_LL is still written, because it is the right tensor for single-objective pair
+labels and build_panel_softlabels consumes it as such. Each tensor is stored
+under its own name so a consumer cannot silently take one for another.
+
+A_LL and A_RR are antisymmetric by construction and both are checked. A_LR is
+NOT antisymmetric: its two indices name different banks and its diagonal need
+not be zero. A prompt now enters only when the learner triangle, the cross block
+AND the reference triangle are resolved for every item; a prompt missing the
+reference triangle used to be retained and is now dropped with its reason,
+because d cannot be computed without it.
 
 Both orders must be valid for a pair to count, exactly as declared: with
 value_for_i already reversed for the swapped order, the order-balanced estimate
@@ -126,16 +154,17 @@ def main():
         if pid not in pool:
             dropped["prompt_absent_from_pool"] += 1
             continue
-        A = np.zeros((K, POOL, POOL))
-        R = np.zeros((K, POOL, POOL))
+        A_LL = np.zeros((K, POOL, POOL))
+        A_LR = np.zeros((K, POOL, POOL))
+        A_RR = np.zeros((K, POOL, POOL))
         ok = True
         for k, rubric in enumerate(ITEMS):
             for i, j in learner_pairs:
                 p = resolve(pid, rubric, "learner", i, "learner", j)
                 if p is None:
                     ok = False; dropped["learner_pair_unresolved"] += 1; break
-                A[k, i, j] = p - 0.5
-                A[k, j, i] = 0.5 - p
+                A_LL[k, i, j] = p - 0.5
+                A_LL[k, j, i] = 0.5 - p
             if not ok:
                 break
             for i, j in cross_pairs:
@@ -145,26 +174,35 @@ def main():
                 if (pool[pid]["learner"].get(i) ==
                         pool[pid]["comparator"].get(j) is not None):
                     identity_ties[pid] += 1
-                R[k, i, j] = p - 0.5
+                A_LR[k, i, j] = p - 0.5
+            if not ok:
+                break
+            # the reference triangle is now required: d = V_beta(mu) is defined
+            # on it, so a prompt without it has no disagreement point and is
+            # dropped rather than carried with a silently wrong d
+            for i, j in learner_pairs:
+                p = resolve(pid, rubric, "comparator", i, "comparator", j)
+                if p is None:
+                    ok = False; dropped["reference_pair_unresolved"] += 1; break
+                A_RR[k, i, j] = p - 0.5
+                A_RR[k, j, i] = 0.5 - p
             if not ok:
                 break
         if not ok:
             continue
         idx = np.arange(POOL)
-        A[:, idx, idx] = 0.0
-        if np.abs(A + np.swapaxes(A, -1, -2)).max() > 1e-12:
-            raise SystemExit("learner payoff not antisymmetric for %s" % pid)
-        if max(np.abs(A).max(), np.abs(R).max()) > 0.5 + 1e-12:
+        A_LL[:, idx, idx] = 0.0
+        A_RR[:, idx, idx] = 0.0
+        for name, M in (("learner", A_LL), ("reference", A_RR)):
+            if np.abs(M + np.swapaxes(M, -1, -2)).max() > 1e-12:
+                raise SystemExit("%s payoff not antisymmetric for %s" % (name, pid))
+        if max(np.abs(A_LL).max(), np.abs(A_LR).max(),
+               np.abs(A_RR).max()) > 0.5 + 1e-12:
             raise SystemExit("payoff outside [-0.5, 0.5] for %s" % pid)
-        # reference disagreement: the reference triangle, kept as a diagnostic
-        vals = []
-        for k, rubric in enumerate(ITEMS):
-            for i, j in learner_pairs:
-                p = resolve(pid, rubric, "comparator", i, "comparator", j)
-                if p is not None:
-                    vals.append(abs(p - 0.5))
-        refdis[pid] = float(np.mean(vals)) if vals else None
-        tensors[pid] = (A, R)
+        # the same scalar the old file reported, so the two rounds stay comparable
+        iu = np.triu_indices(POOL, 1)
+        refdis[pid] = float(np.mean(np.abs(A_RR[:, iu[0], iu[1]])))
+        tensors[pid] = (A_LL, A_LR, A_RR)
 
     pids = sorted(tensors)
     if not pids:
@@ -188,15 +226,26 @@ def main():
         chunk = pids[s * per:(s + 1) * per]
         if not chunk:
             continue
-        A = np.stack([tensors[p][0] for p in chunk], axis=1)
-        R = np.stack([tensors[p][1] for p in chunk], axis=1)
+        A_LL = np.stack([tensors[p][0] for p in chunk], axis=1)
+        A_LR = np.stack([tensors[p][1] for p in chunk], axis=1)
+        A_RR = np.stack([tensors[p][2] for p in chunk], axis=1)
         d = out / ("shard%d" % s)
         d.mkdir(parents=True, exist_ok=True)
         path = d / "chunk0000.npz"
-        np.savez(path, prompt_ids=np.array(chunk), A_policy=A, A_ref=R)
+        # A_policy and A_ref are the names the solver reads. They are aliases of
+        # A_LR and A_RR, written explicitly so an existing reader gets the
+        # paper's game without being changed, while A_LL travels under its own
+        # name for the pair-label consumers.
+        np.savez(path, prompt_ids=np.array(chunk),
+                 A_policy=A_LR, A_ref=A_RR,
+                 A_LL=A_LL, A_LR=A_LR, A_RR=A_RR)
         (d / "chunk0000.manifest.json").write_text(json.dumps(
             {"prompts": len(chunk), "sha256": file_hash(path),
-             "shapes": {"A_policy": list(A.shape), "A_ref": list(R.shape)}},
+             "shapes": {"A_policy": list(A_LR.shape), "A_ref": list(A_RR.shape),
+                        "A_LL": list(A_LL.shape), "A_LR": list(A_LR.shape),
+                        "A_RR": list(A_RR.shape)},
+             "roles": {"A_policy": "A_LR (learner vs reference)",
+                       "A_ref": "A_RR (reference vs reference)"}},
             indent=1) + "\n")
         (d / ("complete_shard%d.json" % s)).write_text(json.dumps(
             {"shard": s, "prompts": len(chunk), "gpm_teacher": teacher,
@@ -204,21 +253,31 @@ def main():
                             "probabilities for these rows and forbids a scalar BT "
                             "projection, so none was fitted and none is written"),
              "reference_construction": ("independent reference bank: eight reference "
-                                        "occurrences per prompt, so A_ref is a cross "
-                                        "block and not a copy of A_policy")},
+                                        "occurrences per prompt, so A_policy is the "
+                                        "learner-by-reference cross block and A_ref is "
+                                        "the reference triangle, not a copy of it")},
             indent=1) + "\n")
         written.append({"shard": s, "prompts": len(chunk),
                         "sha256": file_hash(path),
-                        "shapes": {"A_policy": list(A.shape), "A_ref": list(R.shape)}})
+                        "shapes": {"A_policy": list(A_LR.shape),
+                                   "A_ref": list(A_RR.shape),
+                                   "A_LL": list(A_LL.shape)}})
 
     verdicts = sum(status.values())
     report = {
         "out": args.out, "judgment_tag": args.tag, "pool": args.pool,
         "construction": {
-            "A_policy": "learner triangle, antisymmetric, diagonal zero",
-            "A_ref": ("8x8 cross block learner-by-reference; NOT antisymmetric and its "
-                      "diagonal need not be zero, per the contract"),
-            "reference_triangle": "kept as the reference-disagreement diagnostic only",
+            "A_policy": ("A_LR: the 8x8 learner-by-reference cross block; NOT "
+                         "antisymmetric and its diagonal need not be zero"),
+            "A_ref": ("A_RR: the reference triangle, antisymmetric with zero diagonal; "
+                      "this is the tensor d = V_beta(mu) is defined on"),
+            "A_LL": ("the learner triangle, antisymmetric with zero diagonal; written "
+                     "for single-objective pair labels, not fed to the NBPO game"),
+            "corrected": ("an earlier version of this scorer set A_policy to the learner "
+                          "triangle and A_ref to the cross block, which flips the sign of "
+                          "the finite-pool surplus and is not the game Section 5.2 "
+                          "defines; every tensor now travels under its own name"),
+            "reference_triangle": "required for a prompt to be retained, not a diagnostic",
             "not_self_play": ("the recorded PROSPER-setting scorer copies A_policy into "
                               "A_ref because that panel has one bank; this panel has two"),
         },

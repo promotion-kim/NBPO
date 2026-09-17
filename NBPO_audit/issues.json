@@ -1,0 +1,152 @@
+[
+  {
+    "id": "A01",
+    "priority": "P0",
+    "title": "Scorer/solver tensor-role mismatch",
+    "status": "reproduced",
+    "paths": [
+      "analysis/sub_20260914/code_snapshot_20260917_union/union_score_panel.py",
+      "analysis/sub_20260914/code_snapshot_20260917_union/union_score_uw.py",
+      "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1.py"
+    ],
+    "evidence": [
+      "E03",
+      "E04",
+      "E05",
+      "E09",
+      "E10"
+    ],
+    "tests": [
+      "scorer_tensor_role_mismatch",
+      "missing_reference_triangle_retained"
+    ],
+    "required_change": "Keep explicit LL/LR/RR tensors. Feed LR as NBPO A_policy and actual reference-reference as A_ref; enforce required RR coverage. Preserve LL for baseline pair labels."
+  },
+  {
+    "id": "A02",
+    "priority": "P0",
+    "title": "Canonical pipeline imports symbols absent from released package",
+    "status": "reproduced",
+    "paths": [
+      "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1.py",
+      "scripts/nbpo/build_nbpo_pairs.py",
+      "scripts/nbpo/solve_nbpo_dual.py"
+    ],
+    "evidence": [
+      "E05",
+      "E06",
+      "E07",
+      "E08"
+    ],
+    "tests": [
+      "campaign_solver_import",
+      "generic_artifact_writer_available",
+      "canonical_builder_signature"
+    ],
+    "required_change": "Release compatible canonical loader/writer/builder, consolidate the authoritative entrypoint, and add no-model end-to-end import/export smoke test."
+  },
+  {
+    "id": "A03",
+    "priority": "P1",
+    "title": "README points to old global approximate algorithm",
+    "status": "static_and_numerical",
+    "paths": [
+      "README.md",
+      "mnpo_scripts/nbpo_solver.py",
+      "scripts/nbpo/run_nbpo_stage.py"
+    ],
+    "evidence": [
+      "E01",
+      "E19"
+    ],
+    "tests": [
+      "rps_direct_vs_undamped_legacy"
+    ],
+    "required_change": "Label the old path Global Nash/legacy; make current promptwise exact-inner/root/canonical pipeline the documented default."
+  },
+  {
+    "id": "A04",
+    "priority": "P1",
+    "title": "Current traced training path has no Algorithm-1 local acceptance orchestration",
+    "status": "path_audited_actual_run_unverified",
+    "paths": [
+      "analysis/sub_20260914/code_snapshot_20260917_union/make_pros_train_jobs.py",
+      "analysis/sub_20260914/code_snapshot_20260917_union/panel_stage2.py",
+      "mnpo_scripts/run_mnpo.py",
+      "scripts/nbpo/eval_game_value.py"
+    ],
+    "evidence": [
+      "E16",
+      "E17",
+      "E18",
+      "E19",
+      "E20"
+    ],
+    "tests": [
+      "legacy_gate_uses_global_not_local_surplus"
+    ],
+    "required_change": "Separate candidate export from accepted-policy promotion; implement local development checks and parent retention in the authoritative promptwise pipeline."
+  },
+  {
+    "id": "A05",
+    "priority": "P1",
+    "title": "Rounded masses change canonical targets after numerical certification",
+    "status": "reproduced",
+    "paths": [
+      "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1.py",
+      "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1.py"
+    ],
+    "evidence": [
+      "E05",
+      "E06"
+    ],
+    "tests": [
+      "quantized_target_drift"
+    ],
+    "required_change": "Round-trip p*, p_t and g in sufficient precision; validate serialized targets against original canonical solution, or explicitly report quantization as an approximation and measure its error."
+  },
+  {
+    "id": "A06",
+    "priority": "P2",
+    "title": "Pool hash fields hash split names rather than pool content",
+    "status": "static",
+    "paths": [
+      "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1.py"
+    ],
+    "evidence": [
+      "E06"
+    ],
+    "tests": [],
+    "required_change": "Hash prompt IDs, response/token IDs and relevant array bytes per split; correct copied UF-4 panel field; bind all to checkpoint/run metadata."
+  },
+  {
+    "id": "A07",
+    "priority": "P2",
+    "title": "Legacy gate accepts NaN in isolated function",
+    "status": "reproduced_boundary_function_only",
+    "paths": [
+      "scripts/nbpo/run_nbpo_stage.py"
+    ],
+    "evidence": [
+      "E19"
+    ],
+    "tests": [
+      "legacy_gate_nan"
+    ],
+    "required_change": "Reject non-finite min_surplus before comparison. This audit does not establish that upstream currently supplies NaN."
+  },
+  {
+    "id": "A08",
+    "priority": "P1_if_reported_as_official_LC",
+    "title": "Custom OLS length-adjusted score must not be mislabeled as official LC",
+    "status": "static_metric_provenance_check",
+    "paths": [
+      "analysis/sub_20260914/code_snapshot_20260917_union/lc_winrate.py"
+    ],
+    "evidence": [
+      "E23"
+    ],
+    "tests": [],
+    "required_change": "Trace actual result-cell provenance; use explicit local OLS length-adjusted label or run the pinned intended estimator. Current table-to-script mapping not established."
+  }
+]

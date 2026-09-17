@@ -1,0 +1,21 @@
+{
+  "pid": 1091,
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_nbpo_core.py",
+    "tests/test_nbpo_dual.py",
+    "tests/test_nbpo_targets.py",
+    "tests/test_nbpo_provenance.py",
+    "-k",
+    "not test_dataset_splits_match_saved_dataset and not test_run_config_carries_expected_artifact_hashes and not test_stale_expected_artifact_hashes"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "PYTHONPATH": "/mnt/data/nbpo_audit/source/NBPO-main"
+  }
+}

@@ -5,9 +5,9 @@ training pair, the probability that the chosen response is preferred to the
 rejected one under the SAME judgments the NBPO teacher used. That probability is
 the panel's objective-averaged direct PSC probability
 
-    p = (1/K) sum_k [ A_policy[k, x, i, j] + 1/2 ],
+    p = (1/K) sum_k [ A_LL[k, x, i, j] + 1/2 ],
 
-where A_policy is the antisymmetric, zero-diagonal learner block written by the
+where A_LL is the antisymmetric, zero-diagonal learner block written by the
 panel scorer, i and j are the row's own candidate indices, and the +1/2 turns
 the antisymmetric deviation back into a probability. No Bradley-Terry fit and no
 surrogate reward model enters: these are the measured order-averaged verdicts.
@@ -30,14 +30,25 @@ UF = Path("/work/uf4_20260910")
 
 
 def load_policy_block(scores_dir, shards):
-    """prompt_id -> A_policy, the antisymmetric learner block."""
+    """prompt_id -> A_LL, the antisymmetric learner block."""
     out = {}
     for shard in range(shards):
         d = Path(scores_dir) / ("shard%d" % shard)
         for path in sorted(d.glob("chunk*.npz")):
             z = np.load(path, allow_pickle=True)
             pids = [str(v) for v in z["prompt_ids"]]
-            A = z["a_policy"] if "a_policy" in z.files else z["A_policy"]
+            # A_LL, explicitly: the pair label is a learner-versus-learner
+            # probability, and since the A01 fix A_policy carries the
+            # learner-versus-reference cross block instead. A score directory
+            # written before that fix has no A_LL, and must be re-scored rather
+            # than read here, so its absence raises instead of falling back.
+            if "A_LL" not in z.files:
+                raise SystemExit(
+                    "%s predates the A01 tensor-role fix: it has no A_LL, and its "
+                    "A_policy is the learner triangle only by coincidence of the old "
+                    "wiring. Re-score this panel with union_score_panel.py before "
+                    "building soft labels." % path)
+            A = z["A_LL"]
             for x, pid in enumerate(pids):
                 out[pid] = np.asarray(A[:, x], dtype=np.float64)
     return out
@@ -103,7 +114,7 @@ def main():
     DatasetDict(out).save_to_disk(args.out)
     rec = {"panel": args.panel, "source_dataset": args.source_dataset,
            "scores": args.scores, "objectives": K,
-           "label": "mean over the panel's K objectives of A_policy[k,x,i,j] + 1/2",
+           "label": "mean over the panel's K objectives of A_LL[k,x,i,j] + 1/2",
            "no_bt_fit": True, "no_reward_model": True,
            "datasets_version": ds_mod.__version__, "splits": stats}
     Path(args.out, "softlabel_record.json").write_text(json.dumps(rec, indent=1) + "\n")

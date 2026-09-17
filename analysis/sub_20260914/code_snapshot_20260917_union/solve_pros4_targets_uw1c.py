@@ -1,3 +1,9 @@
+# Generated from solve_pros4_targets_uw1.py by build_panel_solvers.py
+# -- do not edit by hand. source sha256 3d658469bdd2310e94d9e886f8aa5be4ea4cdfbfbca542faf9e353e8a43f352e
+# change: OBJECTIVES -> item0..item3, the UW panel's declared objective
+#         count. The rubric text behind each slot is that panel's frozen
+#         rubric, recorded in panel/uw_v1cp/freeze.json; slot k of two panels
+#         is never pooled as one objective.
 # Copy of solve_pros4_targets.py for the UW union panel. Only change: r_bt may
 # be absent, because the union contract forbids the scalar BT projection for
 # these rows and no placeholder is written.

@@ -1,0 +1,433 @@
+{
+  "source_archive": "NBPO-main.zip",
+  "archive_comment": "92f75310188d11be8141be4da7d207c33b356162",
+  "archive_sha256": "acc2b49d140fccbe40e21bad0ffd84424e475d8015a97c76d2d1093bcc92df8e",
+  "paper_sha256": "c16f447ca05b757c7637fc9b1df8277c701870d4e1bf681f4eccfbc600cb0477",
+  "paper": "latest supplied main.tex (unified prompt-wise NBPO)",
+  "branch_scope": "The archive is named main; equality to exp/iclr27-table1-v2 is not established.",
+  "runtime": {
+    "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.17.0",
+      "torch": "2.10.0+cpu",
+      "pytest": "9.0.2"
+    },
+    "device": "CPU only"
+  },
+  "audited_source_byte_mismatches": [],
+  "source_files": [
+    {
+      "evidence": "E01",
+      "path": "README.md",
+      "sha256": "5e81387436777df46997add1c86de196c45f200d2835aacbe239c3e1de739965",
+      "ranges": [
+        [
+          29,
+          71
+        ],
+        [
+          105,
+          159
+        ]
+      ]
+    },
+    {
+      "evidence": "E02",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/README.md",
+      "sha256": "d9eeb6ea5e68bc8b0db822914c098afe34887c7467b393c437abab63b87f088c",
+      "ranges": [
+        [
+          1,
+          46
+        ],
+        [
+          145,
+          158
+        ]
+      ]
+    },
+    {
+      "evidence": "E03",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/union_score_panel.py",
+      "sha256": "18908d465c2af93fa65d18787d9b13d3daa616649d5e2f88d050f6fa641d6e98",
+      "ranges": [
+        [
+          7,
+          28
+        ],
+        [
+          112,
+          167
+        ],
+        [
+          187,
+          223
+        ]
+      ]
+    },
+    {
+      "evidence": "E04",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/union_score_uw.py",
+      "sha256": "aefb140d0af0c027bffe4cb4ce805b195af77cd72b90496a6b43453a1b8bac82",
+      "ranges": [
+        [
+          1,
+          22
+        ],
+        [
+          114,
+          154
+        ]
+      ]
+    },
+    {
+      "evidence": "E05",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1.py",
+      "sha256": "0d4df3ec3ad1de0451ca40cb375a71f46fc231a2af32cee7e0bf7b92809694fb",
+      "ranges": [
+        [
+          43,
+          54
+        ],
+        [
+          83,
+          109
+        ],
+        [
+          112,
+          150
+        ]
+      ]
+    },
+    {
+      "evidence": "E06",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1.py",
+      "sha256": "ba54ce2bf405c8578a83b4f9820d8b515230c123debdbdef192bd34e058b5721",
+      "ranges": [
+        [
+          44,
+          87
+        ],
+        [
+          96,
+          116
+        ],
+        [
+          172,
+          215
+        ],
+        [
+          217,
+          244
+        ],
+        [
+          264,
+          271
+        ]
+      ]
+    },
+    {
+      "evidence": "E07",
+      "path": "scripts/nbpo/build_nbpo_pairs.py",
+      "sha256": "2609b091e2c7fd9c7911c9119a3fdf49d757779a7fd5d2017f8f10b1073134a4",
+      "ranges": [
+        [
+          37,
+          46
+        ],
+        [
+          57,
+          114
+        ]
+      ]
+    },
+    {
+      "evidence": "E08",
+      "path": "scripts/nbpo/solve_nbpo_dual.py",
+      "sha256": "b70ca16d26140fd244b01ad64e77e927d9fd97235c24ff74e2d61847bc3b850e",
+      "ranges": [
+        [
+          1,
+          76
+        ]
+      ]
+    },
+    {
+      "evidence": "E09",
+      "path": "mnpo_scripts/nbpo_core.py",
+      "sha256": "5d028303aa533f03805dbee2e895f8c9d1e459ed4f87c93ee4a4f9b850d2a944",
+      "ranges": [
+        [
+          344,
+          383
+        ]
+      ]
+    },
+    {
+      "evidence": "E10",
+      "path": "mnpo_scripts/nbpo_representations.py",
+      "sha256": "908ee6e9163f9e60a390c2971bc6c2f16ed42a12e2ab7513f87b02877b04c9f0",
+      "ranges": [
+        [
+          120,
+          171
+        ]
+      ]
+    },
+    {
+      "evidence": "E11",
+      "path": "mnpo_scripts/nbpo_generic.py",
+      "sha256": "2b3502dbd78e6d3228df32b0830182f28bfc3c997dcf2e751a21a086226c2af5",
+      "ranges": [
+        [
+          234,
+          342
+        ],
+        [
+          388,
+          448
+        ]
+      ]
+    },
+    {
+      "evidence": "E12",
+      "path": "mnpo_scripts/nbpo_generic.py",
+      "sha256": "2b3502dbd78e6d3228df32b0830182f28bfc3c997dcf2e751a21a086226c2af5",
+      "ranges": [
+        [
+          869,
+          972
+        ],
+        [
+          975,
+          1043
+        ],
+        [
+          1048,
+          1105
+        ]
+      ]
+    },
+    {
+      "evidence": "E13",
+      "path": "mnpo_scripts/mnpo_trainer.py",
+      "sha256": "7eeff9c591e530d7c9de2a27406bc8e6ff77469454c9b7e9ba2b366981670159",
+      "ranges": [
+        [
+          432,
+          461
+        ],
+        [
+          615,
+          631
+        ],
+        [
+          702,
+          724
+        ]
+      ]
+    },
+    {
+      "evidence": "E14",
+      "path": "mnpo_scripts/nbpo_neural.py",
+      "sha256": "b6df54c0771bc5d9b55092a117655fd08da609a19a25cdbeebbb2605a8b67ddc",
+      "ranges": [
+        [
+          1,
+          140
+        ]
+      ]
+    },
+    {
+      "evidence": "E15",
+      "path": "mnpo_scripts/response_logps.py",
+      "sha256": "ad2a8205003df1a2949bf2a7d33b94aede3eb978086e426919448a7dc88793a1",
+      "ranges": [
+        [
+          1,
+          100
+        ]
+      ]
+    },
+    {
+      "evidence": "E16",
+      "path": "mnpo_scripts/run_mnpo.py",
+      "sha256": "def0546b64f7d2d5dd6360a7a3ff6995c126a06ff0e63326c965443cdd05d36a",
+      "ranges": [
+        [
+          312,
+          331
+        ],
+        [
+          347,
+          387
+        ]
+      ]
+    },
+    {
+      "evidence": "E17",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/make_pros_train_jobs.py",
+      "sha256": "bcabadf496632acbcefd6334b84aae5e95f5a85f129885cd4b526f0ee3feba62",
+      "ranges": [
+        [
+          20,
+          31
+        ],
+        [
+          75,
+          107
+        ],
+        [
+          143,
+          168
+        ]
+      ]
+    },
+    {
+      "evidence": "E18",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/panel_stage2.py",
+      "sha256": "e0528503bf22fa970cc2d9a963b35a183bd3a970719240c2d3e6b87c6667734b",
+      "ranges": [
+        [
+          94,
+          111
+        ],
+        [
+          264,
+          349
+        ]
+      ]
+    },
+    {
+      "evidence": "E19",
+      "path": "scripts/nbpo/run_nbpo_stage.py",
+      "sha256": "d1823f4f204edef279d79fa0b5ec80cf295efb99c4e6ccbdae1e310328c2f475",
+      "ranges": [
+        [
+          679,
+          689
+        ],
+        [
+          845,
+          888
+        ]
+      ]
+    },
+    {
+      "evidence": "E20",
+      "path": "scripts/nbpo/eval_game_value.py",
+      "sha256": "0f4c17b91c3ab2ff6524ae1eefcf1847f75ce77acfcbf33aa51becbed6364f03",
+      "ranges": [
+        [
+          41,
+          64
+        ]
+      ]
+    },
+    {
+      "evidence": "E21",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/build_panel_softlabels.py",
+      "sha256": "e534b35d1813072fac894427f2ea8daa2a829080e9b19d0b8c1bc2785c878438",
+      "ranges": [
+        [
+          1,
+          17
+        ],
+        [
+          32,
+          42
+        ],
+        [
+          66,
+          88
+        ]
+      ]
+    },
+    {
+      "evidence": "E22",
+      "path": "scripts/nbpo/build_preference_tensor.py",
+      "sha256": "905e4916b7d42ee77b3dacf3957cf41e1c14286c84d2d3b96d82538f191ea593",
+      "ranges": [
+        [
+          1,
+          18
+        ],
+        [
+          92,
+          151
+        ],
+        [
+          236,
+          247
+        ]
+      ]
+    },
+    {
+      "evidence": "E23",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/lc_winrate.py",
+      "sha256": "e37049402ba47c3d3f81b38f581c2fbd232017c234d9de293b12c9aa3433b57a",
+      "ranges": [
+        [
+          1,
+          22
+        ],
+        [
+          103,
+          116
+        ],
+        [
+          138,
+          157
+        ]
+      ]
+    },
+    {
+      "evidence": "E24",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/judge_eval_batch_ahv2.py",
+      "sha256": "3131fe76a233fc017a4a0c08b55352feff600d3e933b75ebd334a74b430cf2a0",
+      "ranges": [
+        [
+          249,
+          274
+        ]
+      ]
+    },
+    {
+      "evidence": "E25",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/judge_eval_pairwise.py",
+      "sha256": "9cbbfff767d21966bd89939624807d882db5b5a50768252e6a28bad7b065147a",
+      "ranges": [
+        [
+          91,
+          116
+        ]
+      ]
+    },
+    {
+      "evidence": "E26",
+      "path": "analysis/sub_20260914/code_snapshot_20260917_union/generate_pros_pool.py",
+      "sha256": "7792cdc6dee904c34b1d936c06b5c4e5fb14ae52699cfcb08f9e25c40b2484ca",
+      "ranges": [
+        [
+          1,
+          18
+        ],
+        [
+          156,
+          180
+        ],
+        [
+          216,
+          232
+        ]
+      ]
+    }
+  ],
+  "limits": [
+    "No model weights or GPU training",
+    "No recovered pod-only raw pools, judgments, numerical target artifacts or per-checkpoint resolved configs",
+    "Trainer loss and per-prompt worker were isolated as unmodified function ASTs where package imports were unavailable",
+    "Not an exhaustive audit of every baseline or evaluation metric"
+  ]
+}

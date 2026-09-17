@@ -1,0 +1,188 @@
+{
+  "elapsed_s": 0.731334924697876,
+  "repo": "/mnt/data/nbpo_audit/source/NBPO-main",
+  "results": [
+    {
+      "name": "campaign_solver_import",
+      "status": "REPRODUCED_FAILURE",
+      "error": "ImportError(\"cannot import name 'load_canonical_artifact' from 'scripts.nbpo.build_nbpo_pairs' (/mnt/data/nbpo_audit/source/NBPO-main/scripts/nbpo/build_nbpo_pairs.py)\")"
+    },
+    {
+      "name": "generic_artifact_writer_available",
+      "status": "REPRODUCED_FAILURE",
+      "export": "write_generic_solution_artifact"
+    },
+    {
+      "name": "canonical_builder_signature",
+      "status": "REPRODUCED_FAILURE",
+      "error": "TypeError(\"build_rows() got an unexpected keyword argument 'canonical_data'\")",
+      "signature": "(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_seed_of, rng, target_mode, meta_ids, provenance)"
+    },
+    {
+      "name": "six_exact_dual_vs_independent_primal",
+      "status": "PASS",
+      "games": [
+        {
+          "seed": 0,
+          "certified": true,
+          "independent_success": true,
+          "policy_max_abs": 3.5781790030942062e-09,
+          "objective_gap": 4.440892098500626e-16,
+          "dual_residual": 1.617594946878853e-13,
+          "complementarity": 7.214229214014267e-13,
+          "target_identity": 2.220446049250313e-16
+        },
+        {
+          "seed": 1,
+          "certified": true,
+          "independent_success": true,
+          "policy_max_abs": 2.0172674614071795e-08,
+          "objective_gap": 3.552713678800501e-15,
+          "dual_residual": 1.6653345369377348e-16,
+          "complementarity": 6.661338147750939e-16,
+          "target_identity": 6.0171867488634234e-12
+        },
+        {
+          "seed": 2,
+          "certified": true,
+          "independent_success": true,
+          "policy_max_abs": 6.073989627930487e-08,
+          "objective_gap": 4.3520742565306136e-14,
+          "dual_residual": 0.0,
+          "complementarity": 1.1102230246251565e-16,
+          "target_identity": 1.084909939663703e-12
+        },
+        {
+          "seed": 3,
+          "certified": true,
+          "independent_success": true,
+          "policy_max_abs": 2.8922508055195806e-08,
+          "objective_gap": 1.9539925233402755e-14,
+          "dual_residual": 3.885780586188048e-16,
+          "complementarity": 1.1102230246251565e-15,
+          "target_identity": 3.681499549657019e-13
+        },
+        {
+          "seed": 4,
+          "certified": true,
+          "independent_success": true,
+          "policy_max_abs": 1.0036159792808919e-07,
+          "objective_gap": 1.8474111129762605e-13,
+          "dual_residual": 0.0,
+          "complementarity": 1.1102230246251565e-16,
+          "target_identity": 3.049782648645305e-11
+        },
+        {
+          "seed": 5,
+          "certified": true,
+          "independent_success": true,
+          "policy_max_abs": 7.033321651646329e-09,
+          "objective_gap": 1.5987211554602254e-14,
+          "dual_residual": 1.1102230246251565e-16,
+          "complementarity": 4.440892098500626e-16,
+          "target_identity": 3.3928415632544784e-13
+        }
+      ]
+    },
+    {
+      "name": "rps_direct_vs_undamped_legacy",
+      "status": "PASS",
+      "exact_policy": [
+        [
+          0.33617908461914575,
+          0.3319139219898065,
+          0.3319069933910478
+        ]
+      ],
+      "exact_fixedpoint_residual": 2.7569280192096812e-11,
+      "legacy_after_100_policy_distance": 0.33891799834416286,
+      "legacy_extra_map_residual": 0.4906337161814364,
+      "scope": "Fixed-multiplier RPS inner solve with uniform reference and nonuniform center, not a full Nash-dual/neural test or exact copy of paper example"
+    },
+    {
+      "name": "actual_local_worker_independence",
+      "status": "PASS",
+      "other_prompt_change_error": 0.0,
+      "prompt0_weights": [
+        5.991994983289732,
+        4.846748991740684
+      ],
+      "prompt1_weights": [
+        4.878062272678731,
+        4.201972218185327
+      ],
+      "scope": "Unmodified _solve_one AST; full module import remains broken"
+    },
+    {
+      "name": "adaptive_gradient_and_hessian",
+      "status": "PASS",
+      "gradient_error": 4.440892098500626e-16,
+      "hessian_error": 8.881784197001252e-16
+    },
+    {
+      "name": "scorer_tensor_role_mismatch",
+      "status": "REPRODUCED_FAILURE",
+      "A_policy_error": 0.25,
+      "A_ref_error": 0.25,
+      "serialized_surplus": [
+        -0.25,
+        -0.25
+      ],
+      "paper_surplus": [
+        0.25,
+        0.25
+      ],
+      "example": "All learner responses tie one another; all references tie; every learner beats every reference with p=.75."
+    },
+    {
+      "name": "missing_reference_triangle_retained",
+      "status": "REPRODUCED_FAILURE",
+      "prompts_complete": 1,
+      "reference_diagnostic": {
+        "mean_over_prompts": null,
+        "prompts_without_any": 1
+      }
+    },
+    {
+      "name": "trainer_mean_of_squared_residuals",
+      "status": "PASS",
+      "MSE": 1.0,
+      "squared_mean_residual": 0.0,
+      "scope": "unmodified mnpo_loss AST only"
+    },
+    {
+      "name": "canonical_target_eta_not_reapplied",
+      "status": "PASS",
+      "eta": 2.5,
+      "max_loss": 0.0
+    },
+    {
+      "name": "response_logps_forward_and_backward",
+      "status": "PASS",
+      "forward_error": 0.0,
+      "gradient_error": 5.960464477539063e-08
+    },
+    {
+      "name": "quantized_target_drift",
+      "status": "REPRODUCED_FAILURE",
+      "original_target": -21.01763689754899,
+      "quantized_target": -21.4164130175,
+      "absolute_drift": 0.3987761199510089,
+      "original_mass_above_filter": true
+    },
+    {
+      "name": "legacy_gate_uses_global_not_local_surplus",
+      "status": "REPRODUCED_MISMATCH",
+      "reported_min_surplus": 0.05,
+      "true_min_local_surplus": -0.1,
+      "scope": "legacy evaluator used by run_nbpo_stage; not the campaign trainer"
+    },
+    {
+      "name": "legacy_gate_nan",
+      "status": "REPRODUCED_FAILURE",
+      "accepted": true,
+      "promotion_called": true,
+      "scope": "isolated function with promotion side effect replaced; no claim upstream currently emits NaN"
+    }
+  ]
+}
