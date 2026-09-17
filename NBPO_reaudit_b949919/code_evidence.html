@@ -1,0 +1,1466 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>NBPO b949919 evidence</title><style>body{font:16px/1.6 system-ui;max-width:1250px;margin:30px auto;padding:0 24px}pre{font:13px/1.55 monospace;white-space:pre;overflow:auto;padding:16px;background:#f5f5f5}section{margin:40px 0}code{overflow-wrap:anywhere}</style><h1>NBPO b949919: source evidence</h1><p>Original source, exact line numbers, SHA256. Tests do not modify source bytes.</p><nav><a href="#E01">E01</a> | <a href="#E02">E02</a> | <a href="#E03">E03</a> | <a href="#E04">E04</a> | <a href="#E05">E05</a> | <a href="#E06">E06</a> | <a href="#E07">E07</a> | <a href="#E08">E08</a> | <a href="#E09">E09</a> | <a href="#E10">E10</a> | <a href="#E11">E11</a> | <a href="#E12">E12</a> | <a href="#E13">E13</a> | <a href="#E14">E14</a> | <a href="#E15">E15</a> | <a href="#E16">E16</a> | <a href="#E17">E17</a> | <a href="#E18">E18</a> | <a href="#E19">E19</a> | <a href="#E20">E20</a> | <a href="#E21">E21</a> | <a href="#E22">E22</a> | <a href="#E23">E23</a> | <a href="#E24">E24</a> | <a href="#E25">E25</a></nav><section id="E01"><h2>E01 — Corrected three-block scoring and RR completeness</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/union_score_panel.py:119–262</code></p><p>SHA256: <code>c1e4c07bd5078678368037e566a3d11637b49b199660e53fd282ad1b04279710</code></p><pre>  119 |     pool, pool_settings = load_pool(args.pool, args.pool_shards)
+  120 |     status = Counter()
+  121 |     # (pid, rubric, role_i, i, role_j, j) -&gt; {order: value_for_i}
+  122 |     obs = defaultdict(dict)
+  123 |     sources = []
+  124 |     for shard in range(args.judge_shards):
+  125 |         d = SUB / &quot;pool_judgments&quot; / args.tag / (&quot;shard%d&quot; % shard)
+  126 |         if not (d / &quot;complete.json&quot;).exists():
+  127 |             raise SystemExit(&quot;judging shard %d is not complete&quot; % shard)
+  128 |         for path in sorted(d.glob(&quot;chunk*.jsonl&quot;)):
+  129 |             sources.append({&quot;path&quot;: str(path), &quot;sha256&quot;: file_hash(path)})
+  130 |             with path.open() as stream:
+  131 |                 for line in stream:
+  132 |                     r = json.loads(line)
+  133 |                     status[r[&quot;status&quot;]] += 1
+  134 |                     if r[&quot;status&quot;] != &quot;ok&quot;:
+  135 |                         continue
+  136 |                     key = (r[&quot;prompt_id&quot;], r[&quot;rubric&quot;], r[&quot;role_i&quot;], r[&quot;i&quot;],
+  137 |                            r[&quot;role_j&quot;], r[&quot;j&quot;])
+  138 |                     obs[key][r[&quot;order&quot;]] = float(r[&quot;value_for_i&quot;])
+  139 | 
+  140 |     learner_pairs = list(itertools.combinations(range(POOL), 2))
+  141 |     cross_pairs = [(i, j) for i in range(POOL) for j in range(POOL)]
+  142 | 
+  143 |     def resolve(pid, rubric, role_i, i, role_j, j):
+  144 |         &quot;&quot;&quot;Order-balanced probability, or None when an order is missing.&quot;&quot;&quot;
+  145 |         got = obs.get((pid, rubric, role_i, i, role_j, j))
+  146 |         if got is None or 0 not in got or 1 not in got:
+  147 |             return None
+  148 |         return 0.5 * (got[0] + got[1])
+  149 | 
+  150 |     tensors, identity_ties, refdis = {}, Counter(), {}
+  151 |     dropped = Counter()
+  152 |     prompts = sorted({k[0] for k in obs})
+  153 |     for pid in prompts:
+  154 |         if pid not in pool:
+  155 |             dropped[&quot;prompt_absent_from_pool&quot;] += 1
+  156 |             continue
+  157 |         A_LL = np.zeros((K, POOL, POOL))
+  158 |         A_LR = np.zeros((K, POOL, POOL))
+  159 |         A_RR = np.zeros((K, POOL, POOL))
+  160 |         ok = True
+  161 |         for k, rubric in enumerate(ITEMS):
+  162 |             for i, j in learner_pairs:
+  163 |                 p = resolve(pid, rubric, &quot;learner&quot;, i, &quot;learner&quot;, j)
+  164 |                 if p is None:
+  165 |                     ok = False; dropped[&quot;learner_pair_unresolved&quot;] += 1; break
+  166 |                 A_LL[k, i, j] = p - 0.5
+  167 |                 A_LL[k, j, i] = 0.5 - p
+  168 |             if not ok:
+  169 |                 break
+  170 |             for i, j in cross_pairs:
+  171 |                 p = resolve(pid, rubric, &quot;learner&quot;, i, &quot;comparator&quot;, j)
+  172 |                 if p is None:
+  173 |                     ok = False; dropped[&quot;cross_pair_unresolved&quot;] += 1; break
+  174 |                 if (pool[pid][&quot;learner&quot;].get(i) ==
+  175 |                         pool[pid][&quot;comparator&quot;].get(j) is not None):
+  176 |                     identity_ties[pid] += 1
+  177 |                 A_LR[k, i, j] = p - 0.5
+  178 |             if not ok:
+  179 |                 break
+  180 |             # the reference triangle is now required: d = V_beta(mu) is defined
+  181 |             # on it, so a prompt without it has no disagreement point and is
+  182 |             # dropped rather than carried with a silently wrong d
+  183 |             for i, j in learner_pairs:
+  184 |                 p = resolve(pid, rubric, &quot;comparator&quot;, i, &quot;comparator&quot;, j)
+  185 |                 if p is None:
+  186 |                     ok = False; dropped[&quot;reference_pair_unresolved&quot;] += 1; break
+  187 |                 A_RR[k, i, j] = p - 0.5
+  188 |                 A_RR[k, j, i] = 0.5 - p
+  189 |             if not ok:
+  190 |                 break
+  191 |         if not ok:
+  192 |             continue
+  193 |         idx = np.arange(POOL)
+  194 |         A_LL[:, idx, idx] = 0.0
+  195 |         A_RR[:, idx, idx] = 0.0
+  196 |         for name, M in ((&quot;learner&quot;, A_LL), (&quot;reference&quot;, A_RR)):
+  197 |             if np.abs(M + np.swapaxes(M, -1, -2)).max() &gt; 1e-12:
+  198 |                 raise SystemExit(&quot;%s payoff not antisymmetric for %s&quot; % (name, pid))
+  199 |         if max(np.abs(A_LL).max(), np.abs(A_LR).max(),
+  200 |                np.abs(A_RR).max()) &gt; 0.5 + 1e-12:
+  201 |             raise SystemExit(&quot;payoff outside [-0.5, 0.5] for %s&quot; % pid)
+  202 |         # the same scalar the old file reported, so the two rounds stay comparable
+  203 |         iu = np.triu_indices(POOL, 1)
+  204 |         refdis[pid] = float(np.mean(np.abs(A_RR[:, iu[0], iu[1]])))
+  205 |         tensors[pid] = (A_LL, A_LR, A_RR)
+  206 | 
+  207 |     pids = sorted(tensors)
+  208 |     if not pids:
+  209 |         raise SystemExit(&quot;no prompt survived scoring&quot;)
+  210 |     out = UF / &quot;scores&quot; / args.out
+  211 |     out.mkdir(parents=True, exist_ok=True)
+  212 |     teacher = {
+  213 |         &quot;judge&quot;: &quot;/work/uf4_20260910/assets/Qwen3-14B&quot;,
+  214 |         &quot;judge_revision&quot;: &quot;40c069824f4251a91eefaf281ebe4c544efd3e18&quot;,
+  215 |         &quot;judgment_tag&quot;: args.tag,
+  216 |         &quot;template&quot;: &quot;PROSPER Figure 4 PSC five-point single-check&quot;,
+  217 |         &quot;scale&quot;: &quot;verdict in {0..4} for the FIRST response; p = verdict/4&quot;,
+  218 |         &quot;draws_per_order&quot;: 1,
+  219 |         &quot;orders&quot;: &quot;both, swapped verdict reversed before averaging&quot;,
+  220 |         &quot;graph&quot;: &quot;cross 8x8 + learner C(8,2) + reference C(8,2) per item&quot;,
+  221 |         &quot;items_per_prompt&quot;: K,
+  222 |     }
+  223 |     per = (len(pids) + args.shards - 1) // args.shards
+  224 |     written = []
+  225 |     for s in range(args.shards):
+  226 |         chunk = pids[s * per:(s + 1) * per]
+  227 |         if not chunk:
+  228 |             continue
+  229 |         A_LL = np.stack([tensors[p][0] for p in chunk], axis=1)
+  230 |         A_LR = np.stack([tensors[p][1] for p in chunk], axis=1)
+  231 |         A_RR = np.stack([tensors[p][2] for p in chunk], axis=1)
+  232 |         d = out / (&quot;shard%d&quot; % s)
+  233 |         d.mkdir(parents=True, exist_ok=True)
+  234 |         path = d / &quot;chunk0000.npz&quot;
+  235 |         # A_policy and A_ref are the names the solver reads. They are aliases of
+  236 |         # A_LR and A_RR, written explicitly so an existing reader gets the
+  237 |         # paper&#x27;s game without being changed, while A_LL travels under its own
+  238 |         # name for the pair-label consumers.
+  239 |         np.savez(path, prompt_ids=np.array(chunk),
+  240 |                  A_policy=A_LR, A_ref=A_RR,
+  241 |                  A_LL=A_LL, A_LR=A_LR, A_RR=A_RR)
+  242 |         (d / &quot;chunk0000.manifest.json&quot;).write_text(json.dumps(
+  243 |             {&quot;prompts&quot;: len(chunk), &quot;sha256&quot;: file_hash(path),
+  244 |              &quot;shapes&quot;: {&quot;A_policy&quot;: list(A_LR.shape), &quot;A_ref&quot;: list(A_RR.shape),
+  245 |                         &quot;A_LL&quot;: list(A_LL.shape), &quot;A_LR&quot;: list(A_LR.shape),
+  246 |                         &quot;A_RR&quot;: list(A_RR.shape)},
+  247 |              &quot;roles&quot;: {&quot;A_policy&quot;: &quot;A_LR (learner vs reference)&quot;,
+  248 |                        &quot;A_ref&quot;: &quot;A_RR (reference vs reference)&quot;}},
+  249 |             indent=1) + &quot;\n&quot;)
+  250 |         (d / (&quot;complete_shard%d.json&quot; % s)).write_text(json.dumps(
+  251 |             {&quot;shard&quot;: s, &quot;prompts&quot;: len(chunk), &quot;gpm_teacher&quot;: teacher,
+  252 |              &quot;bt_teacher&quot;: (&quot;absent: the union contract uses direct order-balanced PSC &quot;
+  253 |                             &quot;probabilities for these rows and forbids a scalar BT &quot;
+  254 |                             &quot;projection, so none was fitted and none is written&quot;),
+  255 |              &quot;reference_construction&quot;: (&quot;independent reference bank: eight reference &quot;
+  256 |                                         &quot;occurrences per prompt, so A_policy is the &quot;
+  257 |                                         &quot;learner-by-reference cross block and A_ref is &quot;
+  258 |                                         &quot;the reference triangle, not a copy of it&quot;)},
+  259 |             indent=1) + &quot;\n&quot;)
+  260 |         written.append({&quot;shard&quot;: s, &quot;prompts&quot;: len(chunk),
+  261 |                         &quot;sha256&quot;: file_hash(path),
+  262 |                         &quot;shapes&quot;: {&quot;A_policy&quot;: list(A_LR.shape),</pre></section><section id="E02"><h2>E02 — Baseline-label loader uses LL and rejects obsolete schema</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/build_panel_softlabels.py:1–58</code></p><p>SHA256: <code>567ef4618851beb061bc7e5911a88a2f9dcd5a4d5eed9b58e5b519be1aff7d2b</code></p><pre>    1 | &quot;&quot;&quot;Attach order-balanced soft preference labels to a panel&#x27;s pair dataset.
+    2 | 
+    3 | The scalarized-DPO and mean-preference-INPO rows of Table 3 need, for each
+    4 | training pair, the probability that the chosen response is preferred to the
+    5 | rejected one under the SAME judgments the NBPO teacher used. That probability is
+    6 | the panel&#x27;s objective-averaged direct PSC probability
+    7 | 
+    8 |     p = (1/K) sum_k [ A_LL[k, x, i, j] + 1/2 ],
+    9 | 
+   10 | where A_LL is the antisymmetric, zero-diagonal learner block written by the
+   11 | panel scorer, i and j are the row&#x27;s own candidate indices, and the +1/2 turns
+   12 | the antisymmetric deviation back into a probability. No Bradley-Terry fit and no
+   13 | surrogate reward model enters: these are the measured order-averaged verdicts.
+   14 | 
+   15 | The tokenization, prompts and pair set are copied unchanged from the NBPO-PW
+   16 | dataset of the same panel, so the two baselines see exactly the pairs the NBPO
+   17 | arms see. Only the two probability columns are added.
+   18 | 
+   19 | Written with the trainer&#x27;s own datasets version (deps_train first on PYTHONPATH)
+   20 | because a newer writer emits a feature type the trainer&#x27;s reader rejects.
+   21 | &quot;&quot;&quot;
+   22 | from __future__ import annotations
+   23 | 
+   24 | import argparse, glob, hashlib, json
+   25 | from pathlib import Path
+   26 | 
+   27 | import numpy as np
+   28 | 
+   29 | UF = Path(&quot;/work/uf4_20260910&quot;)
+   30 | 
+   31 | 
+   32 | def load_policy_block(scores_dir, shards):
+   33 |     &quot;&quot;&quot;prompt_id -&gt; A_LL, the antisymmetric learner block.&quot;&quot;&quot;
+   34 |     out = {}
+   35 |     for shard in range(shards):
+   36 |         d = Path(scores_dir) / (&quot;shard%d&quot; % shard)
+   37 |         for path in sorted(d.glob(&quot;chunk*.npz&quot;)):
+   38 |             z = np.load(path, allow_pickle=True)
+   39 |             pids = [str(v) for v in z[&quot;prompt_ids&quot;]]
+   40 |             # A_LL, explicitly: the pair label is a learner-versus-learner
+   41 |             # probability, and since the A01 fix A_policy carries the
+   42 |             # learner-versus-reference cross block instead. A score directory
+   43 |             # written before that fix has no A_LL, and must be re-scored rather
+   44 |             # than read here, so its absence raises instead of falling back.
+   45 |             if &quot;A_LL&quot; not in z.files:
+   46 |                 raise SystemExit(
+   47 |                     &quot;%s predates the A01 tensor-role fix: it has no A_LL, and its &quot;
+   48 |                     &quot;A_policy is the learner triangle only by coincidence of the old &quot;
+   49 |                     &quot;wiring. Re-score this panel with union_score_panel.py before &quot;
+   50 |                     &quot;building soft labels.&quot; % path)
+   51 |             A = z[&quot;A_LL&quot;]
+   52 |             for x, pid in enumerate(pids):
+   53 |                 out[pid] = np.asarray(A[:, x], dtype=np.float64)
+   54 |     return out
+   55 | 
+   56 | 
+   57 | def main():
+   58 |     ap = argparse.ArgumentParser(description=__doc__)</pre></section><section id="E03"><h2>E03 — Current base still imports absent canonical APIs</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1c.py:34–59</code></p><p>SHA256: <code>07d7c7567a56781fff5777b65b7375b9b2828feb633916637a926bf3c0b601b5</code></p><pre>   34 | &quot;&quot;&quot;
+   35 | from __future__ import annotations
+   36 | 
+   37 | import argparse
+   38 | import hashlib
+   39 | import json
+   40 | import os
+   41 | import subprocess
+   42 | import sys
+   43 | import time
+   44 | from pathlib import Path
+   45 | 
+   46 | import numpy as np
+   47 | import torch
+   48 | 
+   49 | from mnpo_scripts.nbpo_core import uniform_policy
+   50 | from mnpo_scripts.nbpo_generic import solve_finite_pool, validate_finite_pool_solution
+   51 | from mnpo_scripts.nbpo_representations import (
+   52 |     AdaptiveGameRepresentation, BTRewardRepresentation, FixedReferenceRepresentation,
+   53 | )
+   54 | from scripts.nbpo.build_nbpo_pairs import build_rows, load_canonical_artifact
+   55 | from scripts.nbpo.solve_nbpo_dual import write_generic_solution_artifact
+   56 | 
+   57 | ROOT = Path(&quot;/work/uf4_20260910&quot;)
+   58 | OBJECTIVES = (&quot;item0&quot;, &quot;item1&quot;, &quot;item2&quot;, &quot;item3&quot;)
+   59 | REFERENCE_CONSTRUCTION = &quot;independent_samples&quot;</pre></section><section id="E04"><h2>E04 — Released pair builder lacks canonical mode and canonical_data</h2><p><code>scripts/nbpo/build_nbpo_pairs.py:34–125</code></p><p>SHA256: <code>2609b091e2c7fd9c7911c9119a3fdf49d757779a7fd5d2017f8f10b1073134a4</code></p><pre>   34 | 
+   35 | import numpy as np
+   36 | 
+   37 | from scripts.nbpo.nbpo_common import (
+   38 |     implementation_contract,
+   39 |     load_response_files,
+   40 |     response_pool_hash,
+   41 |     sha256_file,
+   42 |     sha256_text,
+   43 |     write_json,
+   44 | )
+   45 | 
+   46 | TARGET_MODES = (&quot;sampled&quot;, &quot;rao_blackwell&quot;)
+   47 | 
+   48 | 
+   49 | def _array_sha256(arr) -&gt; str:
+   50 |     &quot;&quot;&quot;sha256 of an array&#x27;s exact float64 bytes -- matches the solver&#x27;s hash.&quot;&quot;&quot;
+   51 |     import hashlib
+   52 | 
+   53 |     return hashlib.sha256(
+   54 |         np.ascontiguousarray(np.asarray(arr), dtype=np.float64).tobytes()).hexdigest()
+   55 | 
+   56 | 
+   57 | def flip_pair_row(row: dict) -&gt; dict:
+   58 |     &quot;&quot;&quot;Swap the pair orientation, flipping every Z_k and the aggregate target.&quot;&quot;&quot;
+   59 |     flipped = dict(row)
+   60 |     flipped[&quot;chosen&quot;], flipped[&quot;rejected&quot;] = row[&quot;rejected&quot;], row[&quot;chosen&quot;]
+   61 |     flipped[&quot;chosen_response_id&quot;], flipped[&quot;rejected_response_id&quot;] = (
+   62 |         row[&quot;rejected_response_id&quot;], row[&quot;chosen_response_id&quot;])
+   63 |     flipped[&quot;nbpo_z&quot;] = {k: -v for k, v in row[&quot;nbpo_z&quot;].items()}
+   64 |     flipped[&quot;nbpo_weighted_z&quot;] = -row[&quot;nbpo_weighted_z&quot;]
+   65 |     return flipped
+   66 | 
+   67 | 
+   68 | def build_rows(prompt_ids, objectives, A_policy, nu, lam, betas, policy, ref_seed_of,
+   69 |                rng, target_mode, meta_ids, provenance):
+   70 |     &quot;&quot;&quot;One row per (prompt, unordered learner pair); deterministic given the RNG.&quot;&quot;&quot;
+   71 |     K = len(objectives)
+   72 |     I = A_policy.shape[2]
+   73 |     policy_ids = meta_ids[&quot;policy_learner_ids&quot;]
+   74 |     comparator_ids = meta_ids[&quot;comparator_ids&quot;]
+   75 |     rows = []
+   76 |     for x, pid in enumerate(prompt_ids):
+   77 |         seed0 = policy_ids[0].split(&quot;:&quot;, 1)[1]
+   78 |         prompt_text = str(policy[seed0][pid][&quot;prompt&quot;])
+   79 |         for i1, i2 in itertools.combinations(range(I), 2):
+   80 |             z, opp = {}, {}
+   81 |             for k, obj in enumerate(objectives):
+   82 |                 # Eq. (26): draw (y, y&#x27;) first, THEN one z_k ~ nu*_k for this pair and
+   83 |                 # objective. The same z_k serves both y and y&#x27; of the row; other rows
+   84 |                 # of the same prompt and other objectives draw independently.
+   85 |                 j = int(rng.choice(len(comparator_ids), p=nu[k, x]))
+   86 |                 p1 = float(A_policy[k, x, i1, j]) + 0.5
+   87 |                 p2 = float(A_policy[k, x, i2, j]) + 0.5
+   88 |                 if target_mode == &quot;sampled&quot;:
+   89 |                     b1 = float(rng.random() &lt; p1)
+   90 |                     b2 = float(rng.random() &lt; p2)
+   91 |                     z[obj] = b1 - b2
+   92 |                 else:  # rao_blackwell
+   93 |                     z[obj] = p1 - p2
+   94 |                 opp[obj] = comparator_ids[j]
+   95 |             id1, id2 = policy_ids[i1], policy_ids[i2]
+   96 |             rows.append({
+   97 |                 &quot;prompt_id&quot;: pid,
+   98 |                 &quot;prompt&quot;: prompt_text,
+   99 |                 &quot;chosen&quot;: str(policy[id1.split(&quot;:&quot;, 1)[1]][pid][&quot;generated_text&quot;]),
+  100 |                 &quot;rejected&quot;: str(policy[id2.split(&quot;:&quot;, 1)[1]][pid][&quot;generated_text&quot;]),
+  101 |                 &quot;chosen_response_id&quot;: id1,
+  102 |                 &quot;rejected_response_id&quot;: id2,
+  103 |                 # Response IDS are not response TEXT: these pin the exact strings
+  104 |                 # this row was built from, so a later pool swap is detectable.
+  105 |                 &quot;chosen_text_sha256&quot;: sha256_text(
+  106 |                     str(policy[id1.split(&quot;:&quot;, 1)[1]][pid][&quot;generated_text&quot;])),
+  107 |                 &quot;rejected_text_sha256&quot;: sha256_text(
+  108 |                     str(policy[id2.split(&quot;:&quot;, 1)[1]][pid][&quot;generated_text&quot;])),
+  109 |                 &quot;nbpo_z&quot;: z,
+  110 |                 &quot;nbpo_weighted_z&quot;: float(sum(lam[k] * z[obj] for k, obj in enumerate(objectives))),
+  111 |                 &quot;lambda_raw&quot;: {obj: float(lam[k]) for k, obj in enumerate(objectives)},
+  112 |                 &quot;opponent_response_id&quot;: opp,
+  113 |                 &quot;opponent_beta&quot;: {obj: float(betas[k]) for k, obj in enumerate(objectives)},
+  114 |                 &quot;opponent_sampling_scope&quot;: &quot;pair_objective&quot;,
+  115 |                 &quot;target_mode&quot;: target_mode,
+  116 |                 **provenance,
+  117 |             })
+  118 |     return rows
+  119 | 
+  120 | 
+  121 | def verify_solver_input_chain(tensor_dir: Path, solver_dir: Path, solution: dict,
+  122 |                               reproduction_mode_required: bool = True) -&gt; dict:
+  123 |     &quot;&quot;&quot;Prove the tensors on disk ARE the solver&#x27;s inputs, and the opponents its outputs.
+  124 | 
+  125 |     Verifying only the ``nu`` hashes left the biggest hole open: nothing showed</pre></section><section id="E05"><h2>E05 — Corrected float64 serializer</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1c.py:89–135</code></p><p>SHA256: <code>07d7c7567a56781fff5777b65b7375b9b2828feb633916637a926bf3c0b601b5</code></p><pre>   89 | # Kept for readers of older artifacts: rows written before the A05 fix carry
+   90 | # canonical_target_quantized_decimals = 10 and their masses were rounded to that
+   91 | # many fixed decimals. New rows are written at exact float64 precision and
+   92 | # record canonical_target_serialization instead.
+   93 | CANONICAL_DECIMALS_LEGACY = 10
+   94 | 
+   95 | 
+   96 | def quantize_canonical_row(row):
+   97 |     &quot;&quot;&quot;Serialize the solver masses so they survive the round trip exactly.
+   98 | 
+   99 |     prepare_nbpo_dataset reads these rows with a standard JSON parser and then
+  100 |     checks target == log(w_a/c_a) - log(w_b/c_b) to 1e-9 absolute. An earlier
+  101 |     version of this function rounded both masses to ten FIXED DECIMALS and
+  102 |     rebuilt the target from the rounded values, which made the identity hold
+  103 |     after the parse but changed the certified solution: a per-prompt Nash solve
+  104 |     concentrates mass, its smallest masses reach the 1e-12 probability floor,
+  105 |     and 1e-12 rounded to ten decimals is exactly 0. The row then carries a
+  106 |     non-positive mass, which the canonical validator rejects outright, and any
+  107 |     mass between 1e-10 and 1e-12 that did survive was quantized to a value whose
+  108 |     log differs from the certified one by far more than the solver&#x27;s own
+  109 |     residual. That is the audit&#x27;s A05: a target changed after it was certified.
+  110 | 
+  111 |     Fixed decimals are the wrong instrument for a quantity that spans twelve
+  112 |     orders of magnitude. Python&#x27;s float repr round-trips a float64 exactly and
+  113 |     json.dumps emits it, so no rounding is needed at all: the masses are written
+  114 |     as they were solved and the target is rebuilt from those same doubles. The
+  115 |     identity then holds to the float64 relative error of a logarithm, roughly
+  116 |     1e-16, comfortably inside the 1e-9 gate, with the certified solution intact.
+  117 | 
+  118 |     A mass that is genuinely non-positive is left alone here and refused by the
+  119 |     validator, which is the correct outcome: it means the inner solve hit the
+  120 |     boundary and the canonical log-ratio does not exist for that pair.
+  121 |     &quot;&quot;&quot;
+  122 |     import math
+  123 | 
+  124 |     for key in (&quot;nbpo_weight_a&quot;, &quot;nbpo_weight_b&quot;):
+  125 |         if key in row:
+  126 |             row[key] = float(row[key])
+  127 |     if row.get(&quot;target_mode&quot;) == &quot;canonical_logratio&quot; and &quot;nbpo_weight_a&quot; in row:
+  128 |         wa, wb = float(row[&quot;nbpo_weight_a&quot;]), float(row[&quot;nbpo_weight_b&quot;])
+  129 |         ca = float(row.get(&quot;nbpo_center_a&quot;, 1.0 / POOL))
+  130 |         cb = float(row.get(&quot;nbpo_center_b&quot;, 1.0 / POOL))
+  131 |         if min(wa, wb) &gt; 0:
+  132 |             row[&quot;nbpo_logratio_target&quot;] = math.log(wa / ca) - math.log(wb / cb)
+  133 |             row[&quot;canonical_target_quantized_decimals&quot;] = None
+  134 |             row[&quot;canonical_target_serialization&quot;] = &quot;exact_float64_round_trip&quot;
+  135 |     return row</pre></section><section id="E06"><h2>E06 — New uw3 still uses fixed-decimal serializer</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw3.py:79–116</code></p><p>SHA256: <code>c4f3b3100341275b708d9a6dc760f9c1f9f55eeab414e0f3e6a36cb2b5ed6fe1</code></p><pre>   79 | 
+   80 | 
+   81 | def write_jsonl(path, rows):
+   82 |     path = Path(path)
+   83 |     path.parent.mkdir(parents=True, exist_ok=True)
+   84 |     with path.open(&quot;x&quot;) as stream:
+   85 |         for row in rows:
+   86 |             stream.write(json.dumps(row, ensure_ascii=False) + &quot;\n&quot;)
+   87 | 
+   88 | 
+   89 | CANONICAL_DECIMALS = 10
+   90 | 
+   91 | 
+   92 | def quantize_canonical_row(row):
+   93 |     &quot;&quot;&quot;Round the solver masses to the loader&#x27;s precision and rebuild the target.
+   94 | 
+   95 |     prepare_nbpo_dataset reads these rows through a JSON parser that keeps ten
+   96 |     decimal places, then checks target == log(w_a/c_a) - log(w_b/c_b) to 1e-9.
+   97 |     Rounding the masses first and deriving the target from the rounded values
+   98 |     makes the row consistent under that parse instead of only before it. A
+   99 |     per-prompt Nash solve concentrates mass, so without this the identity
+  100 |     survives in memory and fails after the parse.
+  101 |     &quot;&quot;&quot;
+  102 |     import math
+  103 | 
+  104 |     for key in (&quot;nbpo_weight_a&quot;, &quot;nbpo_weight_b&quot;):
+  105 |         if key in row:
+  106 |             row[key] = round(float(row[key]), CANONICAL_DECIMALS)
+  107 |     if row.get(&quot;target_mode&quot;) == &quot;canonical_logratio&quot; and &quot;nbpo_weight_a&quot; in row:
+  108 |         wa, wb = float(row[&quot;nbpo_weight_a&quot;]), float(row[&quot;nbpo_weight_b&quot;])
+  109 |         ca = float(row.get(&quot;nbpo_center_a&quot;, 1.0 / POOL))
+  110 |         cb = float(row.get(&quot;nbpo_center_b&quot;, 1.0 / POOL))
+  111 |         if min(wa, wb) &gt; 0:
+  112 |             row[&quot;nbpo_logratio_target&quot;] = round(
+  113 |                 math.log(wa / ca) - math.log(wb / cb), CANONICAL_DECIMALS)
+  114 |             row[&quot;canonical_target_quantized_decimals&quot;] = CANONICAL_DECIMALS
+  115 |     return row
+  116 | </pre></section><section id="E07"><h2>E07 — SafeRLHF serializer still quantizes</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_us1.py:79–116</code></p><p>SHA256: <code>841d8e1587384b7cadc8c6f191d73bfc6c11f757bcf850167e976e123f649068</code></p><pre>   79 | 
+   80 | 
+   81 | def write_jsonl(path, rows):
+   82 |     path = Path(path)
+   83 |     path.parent.mkdir(parents=True, exist_ok=True)
+   84 |     with path.open(&quot;x&quot;) as stream:
+   85 |         for row in rows:
+   86 |             stream.write(json.dumps(row, ensure_ascii=False) + &quot;\n&quot;)
+   87 | 
+   88 | 
+   89 | CANONICAL_DECIMALS = 10
+   90 | 
+   91 | 
+   92 | def quantize_canonical_row(row):
+   93 |     &quot;&quot;&quot;Round the solver masses to the loader&#x27;s precision and rebuild the target.
+   94 | 
+   95 |     prepare_nbpo_dataset reads these rows through a JSON parser that keeps ten
+   96 |     decimal places, then checks target == log(w_a/c_a) - log(w_b/c_b) to 1e-9.
+   97 |     Rounding the masses first and deriving the target from the rounded values
+   98 |     makes the row consistent under that parse instead of only before it. A
+   99 |     per-prompt Nash solve concentrates mass, so without this the identity
+  100 |     survives in memory and fails after the parse.
+  101 |     &quot;&quot;&quot;
+  102 |     import math
+  103 | 
+  104 |     for key in (&quot;nbpo_weight_a&quot;, &quot;nbpo_weight_b&quot;):
+  105 |         if key in row:
+  106 |             row[key] = round(float(row[key]), CANONICAL_DECIMALS)
+  107 |     if row.get(&quot;target_mode&quot;) == &quot;canonical_logratio&quot; and &quot;nbpo_weight_a&quot; in row:
+  108 |         wa, wb = float(row[&quot;nbpo_weight_a&quot;]), float(row[&quot;nbpo_weight_b&quot;])
+  109 |         ca = float(row.get(&quot;nbpo_center_a&quot;, 1.0 / POOL))
+  110 |         cb = float(row.get(&quot;nbpo_center_b&quot;, 1.0 / POOL))
+  111 |         if min(wa, wb) &gt; 0:
+  112 |             row[&quot;nbpo_logratio_target&quot;] = round(
+  113 |                 math.log(wa / ca) - math.log(wb / cb), CANONICAL_DECIMALS)
+  114 |             row[&quot;canonical_target_quantized_decimals&quot;] = CANONICAL_DECIMALS
+  115 |     return row
+  116 | </pre></section><section id="E08"><h2>E08 — TLDR serializer still quantizes</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_ut1.py:79–116</code></p><p>SHA256: <code>ea3fc9e20f1599a622ef30fc442e0f554364daa5e5c103a6713b8fc47f331872</code></p><pre>   79 | 
+   80 | 
+   81 | def write_jsonl(path, rows):
+   82 |     path = Path(path)
+   83 |     path.parent.mkdir(parents=True, exist_ok=True)
+   84 |     with path.open(&quot;x&quot;) as stream:
+   85 |         for row in rows:
+   86 |             stream.write(json.dumps(row, ensure_ascii=False) + &quot;\n&quot;)
+   87 | 
+   88 | 
+   89 | CANONICAL_DECIMALS = 10
+   90 | 
+   91 | 
+   92 | def quantize_canonical_row(row):
+   93 |     &quot;&quot;&quot;Round the solver masses to the loader&#x27;s precision and rebuild the target.
+   94 | 
+   95 |     prepare_nbpo_dataset reads these rows through a JSON parser that keeps ten
+   96 |     decimal places, then checks target == log(w_a/c_a) - log(w_b/c_b) to 1e-9.
+   97 |     Rounding the masses first and deriving the target from the rounded values
+   98 |     makes the row consistent under that parse instead of only before it. A
+   99 |     per-prompt Nash solve concentrates mass, so without this the identity
+  100 |     survives in memory and fails after the parse.
+  101 |     &quot;&quot;&quot;
+  102 |     import math
+  103 | 
+  104 |     for key in (&quot;nbpo_weight_a&quot;, &quot;nbpo_weight_b&quot;):
+  105 |         if key in row:
+  106 |             row[key] = round(float(row[key]), CANONICAL_DECIMALS)
+  107 |     if row.get(&quot;target_mode&quot;) == &quot;canonical_logratio&quot; and &quot;nbpo_weight_a&quot; in row:
+  108 |         wa, wb = float(row[&quot;nbpo_weight_a&quot;]), float(row[&quot;nbpo_weight_b&quot;])
+  109 |         ca = float(row.get(&quot;nbpo_center_a&quot;, 1.0 / POOL))
+  110 |         cb = float(row.get(&quot;nbpo_center_b&quot;, 1.0 / POOL))
+  111 |         if min(wa, wb) &gt; 0:
+  112 |             row[&quot;nbpo_logratio_target&quot;] = round(
+  113 |                 math.log(wa / ca) - math.log(wb / cb), CANONICAL_DECIMALS)
+  114 |             row[&quot;canonical_target_quantized_decimals&quot;] = CANONICAL_DECIMALS
+  115 |     return row
+  116 | </pre></section><section id="E09"><h2>E09 — Corrected scorer not propagated to other callable scorer</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/union_score_uw.py:114–179</code></p><p>SHA256: <code>aefb140d0af0c027bffe4cb4ce805b195af77cd72b90496a6b43453a1b8bac82</code></p><pre>  114 |             dropped[&quot;prompt_absent_from_pool&quot;] += 1
+  115 |             continue
+  116 |         A = np.zeros((K, POOL, POOL))
+  117 |         R = np.zeros((K, POOL, POOL))
+  118 |         ok = True
+  119 |         for k, rubric in enumerate(ITEMS):
+  120 |             for i, j in learner_pairs:
+  121 |                 p = resolve(pid, rubric, &quot;learner&quot;, i, &quot;learner&quot;, j)
+  122 |                 if p is None:
+  123 |                     ok = False; dropped[&quot;learner_pair_unresolved&quot;] += 1; break
+  124 |                 A[k, i, j] = p - 0.5
+  125 |                 A[k, j, i] = 0.5 - p
+  126 |             if not ok:
+  127 |                 break
+  128 |             for i, j in cross_pairs:
+  129 |                 p = resolve(pid, rubric, &quot;learner&quot;, i, &quot;comparator&quot;, j)
+  130 |                 if p is None:
+  131 |                     ok = False; dropped[&quot;cross_pair_unresolved&quot;] += 1; break
+  132 |                 if (pool[pid][&quot;learner&quot;].get(i) ==
+  133 |                         pool[pid][&quot;comparator&quot;].get(j) is not None):
+  134 |                     identity_ties[pid] += 1
+  135 |                 R[k, i, j] = p - 0.5
+  136 |             if not ok:
+  137 |                 break
+  138 |         if not ok:
+  139 |             continue
+  140 |         idx = np.arange(POOL)
+  141 |         A[:, idx, idx] = 0.0
+  142 |         if np.abs(A + np.swapaxes(A, -1, -2)).max() &gt; 1e-12:
+  143 |             raise SystemExit(&quot;learner payoff not antisymmetric for %s&quot; % pid)
+  144 |         if max(np.abs(A).max(), np.abs(R).max()) &gt; 0.5 + 1e-12:
+  145 |             raise SystemExit(&quot;payoff outside [-0.5, 0.5] for %s&quot; % pid)
+  146 |         # reference disagreement: the reference triangle, kept as a diagnostic
+  147 |         vals = []
+  148 |         for k, rubric in enumerate(ITEMS):
+  149 |             for i, j in learner_pairs:
+  150 |                 p = resolve(pid, rubric, &quot;comparator&quot;, i, &quot;comparator&quot;, j)
+  151 |                 if p is not None:
+  152 |                     vals.append(abs(p - 0.5))
+  153 |         refdis[pid] = float(np.mean(vals)) if vals else None
+  154 |         tensors[pid] = (A, R)
+  155 | 
+  156 |     pids = sorted(tensors)
+  157 |     if not pids:
+  158 |         raise SystemExit(&quot;no prompt survived scoring&quot;)
+  159 |     out = UF / &quot;scores&quot; / args.out
+  160 |     out.mkdir(parents=True, exist_ok=True)
+  161 |     teacher = {
+  162 |         &quot;judge&quot;: &quot;/work/uf4_20260910/assets/Qwen3-14B&quot;,
+  163 |         &quot;judge_revision&quot;: &quot;40c069824f4251a91eefaf281ebe4c544efd3e18&quot;,
+  164 |         &quot;judgment_tag&quot;: args.tag,
+  165 |         &quot;template&quot;: &quot;PROSPER Figure 4 PSC five-point single-check&quot;,
+  166 |         &quot;scale&quot;: &quot;verdict in {0..4} for the FIRST response; p = verdict/4&quot;,
+  167 |         &quot;draws_per_order&quot;: 1,
+  168 |         &quot;orders&quot;: &quot;both, swapped verdict reversed before averaging&quot;,
+  169 |         &quot;graph&quot;: &quot;cross 8x8 + learner C(8,2) + reference C(8,2) per item&quot;,
+  170 |         &quot;items_per_prompt&quot;: K,
+  171 |     }
+  172 |     per = (len(pids) + args.shards - 1) // args.shards
+  173 |     written = []
+  174 |     for s in range(args.shards):
+  175 |         chunk = pids[s * per:(s + 1) * per]
+  176 |         if not chunk:
+  177 |             continue
+  178 |         A = np.stack([tensors[p][0] for p in chunk], axis=1)
+  179 |         R = np.stack([tensors[p][1] for p in chunk], axis=1)</pre></section><section id="E10"><h2>E10 — New solver loader validates hash but not tensor-role schema</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1c.py:138–180</code></p><p>SHA256: <code>07d7c7567a56781fff5777b65b7375b9b2828feb633916637a926bf3c0b601b5</code></p><pre>  138 | def load_scores(score_root, shards):
+  139 |     &quot;&quot;&quot;prompt_id -&gt; (A_policy[K,8,8], A_ref[K,8,8], r_bt[K,2,8]), hash-verified.
+  140 | 
+  141 |     r_bt is the frozen BT head&#x27;s scalar reward for the eight learner and eight
+  142 |     comparator occurrences. It is loaded for every representation but only the
+  143 |     bt_reward representation reads it, so nothing else changes.
+  144 |     &quot;&quot;&quot;
+  145 |     scores, manifests = {}, []
+  146 |     for shard in range(shards):
+  147 |         directory = Path(score_root) / f&quot;shard{shard}&quot;
+  148 |         complete = json.loads((directory / f&quot;complete_shard{shard}.json&quot;).read_text())
+  149 |         manifests.append({&quot;shard&quot;: shard, &quot;gpm_teacher&quot;: complete[&quot;gpm_teacher&quot;],
+  150 |                           &quot;bt_teacher&quot;: complete[&quot;bt_teacher&quot;],
+  151 |                           &quot;reference_construction&quot;: complete[&quot;reference_construction&quot;]})
+  152 |         for path in sorted(directory.glob(&quot;chunk*.npz&quot;)):
+  153 |             meta = json.loads(path.with_suffix(&quot;&quot;).with_suffix(&quot;.manifest.json&quot;).read_text()) \
+  154 |                 if path.with_suffix(&quot;&quot;).with_suffix(&quot;.manifest.json&quot;).exists() else \
+  155 |                 json.loads((directory / (path.stem + &quot;.manifest.json&quot;)).read_text())
+  156 |             if file_hash(path) != meta[&quot;sha256&quot;]:
+  157 |                 raise ValueError(f&quot;Score chunk hash mismatch: {path}&quot;)
+  158 |             arrays = np.load(path, allow_pickle=True)
+  159 |             pids = [str(p) for p in arrays[&quot;prompt_ids&quot;]]
+  160 |             A, Aref = arrays[&quot;A_policy&quot;], arrays[&quot;A_ref&quot;]
+  161 |             # r_bt is the scalar BT projection. The union contract uses direct
+  162 |             # order-balanced probabilities for these rows and forbids that
+  163 |             # projection, so the array may be absent; it is left as None rather
+  164 |             # than filled with zeros, and only the bt_reward representation
+  165 |             # reads it, where None raises instead of training on a placeholder.
+  166 |             Rbt = arrays[&quot;r_bt&quot;] if &quot;r_bt&quot; in arrays.files else None
+  167 |             if A.shape[0] != len(OBJECTIVES) or A.shape[2:] != (POOL, POOL):
+  168 |                 raise ValueError(f&quot;Unexpected score tensor shape in {path}: {A.shape}&quot;)
+  169 |             if Rbt is not None and (Rbt.shape[0] != len(OBJECTIVES)
+  170 |                                     or Rbt.shape[2:] != (2, POOL)):
+  171 |                 raise ValueError(f&quot;Unexpected BT reward shape in {path}: {Rbt.shape}&quot;)
+  172 |             for index, pid in enumerate(pids):
+  173 |                 if pid in scores:
+  174 |                     raise ValueError(f&quot;Duplicate scored prompt {pid}&quot;)
+  175 |                 scores[pid] = (A[:, index], Aref[:, index],
+  176 |                                None if Rbt is None else Rbt[:, index])
+  177 |     identities = {object_hash(m[&quot;gpm_teacher&quot;]) for m in manifests}
+  178 |     if len(identities) != 1:
+  179 |         raise ValueError(&quot;Score shards disagree on the frozen GPM teacher&quot;)
+  180 |     return scores, manifests</pre></section><section id="E11"><h2>E11 — New local wrapper, import selection and exact/root settings</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1c.py:39–121</code></p><p>SHA256: <code>edfc8c47f092ab73509cdefa7896066fd95198238ba4bc718215ebf0688b0d72</code></p><pre>   39 | &quot;&quot;&quot;
+   40 | from __future__ import annotations
+   41 | 
+   42 | import argparse, json, os, sys, time
+   43 | from concurrent.futures import ProcessPoolExecutor
+   44 | from pathlib import Path
+   45 | 
+   46 | import numpy as np
+   47 | import torch
+   48 | 
+   49 | sys.path.insert(0, &quot;/work/uf4_20260910/code&quot;)
+   50 | import solve_pros4_targets_uw1c as base                      # loaders, hashing, writers
+   51 | from mnpo_scripts.nbpo_core import uniform_policy
+   52 | from mnpo_scripts.nbpo_generic import solve_finite_pool, validate_finite_pool_solution
+   53 | from mnpo_scripts.nbpo_representations import AdaptiveGameRepresentation
+   54 | from scripts.nbpo.build_nbpo_pairs import build_rows
+   55 | 
+   56 | ROOT = Path(&quot;/work/uf4_20260910&quot;)
+   57 | OBJECTIVES = base.OBJECTIVES
+   58 | POOL = base.POOL
+   59 | _SHARED = {}
+   60 | 
+   61 | 
+   62 | def _init(A, Aref, beta, eta, weight_l1, max_dual_calls, floor):
+   63 |     _SHARED.update(A=A, Aref=Aref, beta=beta, eta=eta, weight_l1=weight_l1,
+   64 |                    M=max_dual_calls, floor=floor)
+   65 |     torch.set_num_threads(1)
+   66 | 
+   67 | 
+   68 | def _solve_one(x):
+   69 |     &quot;&quot;&quot;Solve prompt x alone: its own adversarial weights, its own certificate.&quot;&quot;&quot;
+   70 |     A = _SHARED[&quot;A&quot;][:, x:x + 1]
+   71 |     Aref = _SHARED[&quot;Aref&quot;][:, x:x + 1]
+   72 |     rep = AdaptiveGameRepresentation(
+   73 |         torch.from_numpy(np.ascontiguousarray(A)), torch.from_numpy(np.ascontiguousarray(Aref)),
+   74 |         uniform_policy(1, POOL),
+   75 |         torch.full((len(OBJECTIVES),), _SHARED[&quot;beta&quot;], dtype=torch.float64),
+   76 |         reference_construction=&quot;independent_samples&quot;)
+   77 |     result = solve_finite_pool(
+   78 |         rep, &quot;nash&quot;, eta=_SHARED[&quot;eta&quot;], inner_solver=&quot;exact&quot;,
+   79 |         dual_solver=&quot;root&quot;, dual_tol=1e-10, M=_SHARED[&quot;M&quot;], inner_workers=1,
+   80 |         probability_floor=_SHARED[&quot;floor&quot;], log_every=0)
+   81 |     certificate = validate_finite_pool_solution(result)
+   82 |     return (x,
+   83 |             result.pi.numpy().astype(np.float64),
+   84 |             result.nu_update.numpy().astype(np.float64),
+   85 |             result.weights.numpy().astype(np.float64),
+   86 |             result.target_log_ratio.numpy().astype(np.float64),
+   87 |             float(result.target_log_ratio_check()),
+   88 |             bool(certificate.get(&quot;certified&quot;, False)),
+   89 |             # the certificate carries the per-objective surplus vector, not its
+   90 |             # minimum; taking .get(&quot;min_surplus&quot;) silently produced NaN, which
+   91 |             # then made &quot;negative worst surplus&quot; count zero prompts by accident
+   92 |             float(np.min(np.asarray(certificate[&quot;surplus&quot;], dtype=np.float64))))
+   93 | 
+   94 | 
+   95 | def main():
+   96 |     ap = argparse.ArgumentParser(description=__doc__)
+   97 |     ap.add_argument(&quot;--out-name&quot;, default=&quot;prosper_v1&quot;)
+   98 |     ap.add_argument(&quot;--shards&quot;, type=int, default=8,
+   99 |                     help=&quot;score and pool shard count; 8 once the 400-prompt &quot;
+  100 |                          &quot;extension is merged in as shards 4..7&quot;)
+  101 |     ap.add_argument(&quot;--weight-l1&quot;, type=float, default=None,
+  102 |                     help=&quot;matched multiplier norm as a literal. Only absolute_maxmin &quot;
+  103 |                          &quot;uses it; nash derives its own dual.&quot;)
+  104 |     ap.add_argument(&quot;--weight-l1-from&quot;, type=Path,
+  105 |                     default=None)
+  106 |     ap.add_argument(&quot;--beta&quot;, type=float, default=0.25)
+  107 |     ap.add_argument(&quot;--eta&quot;, type=float, default=1.0)
+  108 |     ap.add_argument(&quot;--workers&quot;, type=int, default=32)
+  109 |     ap.add_argument(&quot;--max-dual-calls&quot;, type=int, default=200)
+  110 |     ap.add_argument(&quot;--probability-floor&quot;, type=float, default=1e-12)
+  111 |     ap.add_argument(&quot;--limit&quot;, type=int, default=0,
+  112 |                     help=&quot;pilot on the first N prompts of each split; 0 means all&quot;)
+  113 |     ap.add_argument(&quot;--skip-dataset&quot;, action=&quot;store_true&quot;)
+  114 |     args = ap.parse_args()
+  115 | 
+  116 |     # nash derives its own dual: no multiplier norm is read, and none is used.
+  117 |     # The global NBPO arm this was matched to is uncertified (independent
+  118 |     # stationarity 13.224), and nothing here is matched to an uncertified value.
+  119 |     weight_l1 = None
+  120 |     print(json.dumps({&quot;weight_l1&quot;: None,
+  121 |                       &quot;note&quot;: &quot;unused: nash derives its own dual&quot;}), flush=True)</pre></section><section id="E12"><h2>E12 — Canonical builder call and unchanged split-name pool hashes</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1c.py:200–295</code></p><p>SHA256: <code>edfc8c47f092ab73509cdefa7896066fd95198238ba4bc718215ebf0688b0d72</code></p><pre>  200 |         # A hash-bound solution artifact at the path the shared job generator
+  201 |         # expects. The global one is not written because per-prompt weights do
+  202 |         # not fit its (K,) weight field, but the generator only needs SOME file
+  203 |         # whose hash pins the solution, and patching the generator would touch
+  204 |         # code the published arms depend on. This file pins the real thing: the
+  205 |         # per-prompt npz that every target in this set was built from.
+  206 |         solver_dir = out / split / &quot;solver&quot;
+  207 |         base.write_json(solver_dir / &quot;solution.json&quot;, {
+  208 |             &quot;target_mode&quot;: &quot;canonical_logratio&quot;, &quot;target_column&quot;: &quot;nbpo_logratio_target&quot;,
+  209 |             &quot;target_units&quot;: &quot;final_logratio_change&quot;, &quot;eta_already_included&quot;: True,
+  210 |             &quot;representation&quot;: &quot;adaptive_game&quot;, &quot;aggregation&quot;: &quot;prompt_wise_nash&quot;,
+  211 |             &quot;weights_scope&quot;: &quot;per prompt; there is no shared dual&quot;,
+  212 |             &quot;per_prompt_artifact&quot;: str(per_prompt_path),
+  213 |             &quot;per_prompt_artifact_sha256&quot;: base.file_hash(per_prompt_path),
+  214 |             &quot;n_prompts&quot;: len(pids), &quot;split&quot;: split,
+  215 |             &quot;all_certified&quot;: bool(certified.all()),
+  216 |             &quot;max_identity_residual&quot;: float(np.abs(identity).max()),
+  217 |             &quot;min_surplus_mean&quot;: float(min_surplus.mean()),
+  218 |             &quot;min_surplus_negative_prompts&quot;: int((min_surplus &lt; 0).sum()),
+  219 |             &quot;weight_l1_matched&quot;: weight_l1, &quot;beta&quot;: args.beta, &quot;eta&quot;: args.eta,
+  220 |             &quot;solver_source_sha256&quot;: base.file_hash(__file__), **shared_meta})
+  221 |         solver_hash = base.file_hash(solver_dir / &quot;solution.json&quot;)
+  222 |         provenance = {&quot;solver_artifact_sha256&quot;: solver_hash,
+  223 |                       &quot;solver_hash&quot;: solver_hash,
+  224 |                       &quot;target_artifact_hash&quot;: base.file_hash(per_prompt_path),
+  225 |                       &quot;representation&quot;: &quot;adaptive_game&quot;, &quot;aggregation&quot;: &quot;prompt_wise_nash&quot;,
+  226 |                       &quot;split&quot;: split, &quot;panel&quot;: &quot;UF-4&quot;, **shared_meta}
+  227 |         betas = np.full(len(OBJECTIVES), args.beta)
+  228 | 
+  229 |         def pair_rows():
+  230 |             for x, pid in enumerate(pids):
+  231 |                 learners = {str(i): {pid: {**pool[pid][&quot;learner&quot;][i],
+  232 |                                            &quot;generated_text&quot;: pool[pid][&quot;learner&quot;][i][&quot;response&quot;]}}
+  233 |                             for i in range(POOL)}
+  234 |                 rows = build_rows(
+  235 |                     [pid], list(OBJECTIVES), A[:, x:x + 1], nu[:, x:x + 1], weights[:, x],
+  236 |                     betas, learners, None, np.random.default_rng(42), &quot;canonical_logratio&quot;,
+  237 |                     meta, provenance,
+  238 |                     canonical_data={&quot;g&quot;: g[x:x + 1], &quot;p_star&quot;: pi[x:x + 1],
+  239 |                                     &quot;p_t&quot;: np.full((1, POOL), 1.0 / POOL)})
+  240 |                 for row in rows:
+  241 |                     # round masses to the loader&#x27;s ten decimals and rebuild the
+  242 |                     # target from the rounded values; a per-prompt Nash solve
+  243 |                     # concentrates mass and the identity otherwise fails after the parse
+  244 |                     row = base.quantize_canonical_row(row)
+  245 |                     a, b = row[&quot;chosen_candidate_index&quot;], row[&quot;rejected_candidate_index&quot;]
+  246 |                     row[&quot;chosen_response_id&quot;] = pool[pid][&quot;learner&quot;][a][&quot;candidate_id&quot;]
+  247 |                     row[&quot;rejected_response_id&quot;] = pool[pid][&quot;learner&quot;][b][&quot;candidate_id&quot;]
+  248 |                     row[&quot;prosper_prompt_weights&quot;] = [float(v) for v in weights[:, x]]
+  249 |                     yield row
+  250 | 
+  251 |         pair_path = out / &quot;pairs&quot; / f&quot;{split}.jsonl&quot;
+  252 |         base.write_jsonl(pair_path, pair_rows())
+  253 |         outputs[split] = {&quot;n_prompts&quot;: len(pids), &quot;n_pairs&quot;: len(pids) * 28,
+  254 |                           &quot;pairs_path&quot;: str(pair_path), &quot;pairs_sha256&quot;: base.file_hash(pair_path),
+  255 |                           &quot;per_prompt_weight_mean&quot;: [float(v) for v in weights.mean(axis=1)],
+  256 |                           &quot;per_prompt_weight_sd&quot;: [float(v) for v in weights.std(axis=1, ddof=1)],
+  257 |                           &quot;effective_objectives_mean&quot;: float(np.mean(
+  258 |                               (weights.sum(axis=0) ** 2) / (weights ** 2).sum(axis=0))),
+  259 |                           &quot;min_surplus_mean&quot;: float(min_surplus.mean()),
+  260 |                           &quot;min_surplus_negative_prompts&quot;: int((min_surplus &lt; 0).sum()),
+  261 |                           &quot;max_identity_residual&quot;: float(np.abs(identity).max()),
+  262 |                           &quot;all_certified&quot;: bool(certified.all()),
+  263 |                           &quot;solver_solution_sha256&quot;: solver_hash,
+  264 |                           &quot;seconds&quot;: time.monotonic() - split_start}
+  265 |         base.write_json(out / split / &quot;complete.json&quot;, outputs[split])
+  266 |         print(json.dumps({k: v for k, v in outputs[split].items()
+  267 |                           if k not in (&quot;pairs_path&quot;, &quot;pairs_sha256&quot;)}), flush=True)
+  268 | 
+  269 |     prov = {**shared_meta, &quot;objectives&quot;: list(OBJECTIVES), &quot;panel&quot;: &quot;UF-4&quot;,
+  270 |             &quot;aggregation&quot;: &quot;prompt_wise_nash&quot;, &quot;beta&quot;: args.beta, &quot;eta&quot;: args.eta,
+  271 |             &quot;weight_l1&quot;: weight_l1, &quot;splits&quot;: outputs,
+  272 |             &quot;train_pool_sha256&quot;: base.object_hash(sorted(outputs)),
+  273 |             &quot;dev_pool_sha256&quot;: base.object_hash(sorted(outputs)),
+  274 |             &quot;dev_note&quot;: (&quot;no shared dual: each prompt fits its own adversarial weights on &quot;
+  275 |                          &quot;whichever split it is in, so dev measures neural generalisation &quot;
+  276 |                          &quot;but not generalisation of a dual fitted on train&quot;)}
+  277 |     base.write_json(out / &quot;dataset_provenance.json&quot;, prov)
+  278 | 
+  279 |     manifest = None
+  280 |     if not args.skip_dataset:
+  281 |         import subprocess
+  282 |         dataset_out = ROOT / &quot;datasets&quot; / args.out_name
+  283 |         env = dict(os.environ, HF_DATASETS_CACHE=str(out / &quot;arrow_cache&quot;),
+  284 |                    PYTHONDONTWRITEBYTECODE=&quot;1&quot;)
+  285 |         done = subprocess.run(
+  286 |             [sys.executable, &quot;-m&quot;, &quot;mnpo_scripts.prepare_nbpo_dataset&quot;,
+  287 |              &quot;--train&quot;, str(out / &quot;pairs/train.jsonl&quot;), &quot;--dev&quot;, str(out / &quot;pairs/dev.jsonl&quot;),
+  288 |              &quot;--output&quot;, str(dataset_out), &quot;--provenance&quot;, str(out / &quot;dataset_provenance.json&quot;)],
+  289 |             env=env, capture_output=True, text=True)
+  290 |         if done.returncode:
+  291 |             base.write_json(out / &quot;dataset_materialization_failure.json&quot;,
+  292 |                             {&quot;returncode&quot;: done.returncode, &quot;stdout&quot;: done.stdout[-4000:],
+  293 |                              &quot;stderr&quot;: done.stderr[-4000:]})
+  294 |             raise RuntimeError(&quot;Dataset materialization failed; diagnostic preserved&quot;)
+  295 |         manifest = base.file_hash(dataset_out / &quot;precompute_manifest.json&quot;)</pre></section><section id="E13"><h2>E13 — New uw3 wrapper selects its own stale serializer module</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw3.py:39–55</code></p><p>SHA256: <code>5b23f08c0bc55d403880d9f4043ad7f2f0aafa9c1d250c6e36de633b8d0e4e33</code></p><pre>   39 | &quot;&quot;&quot;
+   40 | from __future__ import annotations
+   41 | 
+   42 | import argparse, json, os, sys, time
+   43 | from concurrent.futures import ProcessPoolExecutor
+   44 | from pathlib import Path
+   45 | 
+   46 | import numpy as np
+   47 | import torch
+   48 | 
+   49 | sys.path.insert(0, &quot;/work/uf4_20260910/code&quot;)
+   50 | import solve_pros4_targets_uw3 as base                      # loaders, hashing, writers
+   51 | from mnpo_scripts.nbpo_core import uniform_policy
+   52 | from mnpo_scripts.nbpo_generic import solve_finite_pool, validate_finite_pool_solution
+   53 | from mnpo_scripts.nbpo_representations import AdaptiveGameRepresentation
+   54 | from scripts.nbpo.build_nbpo_pairs import build_rows
+   55 | </pre></section><section id="E14"><h2>E14 — Training job directly launches run_mnpo</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/make_pros_train_jobs.py:136–175</code></p><p>SHA256: <code>bcabadf496632acbcefd6334b84aae5e95f5a85f129885cd4b526f0ee3feba62</code></p><pre>  136 |     config = base
+  137 |     applied = []
+  138 |     for old, new in replacements.items():
+  139 |         if old not in config:
+  140 |             raise ValueError(f&quot;Recipe anchor missing from the resolved base config: {old!r}&quot;)
+  141 |         config = config.replace(old, new)
+  142 |         applied.append({&quot;from&quot;: old, &quot;to&quot;: new})
+  143 |     config_path = ROOT / &quot;configs&quot; / f&quot;{args.arm}.yaml&quot;
+  144 |     config_path.parent.mkdir(parents=True, exist_ok=True)
+  145 |     if config_path.exists() and config_path.read_text() != config:
+  146 |         raise ValueError(f&quot;Refusing to overwrite {config_path} with different content&quot;)
+  147 |     config_path.write_text(config)
+  148 | 
+  149 |     spec = {
+  150 |         &quot;job_id&quot;: f&quot;{args.job_prefix}_train_{args.arm}&quot;,
+  151 |         &quot;priority&quot;: args.priority,
+  152 |         &quot;gpus&quot;: 4,
+  153 |         &quot;cwd&quot;: &quot;/work/nbpo_repair_20260909/code&quot;,
+  154 |         &quot;env&quot;: {&quot;PYTHONPATH&quot;: &quot;/work/nbpo_repair_20260909/deps_train:/work/nbpo_repair_20260909/code&quot;,
+  155 |                 &quot;OMP_NUM_THREADS&quot;: &quot;4&quot;, &quot;OPENBLAS_NUM_THREADS&quot;: &quot;1&quot;, &quot;MKL_NUM_THREADS&quot;: &quot;4&quot;,
+  156 |                 &quot;MNPO_DISABLE_APEX&quot;: &quot;1&quot;, &quot;HF_HUB_OFFLINE&quot;: &quot;1&quot;,
+  157 |                 &quot;TOKENIZERS_PARALLELISM&quot;: &quot;false&quot;, &quot;WANDB_MODE&quot;: &quot;disabled&quot;,
+  158 |                 &quot;VLLM_WORKER_MULTIPROC_METHOD&quot;: &quot;spawn&quot;},
+  159 |         &quot;command&quot;: [&quot;python3&quot;, &quot;-m&quot;, &quot;torch.distributed.run&quot;, &quot;--standalone&quot;, &quot;--nnodes=1&quot;,
+  160 |                     &quot;--nproc_per_node=4&quot;, &quot;-m&quot;, &quot;mnpo_scripts.run_mnpo&quot;, str(config_path)],
+  161 |         &quot;timeout_s&quot;: 86400,
+  162 |         &quot;artifacts&quot;: [f&quot;{ROOT}/arms/{args.arm}/config.json&quot;],
+  163 |         # The spec names the config by path, so without this a changed recipe
+  164 |         # leaves the spec byte-identical and a queue keyed on spec bytes would
+  165 |         # never notice that this is a different run.
+  166 |         &quot;config_sha256&quot;: file_hash(config_path),
+  167 |         &quot;dataset_manifest_sha256&quot;: manifest,
+  168 |         &quot;solver_artifact_sha256&quot;: solver,
+  169 |     }
+  170 |     queue_path = ROOT / &quot;jobs&quot; / &quot;queue&quot; / f&quot;{args.priority}_train_{args.arm}.json&quot;
+  171 |     queue_path.write_text(json.dumps(spec, indent=2) + &quot;\n&quot;)
+  172 | 
+  173 |     record = {&quot;arm&quot;: args.arm, &quot;targets&quot;: args.targets, &quot;dataset&quot;: dataset,
+  174 |               &quot;effective_batch_note&quot;: (&quot;per_device x grad_accum x 4 GPUs; PROSPER &quot;
+  175 |                                        &quot;Table 7 uses 128&quot;),</pre></section><section id="E15"><h2>E15 — Panel driver training command</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/panel_stage2.py:317–363</code></p><p>SHA256: <code>e0528503bf22fa970cc2d9a963b35a183bd3a970719240c2d3e6b87c6667734b</code></p><pre>  317 |             for key in (&quot;nbpo_target_mode&quot;, &quot;nbpo_target_column&quot;, &quot;nbpo_target_units&quot;,
+  318 |                         &quot;nbpo_eta_already_included&quot;):
+  319 |                 cfg.pop(key, None)
+  320 |         if loss == &quot;dpo_soft&quot;:
+  321 |             cfg.pop(&quot;eta&quot;, None)              # dpo_soft has no proximal step
+  322 |         if loss == &quot;nbpo&quot;:
+  323 |             # pin the dataset manifest and the solver solution this arm was built
+  324 |             # from, so a config cannot be pointed at a different solve later
+  325 |             done = json.loads(Path(UF, &quot;targets&quot;, &quot;%s_%s&quot; % (panel, arm),
+  326 |                                    &quot;complete.json&quot;).read_text())
+  327 |             man = done.get(&quot;dataset_manifest_sha256&quot;)
+  328 |             sol = (done[&quot;splits&quot;][&quot;train&quot;].get(&quot;solver_solution_sha256&quot;)
+  329 |                    if &quot;splits&quot; in done else None)
+  330 |             if not man or not sol:
+  331 |                 raise SystemExit(&quot;%s: solve record has no manifest/solution hash&quot; % arm)
+  332 |             cfg[&quot;nbpo_expected_dataset_manifest_sha256&quot;] = man
+  333 |             cfg[&quot;nbpo_expected_solver_artifact_sha256&quot;] = sol
+  334 |         config_dir.mkdir(parents=True, exist_ok=True)
+  335 |         path = config_dir / (&quot;%s_%s.yaml&quot; % (panel, arm))
+  336 |         path.write_text(yaml.safe_dump(cfg, sort_keys=True))
+  337 |         spec = {
+  338 |             &quot;job_id&quot;: &quot;%s_train_%s&quot; % (panel, arm), &quot;priority&quot;: 120, &quot;gpus&quot;: 4,
+  339 |             &quot;depends_on&quot;: [], &quot;cwd&quot;: &quot;%s/code&quot; % DEPS,
+  340 |             &quot;env&quot;: {&quot;PYTHONPATH&quot;: &quot;%s/deps_train:%s/code&quot; % (DEPS, DEPS),
+  341 |                     &quot;OMP_NUM_THREADS&quot;: &quot;4&quot;, &quot;OPENBLAS_NUM_THREADS&quot;: &quot;1&quot;,
+  342 |                     &quot;MKL_NUM_THREADS&quot;: &quot;4&quot;, &quot;MNPO_DISABLE_APEX&quot;: &quot;1&quot;,
+  343 |                     &quot;HF_HUB_OFFLINE&quot;: &quot;1&quot;, &quot;TOKENIZERS_PARALLELISM&quot;: &quot;false&quot;,
+  344 |                     &quot;WANDB_MODE&quot;: &quot;disabled&quot;,
+  345 |                     &quot;VLLM_WORKER_MULTIPROC_METHOD&quot;: &quot;spawn&quot;},
+  346 |             &quot;timeout_s&quot;: 86400,
+  347 |             &quot;command&quot;: [&quot;python3&quot;, &quot;-m&quot;, &quot;torch.distributed.run&quot;, &quot;--standalone&quot;,
+  348 |                         &quot;--nnodes=1&quot;, &quot;--nproc_per_node=4&quot;, &quot;-m&quot;,
+  349 |                         &quot;mnpo_scripts.run_mnpo&quot;, str(path)],
+  350 |             &quot;artifacts&quot;: [str(UF / &quot;arms&quot; / (&quot;%s_%s&quot; % (panel, arm)) / &quot;config.json&quot;)],
+  351 |             &quot;config_sha256&quot;: hashlib.sha256(path.read_bytes()).hexdigest(),
+  352 |             &quot;note&quot;: (&quot;%s panel, %s arm: %d train rows, %d steps for %d epochs at %d &quot;
+  353 |                      &quot;sequences per step&quot; % (panel.upper(), arm, rows, steps, epochs,
+  354 |                                              tokens_per_step)),
+  355 |         }
+  356 |         queue_dir.mkdir(parents=True, exist_ok=True)
+  357 |         (queue_dir / (&quot;120_%s_train_%s.json&quot; % (panel, arm))).write_text(
+  358 |             json.dumps(spec, indent=1) + &quot;\n&quot;)
+  359 |         queued[arm] = {&quot;rows&quot;: rows, &quot;max_steps&quot;: steps, &quot;config&quot;: str(path),
+  360 |                        &quot;loss_type&quot;: loss}
+  361 |         print(json.dumps({arm: queued[arm]}), flush=True)
+  362 |     return queued
+  363 | </pre></section><section id="E16"><h2>E16 — Trainer exports candidate; local acceptance not present in this entry</h2><p><code>mnpo_scripts/run_mnpo.py:346–405</code></p><p>SHA256: <code>def0546b64f7d2d5dd6360a7a3ff6995c126a06ff0e63326c965443cdd05d36a</code></p><pre>  346 | 
+  347 |     ###############
+  348 |     # Training loop
+  349 |     ###############
+  350 |     checkpoint = None
+  351 |     if training_args.resume_from_checkpoint is not None:
+  352 |         checkpoint = training_args.resume_from_checkpoint
+  353 |     elif last_checkpoint is not None:
+  354 |         checkpoint = last_checkpoint
+  355 |     train_result = trainer.train(resume_from_checkpoint=checkpoint)
+  356 |     metrics = train_result.metrics
+  357 |     metrics[&quot;train_samples&quot;] = len(train_dataset)
+  358 |     trainer.log_metrics(&quot;train&quot;, metrics)
+  359 |     trainer.save_metrics(&quot;train&quot;, metrics)
+  360 |     trainer.save_state()
+  361 | 
+  362 |     logger.info(&quot;*** Training complete ***&quot;)
+  363 |     if training_args.nbpo_profile_updates &gt; 0:
+  364 |         logger.info(&quot;Disposable runtime profile complete at %d updates; scheduler horizon was %d. No model export.&quot;,
+  365 |                     trainer.state.global_step, training_args.max_steps)
+  366 |         return
+  367 | 
+  368 |     skip_final_save = os.environ.get(&quot;MNPO_SKIP_FINAL_SAVE&quot;, &quot;&quot;).lower() in {&quot;1&quot;, &quot;true&quot;, &quot;yes&quot;}
+  369 |     if skip_final_save:
+  370 |         logger.info(&quot;*** Skip final model save because MNPO_SKIP_FINAL_SAVE is set ***&quot;)
+  371 |         if trainer.accelerator.is_main_process:
+  372 |             trainer.tokenizer.save_pretrained(training_args.output_dir)
+  373 |             trainer.model.config.use_cache = True
+  374 |             trainer.model.config.save_pretrained(training_args.output_dir)
+  375 |         logger.info(&quot;*** Training complete! ***&quot;)
+  376 |         return
+  377 | 
+  378 |     ##################################
+  379 |     # Save model and create model card
+  380 |     ##################################
+  381 |     logger.info(&quot;*** Save model ***&quot;)
+  382 |     trainer.save_model(training_args.output_dir)
+  383 |     logger.info(f&quot;Model saved to {training_args.output_dir}&quot;)
+  384 | 
+  385 |     # Add this step to explicitly save the tokenizer.
+  386 |     if trainer.accelerator.is_main_process:
+  387 |         trainer.tokenizer.save_pretrained(training_args.output_dir)
+  388 |         logger.info(f&quot;Tokenizer saved to {training_args.output_dir}&quot;)
+  389 | 
+  390 |     kwargs = {
+  391 |         &quot;finetuned_from&quot;: model_args.model_name_or_path,
+  392 |         &quot;dataset&quot;: list(data_args.dataset_mixer.keys()),
+  393 |         &quot;dataset_tags&quot;: list(data_args.dataset_mixer.keys()),
+  394 |         &quot;tags&quot;: [&quot;alignment-handbook&quot;, &quot;mnpo&quot;],  # MODIFIED
+  395 |     }
+  396 |     if trainer.accelerator.is_main_process:
+  397 |         trainer.create_model_card(**kwargs)
+  398 |         trainer.model.config.use_cache = True
+  399 |         trainer.model.config.save_pretrained(training_args.output_dir)
+  400 | 
+  401 |     ##########
+  402 |     # Evaluate
+  403 |     ##########
+  404 |     # if training_args.do_eval:
+  405 |     #     logger.info(&quot;*** Evaluate ***&quot;)</pre></section><section id="E17"><h2>E17 — Legacy gate tests global scalar and accepts NaN in isolated test</h2><p><code>scripts/nbpo/run_nbpo_stage.py:679–716</code></p><p>SHA256: <code>d1823f4f204edef279d79fa0b5ec80cf295efb99c4e6ccbdae1e310328c2f475</code></p><pre>  679 | def apply_gate(min_surplus: float, parent_dir: Path, candidate_dir: Path,
+  680 |                promote_to: Path, stage: int = 0, fingerprint: str = None) -&gt; dict:
+  681 |     &quot;&quot;&quot;Algorithm 1 lines 11-15: reject on any nonpositive held-out surplus, else promote.&quot;&quot;&quot;
+  682 |     if min_surplus &lt;= 0:
+  683 |         return {&quot;accepted&quot;: False, &quot;promoted_path&quot;: str(parent_dir),
+  684 |                 &quot;reason&quot;: f&quot;min held-out surplus {min_surplus:.6f} &lt;= 0; &quot;
+  685 |                           &quot;stage flagged empirically infeasible, pi_t retained&quot;}
+  686 |     fp = fingerprint or checkpoint_fingerprint(str(candidate_dir))
+  687 |     rec = promote_candidate(candidate_dir, promote_to, stage, fp)
+  688 |     return {&quot;accepted&quot;: True, &quot;promoted_path&quot;: rec[&quot;versioned_dir&quot;], &quot;symlink&quot;: str(promote_to),
+  689 |             &quot;reason&quot;: f&quot;min held-out surplus {min_surplus:.6f} &gt; 0&quot;, &quot;promotion&quot;: rec}
+  690 | 
+  691 | 
+  692 | # --------------------------------------------------------------------------- #
+  693 | # stage
+  694 | # --------------------------------------------------------------------------- #
+  695 | def _run(cmd: str, name: str) -&gt; None:
+  696 |     print(f&quot;[nbpo-stage] running commands.{name}: {cmd}&quot;, flush=True)
+  697 |     env = dict(os.environ)
+  698 |     env.setdefault(&quot;PYTHONPATH&quot;, str(Path(__file__).resolve().parents[2]))
+  699 |     env.setdefault(&quot;MKL_THREADING_LAYER&quot;, &quot;GNU&quot;)   # torch+numpy in a fresh interpreter
+  700 |     subprocess.run(cmd, shell=True, check=True, env=env)
+  701 | 
+  702 | 
+  703 | def run_stage(config_path: Path, workdir: Path, dry_run: bool) -&gt; dict:
+  704 |     base = config_path.parent
+  705 |     cfg = yaml.safe_load(config_path.read_text())
+  706 |     workdir.mkdir(parents=True, exist_ok=True)
+  707 |     stage = int(cfg.get(&quot;stage&quot;, 0))
+  708 |     objectives = list(cfg[&quot;objectives&quot;][&quot;names&quot;])
+  709 |     objectives_config = _resolve(base, cfg[&quot;objectives&quot;][&quot;config&quot;])
+  710 |     reproduction_mode = bool(cfg.get(&quot;reproduction_mode&quot;, True))
+  711 |     allow_flat_judge = bool(cfg.get(&quot;allow_legacy_flat_judge_config&quot;, False))
+  712 |     allow_partial = bool(cfg.get(&quot;allow_partial_prompt_intersection&quot;, False))
+  713 |     if reproduction_mode and allow_partial:
+  714 |         raise ValueError(&quot;allow_partial_prompt_intersection is diagnostic-only and cannot be &quot;
+  715 |                          &quot;combined with reproduction_mode&quot;)
+  716 |     # Every invariant the manuscript numbers depend on, asserted before any work.</pre></section><section id="E18"><h2>E18 — Legacy evaluator averages prompts before taking minimum</h2><p><code>scripts/nbpo/eval_game_value.py:33–90</code></p><p>SHA256: <code>0f4c17b91c3ab2ff6524ae1eefcf1847f75ce77acfcbf33aa51becbed6364f03</code></p><pre>   33 |     compute_regularized_opponent,
+   34 |     opponent_entropy,
+   35 |     opponent_ess,
+   36 |     uniform_policy,
+   37 | )
+   38 | from scripts.nbpo.nbpo_common import sha256_file, write_json
+   39 | 
+   40 | 
+   41 | def evaluate_game_value(A_policy: torch.Tensor, A_ref: torch.Tensor, beta: torch.Tensor,
+   42 |                         reference_construction: str = &quot;shared_pool&quot;) -&gt; dict:
+   43 |     &quot;&quot;&quot;Pure evaluation given the two centered tensors; policy uniform over its pool.&quot;&quot;&quot;
+   44 |     K, X, I, J = A_policy.shape
+   45 |     mu = uniform_policy(X, J)
+   46 |     pi = uniform_policy(X, I)
+   47 |     r = compute_margins(A_policy, pi)
+   48 |     V = compute_regularized_game_value(r, mu, beta, form=&quot;softmin&quot;)
+   49 |     d = compute_disagreement_point(A_ref, mu, beta, reference_construction)
+   50 |     s = V - d
+   51 |     nu = compute_regularized_opponent(r, mu, beta)
+   52 |     all_positive = bool((s &gt; 0).all())
+   53 |     return {
+   54 |         &quot;V&quot;: [float(v) for v in V],
+   55 |         &quot;d&quot;: [float(v) for v in d],
+   56 |         &quot;surplus&quot;: [float(v) for v in s],
+   57 |         &quot;min_surplus&quot;: float(s.min()),
+   58 |         &quot;avg_surplus&quot;: float(s.mean()),
+   59 |         &quot;nash_welfare_defined&quot;: all_positive,
+   60 |         # Nash welfare only exists on the individually-rational set (Eq. (11));
+   61 |         # a nonpositive surplus makes it undefined, not &quot;very negative&quot;.
+   62 |         &quot;nash_welfare&quot;: float(torch.log(s).sum()) if all_positive else None,
+   63 |         &quot;opponent_entropy&quot;: [float(v) for v in opponent_entropy(nu)],
+   64 |         &quot;opponent_ess&quot;: [float(v) for v in opponent_ess(nu)],
+   65 |     }
+   66 | 
+   67 | 
+   68 | def main() -&gt; None:
+   69 |     ap = argparse.ArgumentParser(description=__doc__,
+   70 |                                  formatter_class=argparse.RawDescriptionHelpFormatter)
+   71 |     ap.add_argument(&quot;--tensor-dir&quot;, type=Path, required=True,
+   72 |                     help=&quot;held-out preference-tensor artifact (policy = the evaluated model)&quot;)
+   73 |     ap.add_argument(&quot;--beta&quot;, required=True,
+   74 |                     help=&quot;opponent temperatures: one value or comma list per objective&quot;)
+   75 |     ap.add_argument(&quot;--label&quot;, default=&quot;policy&quot;)
+   76 |     ap.add_argument(&quot;--out&quot;, type=Path)
+   77 |     args = ap.parse_args()
+   78 | 
+   79 |     meta = json.loads((args.tensor_dir / &quot;meta.json&quot;).read_text())
+   80 |     A_policy = torch.from_numpy(np.load(args.tensor_dir / &quot;tensor_policy.npz&quot;)[&quot;A&quot;])
+   81 |     A_ref = torch.from_numpy(np.load(args.tensor_dir / &quot;tensor_ref.npz&quot;)[&quot;A&quot;])
+   82 |     K = A_policy.shape[0]
+   83 |     beta_vals = [float(b) for b in args.beta.split(&quot;,&quot;) if b.strip()]
+   84 |     beta = torch.tensor(beta_vals * K if len(beta_vals) == 1 else beta_vals, dtype=torch.float64)
+   85 |     if beta.shape != (K,):
+   86 |         raise ValueError(f&quot;--beta must give 1 or {K} values, got {len(beta_vals)}&quot;)
+   87 | 
+   88 |     construction = meta.get(&quot;reference_construction&quot;)
+   89 |     if construction is None:
+   90 |         raise ValueError(</pre></section><section id="E19"><h2>E19 — Root README still labels R=1 shared path as paper realization</h2><p><code>README.md:28–72</code></p><p>SHA256: <code>5e81387436777df46997add1c86de196c45f200d2835aacbe239c3e1de739965</code></p><pre>   28 | 
+   29 | ## Two NBPO pipelines: finite-pool NBPO realization vs legacy fixed-reference
+   30 | 
+   31 | The repository contains two distinct implementations. Do not conflate them.
+   32 | 
+   33 | **`scripts/nbpo/` — finite-pool NBPO realization of Algorithm 1.** The
+   34 | manuscript&#x27;s construction: adaptive KL-regularized opponents
+   35 | ν\*&lt;sub&gt;k,π&lt;/sub&gt; ∝ μ·exp(−r/β&lt;sub&gt;k&lt;/sub&gt;) (Eq. 7), soft-min game values
+   36 | V&lt;sub&gt;k,β&lt;/sub&gt; (Eq. 8), a measured disagreement point
+   37 | d&lt;sub&gt;k&lt;/sub&gt; = V&lt;sub&gt;k,β&lt;/sub&gt;(μ) (Eq. 10, never assumed zero; the
+   38 | reference-vs-reference tensor is exactly skew-symmetric with a zero diagonal by
+   39 | construction), projected dual descent on the **raw** multipliers
+   40 | λ ← Π&lt;sub&gt;Λ&lt;/sub&gt;[λ − γ(ŝ − 1/λ)] (Eq. 27), pairwise regression to
+   41 | (h&lt;sub&gt;t&lt;/sub&gt; − η Σ&lt;sub&gt;k&lt;/sub&gt; λ&lt;sub&gt;k&lt;/sub&gt;Z&lt;sub&gt;k&lt;/sub&gt;)² with sequence-sum
+   42 | log-probabilities (Eq. 26, `loss_type: nbpo`), and the held-out
+   43 | stage-acceptance gate of Algorithm 1. **The dual solver lives in
+   44 | `mnpo_scripts/nbpo_solver.py`** (CLI: `scripts/nbpo/solve_nbpo_dual.py`).
+   45 | 
+   46 | Two disclosed approximations, stated plainly:
+   47 | 
+   48 | - **R = 1.** The released configuration performs one opponent reweighting per
+   49 |   dual update instead of iterating the policy–opponent fixed point to
+   50 |   convergence. The solver exposes `R`, reports the fixed-point residual and a
+   51 |   one-extra-map residual, and writes the *update* opponent (`nu_update.npz`,
+   52 |   what Eq. 26 samples z&lt;sub&gt;k&lt;/sub&gt; from) separately from the opponent
+   53 |   recomputed at the final policy (`nu_final_policy.npz`, diagnostics).
+   54 | - **One-shot neural realization after the frozen-pool dual.** The M = 4e3–3e5
+   55 |   dual iterations run on the frozen finite response pool — cheap tensor updates
+   56 |   — and the neural policy is fit **once** afterwards from the resulting pair
+   57 |   targets. No 8B model is retrained per dual step.
+   58 | 
+   59 | λ is raw throughout: any normalized weights in logs are display diagnostics
+   60 | only. The solver reports both the inverse-surplus residual ‖ŝ − 1/λ‖&lt;sub&gt;∞&lt;/sub&gt;
+   61 | and the projected (box-aware) KKT residual with the active-bound coordinates;
+   62 | λ = 1/s is an empirical equality only where no box bound is active.
+   63 | 
+   64 | **Provenance binding in real mode.** `run_nbpo_stage.py` materializes the
+   65 | run_mnpo YAML and parses it with run_mnpo&#x27;s own argument dataclasses before any
+   66 | model loads; the precompute sidecar must bind history0 to the parent
+   67 | checkpoint&#x27;s *content* fingerprint (every weight shard hashed — tokenizer
+   68 | equality is not weight equality); the candidate is decoded synchronously by
+   69 | `scripts/nbpo/decode_candidate.py`, whose manifest binds the responses to the
+   70 | candidate fingerprint, the exact monitoring prompt set, every seed and every
+   71 | file hash; every candidate and reference seed file must carry exactly the
+   72 | monitoring prompt set; promotion is versioned and atomic</pre></section><section id="E20"><h2>E20 — New SC feature construction and solver exhaustion</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/ahv2_style_control.py:50–142</code></p><p>SHA256: <code>52ab5d10515a644081bbc561e6e22dc45b1121d724da48bf4a64396f2fa347ea</code></p><pre>   50 | def style(text: str, n_tokens: int | None = None) -&gt; np.ndarray:
+   51 |     &quot;&quot;&quot;The four official style features. Token length is the pipeline&#x27;s own count.&quot;&quot;&quot;
+   52 |     if n_tokens is None:
+   53 |         n_tokens = len(text.split())
+   54 |     return np.array([float(n_tokens),
+   55 |                      float(len(HEADER.findall(text))),
+   56 |                      float(len(BOLD.findall(text))),
+   57 |                      float(len(LIST.findall(text)))], dtype=np.float64)
+   58 | 
+   59 | 
+   60 | def normalized_difference(a: np.ndarray, b: np.ndarray) -&gt; np.ndarray:
+   61 |     total = a + b
+   62 |     out = np.zeros_like(a)
+   63 |     live = total &gt; 0
+   64 |     out[live] = (a[live] - b[live]) / total[live]
+   65 |     return out
+   66 | 
+   67 | 
+   68 | def fit(y: np.ndarray, X: np.ndarray, iters: int = 200, tol: float = 1e-10):
+   69 |     &quot;&quot;&quot;Newton-Raphson logistic fit on continuous y in [0, 1]; returns the coefficients.
+   70 | 
+   71 |     The judged outcome is 1, 0 or .5 for a tie, so this is the Bernoulli
+   72 |     log-likelihood evaluated at a fractional response -- the same objective the
+   73 |     official fit uses when it splits a tie across both sides.
+   74 |     &quot;&quot;&quot;
+   75 |     n, d = X.shape
+   76 |     beta = np.zeros(d)
+   77 |     for _ in range(iters):
+   78 |         eta = np.clip(X @ beta, -30.0, 30.0)
+   79 |         p = 1.0 / (1.0 + np.exp(-eta))
+   80 |         w = np.maximum(p * (1.0 - p), 1e-10)
+   81 |         grad = X.T @ (y - p)
+   82 |         hess = X.T @ (X * w[:, None])
+   83 |         hess.flat[:: d + 1] += 1e-8          # ridge, so a collinear replicate still solves
+   84 |         try:
+   85 |             step = np.linalg.solve(hess, grad)
+   86 |         except np.linalg.LinAlgError:
+   87 |             return None
+   88 |         beta = beta + step
+   89 |         if np.max(np.abs(step)) &lt; tol:
+   90 |             return beta
+   91 |     return beta
+   92 | 
+   93 | 
+   94 | def main() -&gt; int:
+   95 |     ap = argparse.ArgumentParser(description=__doc__)
+   96 |     ap.add_argument(&quot;--judged&quot;, required=True,
+   97 |                     help=&quot;eval_pairwise directory holding verdicts.jsonl and complete.json&quot;)
+   98 |     ap.add_argument(&quot;--baseline&quot;, required=True, help=&quot;the frozen baseline jsonl&quot;)
+   99 |     ap.add_argument(&quot;--panel&quot;, required=True,
+  100 |                     help=&quot;the frozen panel jsonl; it carries the prompt_id -&gt; uid join the &quot;
+  101 |                          &quot;judging run used, and the baseline is keyed by uid&quot;)
+  102 |     ap.add_argument(&quot;--replicates&quot;, type=int, default=2000)
+  103 |     ap.add_argument(&quot;--seed&quot;, type=int, default=20260918)
+  104 |     ap.add_argument(&quot;--out&quot;, required=True)
+  105 |     args = ap.parse_args()
+  106 | 
+  107 |     judged = Path(args.judged)
+  108 |     complete = json.loads((judged / &quot;complete.json&quot;).read_text())
+  109 |     arm_path = Path(complete[&quot;arm_responses&quot;])
+  110 | 
+  111 |     arm = {}
+  112 |     for line in arm_path.open():
+  113 |         r = json.loads(line)
+  114 |         arm[r[&quot;prompt_id&quot;]] = style(r[&quot;response&quot;], r.get(&quot;n_tokens&quot;))
+  115 | 
+  116 |     # the same join the judging run used: panel prompt_id -&gt; uid -&gt; baseline answer
+  117 |     uid_of = {}
+  118 |     for line in Path(args.panel).open():
+  119 |         r = json.loads(line)
+  120 |         uid_of[r[&quot;prompt_id&quot;]] = r[&quot;uid&quot;]
+  121 | 
+  122 |     by_uid = {}
+  123 |     for line in Path(args.baseline).open():
+  124 |         r = json.loads(line)
+  125 |         text = r[&quot;messages&quot;][-1][&quot;content&quot;] if &quot;messages&quot; in r else r.get(&quot;response&quot;, &quot;&quot;)
+  126 |         if isinstance(text, dict):
+  127 |             text = text.get(&quot;answer&quot;, &quot;&quot;)
+  128 |         by_uid[r[&quot;uid&quot;]] = style(text)
+  129 |     base = {pid: by_uid[uid] for pid, uid in uid_of.items() if uid in by_uid}
+  130 | 
+  131 |     rows, skipped = [], {&quot;no_style&quot;: 0, &quot;not_ok&quot;: 0}
+  132 |     for line in (judged / &quot;verdicts.jsonl&quot;).open():
+  133 |         v = json.loads(line)
+  134 |         if v.get(&quot;status&quot;) != &quot;ok&quot;:
+  135 |             skipped[&quot;not_ok&quot;] += 1
+  136 |             continue
+  137 |         pid = v[&quot;prompt_id&quot;]
+  138 |         if pid not in arm or pid not in base:
+  139 |             skipped[&quot;no_style&quot;] += 1
+  140 |             continue
+  141 |         rows.append((pid, float(v[&quot;value_for_arm&quot;]),
+  142 |                      normalized_difference(arm[pid], base[pid])))</pre></section><section id="E21"><h2>E21 — Same asymmetric feature construction in paired SC</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/ahv2_sc_paired.py:28–89</code></p><p>SHA256: <code>cc0e229136f1aee2508c31fb16d3a13b06129ba0d24e8301b1ea54bcbe5639c3</code></p><pre>   28 | 
+   29 | 
+   30 | def load(judged: Path, baseline: Path, panel: Path):
+   31 |     complete = json.loads((judged / &quot;complete.json&quot;).read_text())
+   32 |     arm = {}
+   33 |     for line in Path(complete[&quot;arm_responses&quot;]).open():
+   34 |         r = json.loads(line)
+   35 |         arm[r[&quot;prompt_id&quot;]] = style(r[&quot;response&quot;], r.get(&quot;n_tokens&quot;))
+   36 |     uid_of = {}
+   37 |     for line in panel.open():
+   38 |         r = json.loads(line)
+   39 |         uid_of[r[&quot;prompt_id&quot;]] = r[&quot;uid&quot;]
+   40 |     by_uid = {}
+   41 |     for line in baseline.open():
+   42 |         r = json.loads(line)
+   43 |         text = r[&quot;messages&quot;][-1][&quot;content&quot;] if &quot;messages&quot; in r else r.get(&quot;response&quot;, &quot;&quot;)
+   44 |         if isinstance(text, dict):
+   45 |             text = text.get(&quot;answer&quot;, &quot;&quot;)
+   46 |         by_uid[r[&quot;uid&quot;]] = style(text)
+   47 |     base = {pid: by_uid[uid] for pid, uid in uid_of.items() if uid in by_uid}
+   48 |     rows = []
+   49 |     for line in (judged / &quot;verdicts.jsonl&quot;).open():
+   50 |         v = json.loads(line)
+   51 |         if v.get(&quot;status&quot;) != &quot;ok&quot;:
+   52 |             continue
+   53 |         pid = v[&quot;prompt_id&quot;]
+   54 |         if pid in arm and pid in base:
+   55 |             rows.append((pid, float(v[&quot;value_for_arm&quot;]),
+   56 |                          normalized_difference(arm[pid], base[pid])))
+   57 |     return complete[&quot;arm&quot;], rows
+   58 | 
+   59 | 
+   60 | def assemble(rows, pids):
+   61 |     index = {p: i for i, p in enumerate(pids)}
+   62 |     buckets = [[] for _ in pids]
+   63 |     y = np.empty(len(rows))
+   64 |     D = np.empty((len(rows), 4))
+   65 |     for i, (pid, val, feat) in enumerate(rows):
+   66 |         y[i] = val
+   67 |         D[i] = feat
+   68 |         buckets[index[pid]].append(i)
+   69 |     X = np.column_stack([np.ones(len(rows)), D])
+   70 |     return y, X, buckets
+   71 | 
+   72 | 
+   73 | def sc(y, X, idx):
+   74 |     b = fit(y[idx], X[idx])
+   75 |     if b is None:
+   76 |         return None
+   77 |     return 1.0 / (1.0 + math.exp(-b[0]))
+   78 | 
+   79 | 
+   80 | def main() -&gt; int:
+   81 |     ap = argparse.ArgumentParser(description=__doc__)
+   82 |     ap.add_argument(&quot;--a&quot;, required=True, help=&quot;judged directory of the arm under test&quot;)
+   83 |     ap.add_argument(&quot;--b&quot;, required=True, help=&quot;judged directory of the comparator&quot;)
+   84 |     ap.add_argument(&quot;--baseline&quot;, required=True)
+   85 |     ap.add_argument(&quot;--panel&quot;, required=True)
+   86 |     ap.add_argument(&quot;--replicates&quot;, type=int, default=2000)
+   87 |     ap.add_argument(&quot;--seed&quot;, type=int, default=20260918)
+   88 |     ap.add_argument(&quot;--out&quot;, required=True)
+   89 |     args = ap.parse_args()</pre></section><section id="E22"><h2>E22 — Generation n_tokens field counts model tokens</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/gen_candidates.py:118–135</code></p><p>SHA256: <code>38d4ac85a746065987fae5620aef63ee8e6b375829795f67748b3f342af060ee</code></p><pre>  118 | 
+  119 |     started = time.monotonic()
+  120 |     generated = llm.generate(requests, params, use_tqdm=False)
+  121 |     elapsed = time.monotonic() - started
+  122 | 
+  123 |     events = []
+  124 |     for (row, index, seed), result in zip(mapping, generated):
+  125 |         o = result.outputs[0]
+  126 |         text = tok.decode(list(o.token_ids), skip_special_tokens=True,
+  127 |                           clean_up_tokenization_spaces=False)
+  128 |         events.append({&quot;prompt_id&quot;: row[&quot;prompt_id&quot;], &quot;source&quot;: row[&quot;source&quot;],
+  129 |                        &quot;instruction&quot;: row[&quot;instruction&quot;],
+  130 |                        &quot;response_id&quot;: &quot;%s:%d&quot; % (row[&quot;prompt_id&quot;], index),
+  131 |                        &quot;response_index&quot;: index, &quot;seed&quot;: seed, &quot;response&quot;: text,
+  132 |                        &quot;n_tokens&quot;: len(o.token_ids), &quot;finish_reason&quot;: o.finish_reason,
+  133 |                        &quot;capped&quot;: o.finish_reason == &quot;length&quot;,
+  134 |                        &quot;response_sha256&quot;: digest(text)})
+  135 |     with dest.open(&quot;x&quot;) as stream:</pre></section><section id="E23"><h2>E23 — Actual canonical validator used in the 28-pair regression</h2><p><code>mnpo_scripts/nbpo_neural.py:110–174</code></p><p>SHA256: <code>b6df54c0771bc5d9b55092a117655fd08da609a19a25cdbeebbb2605a8b67ddc</code></p><pre>  110 | def validate_canonical_pair_dataset(dataset, max_length=2048, max_prompt_length=1024,
+  111 |                                     expected_solver_hash=None):
+  112 |     &quot;&quot;&quot;Check pair completeness, candidate mass/context identity and eta units.
+  113 | 
+  114 |     Duplicate sampled strings remain separate occurrences. Each of the 28
+  115 |     unordered pairs must occur exactly once for every prompt, with fixed N=8.
+  116 |     &quot;&quot;&quot;
+  117 |     groups = {}
+  118 |     solvers = set()
+  119 |     for row in dataset:
+  120 |         if row.get(&quot;target_mode&quot;) != &quot;canonical_logratio&quot; or row.get(&quot;target_units&quot;) != &quot;final_logratio_change&quot; or row.get(&quot;eta_already_included&quot;) is not True:
+  121 |             raise ValueError(&quot;Canonical row must declare final logratio target units and eta included&quot;)
+  122 |         if not math.isfinite(float(row[&quot;nbpo_logratio_target&quot;])):
+  123 |             raise ValueError(&quot;Nonfinite canonical target&quot;)
+  124 |         if int(row[&quot;nbpo_num_candidates&quot;]) != 8:
+  125 |             raise ValueError(&quot;Primary all-pair dataset requires N=8&quot;)
+  126 |         wa, wb = float(row[&quot;nbpo_weight_a&quot;]), float(row[&quot;nbpo_weight_b&quot;])
+  127 |         if min(wa, wb) &lt;= 0 or not math.isfinite(wa + wb):
+  128 |             raise ValueError(&quot;Canonical targets require strictly positive solver masses&quot;)
+  129 |         center_a = float(row.get(&quot;nbpo_center_a&quot;, 1.0 / 8))
+  130 |         center_b = float(row.get(&quot;nbpo_center_b&quot;, 1.0 / 8))
+  131 |         if center_a != 1.0 / 8 or center_b != 1.0 / 8:
+  132 |             raise ValueError(&quot;Primary IID occurrence center must be exactly 1/8&quot;)
+  133 |         expected_target = math.log(wa / center_a) - math.log(wb / center_b)
+  134 |         if abs(float(row[&quot;nbpo_logratio_target&quot;]) - expected_target) &gt; 1e-9:
+  135 |             raise ValueError(&quot;Canonical target disagrees with log(p_star/p_t) candidate masses&quot;)
+  136 |         tokens = immutable_pair_tokens(row, max_length, max_prompt_length)
+  137 |         if tokens is None:
+  138 |             raise ValueError(&quot;Canonical dataset requires immutable sampled tokens&quot;)
+  139 |         key = str(row[&quot;prompt_id&quot;])
+  140 |         group = groups.setdefault(key, {&quot;pairs&quot;: set(), &quot;candidates&quot;: {}, &quot;prompt&quot;: tokens[&quot;prompt_input_ids&quot;]})
+  141 |         if group[&quot;prompt&quot;] != tokens[&quot;prompt_input_ids&quot;]:
+  142 |             raise ValueError(&quot;One prompt group has different conditioning token contexts&quot;)
+  143 |         ids = [row.get(f&quot;{side}_response_id&quot;, row.get(f&quot;{side}_candidate_id&quot;))
+  144 |                for side in (&quot;chosen&quot;, &quot;rejected&quot;)]
+  145 |         if None in ids or ids[0] == ids[1]:
+  146 |             raise ValueError(&quot;Pair must identify two distinct sampled candidate occurrences&quot;)
+  147 |         pair = tuple(sorted(map(str, ids)))
+  148 |         if pair in group[&quot;pairs&quot;]:
+  149 |             raise ValueError(&quot;Duplicate unordered candidate pair&quot;)
+  150 |         group[&quot;pairs&quot;].add(pair)
+  151 |         for side, candidate_id, weight_key in zip((&quot;chosen&quot;, &quot;rejected&quot;), ids, (&quot;nbpo_weight_a&quot;, &quot;nbpo_weight_b&quot;)):
+  152 |             mass = float(row[weight_key])
+  153 |             if not math.isfinite(mass) or not 0 &lt;= mass &lt;= 1:
+  154 |                 raise ValueError(&quot;Invalid solver probability mass&quot;)
+  155 |             value = (tokens[f&quot;{side}_token_sha256&quot;], mass)
+  156 |             old = group[&quot;candidates&quot;].setdefault(str(candidate_id), value)
+  157 |             if old != value:
+  158 |                 raise ValueError(&quot;Candidate tokens or solver mass depend on pair partner&quot;)
+  159 |         solver_hash = row.get(&quot;solver_artifact_sha256&quot;)
+  160 |         if not solver_hash:
+  161 |             raise ValueError(&quot;Canonical row lacks solver_artifact_sha256&quot;)
+  162 |         if expected_solver_hash and solver_hash != expected_solver_hash:
+  163 |             raise ValueError(&quot;Unexpected solver artifact hash&quot;)
+  164 |         solvers.add(solver_hash)
+  165 |     if not groups:
+  166 |         raise ValueError(&quot;Empty canonical dataset&quot;)
+  167 |     for group in groups.values():
+  168 |         candidates = group[&quot;candidates&quot;]
+  169 |         if len(candidates) != 8 or group[&quot;pairs&quot;] != set(itertools.combinations(sorted(candidates), 2)):
+  170 |             raise ValueError(&quot;Every prompt requires all 28 unordered pairs of 8 candidates&quot;)
+  171 |         if not math.isclose(sum(value[1] for value in candidates.values()), 1.0, abs_tol=1e-7):
+  172 |             raise ValueError(&quot;Prompt solver probability masses do not sum to one&quot;)
+  173 |     return {&quot;prompts&quot;: len(groups), &quot;rows&quot;: len(dataset), &quot;candidates_per_prompt&quot;: 8,
+  174 |             &quot;unordered_pairs_per_prompt&quot;: 28, &quot;solver_artifact_sha256&quot;: sorted(solvers)}</pre></section><section id="E24"><h2>E24 — Snapshot documentation declares corrected scope</h2><p><code>analysis/sub_20260914/code_snapshot_20260917_union/README.md:13–75</code></p><p>SHA256: <code>c78576e048ce28cf991e287da42ee752c8037ea1c564c426d34604ee3bcf0a63</code></p><pre>   13 | the published number and the hash here is the code as it now stands.
+   14 | 
+   15 | ## Corrected tensor roles (2026-09-18)
+   16 | 
+   17 | An external implementation audit found that this scorer wired the game tensors
+   18 | against the paper&#x27;s own definition, and the fix is the most consequential change
+   19 | in this directory:
+   20 | 
+   21 |     was:  A_policy &lt;- learner-learner      A_ref &lt;- learner-reference
+   22 |     now:  A_policy &lt;- learner-reference    A_ref &lt;- reference-reference
+   23 | 
+   24 | Section 5.2 defines the policy game on the learner bank against the comparator
+   25 | bank, and `compute_disagreement_point` documents its own argument as &quot;centered
+   26 | payoffs of reference responses (as learner) against reference comparators&quot;. The
+   27 | old wiring satisfied neither. It is not a naming slip: with every learner tied
+   28 | to every other learner, every reference tied to every other reference, and every
+   29 | learner beating every reference at .75, the paper&#x27;s wiring gives policy value
+   30 | +.25, disagreement 0 and surplus +.25, while the old wiring gives 0, +.25 and
+   31 | surplus **-.25**. The sign of the surplus flips, and the surplus is what
+   32 | finite-pool feasibility tests, so the solver was solving a different finite
+   33 | problem exactly rather than the declared one approximately.
+   34 | 
+   35 | `A_LL` also cannot carry the policy game: it is antisymmetric with a zero
+   36 | diagonal, so a symmetric strategy scores identically zero against itself and the
+   37 | surplus carries almost no signal about the learner bank — consistent with the
+   38 | near-zero target correlations the UW and US rounds measured.
+   39 | 
+   40 | `union_score_panel.py` now writes `A_LL`, `A_LR` and `A_RR` each under its own
+   41 | name and aliases `A_policy`/`A_ref` to `A_LR`/`A_RR`, so an existing reader gets
+   42 | the paper&#x27;s game unchanged while a pair-label consumer can ask for the learner
+   43 | block explicitly. `build_panel_softlabels.py` was reading `A_policy` and
+   44 | expecting the learner block, so it now reads `A_LL` and refuses a score
+   45 | directory written before this fix instead of silently taking the cross block.
+   46 | The reference triangle was previously kept only as a scalar diagnostic and is
+   47 | now required for a prompt to be retained, because `d` is not defined without it.
+   48 | 
+   49 | `prosper_targets_panel.py` separates the roles itself from the raw judgments and
+   50 | is unaffected. Re-scoring needs no new judging: all three role blocks were
+   51 | already fully judged on every panel.
+   52 | 
+   53 | Serialization changed with it. `quantize_canonical_row` used to round both solver
+   54 | masses to ten FIXED decimals and rebuild the target from the rounded values; a
+   55 | per-prompt Nash solve concentrates mass down to the 1e-12 probability floor, and
+   56 | 1e-12 at ten decimals is exactly 0, which the canonical validator rejects. Fixed
+   57 | decimals are the wrong instrument for a quantity spanning twelve orders of
+   58 | magnitude, so masses are now written at exact float64 round-trip precision and
+   59 | the target is rebuilt from those same doubles. The identity holds to ~1e-16,
+   60 | inside the 1e-9 gate, with the certified solution intact. Rows written before
+   61 | this carry `canonical_target_quantized_decimals = 10`; new rows carry
+   62 | `canonical_target_serialization = &quot;exact_float64_round_trip&quot;`.
+   63 | 
+   64 | ## The prompt-wise NBPO line
+   65 | 
+   66 | The prompt-wise change is in the solver, not the trainer: NBPO&#x27;s dual
+   67 | multipliers are fitted separately at each prompt instead of being shared across
+   68 | prompts. `solve_pros4_targets.py` is the shared-weight solver, and every
+   69 | per-prompt and per-panel variant is *generated* from it by a single generator,
+   70 | so the arms cannot drift apart in anything except the rule they implement.
+   71 | 
+   72 | | Arm | Representation | Aggregation | Weight scope |
+   73 | |---|---|---|---|
+   74 | | NBPO-PW | adaptive game | Nash | per prompt |
+   75 | | Fixed-reference Nash-PW | fixed reference | Nash | per prompt |</pre></section><section id="E25"><h2>E25 — Global-script writer export and imports</h2><p><code>scripts/nbpo/solve_nbpo_dual.py:1–115</code></p><p>SHA256: <code>b70ca16d26140fd244b01ad64e77e927d9fd97235c24ff74e2d61847bc3b850e</code></p><pre>    1 | #!/usr/bin/env python3
+    2 | &quot;&quot;&quot;Deterministic finite-pool NBPO dual solve (Algorithm 1&#x27;s inner machinery).
+    3 | 
+    4 | Reads a versioned preference-tensor artifact (``build_preference_tensor.py``)
+    5 | and runs projected dual gradient descent on the raw multipliers
+    6 | (Eq. (27) ``eq:dual-update``) with the fixed-point weighted-policy solve of
+    7 | Section 5.2 (Eq. (21), centered at the proximal center), or one of the matched
+    8 | finite-game controls (utilitarian / absolute max-min / surplus max-min) on the
+    9 | same tensors and budget.
+   10 | 
+   11 | Scope: every one of the ``M`` dual iterations (4e3--3e5 in the manuscript) is a
+   12 | cheap tensor computation on the FROZEN finite response pool. The neural policy
+   13 | is fit afterwards, once, from the targets built by ``build_nbpo_pairs.py`` --
+   14 | no 8B model is retrained inside this loop.
+   15 | 
+   16 | Outputs (all raw, none normalized or clamped):
+   17 | ``solution.json`` -- raw lambda, V, d, surplus, the inverse-surplus residual
+   18 | ``||s - 1/lambda||_inf`` AND the projected (box-aware) KKT residual with the
+   19 | active-bound coordinates, fixed-point and one-extra-map residuals, opponent
+   20 | entropy/ESS of the final policy, the full config (beta, eta, gamma schedule,
+   21 | M, R, lambda box), input artifact hashes, hashes of the opponent files, and the
+   22 | iteration history; ``nu_update.npz`` -- the opponent that generated the final
+   23 | policy (what Eq. (26) pair construction samples from); ``nu_final_policy.npz``
+   24 | -- ``nu*`` recomputed at the final policy (diagnostics); ``pi_star.npz`` -- the
+   25 | finite-pool policy.
+   26 | &quot;&quot;&quot;
+   27 | from __future__ import annotations
+   28 | 
+   29 | import argparse
+   30 | import json
+   31 | from pathlib import Path
+   32 | 
+   33 | import numpy as np
+   34 | import torch
+   35 | 
+   36 | from mnpo_scripts.nbpo_core import (
+   37 |     uniform_policy,
+   38 |     validate_centered_preference_tensor,
+   39 |     validate_reference_tensor,
+   40 | )
+   41 | from mnpo_scripts.nbpo_solver import AGGREGATIONS, solve_nbpo_dual
+   42 | from scripts.nbpo.nbpo_common import implementation_contract, sha256_file, write_json
+   43 | 
+   44 | 
+   45 | def load_tensor_artifact(tensor_dir: Path):
+   46 |     meta = json.loads((tensor_dir / &quot;meta.json&quot;).read_text())
+   47 |     A_policy = torch.from_numpy(np.load(tensor_dir / &quot;tensor_policy.npz&quot;)[&quot;A&quot;])
+   48 |     A_ref = torch.from_numpy(np.load(tensor_dir / &quot;tensor_ref.npz&quot;)[&quot;A&quot;])
+   49 |     hashes = {name: sha256_file(tensor_dir / name)
+   50 |               for name in (&quot;tensor_policy.npz&quot;, &quot;tensor_ref.npz&quot;, &quot;meta.json&quot;)}
+   51 |     return meta, A_policy, A_ref, hashes
+   52 | 
+   53 | 
+   54 | def parse_gamma(text: str, M: int):
+   55 |     parts = [float(p) for p in text.split(&quot;,&quot;) if p.strip()]
+   56 |     return parts[0] if len(parts) == 1 else parts
+   57 | 
+   58 | 
+   59 | def _array_hash(t) -&gt; str:
+   60 |     &quot;&quot;&quot;sha256 of an array&#x27;s exact bytes -- identifies which policy an opponent came from.&quot;&quot;&quot;
+   61 |     import hashlib
+   62 | 
+   63 |     arr = t.detach().cpu().numpy() if hasattr(t, &quot;detach&quot;) else np.asarray(t)
+   64 |     return hashlib.sha256(np.ascontiguousarray(arr, dtype=np.float64).tobytes()).hexdigest()
+   65 | 
+   66 | 
+   67 | def write_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashes: dict,
+   68 |                             tensor_dir: Path, stage: int, lambda_warm_started: bool) -&gt; dict:
+   69 |     &quot;&quot;&quot;Persist a DualSolveResult as the versioned solver artifact (shared with run_nbpo_stage).&quot;&quot;&quot;
+   70 |     out_dir.mkdir(parents=True, exist_ok=True)
+   71 |     # Two opponents, written separately and hashed separately (never confuse them):
+   72 |     #   nu_update.npz       -- generated the final policy; Eq. (26) targets sample z_k here
+   73 |     #   nu_final_policy.npz -- nu* recomputed AT the final policy; diagnostics only
+   74 |     np.savez_compressed(out_dir / &quot;nu_update.npz&quot;, nu=res.nu_update.numpy())
+   75 |     np.savez_compressed(out_dir / &quot;nu_final_policy.npz&quot;, nu=res.nu_final_policy.numpy())
+   76 |     np.savez_compressed(out_dir / &quot;pi_star.npz&quot;, pi=res.pi.numpy())
+   77 |     # The policy nu_update was actually built from, saved so the claim can be
+   78 |     # checked rather than trusted. solve_nbpo_dual warm-starts the policy iterate
+   79 |     # across dual iterations, so at R = 1 this is the warm-start iterate, not the
+   80 |     # proximal centre -- which is what the artifact used to assert.
+   81 |     if res.update_source_pi is None:
+   82 |         raise ValueError(&quot;solver result carries no update_source_pi; the policy that &quot;
+   83 |                          &quot;generated nu_update cannot be identified&quot;)
+   84 |     np.savez_compressed(out_dir / &quot;update_source_pi.npz&quot;, pi=res.update_source_pi.numpy())
+   85 |     solution = {
+   86 |         # What actually ran (audit section 0): the dual below is a frozen finite-pool
+   87 |         # optimization; the neural policy is realized once, afterwards.
+   88 |         **implementation_contract(dual_iterations=res.config.get(&quot;M&quot;),
+   89 |                                   fixed_point_steps=res.config.get(&quot;R&quot;)),
+   90 |         &quot;aggregation&quot;: res.aggregation,
+   91 |         &quot;stage&quot;: int(stage),
+   92 |         &quot;objectives&quot;: tensor_meta.get(&quot;objectives&quot;),
+   93 |         &quot;lambda_raw&quot;: [float(v) for v in res.lam],
+   94 |         &quot;V&quot;: [float(v) for v in res.V],
+   95 |         &quot;d&quot;: [float(v) for v in res.d],
+   96 |         &quot;surplus&quot;: [float(v) for v in res.surplus],
+   97 |         &quot;min_surplus&quot;: float(res.surplus.min()),
+   98 |         &quot;kkt_residual&quot;: res.kkt_residual,
+   99 |         &quot;inverse_surplus_residual&quot;: res.kkt_residual,
+  100 |         &quot;projected_kkt_residual&quot;: res.projected_kkt_residual,
+  101 |         &quot;gamma_ref&quot;: res.gamma_ref,
+  102 |         &quot;lambda_at_lower_bound&quot;: res.lambda_at_lower_bound,
+  103 |         &quot;lambda_at_upper_bound&quot;: res.lambda_at_upper_bound,
+  104 |         &quot;kkt_note&quot;: (&quot;lambda_k = 1/s_k is an empirical equality only for coordinates &quot;
+  105 |                      &quot;strictly inside the box; when a bound is active read &quot;
+  106 |                      &quot;projected_kkt_residual, not inverse_surplus_residual&quot;),
+  107 |         &quot;control_residual&quot;: res.control_residual,
+  108 |         &quot;fixed_point_residual&quot;: res.fixed_point_residual,
+  109 |         &quot;extra_map_residual&quot;: res.extra_map_residual,
+  110 |         &quot;opponent_entropy&quot;: [float(v) for v in res.opponent_entropy],
+  111 |         &quot;opponent_ess&quot;: [float(v) for v in res.opponent_ess],
+  112 |         &quot;opponent_diagnostics_from&quot;: &quot;nu_final_policy&quot;,
+  113 |         &quot;artifact_hashes&quot;: {
+  114 |             &quot;nu_update.npz&quot;: sha256_file(out_dir / &quot;nu_update.npz&quot;),
+  115 |             &quot;nu_final_policy.npz&quot;: sha256_file(out_dir / &quot;nu_final_policy.npz&quot;),</pre></section></html>

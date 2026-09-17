@@ -1,5 +1,5 @@
 # Generated from solve_pros4_pw_nbpo_uw1.py by build_panel_solvers.py -- do not edit by hand.
-# source sha256 ba54ce2bf405c8578a83b4f9820d8b515230c123debdbdef192bd34e058b5721
+# source sha256 b82911d4d3bdd2d2c17f76be40987e8a70e695c671fb5d4093c2b8c959bd93c6
 # change: score/pool roots -> ut1, restricted split -> ut_v1p, base module ->
 #         solve_pros4_targets_ut1. The rule this arm implements is
 #         untouched.
@@ -125,6 +125,9 @@ def main():
     torch.set_num_threads(1)
     started = time.monotonic()
     shared_meta, outputs = None, {}
+    split_digests = {}
+    # the base module owns the digest so every arm hashes identically
+    digest_of = getattr(base, "split_pool_digest", None) or split_pool_digest
 
     for split, (score_root, pool_root, split_file) in (
             ("train", (ROOT / "scores/ut1", ROOT / "pools/ut1", "policy_train")),
@@ -223,7 +226,7 @@ def main():
                       "solver_hash": solver_hash,
                       "target_artifact_hash": base.file_hash(per_prompt_path),
                       "representation": "adaptive_game", "aggregation": "prompt_wise_nash",
-                      "split": split, "panel": "UF-4", **shared_meta}
+                      "split": split, "panel": getattr(base, "PANEL_LABEL", "UF-4"), **shared_meta}
         betas = np.full(len(OBJECTIVES), args.beta)
 
         def pair_rows():
@@ -262,15 +265,21 @@ def main():
                           "all_certified": bool(certified.all()),
                           "solver_solution_sha256": solver_hash,
                           "seconds": time.monotonic() - split_start}
+        split_digests[split] = digest_of(pool, pids)
         base.write_json(out / split / "complete.json", outputs[split])
         print(json.dumps({k: v for k, v in outputs[split].items()
                           if k not in ("pairs_path", "pairs_sha256")}), flush=True)
 
-    prov = {**shared_meta, "objectives": list(OBJECTIVES), "panel": "UF-4",
+    prov = {**shared_meta, "objectives": list(OBJECTIVES), "panel": getattr(base, "PANEL_LABEL", "UF-4"),
             "aggregation": "prompt_wise_nash", "beta": args.beta, "eta": args.eta,
             "weight_l1": weight_l1, "splits": outputs,
-            "train_pool_sha256": base.object_hash(sorted(outputs)),
-            "dev_pool_sha256": base.object_hash(sorted(outputs)),
+            # content digests of the rows each split actually uses, not of the
+            # split NAMES: the previous value hashed sorted(outputs), so train and
+            # dev were equal to each other and unchanged by the pool's contents
+            "train_pool_sha256": split_digests.get("train"),
+            "dev_pool_sha256": split_digests.get("dev"),
+            "pool_digest_fields": ("prompt_id, role, occurrence index, candidate_id, "
+                                   "response_sha256"),
             "dev_note": ("no shared dual: each prompt fits its own adversarial weights on "
                          "whichever split it is in, so dev measures neural generalisation "
                          "but not generalisation of a dual fitted on train")}

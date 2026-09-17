@@ -12,7 +12,8 @@ panel base module, so a US run cannot silently read UW scores.
 """
 from __future__ import annotations
 
-import argparse, hashlib, py_compile, subprocess
+import argparse
+import re, hashlib, py_compile, subprocess
 from pathlib import Path
 
 CODE = Path("/work/sub_20260914/code")
@@ -47,7 +48,11 @@ def main():
     src = CODE / "solve_pros4_targets_uw1.py"
     t = src.read_text()
     t = sub(t, [('OBJECTIVES = ("item0", "item1", "item2", "item3")',
-                 "OBJECTIVES = (%s)" % objs)], src.name)
+                 "OBJECTIVES = (%s)" % objs),
+                # the panel label travels with the module, so a US/UT/UW run does
+                # not record the UF-4 label of the file it was generated from
+                ('PANEL_LABEL = "UF-4"', 'PANEL_LABEL = "%s"' % p.upper())],
+            src.name)
     header = ("# Generated from solve_pros4_targets_uw1.py by build_panel_solvers.py\n"
               "# -- do not edit by hand. source sha256 %s\n"
               "# change: OBJECTIVES -> item0..item%d, the %s panel's declared objective\n"
@@ -132,8 +137,16 @@ def main():
                              capture_output=True, text=True)
         if out.returncode != 0:
             raise SystemExit("%s --help failed: %s" % (name, out.stderr[-400:]))
-        if "uw1" in out.stdout:
-            raise SystemExit("%s still advertises a uw1 default: %s" % (name, out.stdout))
+        # The guard is that no generated module still points at the source panel.
+        # Matching the bare substring "uw1" was wrong: it fires on "uw1c", whose
+        # roots ARE correctly repointed, so a legitimate generation reported a
+        # failure after having already written its files. Compare whole tokens
+        # and exempt the panel being generated.
+        stale = {tok for tok in re.findall(r"uw[0-9a-z]*", out.stdout)
+                 if tok != p and not tok.startswith(p)}
+        if stale:
+            raise SystemExit("%s still advertises %s rather than %s: %s"
+                             % (name, sorted(stale), p, out.stdout[-600:]))
     import json
     print(json.dumps({"panel": p, "objectives": list(mod.OBJECTIVES),
                       "generated": written}, indent=1))

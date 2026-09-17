@@ -1,0 +1,21 @@
+{
+  "old_commit": "92f75310188d11be8141be4da7d207c33b356162",
+  "new_commit": "b9499195ebd88d9161eda487bb7fd6167e4b8f80",
+  "new_zip_sha256": "e7ceabe88667efa202260d069dd556d8d3adea498ea1ee7c423314a271c41537",
+  "old_zip_sha256": "acc2b49d140fccbe40e21bad0ffd84424e475d8015a97c76d2d1093bcc92df8e",
+  "paper_sha256": "c16f447ca05b757c7637fc9b1df8277c701870d4e1bf681f4eccfbc600cb0477",
+  "scope": "Uploaded archives, not independently fetched live main. CPU regression/static diff; no LLM training/generation.",
+  "environment": {
+    "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "torch": "2.10.0+cpu",
+    "pytest": "9.0.2",
+    "cuda_available": false,
+    "missing_optional_packages": [
+      "transformers",
+      "accelerate",
+      "datasets"
+    ]
+  }
+}

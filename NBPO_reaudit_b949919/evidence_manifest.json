@@ -1,0 +1,177 @@
+[
+  {
+    "id": "E01",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/union_score_panel.py",
+    "start": 119,
+    "end": 262,
+    "sha256": "c1e4c07bd5078678368037e566a3d11637b49b199660e53fd282ad1b04279710"
+  },
+  {
+    "id": "E02",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/build_panel_softlabels.py",
+    "start": 1,
+    "end": 58,
+    "sha256": "567ef4618851beb061bc7e5911a88a2f9dcd5a4d5eed9b58e5b519be1aff7d2b"
+  },
+  {
+    "id": "E03",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1c.py",
+    "start": 34,
+    "end": 59,
+    "sha256": "07d7c7567a56781fff5777b65b7375b9b2828feb633916637a926bf3c0b601b5"
+  },
+  {
+    "id": "E04",
+    "path": "scripts/nbpo/build_nbpo_pairs.py",
+    "start": 34,
+    "end": 125,
+    "sha256": "2609b091e2c7fd9c7911c9119a3fdf49d757779a7fd5d2017f8f10b1073134a4"
+  },
+  {
+    "id": "E05",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1c.py",
+    "start": 89,
+    "end": 135,
+    "sha256": "07d7c7567a56781fff5777b65b7375b9b2828feb633916637a926bf3c0b601b5"
+  },
+  {
+    "id": "E06",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw3.py",
+    "start": 79,
+    "end": 116,
+    "sha256": "c4f3b3100341275b708d9a6dc760f9c1f9f55eeab414e0f3e6a36cb2b5ed6fe1"
+  },
+  {
+    "id": "E07",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_us1.py",
+    "start": 79,
+    "end": 116,
+    "sha256": "841d8e1587384b7cadc8c6f191d73bfc6c11f757bcf850167e976e123f649068"
+  },
+  {
+    "id": "E08",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_ut1.py",
+    "start": 79,
+    "end": 116,
+    "sha256": "ea3fc9e20f1599a622ef30fc442e0f554364daa5e5c103a6713b8fc47f331872"
+  },
+  {
+    "id": "E09",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/union_score_uw.py",
+    "start": 114,
+    "end": 179,
+    "sha256": "aefb140d0af0c027bffe4cb4ce805b195af77cd72b90496a6b43453a1b8bac82"
+  },
+  {
+    "id": "E10",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1c.py",
+    "start": 138,
+    "end": 180,
+    "sha256": "07d7c7567a56781fff5777b65b7375b9b2828feb633916637a926bf3c0b601b5"
+  },
+  {
+    "id": "E11",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1c.py",
+    "start": 39,
+    "end": 121,
+    "sha256": "edfc8c47f092ab73509cdefa7896066fd95198238ba4bc718215ebf0688b0d72"
+  },
+  {
+    "id": "E12",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1c.py",
+    "start": 200,
+    "end": 295,
+    "sha256": "edfc8c47f092ab73509cdefa7896066fd95198238ba4bc718215ebf0688b0d72"
+  },
+  {
+    "id": "E13",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw3.py",
+    "start": 39,
+    "end": 55,
+    "sha256": "5b23f08c0bc55d403880d9f4043ad7f2f0aafa9c1d250c6e36de633b8d0e4e33"
+  },
+  {
+    "id": "E14",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/make_pros_train_jobs.py",
+    "start": 136,
+    "end": 175,
+    "sha256": "bcabadf496632acbcefd6334b84aae5e95f5a85f129885cd4b526f0ee3feba62"
+  },
+  {
+    "id": "E15",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/panel_stage2.py",
+    "start": 317,
+    "end": 363,
+    "sha256": "e0528503bf22fa970cc2d9a963b35a183bd3a970719240c2d3e6b87c6667734b"
+  },
+  {
+    "id": "E16",
+    "path": "mnpo_scripts/run_mnpo.py",
+    "start": 346,
+    "end": 405,
+    "sha256": "def0546b64f7d2d5dd6360a7a3ff6995c126a06ff0e63326c965443cdd05d36a"
+  },
+  {
+    "id": "E17",
+    "path": "scripts/nbpo/run_nbpo_stage.py",
+    "start": 679,
+    "end": 716,
+    "sha256": "d1823f4f204edef279d79fa0b5ec80cf295efb99c4e6ccbdae1e310328c2f475"
+  },
+  {
+    "id": "E18",
+    "path": "scripts/nbpo/eval_game_value.py",
+    "start": 33,
+    "end": 90,
+    "sha256": "0f4c17b91c3ab2ff6524ae1eefcf1847f75ce77acfcbf33aa51becbed6364f03"
+  },
+  {
+    "id": "E19",
+    "path": "README.md",
+    "start": 28,
+    "end": 72,
+    "sha256": "5e81387436777df46997add1c86de196c45f200d2835aacbe239c3e1de739965"
+  },
+  {
+    "id": "E20",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/ahv2_style_control.py",
+    "start": 50,
+    "end": 142,
+    "sha256": "52ab5d10515a644081bbc561e6e22dc45b1121d724da48bf4a64396f2fa347ea"
+  },
+  {
+    "id": "E21",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/ahv2_sc_paired.py",
+    "start": 28,
+    "end": 89,
+    "sha256": "cc0e229136f1aee2508c31fb16d3a13b06129ba0d24e8301b1ea54bcbe5639c3"
+  },
+  {
+    "id": "E22",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/gen_candidates.py",
+    "start": 118,
+    "end": 135,
+    "sha256": "38d4ac85a746065987fae5620aef63ee8e6b375829795f67748b3f342af060ee"
+  },
+  {
+    "id": "E23",
+    "path": "mnpo_scripts/nbpo_neural.py",
+    "start": 110,
+    "end": 174,
+    "sha256": "b6df54c0771bc5d9b55092a117655fd08da609a19a25cdbeebbb2605a8b67ddc"
+  },
+  {
+    "id": "E24",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/README.md",
+    "start": 13,
+    "end": 75,
+    "sha256": "c78576e048ce28cf991e287da42ee752c8037ea1c564c426d34604ee3bcf0a63"
+  },
+  {
+    "id": "E25",
+    "path": "scripts/nbpo/solve_nbpo_dual.py",
+    "start": 1,
+    "end": 115,
+    "sha256": "b70ca16d26140fd244b01ad64e77e927d9fd97235c24ff74e2d61847bc3b850e"
+  }
+]

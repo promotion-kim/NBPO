@@ -61,6 +61,51 @@ inside the 1e-9 gate, with the certified solution intact. Rows written before
 this carry `canonical_target_quantized_decimals = 10`; new rows carry
 `canonical_target_serialization = "exact_float64_round_trip"`.
 
+## Follow-up audit, 2026-09-18 (b949919)
+
+A second audit pass on the first round of fixes found three of them incomplete
+and three new defects in the style-control code added with them. All six are
+closed here.
+
+**The scorer fix reached only the generalized scorer.** `union_score_uw.py`,
+which wrote the published UW scores, still carried the old wiring, and the
+solver's loader accepted a score directory on hash and shape alone — a sha256
+certifies that the bytes are the ones that were written, not that they mean what
+the reader assumes. Score shards now carry `tensor_role_schema` and per-tensor
+`bank_ids`; the solver refuses a shard that does not declare the schema this
+game needs, and `union_score_uw.py` refuses to run at all unless explicitly
+acknowledged. A directory written before 2026-09-18 has no schema and is
+rejected rather than solved into a different finite game.
+
+**The serializer fix reached only uw1 and uw1c.** The us1, ut1 and uw3 modules
+had been generated from the pre-fix base, so they still rounded masses to ten
+fixed decimals: a 1e-12 mass went to 0 and the target drifted by .399. Every
+active solver, the two legacy shared-weight ones included, now serializes at
+exact float64 precision, and the acceptance fixture is parameterized across all
+seven.
+
+**The pool digest hashed names, not content.** `train_pool_sha256` and
+`dev_pool_sha256` were both `object_hash(sorted(outputs))` — the split NAMES —
+so they were equal to each other and unmoved by the pool. They are now a digest
+over each split's own rows (prompt id, role, occurrence index, candidate id,
+response sha256); mutating one byte of one response changes it, and a change
+outside the split does not. The hardcoded `panel: UF-4` is rewritten per panel
+by the generator.
+
+**The style-control length feature compared tokens with words.** The arm's
+length came from its stored token count and the baseline's from
+`len(text.split())`, so two identical answers differed by .44 on the feature the
+control exists to remove. One frozen tokenizer now measures both sides, an
+identical-text self-difference of zero is asserted before any data is read, and
+the corrected numbers replace the ones computed on 2026-09-17. The fit reports
+whether it converged and the bootstrap discards a replicate that did not; a
+prompt enters only when both presentation orders parsed.
+
+**The generator's own guard was a false positive.** It rejected any generated
+module whose `--help` contained the substring `uw1`, which fires on `uw1c` —
+correctly repointed — after the files had already been written. It now compares
+whole tokens and exempts the panel being generated.
+
 ## The prompt-wise NBPO line
 
 The prompt-wise change is in the solver, not the trainer: NBPO's dual
@@ -223,15 +268,15 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `abl_analysis.py` | `a1ae9271f1a860e1` |
 | `ahv2_breakdown.py` | `d4e97430d4f537bb` |
 | `ahv2_paired.py` | `85038b4b314c5943` |
-| `ahv2_sc_paired.py` | `cc0e229136f1aee2` |
-| `ahv2_style_control.py` | `52ab5d10515a6440` |
+| `ahv2_sc_paired.py` | `668adab4d7f31fb5` |
+| `ahv2_style_control.py` | `ee230bf19864ed5a` |
 | `analyze_screen.py` | `841409da20c363de` |
 | `analyze_wild.py` | `f1226378f4072081` |
 | `build_dpo_safe.py` | `f39441a6d0be257f` |
 | `build_eval_panel_ahv2.py` | `63bbabb8ba9a4c97` |
 | `build_eval_panels.py` | `8183ed5efbec9580` |
 | `build_panel_softlabels.py` | `567ef4618851beb0` |
-| `build_panel_solvers.py` | `d75eddc160e6bf86` |
+| `build_panel_solvers.py` | `e96df0927515180c` |
 | `build_prosper_dataset.py` | `7eb3d18acde431d0` |
 | `build_pw_solvers.py` | `1683a631a93918e0` |
 | `cc_split.py` | `c2ad798e746ee7ae` |
@@ -322,33 +367,33 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `solve_mopo_targets_ut1.py` | `d4d88c0f3240f98e` |
 | `solve_pros.py` | `6437b4763d8bae50` |
 | `solve_pros4_prosper.py` | `4acef1091e95e5d1` |
-| `solve_pros4_prosper_us1.py` | `6128dd04dfd9cb9f` |
-| `solve_pros4_prosper_ut1.py` | `64867293f51c2eb8` |
-| `solve_pros4_prosper_uw1.py` | `cb15a0ed8ac037ca` |
-| `solve_pros4_prosper_uw1c.py` | `7e1bd8089360a62a` |
-| `solve_pros4_prosper_uw3.py` | `e5aa5c54bfe3f786` |
+| `solve_pros4_prosper_us1.py` | `96bedd9cbdd9dec3` |
+| `solve_pros4_prosper_ut1.py` | `32c616a65db7a858` |
+| `solve_pros4_prosper_uw1.py` | `756e28a2cd7f1ef9` |
+| `solve_pros4_prosper_uw1c.py` | `a7cb42cd49df7d85` |
+| `solve_pros4_prosper_uw3.py` | `09ae3ce81b5b9e5a` |
 | `solve_pros4_prosper_v2.py` | `e5788f0897387777` |
 | `solve_pros4_pw_fixedref.py` | `7a9f2b4fc4820b7b` |
-| `solve_pros4_pw_fixedref_us1.py` | `3a5cf1d3b684f9c9` |
-| `solve_pros4_pw_fixedref_ut1.py` | `8d722281d8ce3920` |
-| `solve_pros4_pw_fixedref_uw1.py` | `3eb36af0a0f5880d` |
-| `solve_pros4_pw_fixedref_uw1c.py` | `d535ec36a2ffeedf` |
-| `solve_pros4_pw_fixedref_uw3.py` | `09d11773d40dedab` |
+| `solve_pros4_pw_fixedref_us1.py` | `4eda66cd663f503d` |
+| `solve_pros4_pw_fixedref_ut1.py` | `5b7a6690d4987370` |
+| `solve_pros4_pw_fixedref_uw1.py` | `7fa7013b8b907794` |
+| `solve_pros4_pw_fixedref_uw1c.py` | `b7463f59910f76db` |
+| `solve_pros4_pw_fixedref_uw3.py` | `3bac26988d121e3a` |
 | `solve_pros4_pw_fixedref_v2.py` | `e3fdc6beaa2a352c` |
 | `solve_pros4_pw_nbpo.py` | `1d9b0953162ca88f` |
-| `solve_pros4_pw_nbpo_us1.py` | `70d1d10e92e0ef68` |
-| `solve_pros4_pw_nbpo_ut1.py` | `84b7c4daa40387b3` |
-| `solve_pros4_pw_nbpo_uw1.py` | `ba54ce2bf405c857` |
-| `solve_pros4_pw_nbpo_uw1c.py` | `edfc8c47f092ab73` |
-| `solve_pros4_pw_nbpo_uw3.py` | `5b23f08c0bc55d40` |
+| `solve_pros4_pw_nbpo_us1.py` | `4dd83f7dbdf06baa` |
+| `solve_pros4_pw_nbpo_ut1.py` | `b28c565152a6fd72` |
+| `solve_pros4_pw_nbpo_uw1.py` | `b82911d4d3bdd2d2` |
+| `solve_pros4_pw_nbpo_uw1c.py` | `0aaefa776bfcc3a8` |
+| `solve_pros4_pw_nbpo_uw3.py` | `edbbb366099cb865` |
 | `solve_pros4_pw_nbpo_v2.py` | `575eeff8d0f9a9a3` |
-| `solve_pros4_targets.py` | `f77d773e36e004b6` |
-| `solve_pros4_targets_us1.py` | `841d8e1587384b7c` |
-| `solve_pros4_targets_ut1.py` | `ea3fc9e20f1599a6` |
-| `solve_pros4_targets_uw1.py` | `3d658469bdd2310e` |
-| `solve_pros4_targets_uw1c.py` | `07d7c7567a56781f` |
-| `solve_pros4_targets_uw3.py` | `c4f3b3100341275b` |
-| `solve_pros4_targets_v2.py` | `f77d773e36e004b6` |
+| `solve_pros4_targets.py` | `dc9a8ac57dbbece5` |
+| `solve_pros4_targets_us1.py` | `13a2b2cd86388f7c` |
+| `solve_pros4_targets_ut1.py` | `edc71ba98b127378` |
+| `solve_pros4_targets_uw1.py` | `32d8a051c2f36bb1` |
+| `solve_pros4_targets_uw1c.py` | `e3c6d8b8fdf1bc42` |
+| `solve_pros4_targets_uw3.py` | `ec8226dd9b8202d1` |
+| `solve_pros4_targets_v2.py` | `dc9a8ac57dbbece5` |
 | `solve_safe_prosper.py` | `b7f23de80f1d5a45` |
 | `solve_safe_targets.py` | `74e3181a39074b3c` |
 | `sweep_diag.py` | `f18de8a6a82291a3` |
@@ -359,8 +404,8 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `union_freeze_ut.py` | `6e13bb4739c29d76` |
 | `union_freeze_uw.py` | `9b615f97c2e76f65` |
 | `union_judge_uw.py` | `1e58249f87d6cc9d` |
-| `union_score_panel.py` | `c1e4c07bd5078678` |
-| `union_score_uw.py` | `aefb140d0af0c027` |
+| `union_score_panel.py` | `e3bd9c1c2486715f` |
+| `union_score_uw.py` | `3752827f4cd0fcda` |
 | `upload_e2_arms.py` | `83a23801b40a64d1` |
 | `upload_uw_arms.py` | `a470d2c7f816d28e` |
 | `uw_solver_diag.py` | `bc9079f9b717e9d2` |

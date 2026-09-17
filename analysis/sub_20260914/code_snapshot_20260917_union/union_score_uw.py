@@ -65,7 +65,41 @@ def load_pool(pool_name, shards):
     return out, settings
 
 
+SUPERSEDED = (
+    "union_score_uw.py is superseded by union_score_panel.py and refuses to run.\n"
+    "\n"
+    "It wires A_policy to the learner triangle and A_ref to the learner-by-reference\n"
+    "cross block, keeping the reference triangle only as a scalar diagnostic. That is\n"
+    "not the finite game Section 5.2 defines, and it is not what\n"
+    "compute_disagreement_point documents its argument to be: with every learner tied\n"
+    "to every other learner, every reference tied to every other reference, and every\n"
+    "learner beating every reference at .75, this wiring turns a surplus of +.25 into\n"
+    "-.25. The surplus is what finite-pool feasibility tests, so a score directory\n"
+    "written here cannot be solved into the declared problem.\n"
+    "\n"
+    "Use:\n"
+    "  python3 union_score_panel.py --objectives 4 --tag <tag> --pool <pool> --out <dir>\n"
+    "\n"
+    "It reproduces this file's own UW tensors exactly where they agree, writes A_LL,\n"
+    "A_LR and A_RR each under its own name, and stamps tensor_role_schema so the\n"
+    "solver can tell a corrected shard from a pre-fix one. This file is kept only as\n"
+    "the provenance of scores written before 2026-09-18; run it with\n"
+    "--i-know-this-is-the-superseded-scorer if you are deliberately reproducing those.\n"
+)
+
+
+def refuse_unless_acknowledged():
+    import sys
+    flag = "--i-know-this-is-the-superseded-scorer"
+    if flag in sys.argv:
+        sys.argv.remove(flag)
+        sys.stderr.write("WARNING: running the superseded UW scorer on purpose.\n")
+        return
+    raise SystemExit(SUPERSEDED)
+
+
 def main():
+    refuse_unless_acknowledged()
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--tag", default="uw1_psc")
     ap.add_argument("--judge-shards", type=int, default=4)

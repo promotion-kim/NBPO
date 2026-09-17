@@ -85,6 +85,41 @@ def write_jsonl(path, rows):
 # many fixed decimals. New rows are written at exact float64 precision and
 # record canonical_target_serialization instead.
 CANONICAL_DECIMALS_LEGACY = 10
+# The tensor-role schema this solver's game assumes: A_policy is the
+# learner-by-reference block and A_ref the reference triangle.
+REQUIRED_TENSOR_ROLE_SCHEMA = "lr_rr_v2"
+# The panel this module was generated for. build_panel_solvers.py rewrites it, so a
+# US/UT/UW run records its own panel instead of the UF-4 label of the source file.
+PANEL_LABEL = "UF-4"
+
+
+def split_pool_digest(pool, prompt_ids, roles=("learner", "comparator")):
+    """A content digest of the pool rows this split actually uses.
+
+    The fields it hashes are the immutable identity of each candidate: the
+    prompt, the role, the occurrence index, the candidate id and the sha256 of
+    the response text. Mutating one byte of one response changes its
+    response_sha256 and therefore this digest, which is the property the audit
+    asks for and the property the previous value did not have -- that one hashed
+    `sorted(outputs)`, i.e. the split NAMES, so train and dev came out equal to
+    each other and equal across panels no matter what the pool contained.
+    """
+    import hashlib
+    h = hashlib.sha256()
+    for pid in sorted(prompt_ids):
+        entry = pool.get(pid)
+        if entry is None:
+            raise ValueError("split prompt %s is absent from the pool" % pid)
+        for role in roles:
+            for index in sorted(entry.get(role, {})):
+                row = entry[role][index]
+                identity = (str(pid), role, str(index),
+                            str(row.get("candidate_id", "")),
+                            str(row.get("response_sha256")
+                                or hashlib.sha256(
+                                    str(row.get("response", "")).encode()).hexdigest()))
+                h.update(("\x1f".join(identity) + "\x1e").encode())
+    return h.hexdigest()
 
 
 def quantize_canonical_row(row):
@@ -140,8 +175,28 @@ def load_scores(score_root, shards):
     for shard in range(shards):
         directory = Path(score_root) / f"shard{shard}"
         complete = json.loads((directory / f"complete_shard{shard}.json").read_text())
+        # A shard written before the A01 tensor-role fix stores the learner
+        # triangle as A_policy and the cross block as A_ref. Those arrays have
+        # the right dtype, the right shape and a matching sha256, so nothing
+        # downstream can notice: the hash certifies that the bytes are the ones
+        # that were written, not that they mean what this solver assumes. The
+        # declared schema is the only discriminator, and a shard without it is
+        # refused rather than solved into a different finite game.
+        schema = complete.get("tensor_role_schema")
+        # read through globals() so the guard still holds when this function is
+        # lifted out of the module into a bare namespace, as audit harnesses do;
+        # a missing constant must not become a missing check
+        required = globals().get("REQUIRED_TENSOR_ROLE_SCHEMA", "lr_rr_v2")
+        if schema != required:
+            raise ValueError(
+                f"{directory} declares tensor_role_schema {schema!r}, and this solver "
+                f"requires {required!r}. A shard with no schema predates "
+                "the A01 fix: its A_policy is the learner triangle and its A_ref is the "
+                "learner-by-reference cross block, which is not the game Section 5.2 defines. "
+                "Re-score the panel with union_score_panel.py instead of reusing it.")
         manifests.append({"shard": shard, "gpm_teacher": complete["gpm_teacher"],
                           "bt_teacher": complete["bt_teacher"],
+                          "tensor_role_schema": schema,
                           "reference_construction": complete["reference_construction"]})
         for path in sorted(directory.glob("chunk*.npz")):
             meta = json.loads(path.with_suffix("").with_suffix(".manifest.json").read_text()) \
@@ -290,6 +345,7 @@ def main():
     sources = {"train": (args.train_scores, args.train_pool, "policy_train"),
                "dev": (args.dev_scores, args.dev_pool, "policy_dev")}
     shared_meta, training, outputs = None, None, {}
+    split_digests = {}
     # The BT reward scale is fit once, on the policy_train comparator pool, and
     # reused unchanged on dev -- the same discipline the dual weights follow, so
     # dev stays a held-out measurement rather than a second fit.
@@ -479,7 +535,7 @@ def main():
                     {"solver_artifact_sha256": solver_hash, "solver_hash": solver_hash,
                      "target_artifact_hash": solution["artifact_hashes"]["target_log_ratio.npz"],
                      "representation": args.representation, "aggregation": args.aggregation,
-                     "split": split, "panel": "UF-4", **shared_meta},
+                     "split": split, "panel": PANEL_LABEL, **shared_meta},
                     canonical_data={key: values[x:x + 1] for key, values in canonical.items()})
                 for row in rows:
                     a, b = row["chosen_candidate_index"], row["rejected_candidate_index"]
@@ -498,6 +554,7 @@ def main():
                           "learner_capped_fraction": capped / (len(pids) * POOL),
                           "reference_skew_residual": skew,
                           "seconds": time.monotonic() - split_start}
+        split_digests[split] = split_pool_digest(pool, pids)
         write_json(out / split / "complete.json", outputs[split])
         print(json.dumps({"split": split, "n_pairs": len(pids) * 28,
                           "seconds": round(outputs[split]["seconds"], 1),
@@ -507,10 +564,15 @@ def main():
                           "box_active": record["box_active"],
                           "unprojected_kkt": record["unprojected_kkt_residual"]}), flush=True)
 
-    provenance = {**shared_meta, "objectives": list(OBJECTIVES), "panel": "UF-4",
+    provenance = {**shared_meta, "objectives": list(OBJECTIVES), "panel": PANEL_LABEL,
                   "aggregation": args.aggregation, "beta": args.beta, "eta": args.eta,
                   "weight_l1": args.weight_l1, "splits": outputs,
-                  "train_pool_sha256": object_hash(sorted(outputs)),
+                  # a content digest of the split's own rows; the old value
+                  # hashed the split NAMES and so never moved with the pool
+                  "train_pool_sha256": split_digests.get("train"),
+                  "dev_pool_sha256": split_digests.get("dev"),
+                  "pool_digest_fields": ("prompt_id, role, occurrence index, "
+                                         "candidate_id, response_sha256"),
                   "dev_pool_sha256": object_hash(sorted(outputs))}
     write_json(out / "dataset_provenance.json", provenance)
 

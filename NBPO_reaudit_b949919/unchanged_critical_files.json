@@ -1,0 +1,72 @@
+[
+  {
+    "path": "README.md",
+    "unchanged": true,
+    "sha256": "5e81387436777df46997add1c86de196c45f200d2835aacbe239c3e1de739965"
+  },
+  {
+    "path": "scripts/nbpo/build_nbpo_pairs.py",
+    "unchanged": true,
+    "sha256": "2609b091e2c7fd9c7911c9119a3fdf49d757779a7fd5d2017f8f10b1073134a4"
+  },
+  {
+    "path": "scripts/nbpo/solve_nbpo_dual.py",
+    "unchanged": true,
+    "sha256": "b70ca16d26140fd244b01ad64e77e927d9fd97235c24ff74e2d61847bc3b850e"
+  },
+  {
+    "path": "scripts/nbpo/run_nbpo_stage.py",
+    "unchanged": true,
+    "sha256": "d1823f4f204edef279d79fa0b5ec80cf295efb99c4e6ccbdae1e310328c2f475"
+  },
+  {
+    "path": "scripts/nbpo/eval_game_value.py",
+    "unchanged": true,
+    "sha256": "0f4c17b91c3ab2ff6524ae1eefcf1847f75ce77acfcbf33aa51becbed6364f03"
+  },
+  {
+    "path": "mnpo_scripts/run_mnpo.py",
+    "unchanged": true,
+    "sha256": "def0546b64f7d2d5dd6360a7a3ff6995c126a06ff0e63326c965443cdd05d36a"
+  },
+  {
+    "path": "mnpo_scripts/nbpo_core.py",
+    "unchanged": true,
+    "sha256": "5d028303aa533f03805dbee2e895f8c9d1e459ed4f87c93ee4a4f9b850d2a944"
+  },
+  {
+    "path": "mnpo_scripts/nbpo_generic.py",
+    "unchanged": true,
+    "sha256": "2b3502dbd78e6d3228df32b0830182f28bfc3c997dcf2e751a21a086226c2af5"
+  },
+  {
+    "path": "mnpo_scripts/nbpo_representations.py",
+    "unchanged": true,
+    "sha256": "908ee6e9163f9e60a390c2971bc6c2f16ed42a12e2ab7513f87b02877b04c9f0"
+  },
+  {
+    "path": "mnpo_scripts/mnpo_trainer.py",
+    "unchanged": true,
+    "sha256": "7eeff9c591e530d7c9de2a27406bc8e6ff77469454c9b7e9ba2b366981670159"
+  },
+  {
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/panel_stage2.py",
+    "unchanged": true,
+    "sha256": "e0528503bf22fa970cc2d9a963b35a183bd3a970719240c2d3e6b87c6667734b"
+  },
+  {
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/make_pros_train_jobs.py",
+    "unchanged": true,
+    "sha256": "bcabadf496632acbcefd6334b84aae5e95f5a85f129885cd4b526f0ee3feba62"
+  },
+  {
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1.py",
+    "unchanged": true,
+    "sha256": "ba54ce2bf405c8578a83b4f9820d8b515230c123debdbdef192bd34e058b5721"
+  },
+  {
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/union_score_uw.py",
+    "unchanged": true,
+    "sha256": "aefb140d0af0c027bffe4cb4ce805b195af77cd72b90496a6b43453a1b8bac82"
+  }
+]

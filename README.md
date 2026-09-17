@@ -26,11 +26,35 @@ as per-pair targets, so the additions are a dual solver that produces those weig
 objective-wise game values and a pair builder that applies them. MNPO's own baselines remain
 runnable and are used as controls.
 
-## Two NBPO pipelines: finite-pool NBPO realization vs legacy fixed-reference
+## Which pipeline the paper's NBPO row comes from
+
+Start here, because the answer is not the pipeline this section used to lead
+with. The manuscript's `NBPO` is **prompt-wise**: the dual multipliers are fitted
+separately at every prompt. The campaign code that produces it lives in
+`analysis/sub_20260914/code_snapshot_20260917_union/`, whose
+`solve_pros4_pw_nbpo_*.py` are generated from the shared-weight
+`solve_pros4_targets_*.py` by `build_panel_solvers.py`, and whose scorer
+`union_score_panel.py` builds the game tensors. That snapshot is the
+authoritative current path, and its README documents the tensor roles and the
+serialization contract.
+
+`scripts/nbpo/` below is the **shared-weight (Global Nash) R=1 path**: one
+multiplier vector for all prompts. The manuscript labels that arm a control, not
+NBPO. It remains a faithful finite-pool realization of the population algorithm
+and it is the right entry point for reading the math, but a result produced by it
+is a Global Nash result and must be reported as one.
+
+A score directory written before 2026-09-18 carries no `tensor_role_schema` and
+its `A_policy` is the learner triangle rather than the learner-by-reference
+block; the current solvers refuse such a directory rather than solving it into a
+different finite game, and `union_score_uw.py`, which wrote them, refuses to run.
+
+## Two NBPO pipelines: finite-pool realization vs legacy fixed-reference
 
 The repository contains two distinct implementations. Do not conflate them.
 
-**`scripts/nbpo/` — finite-pool NBPO realization of Algorithm 1.** The
+**`scripts/nbpo/` — finite-pool realization of Algorithm 1 with SHARED weights
+(Global Nash).** The
 manuscript's construction: adaptive KL-regularized opponents
 ν\*<sub>k,π</sub> ∝ μ·exp(−r/β<sub>k</sub>) (Eq. 7), soft-min game values
 V<sub>k,β</sub> (Eq. 8), a measured disagreement point
@@ -41,7 +65,9 @@ construction), projected dual descent on the **raw** multipliers
 (h<sub>t</sub> − η Σ<sub>k</sub> λ<sub>k</sub>Z<sub>k</sub>)² with sequence-sum
 log-probabilities (Eq. 26, `loss_type: nbpo`), and the held-out
 stage-acceptance gate of Algorithm 1. **The dual solver lives in
-`mnpo_scripts/nbpo_solver.py`** (CLI: `scripts/nbpo/solve_nbpo_dual.py`).
+`mnpo_scripts/nbpo_solver.py`** (CLI: `scripts/nbpo/solve_nbpo_dual.py`). Its
+multipliers are shared across prompts, which is what makes it the Global Nash
+control rather than the manuscript's prompt-wise NBPO.
 
 Two disclosed approximations, stated plainly:
 

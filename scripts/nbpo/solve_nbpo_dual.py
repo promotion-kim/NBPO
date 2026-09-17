@@ -38,6 +38,14 @@ from mnpo_scripts.nbpo_core import (
     validate_centered_preference_tensor,
     validate_reference_tensor,
 )
+from mnpo_scripts.nbpo_generic import (
+    AGGREGATIONS as GENERIC_AGGREGATIONS,
+    KSUndefinedError,
+    ks_unregularized_diagnostics,
+    matched_weight_l1,
+    solve_finite_pool,
+)
+from mnpo_scripts.nbpo_representations import REPRESENTATIONS, build_representation
 from mnpo_scripts.nbpo_solver import AGGREGATIONS, solve_nbpo_dual
 from scripts.nbpo.nbpo_common import implementation_contract, sha256_file, write_json
 
@@ -86,7 +94,9 @@ def write_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashes: dict,
         # What actually ran (audit section 0): the dual below is a frozen finite-pool
         # optimization; the neural policy is realized once, afterwards.
         **implementation_contract(dual_iterations=res.config.get("M"),
-                                  fixed_point_steps=res.config.get("R")),
+                                  fixed_point_steps=res.config.get("R"),
+                                  inner_solver=res.config.get("inner_solver"),
+                                  dual_solver=res.config.get("dual_solver")),
         "aggregation": res.aggregation,
         "stage": int(stage),
         "objectives": tensor_meta.get("objectives"),
@@ -150,6 +160,165 @@ def write_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashes: dict,
     return solution
 
 
+def build_objective_representation(args, A_policy, A_ref, mu, beta, construction):
+    """Instantiate the representation the artifact will declare it used."""
+    if args.representation == "adaptive_game":
+        return build_representation("adaptive_game", A_policy=A_policy, A_ref=A_ref,
+                                    mu=mu, beta=beta,
+                                    reference_construction=construction)
+    if args.representation == "fixed_reference":
+        # beta is irrelevant here by construction (the comparator is mu, which is
+        # the beta -> infinity limit), so it is deliberately not passed: a
+        # fixed-reference artifact that recorded an opponent temperature would be
+        # claiming a knob it does not have.
+        return build_representation("fixed_reference", A_policy=A_policy, A_ref=A_ref,
+                                    mu=mu, reference_construction=construction)
+    if args.reward_table is None:
+        raise SystemExit("--representation bt_reward requires --reward-table")
+    tab = np.load(args.reward_table)
+    for key in ("r_learner", "r_reference"):
+        if key not in tab:
+            raise SystemExit(f"{args.reward_table} has no array {key!r}")
+    norm = {}
+    if "normalization" in tab:
+        try:
+            norm = json.loads(str(tab["normalization"]))
+        except Exception:
+            norm = {"raw": str(tab["normalization"])}
+    if not norm:
+        raise SystemExit(
+            f"{args.reward_table} carries no `normalization` record. The BT rows are only "
+            "comparable once every head is on the frozen reference scale, so a reward table "
+            "that cannot say which (mu_ref, sigma_ref) produced it is refused rather than "
+            "assumed to be normalized.")
+    return build_representation(
+        "bt_reward", r_learner=torch.from_numpy(np.asarray(tab["r_learner"])),
+        r_reference=torch.from_numpy(np.asarray(tab["r_reference"])), mu=mu,
+        normalization=norm)
+
+
+def write_generic_solution_artifact(out_dir: Path, res, tensor_meta: dict, hashes: dict,
+                                    tensor_dir: Path, stage: int,
+                                    lambda_warm_started: bool, extra: dict) -> dict:
+    """Persist a FinitePoolSolution as the generic finite-pool target artifact.
+
+    Carries everything a downstream consumer needs to rebuild the training target
+    without re-solving: the proximal centre, the solved policy, the raw weights,
+    the response-level objective scores, the target log-ratios, every residual,
+    and the identity check that ties them together.
+    """
+    from mnpo_scripts.nbpo_generic import validate_finite_pool_solution
+    certificate = validate_finite_pool_solution(res)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(out_dir / "nu_update.npz", nu=res.nu_update.numpy())
+    np.savez_compressed(out_dir / "nu_final_policy.npz", nu=res.nu_final_policy.numpy())
+    np.savez_compressed(out_dir / "pi_star.npz", pi=res.pi.numpy())
+    np.savez_compressed(out_dir / "pi_t.npz", pi=res.pi_t.numpy())
+    np.savez_compressed(out_dir / "q_update.npz", q=res.q_update.numpy())
+    np.savez_compressed(out_dir / "target_log_ratio.npz", h=res.target_log_ratio.numpy())
+    np.savez_compressed(out_dir / "update_source_pi.npz", pi=res.update_source_pi.numpy())
+    identity = res.target_log_ratio_check()
+    solution = {
+        **implementation_contract(dual_iterations=res.config.get("M"),
+                                  fixed_point_steps=res.config.get("R"),
+                                  inner_solver=res.config.get("inner_solver"),
+                                  dual_solver=res.config.get("dual_solver")),
+        "solver_path": "generic_solve_finite_pool",
+        "representation": res.representation,
+        "aggregation": res.aggregation,
+        "stage": int(stage),
+        "objectives": tensor_meta.get("objectives"),
+        "prompt_ids": tensor_meta.get("prompt_ids"),
+        # RAW weights. For nash these are lambda; for the controls they are the
+        # rule's weight vector at the matched L1 norm. Never normalized for training.
+        "lambda_raw": [float(v) for v in res.weights],
+        "aggregation_weights_raw": [float(v) for v in res.weights],
+        "V": [float(v) for v in res.V],
+        "d": [float(v) for v in res.d],
+        "surplus": [float(v) for v in res.surplus],
+        "min_surplus": float(res.surplus.min()),
+        "kkt_residual": res.kkt_residual,
+        "inverse_surplus_residual": res.kkt_residual,
+        "projected_kkt_residual": res.projected_kkt_residual,
+        "gamma_ref": res.gamma_ref,
+        "lambda_at_lower_bound": res.lambda_at_lower_bound,
+        "lambda_at_upper_bound": res.lambda_at_upper_bound,
+        "control_residual": res.control_residual,
+        "fixed_point_residual": res.fixed_point_residual,
+        "extra_map_residual": res.extra_map_residual,
+        "proximal_kl": res.proximal_kl,
+        "opponent_entropy": [float(v) for v in res.opponent_entropy],
+        "opponent_ess": [float(v) for v in res.opponent_ess],
+        "opponent_diagnostics_from": "nu_final_policy",
+        # The identity the pair builder relies on:
+        #   [log pi*(y) - log pi_t(y)] - [log pi*(y') - log pi_t(y')]
+        #     == eta * sum_k w_k (q_k(y) - q_k(y'))
+        # Verified numerically here rather than assumed downstream.
+        "target_log_ratio_identity_residual": identity,
+        "target_log_ratio_identity_holds": bool(identity < 1e-9),
+        "canonical_schema_version": 1,
+        "target_mode": "canonical_logratio",
+        "target_column": "nbpo_logratio_target",
+        "target_units": "final_logratio_change",
+        "eta_already_included": True,
+        "certificate": certificate,
+        "canonical_serialization_error": certificate["canonical_serialization_error"],
+        "independent_stationarity_inf": certificate["independent_stationarity_inf"],
+        "eta": res.eta,
+        "eta_applications_in_solver": 1,
+        "ks": res.ks,
+        "artifact_hashes": {n: sha256_file(out_dir / n) for n in
+                            ("nu_update.npz", "nu_final_policy.npz", "pi_star.npz",
+                             "pi_t.npz", "q_update.npz", "target_log_ratio.npz",
+                             "update_source_pi.npz")},
+        "opponent_artifacts": {
+            "nu_update.npz": {
+                "artifact_kind": "regularized_opponent",
+                "source_policy": res.update_source_kind,
+                "source_policy_hash": _array_hash(res.update_source_pi),
+                "source_policy_artifact": "update_source_pi.npz",
+                "source_fixed_point_iteration": int(res.update_source_iteration),
+                "used_for": "eq26_target",
+            },
+            "nu_final_policy.npz": {
+                "artifact_kind": "regularized_opponent",
+                "source_policy": "final_policy",
+                "source_policy_hash": _array_hash(res.pi),
+                "source_policy_artifact": "pi_star.npz",
+                "used_for": "diagnostics",
+            },
+        },
+        "config": res.config,
+        "lambda_warm_started": bool(lambda_warm_started),
+        "input_hashes": hashes,
+        "tensor_dir": str(tensor_dir),
+        "history": res.history,
+        **extra,
+    }
+    # The historical weighted-Q identity is a diagnostic. Independent
+    # final-policy stationarity and exact serialization have distinct units
+    # and tolerances, checked centrally before any artifact is written.
+    write_json(out_dir / "solution.json", solution)
+    return solution
+
+
+def _print_summary(solution: dict) -> None:
+    keys = ("solver_path", "representation", "aggregation", "lambda_raw", "surplus",
+            "min_surplus", "inverse_surplus_residual", "projected_kkt_residual",
+            "lambda_at_lower_bound", "lambda_at_upper_bound", "control_residual",
+            "fixed_point_residual", "extra_map_residual",
+            "target_log_ratio_identity_residual", "proximal_kl")
+    print(json.dumps({k: solution[k] for k in keys if k in solution}, indent=1))
+    if solution.get("ks"):
+        ks = solution["ks"]
+        print(json.dumps({k: ks[k] for k in
+                          ("u_ideal", "rho_star", "normalized_surplus",
+                           "individual_rationality_violation", "ideal_point_ir_feasible",
+                           "stage1_feasibility_residual", "stage2_pareto_gain",
+                           "stage3_kl", "ideal_point_definitions")
+                          if k in ks}, indent=1))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -170,7 +339,65 @@ def main() -> None:
     ap.add_argument("--warm-start-lambda", type=Path, default=None,
                     help="solution.json of the previous outer stage (lambda warm start); "
                          "omit at t=0 (lambda initialized to ones)")
-    ap.add_argument("--aggregation", choices=list(AGGREGATIONS), default="nash")
+    ap.add_argument("--aggregation", choices=list(GENERIC_AGGREGATIONS), default="nash")
+    ap.add_argument("--representation", choices=list(REPRESENTATIONS),
+                    default="adaptive_game",
+                    help="how each objective is valued. adaptive_game is the manuscript's "
+                         "finite-temperature game; fixed_reference freezes the comparator at "
+                         "mu (the beta -> infinity limit, the matched control that isolates "
+                         "the adaptive opponent); bt_reward reads a scalar reward table")
+    ap.add_argument("--reward-table", type=Path, default=None,
+                    help="npz with r_learner (K,X,I) and r_reference (K,X,J) ALREADY "
+                         "normalized on training reference responses; required for "
+                         "--representation bt_reward")
+    ap.add_argument("--weight-l1", type=float, default=None,
+                    help="common L1 weight norm for the matched controls. NBPO keeps its raw "
+                         "lambda; pass ||lambda||_1 from the NBPO solve here so every control "
+                         "takes the same effective proximal step and the rows differ only in "
+                         "the DIRECTION of the weight vector")
+    ap.add_argument("--weights", default=None, help="comma-separated raw utilitarian weights")
+    ap.add_argument("--fixed-training-solution", type=Path,
+                    help="held-out inner solve with this training solution's fixed raw weights")
+    ap.add_argument("--match-weight-l1-to-nash", action="store_true",
+                    help="solve the Nash dual first on these same tensors and use its raw "
+                         "||lambda||_1 as --weight-l1 (recorded in the artifact)")
+    ap.add_argument("--ks-stage1-iterations", type=int, default=2000)
+    ap.add_argument("--ks-ideal-iterations", type=int, default=200)
+    ap.add_argument("--ks-tau", type=float, default=1e-3)
+    ap.add_argument("--ks-tolerance", type=float, default=1e-4)
+    ap.add_argument("--ks-unregularized-diagnostics", action="store_true",
+                    help="additionally report the spec-literal KS quantities (ideal point, "
+                         "rho*, IR violation) at a nearly unregularized step")
+    ap.add_argument("--inner-workers", type=int, default=1,
+                    help="worker processes for the direct inner solve. The "
+                         "per-prompt programs are independent, so this is pure "
+                         "infrastructure: output is bit-identical and the measured "
+                         "speedup reaches 37x. Without it a 1000-prompt solve runs "
+                         "serially and takes tens of minutes.")
+    ap.add_argument("--inner-maxiter", type=int, default=400)
+    ap.add_argument("--inner-ftol", type=float, default=1e-14)
+    ap.add_argument("--probability-floor", type=float, default=1e-12)
+    ap.add_argument("--max-bound-expansions", type=int, default=3)
+    ap.add_argument("--dual-solver", choices=("subgradient", "root"),
+                    default="subgradient",
+                    help="how the Nash dual is solved. 'root' solves the "
+                         "stationarity condition s_k = 1/lambda_k directly; the "
+                         "subgradient it replaces stalls near 1e-2.")
+    ap.add_argument("--dual-tol", type=float, default=None,
+                    help="stop on the projected KKT residual instead of after "
+                         "--dual-iterations. Required by the final config.")
+    ap.add_argument("--inner-solver", choices=("fixed_point", "exact"),
+                    default="fixed_point",
+                    help="how the Eq. (18) subproblem is solved at fixed weights. "
+                         "'fixed_point' (default, and what every existing artifact "
+                         "used) applies the Eq. (21) map --R times; 'exact' maximizes "
+                         "the concave subproblem directly. Use 'exact' when raw Nash "
+                         "multipliers are large -- the R-step map stops contracting "
+                         "there and the audit measured a fixed-point residual of 1.000.")
+    ap.add_argument("--legacy-solver", action="store_true",
+                    help="route adaptive_game through the original solve_nbpo_dual code path "
+                         "(bitwise identical; kept so a published artifact can be regenerated "
+                         "by the exact code that produced it)")
     ap.add_argument("--damping", type=float, default=0.0)
     ap.add_argument("--adversary-step", type=float, default=1.0)
     ap.add_argument("--log-every", type=int, default=0)
@@ -206,26 +433,114 @@ def main() -> None:
         lambda_init = torch.tensor(prev["lambda_raw"], dtype=torch.float64)
 
     mu = uniform_policy(A_policy.shape[1], A_policy.shape[3])
-    res = solve_nbpo_dual(
-        A_policy, A_ref, mu, beta,
-        eta=args.eta, gamma=parse_gamma(args.gamma, args.M), M=args.M, R=args.R,
-        lambda_box=(args.lambda_min, args.lambda_max),
-        lambda_init=lambda_init, aggregation=args.aggregation,
-        reference_construction=construction,
-        damping=args.damping, adversary_step=args.adversary_step,
-        log_every=args.log_every,
-    )
+    gamma = parse_gamma(args.gamma, args.M)
 
-    solution = write_solution_artifact(
+    # The legacy path is kept verbatim so a published artifact can be regenerated
+    # by the exact code that produced it. It only covers adaptive_game, and the
+    # generic path is bitwise identical on that configuration (asserted in
+    # tests/test_nbpo_generic_solver.py).
+    legacy_ok = (args.representation == "adaptive_game"
+                 and args.aggregation in AGGREGATIONS)
+    if args.legacy_solver:
+        if not legacy_ok:
+            raise SystemExit(
+                f"--legacy-solver cannot run representation={args.representation!r} "
+                f"aggregation={args.aggregation!r}; that combination exists only in the "
+                "generic path")
+        res = solve_nbpo_dual(
+            A_policy, A_ref, mu, beta,
+            eta=args.eta, gamma=gamma, M=args.M, R=args.R,
+            lambda_box=(args.lambda_min, args.lambda_max),
+            lambda_init=lambda_init, aggregation=args.aggregation,
+            reference_construction=construction,
+            damping=args.damping, adversary_step=args.adversary_step,
+            log_every=args.log_every,
+        )
+        solution = write_solution_artifact(
+            args.out_dir, res, meta, hashes, args.tensor_dir, args.stage,
+            lambda_warm_started=lambda_init is not None,
+        )
+        solution["solver_path"] = "legacy_solve_nbpo_dual"
+        write_json(args.out_dir / "solution.json", solution)
+        _print_summary(solution)
+        return
+
+    rep = build_objective_representation(args, A_policy, A_ref, mu, beta, construction)
+    inner_options = dict(inner_workers=args.inner_workers, inner_maxiter=args.inner_maxiter,
+                         inner_ftol=args.inner_ftol, probability_floor=args.probability_floor,
+                         max_bound_expansions=args.max_bound_expansions)
+    fixed_weights = None
+    if args.fixed_training_solution is not None:
+        training = json.loads(args.fixed_training_solution.read_text())
+        if training.get("representation") != args.representation or training.get("aggregation") != args.aggregation:
+            raise ValueError("held-out representation/aggregation must match the training solution")
+        if not (training.get("certificate") or {}).get("certified"):
+            raise ValueError("held-out fixed weights require a certified training solution")
+        fixed_weights = torch.tensor(training["lambda_raw"], dtype=torch.float64)
+
+    weight_l1 = args.weight_l1
+    matched_note = None
+    if args.match_weight_l1_to_nash:
+        if fixed_weights is not None:
+            raise ValueError("cannot fit a new Nash scale on held-out fixed-weight data")
+        if weight_l1 is not None:
+            raise SystemExit("pass either --weight-l1 or --match-weight-l1-to-nash, not both")
+        nash = solve_finite_pool(rep, "nash", eta=args.eta, pi_t=None, R=args.R, M=args.M,
+                                 gamma=gamma, lambda_box=(args.lambda_min, args.lambda_max),
+                                 lambda_init=lambda_init, damping=args.damping,
+                                 inner_solver=args.inner_solver,
+                                 **inner_options,
+                                 dual_solver=args.dual_solver,
+                                 dual_tol=args.dual_tol)
+        weight_l1 = matched_weight_l1(nash)
+        matched_note = {"source": "nash solve on these same tensors",
+                        "lambda_raw": [float(v) for v in nash.weights],
+                        "weight_l1": weight_l1}
+        print(f"[matched step] NBPO ||lambda||_1 = {weight_l1:.6g}; controls solved there")
+
+    ks_kwargs = dict(stage1_iters=args.ks_stage1_iterations,
+                     ideal_iters=args.ks_ideal_iterations,
+                     tau=args.ks_tau, tolerance=args.ks_tolerance)
+    try:
+        res = solve_finite_pool(
+            rep, args.aggregation, eta=args.eta, pi_t=None, R=args.R, M=args.M,
+            gamma=gamma, lambda_box=(args.lambda_min, args.lambda_max),
+            lambda_init=lambda_init, damping=args.damping,
+            adversary_step=args.adversary_step, weight_l1=weight_l1,
+            log_every=args.log_every, ks_kwargs=ks_kwargs,
+            inner_solver=args.inner_solver, **inner_options,
+            dual_solver=args.dual_solver, dual_tol=args.dual_tol,
+            fixed_weights=fixed_weights,
+            weights=(None if args.weights is None else torch.tensor(
+                [float(v) for v in args.weights.split(",")], dtype=torch.float64)))
+    except KSUndefinedError as exc:
+        # A bargaining set that does not dominate the disagreement point is a
+        # property of the stage, not a solver failure: record it and stop, rather
+        # than clamping a nonpositive surplus into a solution that never existed.
+        args.out_dir.mkdir(parents=True, exist_ok=True)
+        write_json(args.out_dir / "solution_blocked.json", {
+            "status": "kalai_smorodinsky_undefined", "reason": str(exc),
+            "diagnostics": exc.diagnostics, "representation": args.representation,
+            "aggregation": args.aggregation, "tensor_dir": str(args.tensor_dir),
+            "input_hashes": hashes})
+        raise SystemExit(f"Game-KS is undefined on this pool; wrote "
+                         f"{args.out_dir / 'solution_blocked.json'}. {exc}")
+
+    extra = {}
+    if args.reward_table is not None:
+        extra["reward_table_sha256"] = sha256_file(args.reward_table)
+    if args.fixed_training_solution is not None:
+        extra.update({"lambda_source": "fixed training solution",
+                      "training_solution_sha256": sha256_file(args.fixed_training_solution)})
+    if matched_note:
+        extra["matched_weight_l1"] = matched_note
+    if args.ks_unregularized_diagnostics:
+        extra["ks_unregularized_diagnostics"] = ks_unregularized_diagnostics(
+            rep, res.pi_t, args.eta, args.R, **ks_kwargs)
+    solution = write_generic_solution_artifact(
         args.out_dir, res, meta, hashes, args.tensor_dir, args.stage,
-        lambda_warm_started=lambda_init is not None,
-    )
-    print(json.dumps({k: solution[k] for k in
-                      ("aggregation", "lambda_raw", "surplus", "min_surplus",
-                       "inverse_surplus_residual", "projected_kkt_residual",
-                       "lambda_at_lower_bound", "lambda_at_upper_bound",
-                       "control_residual", "fixed_point_residual", "extra_map_residual")},
-                     indent=1))
+        lambda_warm_started=lambda_init is not None, extra=extra)
+    _print_summary(solution)
 
 
 if __name__ == "__main__":

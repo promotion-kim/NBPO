@@ -24,12 +24,29 @@ bold spans, and list items. Each enters as the normalized difference
 only when both answers have none of that element -- that case is 0, meaning the
 two are matched on it.
 
-The fit is weighted by nothing and pools both presentation orders, because the
-raw figure averages the orders and the control has to be read on the same
-observations. Uncertainty is the campaign's whole-prompt paired bootstrap: 2,000
-replicates resampling PROMPTS, refitting the regression in each replicate, so
-the interval carries the regression's own instability and not just the win
-rate's. A replicate that fails to converge is recorded, never dropped silently.
+BOTH SIDES ARE COUNTED THE SAME WAY, and an earlier version of this file did
+not. It read the arm's token count from the generation record and fell back to
+whitespace words for the baseline, whose file stores no token count. Tokens run
+roughly a third above words on English prose, so two IDENTICAL answers scored a
+normalized length difference of .44 instead of 0, and every observation carried
+that offset. It biases the very coefficient the control exists to remove. The
+length feature is now produced by one frozen tokenizer applied to both answers,
+and the module refuses to run without it rather than silently falling back to a
+different unit. `--length-unit words` is available for a tokenizer-free run and
+then applies word counts to BOTH sides; whichever is used is recorded in the
+output.
+
+The fit is weighted by nothing. It pools both presentation orders because the
+raw figure averages the orders, and for the same reason a prompt is used only
+when BOTH of its orders parsed: a prompt contributing one order would enter the
+control with a first-position bias the raw figure does not have. Dropped prompts
+are counted.
+
+Uncertainty is the campaign's whole-prompt paired bootstrap: 2,000 replicates
+resampling PROMPTS, refitting the regression in each replicate, so the interval
+carries the regression's own instability and not just the win rate's. A
+replicate whose fit exhausts its iterations or returns a non-finite coefficient
+is counted as failed and excluded, never counted as a successful replicate.
 """
 from __future__ import annotations
 
@@ -45,13 +62,35 @@ SUB = Path("/work/sub_20260914")
 HEADER = re.compile(r"^\s{0,3}#{1,6}\s", re.M)
 BOLD = re.compile(r"\*\*[^*\n]+\*\*|__[^_\n]+__")
 LIST = re.compile(r"^\s*(?:[-*+]\s|\d+[.)]\s)", re.M)
+ORDERS = 2
 
 
-def style(text: str, n_tokens: int | None = None) -> np.ndarray:
-    """The four official style features. Token length is the pipeline's own count."""
-    if n_tokens is None:
-        n_tokens = len(text.split())
-    return np.array([float(n_tokens),
+def make_length(unit: str, tokenizer_path: str | None):
+    """One length counter, applied to both answers.
+
+    The unit has to be identical on the two sides or the difference is not a
+    style difference. Returning a single closure is how that is enforced: there
+    is no second code path for the side whose file happens to store a token
+    count.
+    """
+    if unit == "tokens":
+        if not tokenizer_path:
+            raise SystemExit("--length-unit tokens needs --tokenizer")
+        from transformers import AutoTokenizer
+        tok = AutoTokenizer.from_pretrained(tokenizer_path)
+
+        def count(text: str) -> int:
+            return len(tok(text, add_special_tokens=False)["input_ids"])
+        return count, {"unit": "tokenizer_tokens", "tokenizer": tokenizer_path,
+                       "add_special_tokens": False}
+    if unit == "words":
+        return (lambda text: len(text.split())), {"unit": "whitespace_words"}
+    raise SystemExit("unknown --length-unit %r" % unit)
+
+
+def style(text: str, length) -> np.ndarray:
+    """The four official style features, length measured by the shared counter."""
+    return np.array([float(length(text)),
                      float(len(HEADER.findall(text))),
                      float(len(BOLD.findall(text))),
                      float(len(LIST.findall(text)))], dtype=np.float64)
@@ -66,15 +105,22 @@ def normalized_difference(a: np.ndarray, b: np.ndarray) -> np.ndarray:
 
 
 def fit(y: np.ndarray, X: np.ndarray, iters: int = 200, tol: float = 1e-10):
-    """Newton-Raphson logistic fit on continuous y in [0, 1]; returns the coefficients.
+    """Newton-Raphson logistic fit on continuous y in [0, 1].
 
     The judged outcome is 1, 0 or .5 for a tie, so this is the Bernoulli
     log-likelihood evaluated at a fractional response -- the same objective the
     official fit uses when it splits a tie across both sides.
+
+    Returns (beta, info) and returns None only when the linear system itself
+    fails. An earlier version returned the coefficients after exhausting its
+    iterations with no way for the caller to tell, so a replicate that had not
+    converged was counted as a successful one and narrowed the interval. The
+    caller now reads `info["converged"]`, and the bootstrap discards a replicate
+    that did not converge or produced a non-finite coefficient.
     """
     n, d = X.shape
     beta = np.zeros(d)
-    for _ in range(iters):
+    for it in range(1, iters + 1):
         eta = np.clip(X @ beta, -30.0, 30.0)
         p = 1.0 / (1.0 + np.exp(-eta))
         w = np.maximum(p * (1.0 - p), 1e-10)
@@ -86,9 +132,17 @@ def fit(y: np.ndarray, X: np.ndarray, iters: int = 200, tol: float = 1e-10):
         except np.linalg.LinAlgError:
             return None
         beta = beta + step
+        if not np.all(np.isfinite(beta)):
+            return None
         if np.max(np.abs(step)) < tol:
-            return beta
-    return beta
+            return beta, {"converged": True, "iterations": it,
+                          "gradient_inf_norm": float(np.abs(grad).max()),
+                          "last_step_inf_norm": float(np.abs(step).max())}
+    eta = np.clip(X @ beta, -30.0, 30.0)
+    p = 1.0 / (1.0 + np.exp(-eta))
+    return beta, {"converged": False, "iterations": iters,
+                  "gradient_inf_norm": float(np.abs(X.T @ (y - p)).max()),
+                  "last_step_inf_norm": float(np.abs(step).max())}
 
 
 def main() -> int:
@@ -101,8 +155,17 @@ def main() -> int:
                          "judging run used, and the baseline is keyed by uid")
     ap.add_argument("--replicates", type=int, default=2000)
     ap.add_argument("--seed", type=int, default=20260918)
+    ap.add_argument("--length-unit", default="tokens", choices=("tokens", "words"),
+                    help="how BOTH answers' length is counted; never one each way")
+    ap.add_argument("--tokenizer", default="/work/models/bases/Qwen2.5-7B-Instruct")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
+
+    length, length_meta = make_length(args.length_unit, args.tokenizer)
+    # the defect this flag exists for: identical text must give a zero difference
+    probe = style("one two three four five six seven", length)
+    if float(normalized_difference(probe, probe)[0]) != 0.0:
+        raise SystemExit("length counter is not self-consistent")
 
     judged = Path(args.judged)
     complete = json.loads((judged / "complete.json").read_text())
@@ -111,7 +174,7 @@ def main() -> int:
     arm = {}
     for line in arm_path.open():
         r = json.loads(line)
-        arm[r["prompt_id"]] = style(r["response"], r.get("n_tokens"))
+        arm[r["prompt_id"]] = style(r["response"], length)
 
     # the same join the judging run used: panel prompt_id -> uid -> baseline answer
     uid_of = {}
@@ -125,10 +188,14 @@ def main() -> int:
         text = r["messages"][-1]["content"] if "messages" in r else r.get("response", "")
         if isinstance(text, dict):
             text = text.get("answer", "")
-        by_uid[r["uid"]] = style(text)
+        by_uid[r["uid"]] = style(text, length)
     base = {pid: by_uid[uid] for pid, uid in uid_of.items() if uid in by_uid}
 
-    rows, skipped = [], {"no_style": 0, "not_ok": 0}
+    # both orders or neither: the raw figure averages the two presentations, so a
+    # prompt that parsed in only one of them would enter the control carrying a
+    # first-position bias the raw figure does not have
+    seen = {}
+    skipped = {"no_style": 0, "not_ok": 0, "single_order_prompts": 0}
     for line in (judged / "verdicts.jsonl").open():
         v = json.loads(line)
         if v.get("status") != "ok":
@@ -138,8 +205,16 @@ def main() -> int:
         if pid not in arm or pid not in base:
             skipped["no_style"] += 1
             continue
-        rows.append((pid, float(v["value_for_arm"]),
-                     normalized_difference(arm[pid], base[pid])))
+        seen.setdefault(pid, {})[int(v["order"])] = float(v["value_for_arm"])
+
+    rows = []
+    for pid, byorder in seen.items():
+        if len(byorder) != ORDERS:
+            skipped["single_order_prompts"] += 1
+            continue
+        d = normalized_difference(arm[pid], base[pid])
+        for order in sorted(byorder):
+            rows.append((pid, byorder[order], d))
     if not rows:
         raise SystemExit("no usable observation: check the prompt-id join")
 
@@ -157,9 +232,12 @@ def main() -> int:
     # token counts are reported so the choice is auditable.
     X = np.column_stack([np.ones(len(rows)), D])
 
-    beta = fit(y, X)
-    if beta is None:
+    solved = fit(y, X)
+    if solved is None:
         raise SystemExit("the point fit did not solve")
+    beta, fit_info = solved
+    if not fit_info["converged"]:
+        raise SystemExit("the point fit exhausted its iterations: %s" % fit_info)
     point = 1.0 / (1.0 + math.exp(-beta[0]))
     raw = float(y.mean())
 
@@ -169,11 +247,11 @@ def main() -> int:
     for _ in range(args.replicates):
         pick = rng.integers(0, n, n)
         idx = np.concatenate([by_prompt[k] for k in pick])
-        b = fit(y[idx], X[idx])
-        if b is None:
+        got = fit(y[idx], X[idx])
+        if got is None or not got[1]["converged"]:
             failed += 1
             continue
-        draws.append(1.0 / (1.0 + math.exp(-b[0])))
+        draws.append(1.0 / (1.0 + math.exp(-got[0][0])))
     draws = np.sort(np.asarray(draws))
     lo, hi = (float(np.quantile(draws, 0.025)), float(np.quantile(draws, 0.975))) \
         if draws.size else (float("nan"), float("nan"))
@@ -190,18 +268,23 @@ def main() -> int:
             "logistic fit against the frozen baseline under the campaign's own judge "
             + str(complete["judge"]) + ". Same estimand, different estimator and different "
             "judge; do not report it as the official SC figure."),
-        "style_features": ["answer_tokens", "markdown_headers", "bold_spans", "list_items"],
+        "style_features": ["answer_length", "markdown_headers", "bold_spans", "list_items"],
         "feature_encoding": "(arm - baseline) / (arm + baseline), 0 when both are zero",
+        "length_counter": length_meta,
+        "length_counter_note": ("one counter for both answers; an identical-text "
+                                "self-difference of zero is asserted before any data is read"),
+        "point_fit": fit_info,
+        "order_rule": "a prompt enters only when both presentation orders parsed",
         "raw_win_rate": raw,
         "style_controlled_win_rate": point,
         "style_controlled_ci95": [lo, hi],
         "shift_from_raw": point - raw,
         "coefficients": {"intercept": float(beta[0]),
                          **{k: float(v) for k, v in zip(
-                             ["answer_tokens", "markdown_headers", "bold_spans", "list_items"],
+                             ["answer_length", "markdown_headers", "bold_spans", "list_items"],
                              beta[1:])}},
         "mean_feature_difference": {k: float(v) for k, v in zip(
-            ["answer_tokens", "markdown_headers", "bold_spans", "list_items"], D.mean(axis=0))},
+            ["answer_length", "markdown_headers", "bold_spans", "list_items"], D.mean(axis=0))},
         "observations": len(rows),
         "prompts": len(pids),
         "skipped": skipped,

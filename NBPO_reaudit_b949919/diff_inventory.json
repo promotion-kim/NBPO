@@ -1,0 +1,34 @@
+{
+  "added": [
+    "NBPO_audit/NBPO_IMPLEMENTATION_AUDIT.md",
+    "NBPO_audit/audit_checks.log",
+    "NBPO_audit/audit_checks.py",
+    "NBPO_audit/audit_results.json",
+    "NBPO_audit/code_evidence.html",
+    "NBPO_audit/code_evidence.md",
+    "NBPO_audit/issues.json",
+    "NBPO_audit/pytest_available.log",
+    "NBPO_audit/pytest_available_command.json",
+    "NBPO_audit/pytest_core.log",
+    "NBPO_audit/source_manifest.json",
+    "analysis/sub_20260914/code_snapshot_20260917_union/ahv2_sc_paired.py",
+    "analysis/sub_20260914/code_snapshot_20260917_union/ahv2_style_control.py",
+    "analysis/sub_20260914/code_snapshot_20260917_union/probe_feasible_uw1c.py",
+    "analysis/sub_20260914/code_snapshot_20260917_union/probe_feasible_uw3.py",
+    "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_prosper_uw1c.py",
+    "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_prosper_uw3.py",
+    "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_fixedref_uw1c.py",
+    "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_fixedref_uw3.py",
+    "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1c.py",
+    "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw3.py",
+    "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1c.py",
+    "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw3.py"
+  ],
+  "deleted": [],
+  "modified": [
+    "analysis/sub_20260914/code_snapshot_20260917_union/README.md",
+    "analysis/sub_20260914/code_snapshot_20260917_union/build_panel_softlabels.py",
+    "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1.py",
+    "analysis/sub_20260914/code_snapshot_20260917_union/union_score_panel.py"
+  ]
+}

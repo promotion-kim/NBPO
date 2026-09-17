@@ -71,6 +71,12 @@ SUB = Path("/work/sub_20260914")
 POOL = 8
 K = None                    # set from --objectives; no default objective count
 ITEMS = None
+# Bumped when the MEANING of a stored tensor changes. Shards without it were
+# written by the pre-A01 scorer, whose A_policy is the learner triangle and whose
+# A_ref is the cross block; those arrays hash and shape exactly like correct ones,
+# so the version is the only thing that can tell them apart and the solver loader
+# refuses a shard that does not carry it.
+TENSOR_ROLE_SCHEMA = "lr_rr_v2"
 
 
 def file_hash(p) -> str:
@@ -244,14 +250,19 @@ def main():
              "shapes": {"A_policy": list(A_LR.shape), "A_ref": list(A_RR.shape),
                         "A_LL": list(A_LL.shape), "A_LR": list(A_LR.shape),
                         "A_RR": list(A_RR.shape)},
+             "tensor_role_schema": TENSOR_ROLE_SCHEMA,
              "roles": {"A_policy": "A_LR (learner vs reference)",
-                       "A_ref": "A_RR (reference vs reference)"}},
+                       "A_ref": "A_RR (reference vs reference)"},
+             "bank_ids": {"A_policy": ["learner", "comparator"],
+                          "A_ref": ["comparator", "comparator"],
+                          "A_LL": ["learner", "learner"]}},
             indent=1) + "\n")
         (d / ("complete_shard%d.json" % s)).write_text(json.dumps(
             {"shard": s, "prompts": len(chunk), "gpm_teacher": teacher,
              "bt_teacher": ("absent: the union contract uses direct order-balanced PSC "
                             "probabilities for these rows and forbids a scalar BT "
                             "projection, so none was fitted and none is written"),
+             "tensor_role_schema": TENSOR_ROLE_SCHEMA,
              "reference_construction": ("independent reference bank: eight reference "
                                         "occurrences per prompt, so A_policy is the "
                                         "learner-by-reference cross block and A_ref is "

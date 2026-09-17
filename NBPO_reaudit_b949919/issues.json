@@ -1,0 +1,192 @@
+[
+  {
+    "id": "A01",
+    "priority": "P0-original / P1-remaining",
+    "status": "PARTIALLY_FIXED",
+    "title": "LR/RR wiring is fixed in generalized scorer only",
+    "fixed": [
+      "Explicit A_LL/A_LR/A_RR and alias values",
+      "Both orders of every RR edge required",
+      "Soft-label consumer uses A_LL, rejects prior schema"
+    ],
+    "remaining": [
+      "union_score_uw.py retains wrong LL/LR wiring",
+      "New load_scores accepts prior schema based on hash and shape alone"
+    ],
+    "acceptance": [
+      "Use a single authoritative scorer or make old script refuse current runs",
+      "Version tensor-role schema and bind bank IDs",
+      "New solver loader rejects old schemas even when arrays have valid hashes/shapes"
+    ],
+    "evidence": [
+      "E01",
+      "E02",
+      "E09",
+      "E10"
+    ]
+  },
+  {
+    "id": "A02",
+    "priority": "P0",
+    "status": "OPEN",
+    "title": "Six newly added current campaign modules cannot import from clean repository",
+    "missing": [
+      "load_canonical_artifact",
+      "write_generic_solution_artifact",
+      "build_rows canonical_data argument and canonical_logratio construction"
+    ],
+    "acceptance": [
+      "Publish compatible real canonical writer/loader/builder or separate shared helpers to remove irrelevant imports",
+      "Do not merely ignore canonical_data or substitute sampled targets",
+      "Clean checkout --help/import for nbpo/fixedref/prosper uw1c and uw3",
+      "Run genuine tensor→target→pair JSONL→dataset test, without AST extraction"
+    ],
+    "evidence": [
+      "E03",
+      "E04",
+      "E11",
+      "E13",
+      "E25"
+    ]
+  },
+  {
+    "id": "A03",
+    "priority": "P1",
+    "status": "OPEN",
+    "title": "Root README still presents shared R=1 path as Algorithm 1",
+    "acceptance": [
+      "Document local exact/root/canonical entry point",
+      "Label previous shared pipeline Global Nash or legacy",
+      "Do not relabel old checkpoints as current local NBPO"
+    ],
+    "evidence": [
+      "E19"
+    ]
+  },
+  {
+    "id": "A04",
+    "priority": "P1",
+    "status": "OPEN_IN_TRACED_PATH",
+    "title": "Current training jobs still lack local candidate acceptance orchestration",
+    "acceptance": [
+      "Run candidate evaluation and declared local development gate before accepted-policy promotion",
+      "Local-negative, nonfinite and missing-monitoring fixtures must retain parent",
+      "Preserve status distinction between numerical certification and neural acceptance"
+    ],
+    "evidence": [
+      "E14",
+      "E15",
+      "E16",
+      "E17",
+      "E18"
+    ]
+  },
+  {
+    "id": "A05",
+    "priority": "P1",
+    "status": "PARTIALLY_FIXED",
+    "title": "Serializer fixed for uw1/uw1c; newly added uw3 and current us1/ut1 still quantize",
+    "fixed": [
+      "uw1 and uw1c: example drift 0, 1e-12 mass survives, 28-pair actual validator passes"
+    ],
+    "remaining": [
+      "uw3/us1/ut1: drift 0.3987761199510089, 1e-12 → 0, validator rejects"
+    ],
+    "acceptance": [
+      "Centralize serializer and regenerate every active solver",
+      "Retain exact canonical g and mass precision",
+      "Same regression fixture parameterized across uw1c,uw3,us1,ut1,all arms",
+      "Validate emitted JSONL and Arrow against original g, not only rounded row internal identity"
+    ],
+    "evidence": [
+      "E05",
+      "E06",
+      "E07",
+      "E08",
+      "E23"
+    ]
+  },
+  {
+    "id": "A06",
+    "priority": "P2",
+    "status": "OPEN",
+    "title": "New local wrappers still hash split names as pool content and declare UF-4 panel",
+    "acceptance": [
+      "Hash actual per-split immutable prompt/candidate/token/data manifests",
+      "Correct panel field per run",
+      "Assert one-byte pool mutation changes its content digest"
+    ],
+    "evidence": [
+      "E12"
+    ]
+  },
+  {
+    "id": "A07",
+    "priority": "P2-legacy-only",
+    "status": "OPEN",
+    "title": "Legacy apply_gate still accepts NaN in isolated function",
+    "acceptance": [
+      "Explicit finite-value guard",
+      "No conclusion that any historical checkpoint was actually promoted with NaN"
+    ],
+    "evidence": [
+      "E17"
+    ]
+  },
+  {
+    "id": "A08",
+    "priority": "P2-provenance",
+    "status": "UNRESOLVED_NOT_RETESTED_AS_BENCHMARK",
+    "title": "Old local OLS LC and current table-to-evaluator mapping remain unverified",
+    "acceptance": [
+      "Keep original metric name/implementation and result provenance",
+      "Never relabel local OLS as official length-controlled metric without actual intended estimator"
+    ]
+  },
+  {
+    "id": "B01",
+    "priority": "P1-for-new-SC-scores",
+    "status": "NEW_REPRODUCED",
+    "title": "New style-control feature compares model tokens with whitespace words",
+    "test": "Identical text with stored arm token count18 and baseline word count7 gives normalized length difference0.44",
+    "acceptance": [
+      "Count both answers with identical frozen tokenizer and EOS convention, or use consistent explicitly named word counts",
+      "Identical-string feature differences equal zero",
+      "Recompute local SC scores from cached answers and verdicts after correction"
+    ],
+    "evidence": [
+      "E20",
+      "E21",
+      "E22"
+    ]
+  },
+  {
+    "id": "B02",
+    "priority": "P2-for-new-SC-scores",
+    "status": "NEW_REPRODUCED",
+    "title": "SC fit returns coefficients without flagging iteration exhaustion",
+    "test": "iters=1 returns beta≈2 with gradient infinity norm≈0.4768117",
+    "acceptance": [
+      "Return explicit converged flag, residual and iterations",
+      "Do not count max-iteration/NaN/Inf fits as successful bootstrap replicates",
+      "Keep statistical procedure labeled local custom"
+    ],
+    "evidence": [
+      "E20"
+    ]
+  },
+  {
+    "id": "B03",
+    "priority": "P2-if-both-orders-required",
+    "status": "CONTRACT_OBSERVATION",
+    "title": "SC loaders retain single-order prompts",
+    "acceptance": [
+      "Either enforce both-order completeness or declare available-order estimator and corresponding raw baseline",
+      "Keep common method/prompt/order denominators in paired comparisons"
+    ],
+    "evidence": [
+      "E20",
+      "E21"
+    ]
+  }
+]
