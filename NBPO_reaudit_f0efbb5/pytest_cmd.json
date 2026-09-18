@@ -1,0 +1,18 @@
+{
+  "pid": 773,
+  "cwd": "/mnt/data/_reaudit_work/current/NBPO-main",
+  "cmd": [
+    "/opt/pyvenv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_nbpo_core.py",
+    "tests/test_nbpo_dual.py",
+    "tests/test_nbpo_targets.py",
+    "tests/test_nbpo_provenance.py",
+    "tests/test_nbpo_pipeline.py",
+    "-p",
+    "no:cacheprovider",
+    "--junitxml=/mnt/data/nbpo_reaudit_f0efbb5/pytest_all.xml"
+  ]
+}

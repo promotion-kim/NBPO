@@ -1,0 +1,69 @@
+{
+  "commit": "f0efbb5935a4f522b8335292d6927161b274b796",
+  "basis": "Uploaded ZIP; no claim that live main or all historical runs were verified.",
+  "closed_previous_items": [
+    {"id":"A02","status":"resolved_maintained","item":"Canonical API import and value-carrying writer/loader/builder chain"},
+    {"id":"A01","status":"resolved_maintained","item":"Generalized scorer uses A_policy=A_LR and A_ref=A_RR; incomplete RR rejected"},
+    {"id":"A05","status":"resolved_maintained","item":"All seven tested serializers retain 1e-12 masses and canonical targets"},
+    {"id":"C02","status":"resolved","item":"Pool digests recompute text hashes; explicit row verifier rejects stale cached SHA in all five current panel helpers"},
+    {"id":"C03","status":"resolved","item":"UW1 label and generator anchor corrected"},
+    {"id":"STYLE","status":"resolved_maintained","item":"Word/token asymmetry, fit convergence status and two-order inclusion tests continue to pass"}
+  ],
+  "issues": [
+    {
+      "id":"A04","severity":"P1","status":"partially_resolved",
+      "title":"Standalone local gate exists, but authoritative campaign orchestration still does not invoke it",
+      "paths":["analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate.py","analysis/sub_20260914/code_snapshot_20260917_union/make_pros_train_jobs.py","analysis/sub_20260914/code_snapshot_20260917_union/panel_stage2.py","mnpo_scripts/run_mnpo.py"],
+      "evidence":["E01","E02","E03","E08","E09","E10"],
+      "observed":"Actual cached-logprob gate CLI computes per-prompt values, accepts positive fixtures, rejects all-negative/NaN/Inf fixtures, and changes filesystem records. Existing campaign job generators and trainer save path are byte-identical; only the separate selftest calls the gate in inspected current source.",
+      "required_changes":["Add a single prompt-wise stage controller that invokes trainer, computes/verifies monitoring artifacts, calls the gate, and supplies the returned accepted/parent policy to the next stage and evaluator.","Keep Global Nash's aggregate evaluator separate.","Retain honest ungated labels for historical experiments; adding a gate does not retroactively gate old checkpoints."],
+      "acceptance_tests":["Tiny synthetic campaign with stubbed expensive trainer/forward only: candidate passes -> next stage uses candidate; candidate fails or missing decision -> next stage uses parent; no direct candidate evaluation after rejection.","Record actual resolved module paths and hashes to exclude hidden /work overlays."]
+    },
+    {
+      "id":"D01","severity":"P1","status":"open_new",
+      "title":"Gate default coverage and surplus threshold differ from the supplied manuscript",
+      "path":"analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate.py",
+      "lines":[107,249,266],"evidence":["E01","E02","E03"],
+      "observed":"Default coverage_min=.5 promotes 2-positive/2-negative development prompts. Even coverage_min=1 accepts all local surpluses near 5e-9. The supplied Appendix H Selection and reporting contract requires every retained local surplus >1e-8.",
+      "required_changes":["Use every local surplus > declared surplus_tol=1e-8 for the paper-matching profile; coverage is a diagnostic, not a replacement for the all-prompt predicate.","A relaxed 50% coverage variant must be explicit and cannot silently represent the paper profile."],
+      "acceptance_tests":["Mixed +s/-s array rejected under defaults; all >1e-8 accepted; any <=1e-8 rejected; thresholds validated before execution."]
+    },
+    {
+      "id":"D02","severity":"P1","status":"open_new",
+      "title":"Missing requested nMSE and negative infinity can promote a candidate",
+      "path":"analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate.py",
+      "lines":[252,266],"evidence":["E03"],
+      "observed":"Passing --nmse-from with an empty log_history yields fit=null and accepted=true. nMSE=-Infinity yields fit=true and a promotion. nMSE=1.2, NaN and +Infinity are correctly rejected.",
+      "required_changes":["Require the fit result in paper mode; missing requested field must not be treated as pass.","Require finite nMSE with 0<=nMSE<=nmse_max.","Prefer recomputing the declared pair-weighted nMSE from already cached logprob differences and canonical g, with explicit handling of zero denominator; otherwise bind trainer state to exact candidate, evaluation step, split and target hash.","Intentional no-fit diagnostics must be non-promoting or explicitly labeled as a different acceptance contract."],
+      "acceptance_tests":["Empty log_history, absent metric, null, negative, NaN, positive/negative Inf cannot promote; valid finite <=1 passes."]
+    },
+    {
+      "id":"D03","severity":"P1","status":"open_new",
+      "title":"Gate decisions are not bound to the solved game and actual checkpoint",
+      "path":"analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate.py",
+      "lines":[70,85,128,135,204,230,300,326],"evidence":["E01","E02","E03","E06"],
+      "observed":"A certified beta=.05 target is accepted using default beta=.25 (+.034672 local surplus), while matching beta=.05 rejects it (-.146221). Corrupting target g without updating the solution manifest is not rejected. Cached logprobs plus a nonexistent candidate path can create an ACCEPTED record with SHA256(empty).",
+      "required_changes":["Load and verify per-prompt target manifest, target SHA, score tensor hashes, beta, proposal center/reference, prompt IDs and fixed monitoring subset before evaluation.","Infer beta/shard metadata from the verified run; reject incompatible explicit overrides.","Bind cached logprobs and trainer state to candidate, parent, token-event/pool, target and evaluator hashes.","Require existing checkpoint and actual supported weight/config files before promotion; missing files are a failure, not an empty fingerprint.","Treat accepted-directory metadata as a pointer explicitly; the stage controller must resolve it before model loading."],
+      "acceptance_tests":["Wrong beta, modified target, changed score bank, wrong parent, missing candidate weights and mismatched cache manifests all fail closed without promotion."]
+    },
+    {
+      "id":"C01","severity":"P1","status":"partially_resolved_with_regression",
+      "title":"Correct alias checks added, but valid equal-valued tensors are rejected and missing semantics bypass checks",
+      "path":"analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1c.py",
+      "lines":[257,281],"evidence":["E04"],
+      "affected_suffixes":["uw1","uw1c","uw3","us1","ut1"],
+      "observed":"All five loaders reject actual correctly scored A_LL=A_LR=A_RR despite distinct declared bank roles and a certified positive Nash solution (minimum surplus .140463 for K=2 and .169478 for K=4). If semantic arrays are removed, the all(...) guard skips alias checking and can load a mislabeled v2 shard.",
+      "required_changes":["Require all v2 semantic arrays and role fields before loading.","Keep A_policy==A_LR and A_ref==A_RR validation; remove the A_policy!=A_LL requirement. Semantic roles cannot be inferred from accidental numerical inequality.","Validate finite values, complete shapes, objective/prompt cardinalities and bank mappings.","Regenerate all five panel helpers from the corrected source; test the generation itself."],
+      "acceptance_tests":["Valid equal arrays accepted, malformed aliases rejected, missing A_LR/A_RR rejected, wrong bank roles rejected; no data-dependent exclusion based on equality alone."]
+    },
+    {
+      "id":"D04","severity":"P2","status":"open_new",
+      "title":"New gate needs a pod-specific helper import and hardcodes four score shards",
+      "evidence":["E01","E02","E11","E12"],
+      "observed":"With repo root and current snapshot on PYTHONPATH, --help fails on diag_neural_pools. Adding the included historical helper directory resolves import and all numeric CLI tests used that real helper. The gate calls load_scores(args.scores,4); the supplied selftest hardcodes private /work data and only prints its failure list.",
+      "required_changes":["Use a package-relative shared helper and document one clean-checkout launch command.","Expose or infer validated shard count, not literal 4.","Add portable synthetic regressions to tests/; selftest must exit nonzero when a recorded assertion fails."],
+      "acceptance_tests":["Clean checkout --help and cached CLI work without /work overlay; non-4 shard fixtures are covered; selftest has meaningful process exit status."]
+    }
+  ],
+  "non_claims":["No actual run is alleged to contain the deliberately malformed fixtures.","No LLM weights were loaded or trained, and no benchmark scores were recomputed.","Test counts are not counts of independent defects; several cases repeat a guard across panel modules."]
+}

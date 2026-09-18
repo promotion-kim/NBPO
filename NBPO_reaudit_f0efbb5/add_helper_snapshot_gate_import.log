@@ -1,0 +1,93 @@
+usage: nbpo_local_gate.py [-h] --candidate CANDIDATE --parent PARENT
+                          --targets TARGETS --pool POOL --scores SCORES
+                          --solver-module SOLVER_MODULE [--split SPLIT]
+                          [--beta BETA] [--coverage-min COVERAGE_MIN]
+                          [--nmse-max NMSE_MAX] [--nmse-from NMSE_FROM]
+                          [--promote-to PROMOTE_TO] [--batch BATCH]
+                          [--logprobs LOGPROBS] --out OUT
+
+Algorithm 1's acceptance step for the PROMPT-WISE path, evaluated per prompt.
+
+The manuscript's Algorithm 1 does not stop at a certified finite target. It
+trains a neural candidate against that target, checks the candidate on held-out
+development data, and only then makes it the next policy; a candidate that fails
+the check is discarded and the parent is retained. An implementation audit found
+that the campaign's prompt-wise training path ran
+
+    job generator -> torch.distributed.run -> run_mnpo -> train() -> save_model()
+
+with nothing between or after it that evaluated, rejected or promoted anything.
+The certified solver residual is not a substitute: it certifies the finite target,
+not the policy fitted to it.
+
+The existing `scripts/nbpo/eval_game_value.py` cannot be reused here. It reduces
+to a scalar minimum over PROMPT-AVERAGED surpluses, which is the right object for
+the shared-weight Global Nash control and the wrong one for a rule whose
+multipliers are fitted per prompt: two prompts at +.2 and -.1 average to +.05 and
+pass, while one of them is a prompt the compromise failed on. This file evaluates
+the array and applies the declared policy to it.
+
+What it measures, for each development prompt x and objective k:
+
+  the candidate's distribution over that prompt's eight learner occurrences,
+  by importance reweighting on the sampled support,
+      p(i) proportional to p_t(i) * exp(log pi_cand(y_i) - log pi_parent(y_i))
+  its regularized game value V_{k,beta}(p) against the reference bank, and
+  the surplus s_k(x) = V_{k,beta}(p) - d_k(x)
+  against the disagreement point d the solver recorded for that prompt.
+
+The declared checks, all three of which must hold:
+
+  finite    every surplus is finite; a NaN or an infinity is a failure, never a
+            pass, because `nan <= 0` is False and would otherwise promote
+  coverage  the fraction of development prompts whose surplus is positive on
+            EVERY objective is at least --coverage-min
+  fit       the held-out nMSE of the realized log-ratio against the canonical
+            target is at most --nmse-max
+
+On a pass the candidate is promoted to a versioned accepted directory with a
+symlink, and the promotion record names the checkpoint, its fingerprint and the
+exact artifacts the decision was read from. On a failure nothing is promoted and
+the parent path is returned, which is what the caller must then evaluate.
+
+This gate exists from 2026-09-18. It does not apply retroactively: every result
+already reported in the manuscript came from an ungated projection, and that is
+a fact about those runs, not something a later gate can change. Anything reported
+as gated must name a promotion record written by this file.
+
+options:
+  -h, --help            show this help message and exit
+  --candidate CANDIDATE
+                        the trained checkpoint under test
+  --parent PARENT       the policy retained if the candidate fails; also the
+                        reference the importance weights are taken against
+  --targets TARGETS     targets/<name>: the per-prompt solve this candidate
+                        was fitted to
+  --pool POOL
+  --scores SCORES       scores/<dir> the solve read; the gate evaluates the
+                        SAME game, so it goes through the solver's own loader
+                        and inherits its tensor-role schema check
+  --solver-module SOLVER_MODULE
+                        the panel's solve_pros4_targets_<panel>.py, whose
+                        load_scores and OBJECTIVES define the game being gated
+  --split SPLIT
+  --beta BETA
+  --coverage-min COVERAGE_MIN
+                        minimum fraction of development prompts positive on
+                        every objective; declare it before running, not after
+                        reading
+  --nmse-max NMSE_MAX   maximum held-out nMSE; 1.0 is the value of predicting
+                        zero
+  --nmse-from NMSE_FROM
+                        trainer_state.json of the candidate, for the recorded
+                        held-out nMSE; omit to skip the fit check and say so
+  --promote-to PROMOTE_TO
+                        symlink to point at the accepted checkpoint; without
+                        it the gate reports and promotes nothing
+  --batch BATCH
+  --logprobs LOGPROBS   JSON {candidate: {id: logp}, parent: {id: logp}} of
+                        sequence log-probabilities already computed. Lets the
+                        same decision be re-derived, and tested, without a
+                        forward pass; the models are not loaded at all when it
+                        is given.
+  --out OUT

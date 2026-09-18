@@ -78,6 +78,13 @@ def main():
     ap.add_argument("--panel", required=True, help="us1 or ut1")
     ap.add_argument("--objectives", type=int, required=True)
     ap.add_argument("--split-tag", required=True, help="the frozen split dir, e.g. us_v1")
+    ap.add_argument("--judgment-tag", default=None,
+                    help="the pool_judgments tag to read. Defaults to <panel>_psc, which is "
+                         "right when the panel and its judging run share a name and wrong "
+                         "when they do not: a re-scored round such as ut1c reuses ut1's "
+                         "judgments, and deriving the tag from the panel name made the "
+                         "PROSPER step read a directory that does not exist and report zero "
+                         "complete blocks instead of failing on the missing input.")
     ap.add_argument("--shards", type=int, default=4)
     ap.add_argument("--beta", type=float, default=0.25)
     ap.add_argument("--eta", type=float, default=1.0)
@@ -92,18 +99,20 @@ def main():
     args = ap.parse_args()
 
     p, K = args.panel, args.objectives
+    judgment_tag = args.judgment_tag or ("%s_psc" % p)
     certified = "%sp" % args.split_tag        # us_v1 -> us_v1p
     representable = "%sr" % args.split_tag    # us_v1 -> us_v1r
     log = SUB / ("%s_stage2.log" % p)
     record_path = SUB / ("%s_stage2.json" % p)
     record = json.loads(record_path.read_text()) if record_path.exists() else {"panel": p}
+    record["judgment_tag"] = judgment_tag
 
     def step(n):
         return args.from_step <= n <= args.to_step
 
     if step(1):
         run(["python3", str(CODE / "union_score_panel.py"), "--objectives", str(K),
-             "--tag", "%s_psc" % p, "--judge-shards", str(args.shards),
+             "--tag", judgment_tag, "--judge-shards", str(args.shards),
              "--pool", p, "--pool-shards", str(args.shards),
              "--out", p, "--shards", str(args.shards)],
             SOLVE_ENV, "1_score", log)
@@ -230,7 +239,7 @@ def main():
         pt = UF / "targets" / ("%s_prosper" % p)
         if not pt.exists():
             run(["python3", str(CODE / "prosper_targets_panel.py"),
-                 "--objectives", str(K), "--tag", "%s_psc" % p,
+                 "--objectives", str(K), "--tag", judgment_tag,
                  "--shards", str(args.shards), "--splits", certified,
                  "--beta", str(args.beta), "--eta", str(args.eta),
                  "--out", "%s_prosper" % p], SOLVE_ENV, "6_prosper_targets", log)

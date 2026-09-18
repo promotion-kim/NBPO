@@ -1,8 +1,8 @@
 # Generated from solve_pros4_targets_uw1.py by build_panel_solvers.py
 # -- do not edit by hand. source sha256 299b1dc626d8b7ea309101305035176095d27c01405aefe2795e9c938486fbe5
-# change: OBJECTIVES -> item0..item1, the US panel's declared objective
+# change: OBJECTIVES -> item0..item3, the UW panel's declared objective
 #         count. The rubric text behind each slot is that panel's frozen
-#         rubric, recorded in panel/us_v1/freeze.json; slot k of two panels
+#         rubric, recorded in panel/uw_v1cb4/freeze.json; slot k of two panels
 #         is never pooled as one objective.
 # Copy of solve_pros4_targets.py for the UW union panel. Only change: r_bt may
 # be absent, because the union contract forbids the scalar BT projection for
@@ -55,7 +55,7 @@ from scripts.nbpo.build_nbpo_pairs import build_rows, load_canonical_artifact
 from scripts.nbpo.solve_nbpo_dual import write_generic_solution_artifact
 
 ROOT = Path("/work/uf4_20260910")
-OBJECTIVES = ("item0", "item1")
+OBJECTIVES = ("item0", "item1", "item2", "item3")
 REFERENCE_CONSTRUCTION = "independent_samples"
 POOL = 8
 
@@ -96,7 +96,7 @@ CANONICAL_DECIMALS_LEGACY = 10
 REQUIRED_TENSOR_ROLE_SCHEMA = "lr_rr_v2"
 # The panel this module was generated for. build_panel_solvers.py rewrites it, so a
 # US/UT/UW run records its own panel instead of the UF-4 label of the source file.
-PANEL_LABEL = "US1"
+PANEL_LABEL = "UW1CB4"
 
 
 def split_pool_digest(pool, prompt_ids, roles=("learner", "comparator")):

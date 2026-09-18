@@ -1,5 +1,5 @@
 # Generated from solve_pros4_targets_uw1.py by build_panel_solvers.py
-# -- do not edit by hand. source sha256 43ad471fa90a19c5251aba12062030849fcbea802f08c5dfa34a16ba58634af9
+# -- do not edit by hand. source sha256 299b1dc626d8b7ea309101305035176095d27c01405aefe2795e9c938486fbe5
 # change: OBJECTIVES -> item0..item3, the UW panel's declared objective
 #         count. The rubric text behind each slot is that panel's frozen
 #         rubric, recorded in panel/uw_v3p/freeze.json; slot k of two panels
@@ -254,32 +254,64 @@ def load_scores(score_root, shards):
             # says lr_rr_v2 but whose A_policy is not its own A_LR, or whose
             # A_ref is not its own A_RR, is mislabeled rather than merely old,
             # and mislabeled is the case a version tag cannot catch on its own.
-            aliases = (("A_policy", "A_LR"), ("A_ref", "A_RR"))
-            if all(name in arrays.files for pair in aliases for name in pair):
-                for alias, semantic in aliases:
-                    if not np.array_equal(arrays[alias], arrays[semantic]):
-                        raise ValueError(
-                            f"{path} declares {required} but its {alias} is not its "
-                            f"{semantic}; the tensor roles do not match the schema it "
-                            "claims, so this shard cannot be solved as the declared game")
-                # A_LL must not be the policy game: if it were, the surplus would
-                # carry the sign defect the schema exists to rule out
-                if "A_LL" in arrays.files and np.array_equal(arrays["A_policy"],
-                                                             arrays["A_LL"]):
+            # A v2 shard must CARRY its semantics, not merely claim them. The
+            # required arrays are demanded outright: an earlier version guarded
+            # the alias comparison with all(name in arrays.files ...), so a
+            # shard that simply omitted A_LR and A_RR skipped the check it was
+            # supposed to fail.
+            pids = [str(x) for x in arrays["prompt_ids"]]
+            required_arrays = ("A_policy", "A_ref", "A_LL", "A_LR", "A_RR")
+            absent = [n for n in required_arrays if n not in arrays.files]
+            if absent:
+                raise ValueError(
+                    f"{path} declares tensor_role_schema {required} but is missing "
+                    f"{absent}; a shard that does not carry its semantic tensors cannot "
+                    "be checked against the roles it claims, and is refused rather than "
+                    "loaded on the strength of the claim")
+            for alias, semantic in (("A_policy", "A_LR"), ("A_ref", "A_RR")):
+                if not np.array_equal(arrays[alias], arrays[semantic]):
                     raise ValueError(
-                        f"{path} has A_policy equal to A_LL, which is the pre-fix "
-                        "wiring under a post-fix label")
+                        f"{path} declares {required} but its {alias} is not its "
+                        f"{semantic}; the tensor roles do not match the schema it "
+                        "claims, so this shard cannot be solved as the declared game")
+            # NOT checked: whether A_policy differs numerically from A_LL. An
+            # earlier version refused a shard whose A_policy equalled its A_LL,
+            # reasoning that equality meant the pre-fix wiring under a post-fix
+            # label. That is wrong: the three blocks CAN coincide on a legitimate
+            # panel -- a pool whose learner and comparator draws happen to be
+            # judged identically produces A_LL = A_LR = A_RR, and such a shard
+            # still has a certified positive Nash solution. Semantic roles are
+            # carried by the names and the recorded bank ids, and cannot be
+            # inferred from accidental numerical inequality.
+            for name in required_arrays:
+                a = np.asarray(arrays[name])
+                if not np.all(np.isfinite(a)):
+                    raise ValueError(f"{path}: {name} has non-finite entries")
+                if a.shape[0] != len(OBJECTIVES) or a.shape[2:] != (POOL, POOL):
+                    raise ValueError(
+                        f"{path}: {name} has shape {a.shape}, which is not "
+                        f"({len(OBJECTIVES)}, prompts, {POOL}, {POOL})")
+                if a.shape[1] != len(pids):
+                    raise ValueError(
+                        f"{path}: {name} covers {a.shape[1]} prompts but the shard lists "
+                        f"{len(pids)}")
             expected_banks = {"A_policy": ["learner", "comparator"],
                               "A_ref": ["comparator", "comparator"],
-                              "A_LL": ["learner", "learner"]}
+                              "A_LL": ["learner", "learner"],
+                              "A_LR": ["learner", "comparator"],
+                              "A_RR": ["comparator", "comparator"]}
             banks = meta.get("bank_ids")
-            if banks is not None:
-                for name, want in expected_banks.items():
-                    got = banks.get(name)
-                    if got is not None and list(got) != want:
-                        raise ValueError(
-                            f"{path} records {name} drawn from {got}, not {want}")
-            pids = [str(p) for p in arrays["prompt_ids"]]
+            if not banks:
+                raise ValueError(
+                    f"{path} declares {required} but records no bank_ids; the roles are "
+                    "then unverifiable and the shard is refused")
+            for name, want in expected_banks.items():
+                got = banks.get(name)
+                if got is None:
+                    continue          # a reader may legitimately record a subset
+                if list(got) != want:
+                    raise ValueError(
+                        f"{path} records {name} drawn from {got}, not {want}")
             A, Aref = arrays["A_policy"], arrays["A_ref"]
             # r_bt is the scalar BT projection. The union contract uses direct
             # order-balanced probabilities for these rows and forbids that

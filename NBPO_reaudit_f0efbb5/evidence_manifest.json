@@ -1,0 +1,179 @@
+[
+  {
+    "id": "E01",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate.py",
+    "sha256": "a5acfd5dbe44b48381efc3d0d3d52d50bd6bf2d2afe88c623ac0161538992485",
+    "ranges": [
+      [
+        1,
+        137
+      ]
+    ]
+  },
+  {
+    "id": "E02",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate.py",
+    "sha256": "a5acfd5dbe44b48381efc3d0d3d52d50bd6bf2d2afe88c623ac0161538992485",
+    "ranges": [
+      [
+        138,
+        250
+      ]
+    ]
+  },
+  {
+    "id": "E03",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate.py",
+    "sha256": "a5acfd5dbe44b48381efc3d0d3d52d50bd6bf2d2afe88c623ac0161538992485",
+    "ranges": [
+      [
+        252,
+        334
+      ]
+    ]
+  },
+  {
+    "id": "E04",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1c.py",
+    "sha256": "f392ff5452639e5a681c0177019fecc37e574b8d9036a20c896a104904320480",
+    "ranges": [
+      [
+        212,
+        303
+      ]
+    ]
+  },
+  {
+    "id": "E05",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1c.py",
+    "sha256": "f392ff5452639e5a681c0177019fecc37e574b8d9036a20c896a104904320480",
+    "ranges": [
+      [
+        93,
+        209
+      ]
+    ]
+  },
+  {
+    "id": "E06",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1c.py",
+    "sha256": "5d7f022f99f3f30048440a64ab12e137c80e2f34bb63f35e7abba45f4cfeb5b0",
+    "ranges": [
+      [
+        63,
+        88
+      ],
+      [
+        132,
+        147
+      ],
+      [
+        198,
+        243
+      ],
+      [
+        254,
+        286
+      ]
+    ]
+  },
+  {
+    "id": "E07",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/README.md",
+    "sha256": "69b12858ec7719f4e15f8a3c01515352f1c3c374982b2f683857dccab9c1f3e9",
+    "ranges": [
+      [
+        109,
+        151
+      ]
+    ]
+  },
+  {
+    "id": "E08",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/make_pros_train_jobs.py",
+    "sha256": "bcabadf496632acbcefd6334b84aae5e95f5a85f129885cd4b526f0ee3feba62",
+    "ranges": [
+      [
+        126,
+        190
+      ]
+    ]
+  },
+  {
+    "id": "E09",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/panel_stage2.py",
+    "sha256": "e0528503bf22fa970cc2d9a963b35a183bd3a970719240c2d3e6b87c6667734b",
+    "ranges": [
+      [
+        309,
+        375
+      ]
+    ]
+  },
+  {
+    "id": "E10",
+    "path": "mnpo_scripts/run_mnpo.py",
+    "sha256": "def0546b64f7d2d5dd6360a7a3ff6995c126a06ff0e63326c965443cdd05d36a",
+    "ranges": [
+      [
+        300,
+        410
+      ]
+    ]
+  },
+  {
+    "id": "E11",
+    "path": "analysis/uf4_20260910/code_snapshot_20260917/diag_neural_pools.py",
+    "sha256": "2e5b06529cd8f4c30c85553e39b7f3bbadc52f2fd00ceb887cdff5dd60c7db29",
+    "ranges": [
+      [
+        1,
+        73
+      ]
+    ]
+  },
+  {
+    "id": "E12",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate_selftest.py",
+    "sha256": "5d96083801cf0306d24c42c9a18c5266d66adce14b2655ee523b61f1a3c6cd22",
+    "ranges": [
+      [
+        1,
+        101
+      ]
+    ]
+  },
+  {
+    "id": "E13",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/union_score_panel.py",
+    "sha256": "e3bd9c1c2486715f0e1e4a07efe15419fc499507f5d2c633039cde6b2d17da83",
+    "ranges": [
+      [
+        140,
+        278
+      ]
+    ]
+  },
+  {
+    "id": "E14",
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/build_panel_solvers.py",
+    "sha256": "d958a4ffd5bc3a4b2e81228054c1f11eb67bc1e7f80573a1064e7a362c6b126b",
+    "ranges": [
+      [
+        30,
+        82
+      ]
+    ]
+  },
+  {
+    "id": "E15",
+    "path": "scripts/nbpo/eval_game_value.py",
+    "sha256": "60c017e5b9926c0c973f211ec6b30ee3c15b4b3f1f0dadf739d09c7f2c3f1a61",
+    "ranges": [
+      [
+        1,
+        100
+      ]
+    ]
+  }
+]

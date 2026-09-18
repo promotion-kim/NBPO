@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/mnt/data/_reaudit_work/current/NBPO-main/analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate.py", line 64, in <module>
+    from diag_neural_pools import load_pool_rows, sequence_logprobs   # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'diag_neural_pools'

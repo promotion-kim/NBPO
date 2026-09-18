@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="126" time="55.310" timestamp="2026-09-17T17:17:06.530011+00:00" hostname="localhost"><testcase classname="tests.test_nbpo_core" name="test_opponent_normalization_matches_definition" time="0.040" /><testcase classname="tests.test_nbpo_core" name="test_opponent_sign_lower_margin_gets_more_mass" time="0.002" /><testcase classname="tests.test_nbpo_core" name="test_game_value_identity_softmin_equals_primal" time="0.001" /><testcase classname="tests.test_nbpo_core" name="test_nonzero_disagreement_two_action_skew_game" time="0.001" /><testcase classname="tests.test_nbpo_core" name="test_fixed_reference_limit_large_beta" time="0.001" /><testcase classname="tests.test_nbpo_core" name="test_scaling_covariance_at_matched_opponents" time="0.001" /><testcase classname="tests.test_nbpo_core" name="test_cycle_toy_game_adaptive_value_separates_equal_fixed_margins" time="0.001" /><testcase classname="tests.test_nbpo_dual" name="test_dual_finite_difference_matches_surplus_minus_inverse_lambda" time="0.632" /><testcase classname="tests.test_nbpo_dual" name="test_kkt_convergence_on_jointly_feasible_game" time="4.997" /><testcase classname="tests.test_nbpo_dual" name="test_raw_vs_normalized_lambda_changes_the_update" time="1.612" /><testcase classname="tests.test_nbpo_dual" name="test_scaling_covariance_at_the_kkt_point" time="12.954" /><testcase classname="tests.test_nbpo_dual" name="test_maxmin_controls_report_small_duality_gap_and_are_not_static_onehot" time="1.213" /><testcase classname="tests.test_nbpo_dual" name="test_scale_covariance_with_payoffs_outside_probability_range" time="15.780" /><testcase classname="tests.test_nbpo_dual" name="test_nu_update_and_nu_final_are_labeled_separately" time="0.047" /><testcase classname="tests.test_nbpo_dual" name="test_projected_kkt_residual_at_lambda_box_boundary" time="2.771" /><testcase classname="tests.test_nbpo_targets" name="test_all_six_unordered_pairs" time="0.311" /><testcase classname="tests.test_nbpo_targets" name="test_shared_opponent_within_row" time="0.305" /><testcase classname="tests.test_nbpo_targets" name="test_opponent_sampled_per_pair_objective" time="0.380" /><testcase classname="tests.test_nbpo_targets" name="test_solver_artifact_rejects_swapped_nu_file" time="0.309" /><testcase classname="tests.test_nbpo_targets" name="test_reference_tensor_is_exactly_skew_symmetric" time="0.297" /><testcase classname="tests.test_nbpo_targets" name="test_reference_tensor_diagonal_is_zero" time="0.280" /><testcase classname="tests.test_nbpo_targets" name="test_judge_short_output_fails_loudly" time="0.002" /><testcase classname="tests.test_nbpo_targets" name="test_orientation_flip_negates_every_target" time="0.293" /><testcase classname="tests.test_nbpo_targets" name="test_weighted_target_is_unscaled_by_eta_and_uses_raw_lambda" time="0.311" /><testcase classname="tests.test_nbpo_targets" name="test_sampled_and_rao_blackwell_modes" time="0.575" /><testcase classname="tests.test_nbpo_targets" name="test_invalid_judgments_retry_then_fail_loudly" time="0.007" /><testcase classname="tests.test_nbpo_targets" name="test_single_order_cells_are_errors_not_ties" time="0.000" /><testcase classname="tests.test_nbpo_targets" name="test_incomplete_tensor_raises_and_never_imputes" time="0.000" /><testcase classname="tests.test_nbpo_targets" name="test_reference_construction_must_be_declared_and_is_enforced" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_empty_optional_test_split_is_omitted" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_dataset_splits_match_saved_dataset" time="0.004"><failure message="ModuleNotFoundError: No module named 'transformers'">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_dataset_splits_match_save0')
+
+    def test_dataset_splits_match_saved_dataset(tmp_path):
+        # materialize_run_config must name only splits that exist, or run_mnpo's
+        # loader fails on a split the artifact never saved.
+        from scripts.nbpo.run_nbpo_stage import materialize_run_config
+    
+        stage_cfg = {"stage": 0, "trainer": {"learning_rate": 5e-7, "max_steps": 2, "bf16": False}}
+        parent = _ckpt(tmp_path, "parent", "p")
+        out = tmp_path / "run_config.yaml"
+&gt;       run = materialize_run_config(stage_cfg, parent, tmp_path / "pre", tmp_path / "cand", out,
+                                     dataset_splits=["train"])
+
+tests/test_nbpo_provenance.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/nbpo/run_nbpo_stage.py:651: in materialize_run_config
+    parse_run_config(output_yaml)
+scripts/nbpo/run_nbpo_stage.py:657: in parse_run_config
+    from alignment import DataArguments, H4ArgumentParser, ModelArguments
+alignment/__init__.py:3: in &lt;module&gt;
+    from .configs import DataArguments, DPOConfig, H4ArgumentParser, ModelArguments, SFTConfig
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    # coding=utf-8
+    # Copyright 2023 The HuggingFace Team. All rights reserved.
+    #
+    # Licensed under the Apache License, Version 2.0 (the "License");
+    # you may not use this file except in compliance with the License.
+    # You may obtain a copy of the License at
+    #
+    #     http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing, software
+    # distributed under the License is distributed on an "AS IS" BASIS,
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    # See the License for the specific language governing permissions and
+    # limitations under the License.
+    import dataclasses
+    import os
+    import sys
+    from dataclasses import dataclass, field
+    from typing import Any, Dict, List, NewType, Optional, Tuple, Union, get_args, get_origin
+    
+&gt;   from transformers import MODEL_FOR_CAUSAL_LM_MAPPING, HfArgumentParser
+E   ModuleNotFoundError: No module named 'transformers'
+
+alignment/configs.py:21: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_nbpo_provenance" name="test_run_config_carries_expected_artifact_hashes" time="0.004"><failure message="ModuleNotFoundError: No module named 'transformers'">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_run_config_carries_expect0')
+
+    def test_run_config_carries_expected_artifact_hashes(tmp_path):
+        from scripts.nbpo.run_nbpo_stage import materialize_run_config
+    
+        parent = _ckpt(tmp_path, "parent", "p")
+        out = tmp_path / "run_config.yaml"
+&gt;       run = materialize_run_config(
+            {"stage": 0, "trainer": {"max_steps": 2, "bf16": False}}, parent,
+            tmp_path / "pre", tmp_path / "cand", out, dataset_splits=["train"],
+            expected_hashes={"nbpo_expected_pair_artifact_sha256": "a" * 64,
+                             "nbpo_expected_solver_artifact_sha256": "b" * 64,
+                             "nbpo_expected_parent_checkpoint_fingerprint": "c" * 64,
+                             "nbpo_expected_precompute_manifest_sha256": None})
+
+tests/test_nbpo_provenance.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/nbpo/run_nbpo_stage.py:651: in materialize_run_config
+    parse_run_config(output_yaml)
+scripts/nbpo/run_nbpo_stage.py:657: in parse_run_config
+    from alignment import DataArguments, H4ArgumentParser, ModelArguments
+alignment/__init__.py:3: in &lt;module&gt;
+    from .configs import DataArguments, DPOConfig, H4ArgumentParser, ModelArguments, SFTConfig
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    # coding=utf-8
+    # Copyright 2023 The HuggingFace Team. All rights reserved.
+    #
+    # Licensed under the Apache License, Version 2.0 (the "License");
+    # you may not use this file except in compliance with the License.
+    # You may obtain a copy of the License at
+    #
+    #     http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing, software
+    # distributed under the License is distributed on an "AS IS" BASIS,
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    # See the License for the specific language governing permissions and
+    # limitations under the License.
+    import dataclasses
+    import os
+    import sys
+    from dataclasses import dataclass, field
+    from typing import Any, Dict, List, NewType, Optional, Tuple, Union, get_args, get_origin
+    
+&gt;   from transformers import MODEL_FOR_CAUSAL_LM_MAPPING, HfArgumentParser
+E   ModuleNotFoundError: No module named 'transformers'
+
+alignment/configs.py:21: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_nbpo_provenance" name="test_same_ids_and_text_reuses_cache" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_changed_response_text_under_same_ids_triggers_judging[learner_text-a DIFFERENT answer]" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_changed_response_text_under_same_ids_triggers_judging[comparator_text-a DIFFERENT comparator]" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_changed_prompt_text_triggers_judging" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_changed_judge_configuration_triggers_judging[over0]" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_changed_judge_configuration_triggers_judging[over1]" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_changed_judge_configuration_triggers_judging[over2]" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_changed_judge_configuration_triggers_judging[over3]" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_changed_judge_configuration_triggers_judging[over4]" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_changed_judge_configuration_triggers_judging[over5]" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_changed_judge_configuration_triggers_judging[over6]" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_stale_monitoring_cache_cannot_accept_a_new_candidate" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_legacy_cache_rows_are_not_reused_and_are_quarantined" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_verdict_rows_record_the_effective_judge_config" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_training_pool_bound_to_parent_and_reference_to_mu" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_stage_zero_parent_reference_mismatch_fails" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_missing_prompt_in_one_seed_fails" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_extra_or_missing_seed_fails_exactly" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_duplicate_prompt_id_and_duplicate_seed_raise" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_empty_response_and_mismatched_prompt_text_fail" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_solver_pair_tensor_hash_chain" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_swapped_tensor_of_the_same_shape_fails" time="0.003" /><testcase classname="tests.test_nbpo_provenance" name="test_single_changed_payoff_entry_fails" time="0.003" /><testcase classname="tests.test_nbpo_provenance" name="test_changed_tensor_metadata_fails" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_swapped_nu_update_fails" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_identical_nu_arrays_are_accepted_when_roles_are_declared" time="0.007" /><testcase classname="tests.test_nbpo_provenance" name="test_swapped_opponent_roles_fail" time="0.008" /><testcase classname="tests.test_nbpo_provenance" name="test_missing_opponent_role_metadata_fails_in_reproduction_mode" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_modified_arrow_file_fails_manifest_verification" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_wrong_expected_manifest_hash_fails" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_stale_expected_artifact_hashes_fail[nbpo_expected_pair_artifact_sha256-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef-stale pair artifact]" time="0.013"><failure message="ModuleNotFoundError: No module named 'accelerate'">field = 'nbpo_expected_pair_artifact_sha256'
+value = 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef'
+pattern = 'stale pair artifact'
+
+    @pytest.mark.parametrize("field,value,pattern", [
+        ("nbpo_expected_pair_artifact_sha256", "deadbeef" * 8, "stale pair artifact"),
+        ("nbpo_expected_solver_artifact_sha256", "deadbeef" * 8, "stale solver artifact"),
+        ("nbpo_expected_parent_checkpoint_fingerprint", "deadbeef" * 8, "does not match the parent"),
+    ])
+    def test_stale_expected_artifact_hashes_fail(field, value, pattern):
+        from types import SimpleNamespace
+    
+&gt;       from mnpo_scripts.mnpo_trainer import validate_nbpo_args
+
+tests/test_nbpo_provenance.py:496: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+mnpo_scripts/mnpo_trainer.py:5: in &lt;module&gt;
+    from scripts.simpo_trainer import SimPOTrainer
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    import csv
+    import inspect
+    import json
+    import os
+    import random
+    import shutil
+    import subprocess
+    import sys
+    import warnings
+    from collections import defaultdict
+    from contextlib import nullcontext
+    from functools import wraps
+    from pathlib import Path
+    from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
+    
+    import numpy as np
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+&gt;   from accelerate import PartialState
+E   ModuleNotFoundError: No module named 'accelerate'
+
+scripts/simpo_trainer.py:20: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_nbpo_provenance" name="test_stale_expected_artifact_hashes_fail[nbpo_expected_solver_artifact_sha256-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef-stale solver artifact]" time="0.011"><failure message="ModuleNotFoundError: No module named 'accelerate'">field = 'nbpo_expected_solver_artifact_sha256'
+value = 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef'
+pattern = 'stale solver artifact'
+
+    @pytest.mark.parametrize("field,value,pattern", [
+        ("nbpo_expected_pair_artifact_sha256", "deadbeef" * 8, "stale pair artifact"),
+        ("nbpo_expected_solver_artifact_sha256", "deadbeef" * 8, "stale solver artifact"),
+        ("nbpo_expected_parent_checkpoint_fingerprint", "deadbeef" * 8, "does not match the parent"),
+    ])
+    def test_stale_expected_artifact_hashes_fail(field, value, pattern):
+        from types import SimpleNamespace
+    
+&gt;       from mnpo_scripts.mnpo_trainer import validate_nbpo_args
+
+tests/test_nbpo_provenance.py:496: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+mnpo_scripts/mnpo_trainer.py:5: in &lt;module&gt;
+    from scripts.simpo_trainer import SimPOTrainer
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    import csv
+    import inspect
+    import json
+    import os
+    import random
+    import shutil
+    import subprocess
+    import sys
+    import warnings
+    from collections import defaultdict
+    from contextlib import nullcontext
+    from functools import wraps
+    from pathlib import Path
+    from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
+    
+    import numpy as np
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+&gt;   from accelerate import PartialState
+E   ModuleNotFoundError: No module named 'accelerate'
+
+scripts/simpo_trainer.py:20: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_nbpo_provenance" name="test_stale_expected_artifact_hashes_fail[nbpo_expected_parent_checkpoint_fingerprint-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef-does not match the parent]" time="0.012"><failure message="ModuleNotFoundError: No module named 'accelerate'">field = 'nbpo_expected_parent_checkpoint_fingerprint'
+value = 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef'
+pattern = 'does not match the parent'
+
+    @pytest.mark.parametrize("field,value,pattern", [
+        ("nbpo_expected_pair_artifact_sha256", "deadbeef" * 8, "stale pair artifact"),
+        ("nbpo_expected_solver_artifact_sha256", "deadbeef" * 8, "stale solver artifact"),
+        ("nbpo_expected_parent_checkpoint_fingerprint", "deadbeef" * 8, "does not match the parent"),
+    ])
+    def test_stale_expected_artifact_hashes_fail(field, value, pattern):
+        from types import SimpleNamespace
+    
+&gt;       from mnpo_scripts.mnpo_trainer import validate_nbpo_args
+
+tests/test_nbpo_provenance.py:496: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+mnpo_scripts/mnpo_trainer.py:5: in &lt;module&gt;
+    from scripts.simpo_trainer import SimPOTrainer
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    import csv
+    import inspect
+    import json
+    import os
+    import random
+    import shutil
+    import subprocess
+    import sys
+    import warnings
+    from collections import defaultdict
+    from contextlib import nullcontext
+    from functools import wraps
+    from pathlib import Path
+    from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
+    
+    import numpy as np
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+&gt;   from accelerate import PartialState
+E   ModuleNotFoundError: No module named 'accelerate'
+
+scripts/simpo_trainer.py:20: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_nbpo_provenance" name="test_exact_response_cardinality" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_candidate_manifest_checks_prompt_file_decoding_and_relative_paths" time="0.007" /><testcase classname="tests.test_nbpo_provenance" name="test_qwen_thinking_disabled_reaches_the_tokenizer" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_qwen_config_declares_thinking_disabled_everywhere" time="0.007" /><testcase classname="tests.test_nbpo_provenance" name="test_judge_effective_config_is_what_the_backend_reports" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_configured_judge_decoding_reaches_the_vllm_backend" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_flat_judge_config_is_rejected_unless_explicitly_allowed" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_final_eval_not_falsely_marked_complete" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_nonuniform_mu_requires_an_explicit_learner_distribution" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_reproduction_invariants_are_asserted[solver0-trainer0-damping must be 0]" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_reproduction_invariants_are_asserted[solver1-trainer1-lambda must stay RAW]" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_reproduction_invariants_are_asserted[solver2-trainer2-logp_reduction must be 'sum']" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_reproduction_invariants_are_asserted[solver3-trainer3-max_history_t must be 1]" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_reproduction_invariants_are_asserted[solver4-trainer4-history_weights must be]" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_reproduction_invariants_are_asserted[solver5-trainer5-reference_anchor_weight must be 0]" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_reproduction_invariants_are_asserted[solver6-trainer6-preference_sft_weight must be 0]" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_eta_applied_once_and_opponent_scope_are_checked" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_implementation_contract_is_declared" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_no_paper_exact_algorithm_1_claim_survives" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_monitoring_reference_pool_binds_to_mu" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_stale_monitoring_reference_response_file_fails" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_monitoring_prompt_text_change_under_the_same_id_fails" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_row_prompt_must_match_the_canonical_prompt_text" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_missing_row_prompt_fails_and_one_seed_may_not_differ" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_pair_texts_must_be_the_tensors_response_pool" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_pair_rows_carry_the_response_text_hashes" time="0.307" /><testcase classname="tests.test_nbpo_provenance" name="test_unsupported_chat_template_kwarg_fails_in_reproduction_mode" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_cache_identity_uses_the_post_render_effective_config" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_effective_config_cannot_change_after_the_first_task" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_qwen_enable_thinking_false_reaches_apply_chat_template" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_r1_without_warm_start_nu_source_is_proximal_centre" time="0.022" /><testcase classname="tests.test_nbpo_provenance" name="test_r1_with_warm_start_nu_source_is_warm_start_iterate" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_r_greater_than_one_records_r_minus_one_source_iteration" time="0.007" /><testcase classname="tests.test_nbpo_provenance" name="test_released_dual_solve_reports_the_warm_start_iterate_not_the_centre" time="0.045" /><testcase classname="tests.test_nbpo_provenance" name="test_nu_source_policy_hash_matches_actual_array" time="0.039" /><testcase classname="tests.test_nbpo_provenance" name="test_missing_nu_source_policy_artifact_fails" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_pair_builder_rejects_false_proximal_centre_metadata" time="0.004" /><testcase classname="tests.test_nbpo_provenance" name="test_warm_start_source_is_accepted_not_forced_to_proximal_centre" time="0.003" /><testcase classname="tests.test_nbpo_provenance" name="test_long_prompt_that_fits_the_budget_is_not_truncated" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_over_budget_tldr_prompt_follows_the_configured_token_policy" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_unicode_text_is_never_character_sliced" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_rendered_prompt_hash_changes_when_the_truncation_policy_changes" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_truncation_policy_is_part_of_both_identity_hashes" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_invalid_truncation_policy_is_rejected" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_wrong_training_prompt_file_fails" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_both_pools_on_the_same_wrong_subset_still_fail" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_wrong_training_temperature_fails" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_missing_or_extra_training_seed_fails" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_manifest_seeds_and_output_keys_must_agree" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_wrong_expected_prompt_count_fails" time="0.001" /><testcase classname="tests.test_nbpo_provenance" name="test_changed_manifest_bytes_fail_against_the_configured_sha" time="0.002" /><testcase classname="tests.test_nbpo_provenance" name="test_tensor_cli_requires_exact_prompt_sets" time="0.000" /><testcase classname="tests.test_nbpo_provenance" name="test_tensor_cli_rejects_the_same_id_with_different_prompt_text" time="0.000" /><testcase classname="tests.test_nbpo_pipeline" name="test_nash_welfare_null_when_any_surplus_nonpositive" time="0.001" /><testcase classname="tests.test_nbpo_pipeline" name="test_nash_welfare_defined_when_all_surpluses_positive" time="0.001" /><testcase classname="tests.test_nbpo_pipeline" name="test_gate_rejects_nonpositive_surplus_and_retains_parent" time="0.001" /><testcase classname="tests.test_nbpo_pipeline" name="test_gate_promotes_atomically_on_positive_surplus" time="0.001" /><testcase classname="tests.test_nbpo_pipeline" name="test_disjointness_is_enforced" time="0.000" /><testcase classname="tests.test_nbpo_pipeline" name="test_legacy_isolation_no_scalar_rm_or_bt_imports" time="0.002" /><testcase classname="tests.test_nbpo_pipeline" name="test_cpu_dry_run_completes_without_an_llm" time="1.944" /><testcase classname="tests.test_nbpo_pipeline" name="test_every_cli_is_executable" time="8.117" /></testsuite></testsuites>

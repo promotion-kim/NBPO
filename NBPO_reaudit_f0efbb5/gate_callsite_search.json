@@ -1,0 +1,17 @@
+[
+  {
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate_selftest.py",
+    "line": 3,
+    "text": "Runs the real nbpo_local_gate.py against the real uw1c dev solve and the real"
+  },
+  {
+    "path": "analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate_selftest.py",
+    "line": 48,
+    "text": "            [sys.executable, CODE + \"/nbpo_local_gate.py\","
+  },
+  {
+    "path": "scripts/nbpo/eval_game_value.py",
+    "line": 27,
+    "text": "``analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate.py``, which"
+  }
+]

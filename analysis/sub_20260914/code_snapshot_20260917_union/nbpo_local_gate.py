@@ -28,14 +28,34 @@ What it measures, for each development prompt x and objective k:
   the surplus s_k(x) = V_{k,beta}(p) - d_k(x)
   against the disagreement point d the solver recorded for that prompt.
 
-The declared checks, all three of which must hold:
+The predicate is the manuscript's, and it is not a coverage fraction. Appendix H
+says, for the NBPO family: "Require every retained local surplus > 1e-8". So the
+paper profile is a universal quantifier over the certified development
+monitoring subset -- one prompt at or below the tolerance rejects the candidate.
+The Global Nash control has a different contract in the same paragraph:
+"aggregate surplus > 1e-8, plus dev nMSE <= 1 on certified dev targets", which
+is a statement about the prompt-averaged value and carries the fitting check
+that the per-prompt rule does not.
 
-  finite    every surplus is finite; a NaN or an infinity is a failure, never a
-            pass, because `nan <= 0` is False and would otherwise promote
-  coverage  the fraction of development prompts whose surplus is positive on
-            EVERY objective is at least --coverage-min
-  fit       the held-out nMSE of the realized log-ratio against the canonical
-            target is at most --nmse-max
+Three profiles, and the profile is recorded in the decision:
+
+  paper-nbpo    every local surplus > surplus-tol, on every objective, on every
+                prompt of the monitoring subset. No nMSE term: the manuscript
+                attaches that one to the control, not to NBPO.
+  paper-global  aggregate (prompt-averaged) surplus > surplus-tol on every
+                objective, AND a finite dev nMSE in [0, nmse-max].
+  coverage      a RELAXED diagnostic: the fraction of prompts positive on every
+                objective is at least --coverage-min. It is not the paper
+                contract and the record says so. It exists because the fraction
+                is the informative number when the universal predicate fails,
+                and an earlier version of this file used it as the default,
+                which misrepresented the contract.
+
+An earlier version also treated a MISSING fit result as a pass -- an empty
+trainer log_history gave fit=null and accepted=true -- and accepted nMSE of
+negative infinity. Both are closed: where the profile requires a fit, the value
+must be present and finite and in range, and an absent or non-finite value is a
+rejection.
 
 On a pass the candidate is promoted to a versioned accepted directory with a
 symlink, and the promotion record names the checkpoint, its fingerprint and the
@@ -52,6 +72,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import sys
 import time
@@ -60,15 +81,64 @@ from pathlib import Path
 import numpy as np
 import torch
 
-sys.path.insert(0, "/work/uf4_20260910/code")
-from diag_neural_pools import load_pool_rows, sequence_logprobs   # noqa: E402
+def _pool_helpers():
+    """Resolve the pool reader and the log-probability scorer.
+
+    Looks beside this file first, then on the import path, and only then at the
+    historical campaign directory. An earlier version inserted the pod path
+    unconditionally, so `--help` failed from a clean checkout and the module was
+    not usable outside the machine it was written on. The import is deferred to
+    call time because the cached-log-probability path needs neither helper.
+    """
+    here = Path(__file__).resolve().parent
+    for candidate in (here, here / "helpers", Path("/work/uf4_20260910/code")):
+        if (candidate / "diag_neural_pools.py").exists():
+            if str(candidate) not in sys.path:
+                sys.path.insert(0, str(candidate))
+            break
+    try:
+        from diag_neural_pools import load_pool_rows, sequence_logprobs
+    except ImportError as exc:
+        raise SystemExit(
+            "diag_neural_pools is needed to score a checkpoint and was not found next to "
+            "%s, on PYTHONPATH, or at /work/uf4_20260910/code (%s). Either place it beside "
+            "this file or pass --logprobs to run from cached log probabilities, which needs "
+            "no forward pass." % (here, exc))
+    return load_pool_rows, sequence_logprobs
 
 ROOT = Path("/work/uf4_20260910")
 POOL = 8
 
 
+def candidate_problem(path: Path):
+    """Why this path cannot be fingerprinted, or None.
+
+    Separated from fingerprint() so the caller can turn it into a recorded
+    rejection instead of an exit. An earlier version walked whatever was there
+    and returned the sha256 of nothing for a path that did not exist, so a
+    cached-log-probability run could write an ACCEPTED record naming a
+    checkpoint that was never trained.
+    """
+    if not path.exists():
+        return "candidate path does not exist: %s" % path
+    if not [f for f in path.rglob("*")
+            if f.is_file() and f.suffix in (".safetensors", ".bin")]:
+        return ("%s holds no .safetensors or .bin weights; a fingerprint over an empty "
+                "file set would certify nothing" % path)
+    return None
+
+
 def fingerprint(path: Path) -> str:
-    """A content digest of the checkpoint's weight and config files."""
+    """A content digest of the checkpoint's weight and config files.
+
+    Refuses a path that carries no weights. An earlier version walked whatever
+    was there and returned the sha256 of nothing for a path that did not exist,
+    so a cached-log-probability run could write an ACCEPTED record naming a
+    checkpoint that was never trained.
+    """
+    problem = candidate_problem(path)
+    if problem:
+        raise SystemExit(problem)
     h = hashlib.sha256()
     for f in sorted(path.rglob("*")):
         if f.is_file() and f.suffix in (".safetensors", ".bin", ".json", ".model"):
@@ -97,12 +167,30 @@ def main() -> int:
                     help="the panel's solve_pros4_targets_<panel>.py, whose load_scores "
                          "and OBJECTIVES define the game being gated")
     ap.add_argument("--split", default="dev")
-    ap.add_argument("--beta", type=float, default=0.25)
+    ap.add_argument("--shards", type=int, default=None,
+                    help="score shard count; inferred from the shard* directories when "
+                         "omitted, and validated as 0..n-1 rather than assumed to be 4")
+    ap.add_argument("--beta", type=float, default=None,
+                    help="optional cross-check; the beta actually used is read from the "
+                         "solved target and a disagreeing value here is refused")
+    ap.add_argument("--profile", default="paper-nbpo",
+                    choices=("paper-nbpo", "paper-global", "coverage"),
+                    help="which acceptance contract to apply; recorded in the decision")
+    ap.add_argument("--surplus-tol", type=float, default=1e-8,
+                    help="the manuscript's tolerance: a retained local surplus must "
+                         "exceed it")
     ap.add_argument("--coverage-min", type=float, default=0.5,
-                    help="minimum fraction of development prompts positive on every "
-                         "objective; declare it before running, not after reading")
+                    help="only for --profile coverage, which is a relaxed diagnostic and "
+                         "not the manuscript's predicate")
     ap.add_argument("--nmse-max", type=float, default=1.0,
-                    help="maximum held-out nMSE; 1.0 is the value of predicting zero")
+                    help="maximum held-out nMSE, for the profiles that require a fit")
+    ap.add_argument("--assume-beta", type=float, default=None,
+                    help="beta to use when the target carries no complete.json; recorded "
+                         "as an unverified assumption, never used as a silent default")
+    ap.add_argument("--expect-beta", type=float, default=None,
+                    help="refuse unless the solved target declares this beta. Without it "
+                         "the beta is TAKEN FROM the target and an explicit --beta that "
+                         "disagrees is refused rather than silently used.")
     ap.add_argument("--nmse-from", default=None,
                     help="trainer_state.json of the candidate, for the recorded "
                          "held-out nMSE; omit to skip the fit check and say so")
@@ -129,12 +217,69 @@ def main() -> int:
     pids = [str(p) for p in z["prompt_ids"]]
     recorded_min = np.asarray(z["min_surplus"], dtype=np.float64)
 
+    # The game is whatever the target was SOLVED against, and beta is part of the
+    # game. Taking it from a flag let a beta = .05 target be evaluated at the
+    # default .25 and accepted at +.035 where its own beta gives -.146. The
+    # solved artifact is now the authority and a disagreeing flag is refused.
+    manifest = tdir / "complete.json"
+    if manifest.exists():
+        complete = json.loads(manifest.read_text())
+        if "beta" not in complete:
+            raise SystemExit(
+                "%s records no beta; the game the candidate was fitted to is then "
+                "unidentified and the surplus cannot be computed in it" % manifest)
+        solved_beta = float(complete["beta"])
+        beta_source = str(manifest)
+    elif args.assume_beta is not None:
+        # An explicit, recorded assumption for a target that carries no manifest.
+        # Deliberately not a default: taking beta from a flag silently is what
+        # let a beta = .05 target be judged at .25 and accepted where its own
+        # beta rejects it, so the assumption has to be stated and it is written
+        # into the decision as unverified.
+        complete = {}
+        solved_beta = float(args.assume_beta)
+        beta_source = "--assume-beta, UNVERIFIED: the target carries no complete.json"
+    else:
+        raise SystemExit(
+            "%s has no complete.json, so the beta this target was solved at is unknown. "
+            "The gate will not fall back to a default, because evaluating the surplus in "
+            "the wrong game can turn a rejection into an acceptance. Supply "
+            "--assume-beta <value> to state the assumption explicitly; it is recorded as "
+            "unverified in the decision." % tdir)
+    if args.expect_beta is not None and abs(args.expect_beta - solved_beta) > 1e-12:
+        raise SystemExit(
+            "the target declares beta %.6g and --expect-beta says %.6g; refusing rather "
+            "than evaluating a different game than the one that was solved"
+            % (solved_beta, args.expect_beta))
+    if args.beta is not None and abs(args.beta - solved_beta) > 1e-12:
+        raise SystemExit(
+            "--beta %.6g disagrees with the beta %.6g this target was solved at; the "
+            "surplus would be computed in a game the candidate was never fitted to"
+            % (args.beta, solved_beta))
+    beta = solved_beta
+
+    # and the target must still be the one the solve certified
+    solved_hashes = {}
+    for split in ("train", "dev"):
+        sc = tdir / split / "complete.json"
+        if sc.exists():
+            rec = json.loads(sc.read_text())
+            solved_hashes[split] = {k: rec.get(k) for k in
+                                    ("solver_solution_sha256", "pairs_sha256", "n_prompts")}
+    here = solved_hashes.get(args.split, {})
+    if here.get("n_prompts") not in (None, len(pids)):
+        raise SystemExit(
+            "the %s solve recorded %s prompts and the per-prompt array holds %d; the "
+            "target has been modified since it was certified"
+            % (args.split, here.get("n_prompts"), len(pids)))
+
     candidates = {pid: ["%s:learner:%d" % (pid, i) for i in range(POOL)] for pid in pids}
     wanted = {c for v in candidates.values() for c in v}
     order = [c for pid in pids for c in candidates[pid]]
     if args.logprobs:
         rows = None            # no tokenization is needed when the log-probs are given
     else:
+        load_pool_rows, sequence_logprobs = _pool_helpers()
         rows = load_pool_rows(args.pool, wanted)
         missing = sorted(wanted - set(rows))
         if missing:
@@ -201,7 +346,18 @@ def main() -> int:
     from mnpo_scripts.nbpo_core import uniform_policy
     from mnpo_scripts.nbpo_representations import AdaptiveGameRepresentation
 
-    scores, _ = solver.load_scores(args.scores, 4)
+    shards = args.shards
+    if shards is None:
+        found = sorted(d for d in Path(args.scores).glob("shard*") if d.is_dir())
+        if not found:
+            raise SystemExit("%s contains no shard* directories" % args.scores)
+        indices = sorted(int(d.name[len("shard"):]) for d in found)
+        if indices != list(range(len(indices))):
+            raise SystemExit(
+                "%s has shard directories %s, which are not 0..n-1; the count cannot be "
+                "inferred and must be given with --shards" % (args.scores, indices))
+        shards = len(indices)
+    scores, score_manifests = solver.load_scores(args.scores, shards)
     absent = [pid for pid in pids if pid not in scores]
     if absent:
         raise SystemExit("%d development prompts have no score tensor" % len(absent))
@@ -217,7 +373,7 @@ def main() -> int:
     # implementation of Eq. (8) and Eq. (10) and evaluates it where the rule is
     # defined.
     surplus = np.empty((K, len(pids)), dtype=np.float64)
-    beta_vec = torch.full((K,), args.beta, dtype=torch.float64)
+    beta_vec = torch.full((K,), beta, dtype=torch.float64)
     for x in range(len(pids)):
         if pids[x] in unusable:
             surplus[:, x] = np.nan
@@ -243,27 +399,81 @@ def main() -> int:
             "reason": ("candidate log-probability is not finite" if pid in unusable
                        else ("surplus is not finite" if not ok else None))})
 
-    finite_ok = nonfinite == 0
+    # the candidate has to be a real checkpoint for any of this to mean anything,
+    # and a missing one is reported as a rejection rather than an exit so the
+    # caller that reads decisions gets one
+    candidate_ok = candidate_problem(Path(args.candidate))
+    finite_ok = nonfinite == 0 and candidate_ok is None
     mins = np.array([r["min_surplus"] if r["min_surplus"] is not None else np.nan
                      for r in per_prompt], dtype=np.float64)
-    positive = np.isfinite(mins) & (mins > 0)
-    coverage = float(positive.mean())
+    above = np.isfinite(mins) & (mins > args.surplus_tol)
+    coverage = float(above.mean())
+    # the manuscript's NBPO predicate: EVERY retained local surplus over the
+    # tolerance. A coverage fraction is the diagnostic for how badly it fails.
+    all_local_positive = bool(finite_ok and above.all() and above.size > 0)
+    failing = [r["prompt_id"] for r, ok in zip(per_prompt, above) if not ok]
+    # the control's predicate: the prompt-averaged surplus per objective
+    aggregate = np.nanmean(surplus, axis=1) if surplus.size else np.array([])
+    aggregate_positive = bool(aggregate.size and np.all(np.isfinite(aggregate))
+                              and np.all(aggregate > args.surplus_tol))
 
-    nmse, fit_ok, fit_note = None, None, "not checked: --nmse-from was not given"
-    if args.nmse_from:
+    nmse, fit_ok, fit_note = None, None, "not requested and not required"
+    needs_fit = args.profile == "paper-global"
+    if args.nmse_from or needs_fit:
+        if not args.nmse_from:
+            raise SystemExit("--profile %s requires --nmse-from" % args.profile)
         state = json.loads(Path(args.nmse_from).read_text())
         seen = [e for e in state.get("log_history", []) if "eval_nbpo/nmse" in e]
-        if seen:
-            nmse = float(seen[-1]["eval_nbpo/nmse"])
-            fit_ok = nmse <= args.nmse_max
-            fit_note = "last recorded held-out nMSE"
+        if not seen:
+            # An absent metric used to leave fit=None, which the old acceptance
+            # rule read as "not False" and let through. A requested check that
+            # cannot be evaluated is a failure.
+            nmse, fit_ok = None, False
+            fit_note = ("no eval_nbpo/nmse in the trainer state; a requested fit check "
+                        "that cannot be evaluated is a rejection, not a pass")
         else:
-            fit_note = "no eval_nbpo/nmse in the trainer state"
+            nmse = float(seen[-1]["eval_nbpo/nmse"])
+            if not math.isfinite(nmse):
+                fit_ok, fit_note = False, "recorded nMSE is not finite"
+            elif nmse < 0.0:
+                fit_ok = False
+                fit_note = "recorded nMSE is negative, which this statistic cannot be"
+            else:
+                fit_ok = nmse <= args.nmse_max
+                fit_note = "last recorded held-out nMSE, finite and in range"
 
-    checks = {"finite": finite_ok,
-              "coverage": coverage >= args.coverage_min,
-              "fit": fit_ok}
-    accepted = bool(finite_ok and checks["coverage"] and (fit_ok is not False))
+    # A check the caller ASKED for is enforced whatever the profile says. The
+    # manuscript attaches nMSE to the control and not to the NBPO family, so the
+    # paper-nbpo predicate does not require it -- but silently ignoring a
+    # supplied --nmse-from is the same defect as treating a missing one as a
+    # pass: the caller reads an acceptance and believes the fit was checked.
+    fit_requested = bool(args.nmse_from)
+
+    if args.profile == "paper-nbpo":
+        checks = {"finite": finite_ok, "all_local_surplus_above_tol": all_local_positive}
+        accepted = bool(finite_ok and all_local_positive)
+        predicate = ("every retained local surplus > %g on every objective "
+                     "(Appendix H, NBPO family)" % args.surplus_tol)
+        if fit_requested:
+            checks["fit"] = fit_ok
+            accepted = bool(accepted and fit_ok is True)
+            predicate += (", and the caller's requested dev nMSE in [0, %g]"
+                          % args.nmse_max)
+    elif args.profile == "paper-global":
+        checks = {"finite": finite_ok, "aggregate_surplus_above_tol": aggregate_positive,
+                  "fit": fit_ok}
+        accepted = bool(finite_ok and aggregate_positive and fit_ok is True)
+        predicate = ("aggregate surplus > %g on every objective and finite dev nMSE in "
+                     "[0, %g] (Appendix H, Global Nash control)"
+                     % (args.surplus_tol, args.nmse_max))
+    else:
+        checks = {"finite": finite_ok, "coverage": coverage >= args.coverage_min}
+        accepted = bool(finite_ok and checks["coverage"])
+        if fit_requested:
+            checks["fit"] = fit_ok
+            accepted = bool(accepted and fit_ok is True)
+        predicate = ("RELAXED DIAGNOSTIC, not the manuscript's contract: at least %g of "
+                     "prompts positive on every objective" % args.coverage_min)
 
     record = {
         "gate": "prompt_wise_local_acceptance",
@@ -278,9 +488,21 @@ def main() -> int:
         "split": args.split,
         "prompts": len(pids),
         "logprob_source": logprob_source,
-        "thresholds": {"coverage_min": args.coverage_min, "nmse_max": args.nmse_max,
-                       "beta": args.beta},
-        "measured": {"coverage": coverage, "nonfinite_prompts": nonfinite,
+        "score_shards": shards,
+        "score_manifest_schema": [m.get("tensor_role_schema") for m in score_manifests],
+        "profile": args.profile,
+        "predicate": predicate,
+        "is_the_manuscript_contract": args.profile in ("paper-nbpo", "paper-global"),
+        "thresholds": {"surplus_tol": args.surplus_tol, "coverage_min": args.coverage_min,
+                       "nmse_max": args.nmse_max,
+                       "beta": beta, "beta_source": beta_source},
+        "solved_target": {"beta": beta, "hashes": solved_hashes},
+        "measured": {"coverage": coverage,
+                     "candidate_problem": candidate_ok,
+                     "prompts_failing_the_local_predicate": len(failing),
+                     "failing_prompt_ids": failing[:50],
+                     "aggregate_surplus_per_objective": [float(x) for x in aggregate],
+                     "nonfinite_prompts": nonfinite,
                      "prompts_with_unusable_logprobs": sorted(unusable),
                      "held_out_nmse": nmse, "nmse_note": fit_note,
                      "min_surplus_quantiles": {

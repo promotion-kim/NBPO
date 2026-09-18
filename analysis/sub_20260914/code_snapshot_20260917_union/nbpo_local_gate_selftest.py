@@ -1,4 +1,12 @@
-"""A04 acceptance: the gate accepts, rejects and never promotes on a bad value.
+"""Pod-data smoke check for the gate; the portable regressions live in tests/.
+
+Superseded as the acceptance evidence by tests/test_nbpo_local_gate.py and
+tests/test_nbpo_stage_controller.py, which are synthetic, need no /work data and
+run in a clean checkout. This file is kept because it exercises the gate against
+the real uw1c solve, which those cannot. It exits non-zero when any recorded
+assertion fails.
+
+A04 acceptance: the gate accepts, rejects and never promotes on a bad value.
 
 Runs the real nbpo_local_gate.py against the real uw1c dev solve and the real
 score tensors, with the forward pass replaced by supplied log-probabilities, so
@@ -99,3 +107,6 @@ with tempfile.TemporaryDirectory() as promote:
 
 print()
 print("A04 VERIFIED" if not fail else "STILL BROKEN: " + "; ".join(fail))
+# a recorded assertion that failed has to change the process status, or a caller
+# that only checks the exit code reads a broken run as a clean one
+raise SystemExit(0 if not fail else 1)

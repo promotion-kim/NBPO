@@ -1,0 +1,620 @@
+{
+  "repo": "/mnt/data/_reaudit_work/current/NBPO-main",
+  "checks": [
+    {
+      "name": "valid_equal_semantic_arrays_us1",
+      "status": "OPEN",
+      "rejected": true,
+      "error": "/mnt/data/nbpo_reaudit_f0efbb5/fixtures/equal_K2/uf/scores/scores/shard0/chunk0000.npz has A_policy equal to A_LL, which is the pre-fix wiring under a post-fix label",
+      "core_certified": true,
+      "core_min_surplus": 0.1404634983901109,
+      "scope": "actual generalized scorer and actual loader; independent banks may yield identical matrices; core solve shows positive feasible improvement"
+    },
+    {
+      "name": "valid_equal_semantic_arrays_ut1",
+      "status": "OPEN",
+      "rejected": true,
+      "error": "/mnt/data/nbpo_reaudit_f0efbb5/fixtures/equal_K2/uf/scores/scores/shard0/chunk0000.npz has A_policy equal to A_LL, which is the pre-fix wiring under a post-fix label",
+      "core_certified": true,
+      "core_min_surplus": 0.1404634983901109,
+      "scope": "actual generalized scorer and actual loader; independent banks may yield identical matrices; core solve shows positive feasible improvement"
+    },
+    {
+      "name": "valid_equal_semantic_arrays_uw1",
+      "status": "OPEN",
+      "rejected": true,
+      "error": "/mnt/data/nbpo_reaudit_f0efbb5/fixtures/equal_K4/uf/scores/scores/shard0/chunk0000.npz has A_policy equal to A_LL, which is the pre-fix wiring under a post-fix label",
+      "core_certified": true,
+      "core_min_surplus": 0.16947806329989656,
+      "scope": "actual generalized scorer and actual loader; independent banks may yield identical matrices; core solve shows positive feasible improvement"
+    },
+    {
+      "name": "valid_equal_semantic_arrays_uw1c",
+      "status": "OPEN",
+      "rejected": true,
+      "error": "/mnt/data/nbpo_reaudit_f0efbb5/fixtures/equal_K4/uf/scores/scores/shard0/chunk0000.npz has A_policy equal to A_LL, which is the pre-fix wiring under a post-fix label",
+      "core_certified": true,
+      "core_min_surplus": 0.16947806329989656,
+      "scope": "actual generalized scorer and actual loader; independent banks may yield identical matrices; core solve shows positive feasible improvement"
+    },
+    {
+      "name": "valid_equal_semantic_arrays_uw3",
+      "status": "OPEN",
+      "rejected": true,
+      "error": "/mnt/data/nbpo_reaudit_f0efbb5/fixtures/equal_K4/uf/scores/scores/shard0/chunk0000.npz has A_policy equal to A_LL, which is the pre-fix wiring under a post-fix label",
+      "core_certified": true,
+      "core_min_surplus": 0.16947806329989656,
+      "scope": "actual generalized scorer and actual loader; independent banks may yield identical matrices; core solve shows positive feasible improvement"
+    },
+    {
+      "name": "loader_wrong_alias",
+      "status": "PASS",
+      "rejected": true,
+      "error": "/mnt/data/nbpo_reaudit_f0efbb5/fixtures/validation_K4/uf/scores/scores/shard0/chunk0000.npz declares lr_rr_v2 but its A_policy is not its A_LR; the tensor roles do not match the schema it claims, so this shard cannot be solved as the declared game",
+      "scope": "synthetic altered artifact, not evidence production artifacts are corrupt"
+    },
+    {
+      "name": "loader_missing_semantics",
+      "status": "OPEN",
+      "rejected": false,
+      "error": null,
+      "scope": "synthetic altered artifact, not evidence production artifacts are corrupt"
+    },
+    {
+      "name": "loader_wrong_bank_roles",
+      "status": "PASS",
+      "rejected": true,
+      "error": "/mnt/data/nbpo_reaudit_f0efbb5/fixtures/validation_K4/uf/scores/scores/shard0/chunk0000.npz records A_ref drawn from ['learner', 'learner'], not ['comparator', 'comparator']"
+    },
+    {
+      "name": "digest_uw1",
+      "status": "PASS",
+      "checked": 16,
+      "content_edit_changes_digest": true,
+      "stale_sha_rejected": true,
+      "panel_label": "UW1"
+    },
+    {
+      "name": "digest_uw1c",
+      "status": "PASS",
+      "checked": 16,
+      "content_edit_changes_digest": true,
+      "stale_sha_rejected": true,
+      "panel_label": "UW1C"
+    },
+    {
+      "name": "digest_uw3",
+      "status": "PASS",
+      "checked": 16,
+      "content_edit_changes_digest": true,
+      "stale_sha_rejected": true,
+      "panel_label": "UW3"
+    },
+    {
+      "name": "digest_us1",
+      "status": "PASS",
+      "checked": 16,
+      "content_edit_changes_digest": true,
+      "stale_sha_rejected": true,
+      "panel_label": "US1"
+    },
+    {
+      "name": "digest_ut1",
+      "status": "PASS",
+      "checked": 16,
+      "content_edit_changes_digest": true,
+      "stale_sha_rejected": true,
+      "panel_label": "UT1"
+    },
+    {
+      "name": "gate_root_current_import",
+      "status": "OPEN",
+      "returncode": 1,
+      "error": "Traceback (most recent call last):\n  File \"/mnt/data/_reaudit_work/current/NBPO-main/analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate.py\", line 64, in <module>\n    from diag_neural_pools import load_pool_rows, sequence_logprobs   # noqa: E402\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named 'diag_neural_pools'\n",
+      "scope": "root and current snapshot on PYTHONPATH; no /work overlay"
+    },
+    {
+      "name": "gate_positive",
+      "status": "PASS",
+      "expected_accepted_under_paper_contract": true,
+      "returncode": 0,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": true,
+      "checks": {
+        "finite": true,
+        "coverage": true,
+        "fit": true
+      },
+      "coverage": 1.0,
+      "nonfinite": 0,
+      "nmse": 0.5,
+      "parent_retained": false,
+      "promoted": true,
+      "local_surpluses": [
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407
+      ],
+      "promotion_contents": [
+        "ACCEPTED.json"
+      ],
+      "fingerprint": "12ce6581ea6df393f7434791dbf12f38609384e42f9d85cc6368820c55a30d87",
+      "scope": "actual CLI subprocess and filesystem with synthetic checkpoint sentinel, cached log-probabilities; no model forward"
+    },
+    {
+      "name": "gate_negative",
+      "status": "PASS",
+      "expected_accepted_under_paper_contract": false,
+      "returncode": 3,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": false,
+      "checks": {
+        "finite": true,
+        "coverage": false,
+        "fit": true
+      },
+      "coverage": 0.0,
+      "nonfinite": 0,
+      "nmse": 0.5,
+      "parent_retained": true,
+      "promoted": false,
+      "local_surpluses": [
+        -0.20652582705157407,
+        -0.20652582705157407,
+        -0.20652582705157407,
+        -0.20652582705157407
+      ],
+      "promotion_contents": [],
+      "fingerprint": null,
+      "scope": "actual CLI subprocess and filesystem with synthetic checkpoint sentinel, cached log-probabilities; no model forward"
+    },
+    {
+      "name": "gate_nonfinite_logp_nan",
+      "status": "PASS",
+      "expected_accepted_under_paper_contract": false,
+      "returncode": 3,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": false,
+      "checks": {
+        "finite": false,
+        "coverage": true,
+        "fit": true
+      },
+      "coverage": 0.75,
+      "nonfinite": 1,
+      "nmse": 0.5,
+      "parent_retained": true,
+      "promoted": false,
+      "local_surpluses": [
+        null,
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407
+      ],
+      "promotion_contents": [],
+      "fingerprint": null,
+      "scope": "actual CLI subprocess and filesystem with synthetic checkpoint sentinel, cached log-probabilities; no model forward"
+    },
+    {
+      "name": "gate_nonfinite_logp_inf",
+      "status": "PASS",
+      "expected_accepted_under_paper_contract": false,
+      "returncode": 3,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": false,
+      "checks": {
+        "finite": false,
+        "coverage": true,
+        "fit": true
+      },
+      "coverage": 0.75,
+      "nonfinite": 1,
+      "nmse": 0.5,
+      "parent_retained": true,
+      "promoted": false,
+      "local_surpluses": [
+        null,
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407
+      ],
+      "promotion_contents": [],
+      "fingerprint": null,
+      "scope": "actual CLI subprocess and filesystem with synthetic checkpoint sentinel, cached log-probabilities; no model forward"
+    },
+    {
+      "name": "gate_fit_above_one",
+      "status": "PASS",
+      "expected_accepted_under_paper_contract": false,
+      "returncode": 3,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": false,
+      "checks": {
+        "finite": true,
+        "coverage": true,
+        "fit": false
+      },
+      "coverage": 1.0,
+      "nonfinite": 0,
+      "nmse": 1.2,
+      "parent_retained": true,
+      "promoted": false,
+      "local_surpluses": [
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407
+      ],
+      "promotion_contents": [],
+      "fingerprint": null,
+      "scope": "actual CLI subprocess and filesystem with synthetic checkpoint sentinel, cached log-probabilities; no model forward"
+    },
+    {
+      "name": "gate_fit_nan",
+      "status": "PASS",
+      "expected_accepted_under_paper_contract": false,
+      "returncode": 3,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": false,
+      "checks": {
+        "finite": true,
+        "coverage": true,
+        "fit": false
+      },
+      "coverage": 1.0,
+      "nonfinite": 0,
+      "nmse": NaN,
+      "parent_retained": true,
+      "promoted": false,
+      "local_surpluses": [
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407
+      ],
+      "promotion_contents": [],
+      "fingerprint": null,
+      "scope": "actual CLI subprocess and filesystem with synthetic checkpoint sentinel, cached log-probabilities; no model forward"
+    },
+    {
+      "name": "gate_fit_posinf",
+      "status": "PASS",
+      "expected_accepted_under_paper_contract": false,
+      "returncode": 3,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": false,
+      "checks": {
+        "finite": true,
+        "coverage": true,
+        "fit": false
+      },
+      "coverage": 1.0,
+      "nonfinite": 0,
+      "nmse": Infinity,
+      "parent_retained": true,
+      "promoted": false,
+      "local_surpluses": [
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407
+      ],
+      "promotion_contents": [],
+      "fingerprint": null,
+      "scope": "actual CLI subprocess and filesystem with synthetic checkpoint sentinel, cached log-probabilities; no model forward"
+    },
+    {
+      "name": "gate_mixed_default",
+      "status": "OPEN",
+      "expected_accepted_under_paper_contract": false,
+      "returncode": 0,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": true,
+      "checks": {
+        "finite": true,
+        "coverage": true,
+        "fit": true
+      },
+      "coverage": 0.5,
+      "nonfinite": 0,
+      "nmse": 0.5,
+      "parent_retained": false,
+      "promoted": true,
+      "local_surpluses": [
+        0.20652582705157407,
+        0.20652582705157407,
+        -0.20652582705157407,
+        -0.20652582705157407
+      ],
+      "promotion_contents": [
+        "ACCEPTED.json"
+      ],
+      "fingerprint": "12ce6581ea6df393f7434791dbf12f38609384e42f9d85cc6368820c55a30d87",
+      "scope": "actual CLI subprocess and filesystem with synthetic checkpoint sentinel, cached log-probabilities; no model forward"
+    },
+    {
+      "name": "gate_mixed_full_coverage",
+      "status": "PASS",
+      "expected_accepted_under_paper_contract": false,
+      "returncode": 3,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": false,
+      "checks": {
+        "finite": true,
+        "coverage": false,
+        "fit": true
+      },
+      "coverage": 0.5,
+      "nonfinite": 0,
+      "nmse": 0.5,
+      "parent_retained": true,
+      "promoted": false,
+      "local_surpluses": [
+        0.20652582705157407,
+        0.20652582705157407,
+        -0.20652582705157407,
+        -0.20652582705157407
+      ],
+      "promotion_contents": [],
+      "fingerprint": null,
+      "scope": "actual CLI subprocess and filesystem with synthetic checkpoint sentinel, cached log-probabilities; no model forward"
+    },
+    {
+      "name": "gate_nmse_requested_but_missing",
+      "status": "OPEN",
+      "expected_accepted_under_paper_contract": false,
+      "returncode": 0,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": true,
+      "checks": {
+        "finite": true,
+        "coverage": true,
+        "fit": null
+      },
+      "coverage": 1.0,
+      "nonfinite": 0,
+      "nmse": null,
+      "parent_retained": false,
+      "promoted": true,
+      "local_surpluses": [
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407
+      ],
+      "promotion_contents": [
+        "ACCEPTED.json"
+      ],
+      "fingerprint": "12ce6581ea6df393f7434791dbf12f38609384e42f9d85cc6368820c55a30d87",
+      "scope": "actual CLI subprocess and filesystem with synthetic checkpoint sentinel, cached log-probabilities; no model forward"
+    },
+    {
+      "name": "gate_nmse_neginf",
+      "status": "OPEN",
+      "expected_accepted_under_paper_contract": false,
+      "returncode": 0,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": true,
+      "checks": {
+        "finite": true,
+        "coverage": true,
+        "fit": true
+      },
+      "coverage": 1.0,
+      "nonfinite": 0,
+      "nmse": -Infinity,
+      "parent_retained": false,
+      "promoted": true,
+      "local_surpluses": [
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407
+      ],
+      "promotion_contents": [
+        "ACCEPTED.json"
+      ],
+      "fingerprint": "12ce6581ea6df393f7434791dbf12f38609384e42f9d85cc6368820c55a30d87",
+      "scope": "actual CLI subprocess and filesystem with synthetic checkpoint sentinel, cached log-probabilities; no model forward"
+    },
+    {
+      "name": "gate_nonexistent_checkpoint",
+      "status": "OPEN",
+      "expected_accepted_under_paper_contract": false,
+      "returncode": 0,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": true,
+      "checks": {
+        "finite": true,
+        "coverage": true,
+        "fit": true
+      },
+      "coverage": 1.0,
+      "nonfinite": 0,
+      "nmse": 0.5,
+      "parent_retained": false,
+      "promoted": true,
+      "local_surpluses": [
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407
+      ],
+      "promotion_contents": [
+        "ACCEPTED.json"
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "actual CLI subprocess and filesystem with synthetic checkpoint sentinel, cached log-probabilities; no model forward"
+    },
+    {
+      "name": "gate_fit_omitted",
+      "status": "OBSERVATION",
+      "returncode": 0,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": true,
+      "checks": {
+        "finite": true,
+        "coverage": true,
+        "fit": null
+      },
+      "coverage": 1.0,
+      "nonfinite": 0,
+      "nmse": null,
+      "parent_retained": false,
+      "promoted": true,
+      "local_surpluses": [
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407,
+        0.20652582705157407
+      ],
+      "promotion_contents": [
+        "ACCEPTED.json"
+      ],
+      "fingerprint": "12ce6581ea6df393f7434791dbf12f38609384e42f9d85cc6368820c55a30d87",
+      "note": "documented optional bypass, but unlike manuscript all-check contract; not claimed an accidental missing file"
+    },
+    {
+      "name": "gate_missing_logp",
+      "status": "PASS",
+      "returncode": 1,
+      "decision_exists": false,
+      "stderr": "candidate log-probabilities are missing 1 occurrences\n",
+      "note": "fails closed by terminating; no decision record produced"
+    },
+    {
+      "name": "gate_two_objectives_positive",
+      "status": "PASS",
+      "returncode": 0,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": true,
+      "checks": {
+        "finite": true,
+        "coverage": true,
+        "fit": true
+      },
+      "coverage": 1.0,
+      "nonfinite": 0,
+      "nmse": 0.5,
+      "parent_retained": false,
+      "promoted": true,
+      "local_surpluses": [
+        0.16743307490109605,
+        0.16743307490109605,
+        0.16743307490109605,
+        0.16743307490109605
+      ],
+      "promotion_contents": [
+        "ACCEPTED.json"
+      ],
+      "fingerprint": "12ce6581ea6df393f7434791dbf12f38609384e42f9d85cc6368820c55a30d87"
+    },
+    {
+      "name": "gate_surplus_epsilon",
+      "status": "OPEN",
+      "returncode": 0,
+      "decision_exists": true,
+      "stderr": "",
+      "accepted": true,
+      "checks": {
+        "finite": true,
+        "coverage": true,
+        "fit": true
+      },
+      "coverage": 1.0,
+      "nonfinite": 0,
+      "nmse": 0.5,
+      "parent_retained": false,
+      "promoted": true,
+      "local_surpluses": [
+        4.999999969612645e-09,
+        4.999999969612645e-09,
+        4.999999969612645e-09,
+        4.999999969612645e-09
+      ],
+      "promotion_contents": [
+        "ACCEPTED.json"
+      ],
+      "fingerprint": "12ce6581ea6df393f7434791dbf12f38609384e42f9d85cc6368820c55a30d87",
+      "required_paper_margin": 1e-08
+    },
+    {
+      "name": "gate_beta_binding",
+      "status": "OPEN",
+      "target_beta": 0.05,
+      "default_beta_result": {
+        "returncode": 0,
+        "decision_exists": true,
+        "stderr": "",
+        "accepted": true,
+        "checks": {
+          "finite": true,
+          "coverage": true,
+          "fit": true
+        },
+        "coverage": 1.0,
+        "nonfinite": 0,
+        "nmse": 1.0,
+        "parent_retained": false,
+        "promoted": true,
+        "local_surpluses": [
+          0.03467200751216323,
+          0.03467200751216323,
+          0.03467200751216323,
+          0.03467200751216323
+        ],
+        "promotion_contents": [
+          "ACCEPTED.json"
+        ],
+        "fingerprint": "12ce6581ea6df393f7434791dbf12f38609384e42f9d85cc6368820c55a30d87"
+      },
+      "matching_beta_result": {
+        "returncode": 3,
+        "decision_exists": true,
+        "stderr": "",
+        "accepted": false,
+        "checks": {
+          "finite": true,
+          "coverage": false,
+          "fit": true
+        },
+        "coverage": 0.0,
+        "nonfinite": 0,
+        "nmse": 1.0,
+        "parent_retained": true,
+        "promoted": false,
+        "local_surpluses": [
+          -0.14622112867961923,
+          -0.14622112867961923,
+          -0.14622112867961923,
+          -0.14622112867961923
+        ],
+        "promotion_contents": [],
+        "fingerprint": null
+      },
+      "note": "same certified target and candidate LP; only runtime beta changed; metadata mismatch not rejected"
+    },
+    {
+      "name": "gate_target_manifest_binding",
+      "status": "OPEN",
+      "accepted": true,
+      "target_changed": true,
+      "note": "supplied target hash no longer matches solution.json; gate does not inspect that manifest"
+    }
+  ]
+}

@@ -1,0 +1,245 @@
+..............................FF..............................FFF....... [ 57%]
+......................................................                   [100%]
+=================================== FAILURES ===================================
+___________________ test_dataset_splits_match_saved_dataset ____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_dataset_splits_match_save0')
+
+    def test_dataset_splits_match_saved_dataset(tmp_path):
+        # materialize_run_config must name only splits that exist, or run_mnpo's
+        # loader fails on a split the artifact never saved.
+        from scripts.nbpo.run_nbpo_stage import materialize_run_config
+    
+        stage_cfg = {"stage": 0, "trainer": {"learning_rate": 5e-7, "max_steps": 2, "bf16": False}}
+        parent = _ckpt(tmp_path, "parent", "p")
+        out = tmp_path / "run_config.yaml"
+>       run = materialize_run_config(stage_cfg, parent, tmp_path / "pre", tmp_path / "cand", out,
+                                     dataset_splits=["train"])
+
+tests/test_nbpo_provenance.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/nbpo/run_nbpo_stage.py:651: in materialize_run_config
+    parse_run_config(output_yaml)
+scripts/nbpo/run_nbpo_stage.py:657: in parse_run_config
+    from alignment import DataArguments, H4ArgumentParser, ModelArguments
+alignment/__init__.py:3: in <module>
+    from .configs import DataArguments, DPOConfig, H4ArgumentParser, ModelArguments, SFTConfig
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    # coding=utf-8
+    # Copyright 2023 The HuggingFace Team. All rights reserved.
+    #
+    # Licensed under the Apache License, Version 2.0 (the "License");
+    # you may not use this file except in compliance with the License.
+    # You may obtain a copy of the License at
+    #
+    #     http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing, software
+    # distributed under the License is distributed on an "AS IS" BASIS,
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    # See the License for the specific language governing permissions and
+    # limitations under the License.
+    import dataclasses
+    import os
+    import sys
+    from dataclasses import dataclass, field
+    from typing import Any, Dict, List, NewType, Optional, Tuple, Union, get_args, get_origin
+    
+>   from transformers import MODEL_FOR_CAUSAL_LM_MAPPING, HfArgumentParser
+E   ModuleNotFoundError: No module named 'transformers'
+
+alignment/configs.py:21: ModuleNotFoundError
+_______________ test_run_config_carries_expected_artifact_hashes _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_run_config_carries_expect0')
+
+    def test_run_config_carries_expected_artifact_hashes(tmp_path):
+        from scripts.nbpo.run_nbpo_stage import materialize_run_config
+    
+        parent = _ckpt(tmp_path, "parent", "p")
+        out = tmp_path / "run_config.yaml"
+>       run = materialize_run_config(
+            {"stage": 0, "trainer": {"max_steps": 2, "bf16": False}}, parent,
+            tmp_path / "pre", tmp_path / "cand", out, dataset_splits=["train"],
+            expected_hashes={"nbpo_expected_pair_artifact_sha256": "a" * 64,
+                             "nbpo_expected_solver_artifact_sha256": "b" * 64,
+                             "nbpo_expected_parent_checkpoint_fingerprint": "c" * 64,
+                             "nbpo_expected_precompute_manifest_sha256": None})
+
+tests/test_nbpo_provenance.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/nbpo/run_nbpo_stage.py:651: in materialize_run_config
+    parse_run_config(output_yaml)
+scripts/nbpo/run_nbpo_stage.py:657: in parse_run_config
+    from alignment import DataArguments, H4ArgumentParser, ModelArguments
+alignment/__init__.py:3: in <module>
+    from .configs import DataArguments, DPOConfig, H4ArgumentParser, ModelArguments, SFTConfig
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    # coding=utf-8
+    # Copyright 2023 The HuggingFace Team. All rights reserved.
+    #
+    # Licensed under the Apache License, Version 2.0 (the "License");
+    # you may not use this file except in compliance with the License.
+    # You may obtain a copy of the License at
+    #
+    #     http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing, software
+    # distributed under the License is distributed on an "AS IS" BASIS,
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    # See the License for the specific language governing permissions and
+    # limitations under the License.
+    import dataclasses
+    import os
+    import sys
+    from dataclasses import dataclass, field
+    from typing import Any, Dict, List, NewType, Optional, Tuple, Union, get_args, get_origin
+    
+>   from transformers import MODEL_FOR_CAUSAL_LM_MAPPING, HfArgumentParser
+E   ModuleNotFoundError: No module named 'transformers'
+
+alignment/configs.py:21: ModuleNotFoundError
+_ test_stale_expected_artifact_hashes_fail[nbpo_expected_pair_artifact_sha256-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef-stale pair artifact] _
+
+field = 'nbpo_expected_pair_artifact_sha256'
+value = 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef'
+pattern = 'stale pair artifact'
+
+    @pytest.mark.parametrize("field,value,pattern", [
+        ("nbpo_expected_pair_artifact_sha256", "deadbeef" * 8, "stale pair artifact"),
+        ("nbpo_expected_solver_artifact_sha256", "deadbeef" * 8, "stale solver artifact"),
+        ("nbpo_expected_parent_checkpoint_fingerprint", "deadbeef" * 8, "does not match the parent"),
+    ])
+    def test_stale_expected_artifact_hashes_fail(field, value, pattern):
+        from types import SimpleNamespace
+    
+>       from mnpo_scripts.mnpo_trainer import validate_nbpo_args
+
+tests/test_nbpo_provenance.py:496: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+mnpo_scripts/mnpo_trainer.py:5: in <module>
+    from scripts.simpo_trainer import SimPOTrainer
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    import csv
+    import inspect
+    import json
+    import os
+    import random
+    import shutil
+    import subprocess
+    import sys
+    import warnings
+    from collections import defaultdict
+    from contextlib import nullcontext
+    from functools import wraps
+    from pathlib import Path
+    from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
+    
+    import numpy as np
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+>   from accelerate import PartialState
+E   ModuleNotFoundError: No module named 'accelerate'
+
+scripts/simpo_trainer.py:20: ModuleNotFoundError
+_ test_stale_expected_artifact_hashes_fail[nbpo_expected_solver_artifact_sha256-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef-stale solver artifact] _
+
+field = 'nbpo_expected_solver_artifact_sha256'
+value = 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef'
+pattern = 'stale solver artifact'
+
+    @pytest.mark.parametrize("field,value,pattern", [
+        ("nbpo_expected_pair_artifact_sha256", "deadbeef" * 8, "stale pair artifact"),
+        ("nbpo_expected_solver_artifact_sha256", "deadbeef" * 8, "stale solver artifact"),
+        ("nbpo_expected_parent_checkpoint_fingerprint", "deadbeef" * 8, "does not match the parent"),
+    ])
+    def test_stale_expected_artifact_hashes_fail(field, value, pattern):
+        from types import SimpleNamespace
+    
+>       from mnpo_scripts.mnpo_trainer import validate_nbpo_args
+
+tests/test_nbpo_provenance.py:496: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+mnpo_scripts/mnpo_trainer.py:5: in <module>
+    from scripts.simpo_trainer import SimPOTrainer
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    import csv
+    import inspect
+    import json
+    import os
+    import random
+    import shutil
+    import subprocess
+    import sys
+    import warnings
+    from collections import defaultdict
+    from contextlib import nullcontext
+    from functools import wraps
+    from pathlib import Path
+    from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
+    
+    import numpy as np
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+>   from accelerate import PartialState
+E   ModuleNotFoundError: No module named 'accelerate'
+
+scripts/simpo_trainer.py:20: ModuleNotFoundError
+_ test_stale_expected_artifact_hashes_fail[nbpo_expected_parent_checkpoint_fingerprint-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef-does not match the parent] _
+
+field = 'nbpo_expected_parent_checkpoint_fingerprint'
+value = 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef'
+pattern = 'does not match the parent'
+
+    @pytest.mark.parametrize("field,value,pattern", [
+        ("nbpo_expected_pair_artifact_sha256", "deadbeef" * 8, "stale pair artifact"),
+        ("nbpo_expected_solver_artifact_sha256", "deadbeef" * 8, "stale solver artifact"),
+        ("nbpo_expected_parent_checkpoint_fingerprint", "deadbeef" * 8, "does not match the parent"),
+    ])
+    def test_stale_expected_artifact_hashes_fail(field, value, pattern):
+        from types import SimpleNamespace
+    
+>       from mnpo_scripts.mnpo_trainer import validate_nbpo_args
+
+tests/test_nbpo_provenance.py:496: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+mnpo_scripts/mnpo_trainer.py:5: in <module>
+    from scripts.simpo_trainer import SimPOTrainer
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    import csv
+    import inspect
+    import json
+    import os
+    import random
+    import shutil
+    import subprocess
+    import sys
+    import warnings
+    from collections import defaultdict
+    from contextlib import nullcontext
+    from functools import wraps
+    from pathlib import Path
+    from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
+    
+    import numpy as np
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+>   from accelerate import PartialState
+E   ModuleNotFoundError: No module named 'accelerate'
+
+scripts/simpo_trainer.py:20: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_nbpo_provenance.py::test_dataset_splits_match_saved_dataset - ModuleNotFoundError: No module named 'transformers'
+FAILED tests/test_nbpo_provenance.py::test_run_config_carries_expected_artifact_hashes - ModuleNotFoundError: No module named 'transformers'
+FAILED tests/test_nbpo_provenance.py::test_stale_expected_artifact_hashes_fail[nbpo_expected_pair_artifact_sha256-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef-stale pair artifact] - ModuleNotFoundError: No module named 'accelerate'
+FAILED tests/test_nbpo_provenance.py::test_stale_expected_artifact_hashes_fail[nbpo_expected_solver_artifact_sha256-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef-stale solver artifact] - ModuleNotFoundError: No module named 'accelerate'
+FAILED tests/test_nbpo_provenance.py::test_stale_expected_artifact_hashes_fail[nbpo_expected_parent_checkpoint_fingerprint-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef-does not match the parent] - ModuleNotFoundError: No module named 'accelerate'
+5 failed, 121 passed in 55.31s

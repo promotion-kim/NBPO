@@ -1,0 +1,26 @@
+{
+  "total": 126,
+  "passed": 121,
+  "environment_blocked": [
+    {
+      "name": "test_dataset_splits_match_saved_dataset",
+      "failure": "ModuleNotFoundError: No module named 'transformers'"
+    },
+    {
+      "name": "test_run_config_carries_expected_artifact_hashes",
+      "failure": "ModuleNotFoundError: No module named 'transformers'"
+    },
+    {
+      "name": "test_stale_expected_artifact_hashes_fail[nbpo_expected_pair_artifact_sha256-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef-stale pair artifact]",
+      "failure": "ModuleNotFoundError: No module named 'accelerate'"
+    },
+    {
+      "name": "test_stale_expected_artifact_hashes_fail[nbpo_expected_solver_artifact_sha256-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef-stale solver artifact]",
+      "failure": "ModuleNotFoundError: No module named 'accelerate'"
+    },
+    {
+      "name": "test_stale_expected_artifact_hashes_fail[nbpo_expected_parent_checkpoint_fingerprint-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef-does not match the parent]",
+      "failure": "ModuleNotFoundError: No module named 'accelerate'"
+    }
+  ]
+}

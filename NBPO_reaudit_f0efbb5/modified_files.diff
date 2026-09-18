@@ -1,0 +1,955 @@
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/README.md
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/README.md
+@@ -105,6 +105,47 @@
+ module whose `--help` contained the substring `uw1`, which fires on `uw1c` —
+ correctly repointed — after the files had already been written. It now compares
+ whole tokens and exempts the panel being generated.
++
++## Third audit pass, 2026-09-18 (97e03c0)
++
++Six of the previous round's items were confirmed resolved. Four remained, and
++all four are closed here.
++
++**A04, the one that mattered: Algorithm 1's acceptance step was never wired into
++the prompt-wise training path.** The traced path was job generator —
++`torch.distributed.run` — `run_mnpo` — `train()` — `save_model()`, with
++nothing between or after it that evaluated, rejected or promoted a candidate. A
++certified solver residual does not substitute: it certifies the finite target,
++not the policy fitted to it. `nbpo_local_gate.py` now performs that step. It
++builds ONE REPRESENTATION PER PROMPT — the batched `game_values` divides by
++the prompt count, so a batch containing +.2 and -.1 averages to +.05 and passes
++while the compromise failed on one of those prompts — and applies three
++declared checks: every surplus finite, the fraction of development prompts
++positive on every objective at least `--coverage-min`, and the held-out nMSE at
++most `--nmse-max`. On a pass it writes a versioned accepted directory carrying
++the checkpoint's fingerprint; on a failure it promotes nothing and returns the
++parent. `scripts/nbpo/eval_game_value.py` stays global and now says so in its
++own docstring, because global is correct for the Global Nash control.
++
++The gate exists from 2026-09-18 and is not retroactive. Every number already
++reported came from an ungated projection, and a later gate cannot change that;
++anything described as gated must name a promotion record this file wrote.
++
++**C01: the schema tag was a declaration with nothing behind it.** A shard could
++say `lr_rr_v2` while its `A_policy` was not its own `A_LR`. The loader now checks
++the aliases against the semantic arrays, refuses a shard whose `A_policy` equals
++its `A_LL` (the pre-fix wiring under a post-fix label), and checks the recorded
++bank ids.
++
++**C02: the pool digest trusted a cached hash.** A row whose response text was
++edited while its `response_sha256` was left behind produced an unchanged digest.
++`split_pool_digest` now recomputes from the text, and the refusal lives in a
++separate `verify_pool_row_digests` that the solve calls first — so the digest
++stays a pure function of content while an internally inconsistent pool still
++stops the run.
++
++**C03: the UW1 base still labelled itself UF-4.** It is `UW1` now, and the
++generator's substitution anchor follows.
+ 
+ ## The prompt-wise NBPO line
+ 
+@@ -268,7 +309,7 @@
+ | `abl_analysis.py` | `a1ae9271f1a860e1` |
+ | `ahv2_breakdown.py` | `d4e97430d4f537bb` |
+ | `ahv2_paired.py` | `85038b4b314c5943` |
+-| `ahv2_sc_paired.py` | `668adab4d7f31fb5` |
++| `ahv2_sc_paired.py` | `9906157bc602e742` |
+ | `ahv2_style_control.py` | `ee230bf19864ed5a` |
+ | `analyze_screen.py` | `841409da20c363de` |
+ | `analyze_wild.py` | `f1226378f4072081` |
+@@ -276,7 +317,7 @@
+ | `build_eval_panel_ahv2.py` | `63bbabb8ba9a4c97` |
+ | `build_eval_panels.py` | `8183ed5efbec9580` |
+ | `build_panel_softlabels.py` | `567ef4618851beb0` |
+-| `build_panel_solvers.py` | `e96df0927515180c` |
++| `build_panel_solvers.py` | `d958a4ffd5bc3a4b` |
+ | `build_prosper_dataset.py` | `7eb3d18acde431d0` |
+ | `build_pw_solvers.py` | `1683a631a93918e0` |
+ | `cc_split.py` | `c2ad798e746ee7ae` |
+@@ -322,6 +363,8 @@
+ | `mtbench_generate.py` | `5f57d2c8740e2494` |
+ | `mtbench_judge.py` | `1007bf7e9f74f674` |
+ | `mtbench_judge_batch.py` | `733864ed29ad2ed8` |
++| `nbpo_local_gate.py` | `a5acfd5dbe44b483` |
++| `nbpo_local_gate_selftest.py` | `5d96083801cf0306` |
+ | `paired_diff.py` | `8c02d7c6107a1add` |
+ | `paired_eval_diff.py` | `d63433fd17d62928` |
+ | `panel_eval_judge.py` | `43c34dc22a5fb653` |
+@@ -367,32 +410,32 @@
+ | `solve_mopo_targets_ut1.py` | `d4d88c0f3240f98e` |
+ | `solve_pros.py` | `6437b4763d8bae50` |
+ | `solve_pros4_prosper.py` | `4acef1091e95e5d1` |
+-| `solve_pros4_prosper_us1.py` | `96bedd9cbdd9dec3` |
+-| `solve_pros4_prosper_ut1.py` | `32c616a65db7a858` |
+-| `solve_pros4_prosper_uw1.py` | `756e28a2cd7f1ef9` |
+-| `solve_pros4_prosper_uw1c.py` | `a7cb42cd49df7d85` |
+-| `solve_pros4_prosper_uw3.py` | `09ae3ce81b5b9e5a` |
++| `solve_pros4_prosper_us1.py` | `a424790acb05c120` |
++| `solve_pros4_prosper_ut1.py` | `f3f164f01e67691f` |
++| `solve_pros4_prosper_uw1.py` | `9bc12258adb0f362` |
++| `solve_pros4_prosper_uw1c.py` | `24813e435311a09d` |
++| `solve_pros4_prosper_uw3.py` | `882ed6e6698420e4` |
+ | `solve_pros4_prosper_v2.py` | `e5788f0897387777` |
+ | `solve_pros4_pw_fixedref.py` | `7a9f2b4fc4820b7b` |
+-| `solve_pros4_pw_fixedref_us1.py` | `4eda66cd663f503d` |
+-| `solve_pros4_pw_fixedref_ut1.py` | `5b7a6690d4987370` |
+-| `solve_pros4_pw_fixedref_uw1.py` | `7fa7013b8b907794` |
+-| `solve_pros4_pw_fixedref_uw1c.py` | `b7463f59910f76db` |
+-| `solve_pros4_pw_fixedref_uw3.py` | `3bac26988d121e3a` |
++| `solve_pros4_pw_fixedref_us1.py` | `f28d388b740106b6` |
++| `solve_pros4_pw_fixedref_ut1.py` | `93db4e6c6443b50e` |
++| `solve_pros4_pw_fixedref_uw1.py` | `154bdf73323a8782` |
++| `solve_pros4_pw_fixedref_uw1c.py` | `3ab9c86049b3617f` |
++| `solve_pros4_pw_fixedref_uw3.py` | `96f091b8084e43cb` |
+ | `solve_pros4_pw_fixedref_v2.py` | `e3fdc6beaa2a352c` |
+ | `solve_pros4_pw_nbpo.py` | `1d9b0953162ca88f` |
+-| `solve_pros4_pw_nbpo_us1.py` | `4dd83f7dbdf06baa` |
+-| `solve_pros4_pw_nbpo_ut1.py` | `b28c565152a6fd72` |
+-| `solve_pros4_pw_nbpo_uw1.py` | `b82911d4d3bdd2d2` |
+-| `solve_pros4_pw_nbpo_uw1c.py` | `0aaefa776bfcc3a8` |
+-| `solve_pros4_pw_nbpo_uw3.py` | `edbbb366099cb865` |
++| `solve_pros4_pw_nbpo_us1.py` | `2ff143d2361e8492` |
++| `solve_pros4_pw_nbpo_ut1.py` | `459eabc33fd2a3cb` |
++| `solve_pros4_pw_nbpo_uw1.py` | `d9b0fa546f1660d1` |
++| `solve_pros4_pw_nbpo_uw1c.py` | `5d7f022f99f3f300` |
++| `solve_pros4_pw_nbpo_uw3.py` | `95b3090e0b6be64c` |
+ | `solve_pros4_pw_nbpo_v2.py` | `575eeff8d0f9a9a3` |
+ | `solve_pros4_targets.py` | `dc9a8ac57dbbece5` |
+-| `solve_pros4_targets_us1.py` | `13a2b2cd86388f7c` |
+-| `solve_pros4_targets_ut1.py` | `edc71ba98b127378` |
+-| `solve_pros4_targets_uw1.py` | `32d8a051c2f36bb1` |
+-| `solve_pros4_targets_uw1c.py` | `e3c6d8b8fdf1bc42` |
+-| `solve_pros4_targets_uw3.py` | `ec8226dd9b8202d1` |
++| `solve_pros4_targets_us1.py` | `001d378f0ddf3cd7` |
++| `solve_pros4_targets_ut1.py` | `dc71344084bdfa51` |
++| `solve_pros4_targets_uw1.py` | `43ad471fa90a19c5` |
++| `solve_pros4_targets_uw1c.py` | `f392ff5452639e5a` |
++| `solve_pros4_targets_uw3.py` | `a524b3d7e4f3774c` |
+ | `solve_pros4_targets_v2.py` | `dc9a8ac57dbbece5` |
+ | `solve_safe_prosper.py` | `b7f23de80f1d5a45` |
+ | `solve_safe_targets.py` | `74e3181a39074b3c` |
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/ahv2_sc_paired.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/ahv2_sc_paired.py
+@@ -76,8 +76,8 @@
+         d = normalized_difference(arm[pid], base[pid])
+         for order in sorted(byorder):
+             rows.append((pid, byorder[order], d))
+-    # reported through the caller's dict rather than a third return value, so an
+-    # existing two-value caller keeps working and still gets the both-order rule
++    # reported through the caller's dict rather than a third return value, so a
++    # two-value caller keeps working and still gets the both-order rule
+     dropped["single_order_prompts"] = single_order
+     return complete["arm"], rows
+ 
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/build_panel_solvers.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/build_panel_solvers.py
+@@ -51,7 +51,7 @@
+                  "OBJECTIVES = (%s)" % objs),
+                 # the panel label travels with the module, so a US/UT/UW run does
+                 # not record the UF-4 label of the file it was generated from
+-                ('PANEL_LABEL = "UF-4"', 'PANEL_LABEL = "%s"' % p.upper())],
++                ('PANEL_LABEL = "UW1"', 'PANEL_LABEL = "%s"' % p.upper())],
+             src.name)
+     header = ("# Generated from solve_pros4_targets_uw1.py by build_panel_solvers.py\n"
+               "# -- do not edit by hand. source sha256 %s\n"
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_prosper_us1.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_prosper_us1.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_prosper_uw1.py by build_panel_solvers.py -- do not edit by hand.
+-# source sha256 756e28a2cd7f1ef9d372bb204bcb94f9b5a44ce4b9dc3a0a46024ead03bc489b
++# source sha256 9bc12258adb0f36247c9856ebee711097c11e968d6a4886530ae84662c9e8c4e
+ # change: score/pool roots -> us1, restricted split -> us_v1p, base module ->
+ #         solve_pros4_targets_us1. The rule this arm implements is
+ #         untouched.
+@@ -272,6 +272,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_prosper_ut1.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_prosper_ut1.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_prosper_uw1.py by build_panel_solvers.py -- do not edit by hand.
+-# source sha256 756e28a2cd7f1ef9d372bb204bcb94f9b5a44ce4b9dc3a0a46024ead03bc489b
++# source sha256 9bc12258adb0f36247c9856ebee711097c11e968d6a4886530ae84662c9e8c4e
+ # change: score/pool roots -> ut1, restricted split -> ut_v1p, base module ->
+ #         solve_pros4_targets_ut1. The rule this arm implements is
+ #         untouched.
+@@ -272,6 +272,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_prosper_uw1.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_prosper_uw1.py
+@@ -267,6 +267,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_prosper_uw1c.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_prosper_uw1c.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_prosper_uw1.py by build_panel_solvers.py -- do not edit by hand.
+-# source sha256 756e28a2cd7f1ef9d372bb204bcb94f9b5a44ce4b9dc3a0a46024ead03bc489b
++# source sha256 9bc12258adb0f36247c9856ebee711097c11e968d6a4886530ae84662c9e8c4e
+ # change: score/pool roots -> uw1c, restricted split -> uw_v1cp, base module ->
+ #         solve_pros4_targets_uw1c. The rule this arm implements is
+ #         untouched.
+@@ -272,6 +272,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_prosper_uw3.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_prosper_uw3.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_prosper_uw1.py by build_panel_solvers.py -- do not edit by hand.
+-# source sha256 756e28a2cd7f1ef9d372bb204bcb94f9b5a44ce4b9dc3a0a46024ead03bc489b
++# source sha256 9bc12258adb0f36247c9856ebee711097c11e968d6a4886530ae84662c9e8c4e
+ # change: score/pool roots -> uw3, restricted split -> uw_v3p, base module ->
+ #         solve_pros4_targets_uw3. The rule this arm implements is
+ #         untouched.
+@@ -272,6 +272,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_fixedref_us1.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_fixedref_us1.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_pw_fixedref_uw1.py by build_panel_solvers.py -- do not edit by hand.
+-# source sha256 7fa7013b8b90779451876afe66e77e45409201066eddf83a85d34acea803b7ed
++# source sha256 154bdf73323a87827ba1a0e453cfc8c2e86122707699f72de73933c10bb32ac2
+ # change: score/pool roots -> us1, restricted split -> us_v1p, base module ->
+ #         solve_pros4_targets_us1. The rule this arm implements is
+ #         untouched.
+@@ -265,6 +265,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_fixedref_ut1.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_fixedref_ut1.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_pw_fixedref_uw1.py by build_panel_solvers.py -- do not edit by hand.
+-# source sha256 7fa7013b8b90779451876afe66e77e45409201066eddf83a85d34acea803b7ed
++# source sha256 154bdf73323a87827ba1a0e453cfc8c2e86122707699f72de73933c10bb32ac2
+ # change: score/pool roots -> ut1, restricted split -> ut_v1p, base module ->
+ #         solve_pros4_targets_ut1. The rule this arm implements is
+ #         untouched.
+@@ -265,6 +265,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_fixedref_uw1.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_fixedref_uw1.py
+@@ -260,6 +260,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_fixedref_uw1c.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_fixedref_uw1c.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_pw_fixedref_uw1.py by build_panel_solvers.py -- do not edit by hand.
+-# source sha256 7fa7013b8b90779451876afe66e77e45409201066eddf83a85d34acea803b7ed
++# source sha256 154bdf73323a87827ba1a0e453cfc8c2e86122707699f72de73933c10bb32ac2
+ # change: score/pool roots -> uw1c, restricted split -> uw_v1cp, base module ->
+ #         solve_pros4_targets_uw1c. The rule this arm implements is
+ #         untouched.
+@@ -265,6 +265,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_fixedref_uw3.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_fixedref_uw3.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_pw_fixedref_uw1.py by build_panel_solvers.py -- do not edit by hand.
+-# source sha256 7fa7013b8b90779451876afe66e77e45409201066eddf83a85d34acea803b7ed
++# source sha256 154bdf73323a87827ba1a0e453cfc8c2e86122707699f72de73933c10bb32ac2
+ # change: score/pool roots -> uw3, restricted split -> uw_v3p, base module ->
+ #         solve_pros4_targets_uw3. The rule this arm implements is
+ #         untouched.
+@@ -265,6 +265,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_us1.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_us1.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_pw_nbpo_uw1.py by build_panel_solvers.py -- do not edit by hand.
+-# source sha256 b82911d4d3bdd2d2c17f76be40987e8a70e695c671fb5d4093c2b8c959bd93c6
++# source sha256 d9b0fa546f1660d1608852317f684b87eb29580dd7ddd8b51b816fc3981a09d5
+ # change: score/pool roots -> us1, restricted split -> us_v1p, base module ->
+ #         solve_pros4_targets_us1. The rule this arm implements is
+ #         untouched.
+@@ -265,6 +265,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_ut1.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_ut1.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_pw_nbpo_uw1.py by build_panel_solvers.py -- do not edit by hand.
+-# source sha256 b82911d4d3bdd2d2c17f76be40987e8a70e695c671fb5d4093c2b8c959bd93c6
++# source sha256 d9b0fa546f1660d1608852317f684b87eb29580dd7ddd8b51b816fc3981a09d5
+ # change: score/pool roots -> ut1, restricted split -> ut_v1p, base module ->
+ #         solve_pros4_targets_ut1. The rule this arm implements is
+ #         untouched.
+@@ -265,6 +265,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1.py
+@@ -260,6 +260,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1c.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw1c.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_pw_nbpo_uw1.py by build_panel_solvers.py -- do not edit by hand.
+-# source sha256 b82911d4d3bdd2d2c17f76be40987e8a70e695c671fb5d4093c2b8c959bd93c6
++# source sha256 d9b0fa546f1660d1608852317f684b87eb29580dd7ddd8b51b816fc3981a09d5
+ # change: score/pool roots -> uw1c, restricted split -> uw_v1cp, base module ->
+ #         solve_pros4_targets_uw1c. The rule this arm implements is
+ #         untouched.
+@@ -265,6 +265,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw3.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_pw_nbpo_uw3.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_pw_nbpo_uw1.py by build_panel_solvers.py -- do not edit by hand.
+-# source sha256 b82911d4d3bdd2d2c17f76be40987e8a70e695c671fb5d4093c2b8c959bd93c6
++# source sha256 d9b0fa546f1660d1608852317f684b87eb29580dd7ddd8b51b816fc3981a09d5
+ # change: score/pool roots -> uw3, restricted split -> uw_v3p, base module ->
+ #         solve_pros4_targets_uw3. The rule this arm implements is
+ #         untouched.
+@@ -265,6 +265,7 @@
+                           "all_certified": bool(certified.all()),
+                           "solver_solution_sha256": solver_hash,
+                           "seconds": time.monotonic() - split_start}
++        (getattr(base, "verify_pool_row_digests", None) or (lambda *a: 0))(pool, pids)
+         split_digests[split] = digest_of(pool, pids)
+         base.write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({k: v for k, v in outputs[split].items()
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_us1.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_us1.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_targets_uw1.py by build_panel_solvers.py
+-# -- do not edit by hand. source sha256 32d8a051c2f36bb19ac04ea6e0318a7571a874da3a061d37e081c8ecac1f7483
++# -- do not edit by hand. source sha256 43ad471fa90a19c5251aba12062030849fcbea802f08c5dfa34a16ba58634af9
+ # change: OBJECTIVES -> item0..item1, the US panel's declared objective
+ #         count. The rubric text behind each slot is that panel's frozen
+ #         rubric, recorded in panel/us_v1/freeze.json; slot k of two panels
+@@ -119,13 +119,52 @@
+         for role in roles:
+             for index in sorted(entry.get(role, {})):
+                 row = entry[role][index]
++                # Recompute from the text rather than trusting the stored
++                # field. A row whose response was edited while its cached
++                # response_sha256 was left alone used to produce an unchanged
++                # digest, which is exactly the binding this digest is for. This
++                # function stays a pure function of content and never raises;
++                # the integrity complaint belongs to verify_pool_row_digests,
++                # which the solve calls, so a diagnostic caller can still get a
++                # digest of what the rows actually say.
+                 identity = (str(pid), role, str(index),
+                             str(row.get("candidate_id", "")),
+-                            str(row.get("response_sha256")
+-                                or hashlib.sha256(
+-                                    str(row.get("response", "")).encode()).hexdigest()))
++                            hashlib.sha256(
++                                str(row.get("response", "")).encode("utf-8")).hexdigest())
+                 h.update(("\x1f".join(identity) + "\x1e").encode())
+     return h.hexdigest()
++
++
++def verify_pool_row_digests(pool, prompt_ids, roles=("learner", "comparator")):
++    """Refuse a pool row whose cached response_sha256 disagrees with its text.
++
++    Separated from split_pool_digest so that the digest is a pure function of
++    content while the pipeline still stops on an internally inconsistent pool.
++    load_pool checks each chunk's outer file hash, which catches a corrupted
++    file but not a row whose text was edited and whose cached digest was left
++    behind; that is the case this closes. Returns the number of rows checked.
++    """
++    import hashlib
++    checked = 0
++    for pid in sorted(prompt_ids):
++        entry = pool.get(pid)
++        if entry is None:
++            raise ValueError("split prompt %s is absent from the pool" % pid)
++        for role in roles:
++            for index in sorted(entry.get(role, {})):
++                row = entry[role][index]
++                claimed = row.get("response_sha256")
++                if not claimed:
++                    continue
++                actual = hashlib.sha256(
++                    str(row.get("response", "")).encode("utf-8")).hexdigest()
++                if str(claimed) != actual:
++                    raise ValueError(
++                        "pool row %s/%s/%s carries response_sha256 %s but its text hashes "
++                        "to %s; a stale cached digest is refused rather than hashed around"
++                        % (pid, role, index, claimed, actual))
++                checked += 1
++    return checked
+ 
+ 
+ def quantize_canonical_row(row):
+@@ -211,6 +250,35 @@
+             if file_hash(path) != meta["sha256"]:
+                 raise ValueError(f"Score chunk hash mismatch: {path}")
+             arrays = np.load(path, allow_pickle=True)
++            # The schema string is a declaration; this checks it. A shard that
++            # says lr_rr_v2 but whose A_policy is not its own A_LR, or whose
++            # A_ref is not its own A_RR, is mislabeled rather than merely old,
++            # and mislabeled is the case a version tag cannot catch on its own.
++            aliases = (("A_policy", "A_LR"), ("A_ref", "A_RR"))
++            if all(name in arrays.files for pair in aliases for name in pair):
++                for alias, semantic in aliases:
++                    if not np.array_equal(arrays[alias], arrays[semantic]):
++                        raise ValueError(
++                            f"{path} declares {required} but its {alias} is not its "
++                            f"{semantic}; the tensor roles do not match the schema it "
++                            "claims, so this shard cannot be solved as the declared game")
++                # A_LL must not be the policy game: if it were, the surplus would
++                # carry the sign defect the schema exists to rule out
++                if "A_LL" in arrays.files and np.array_equal(arrays["A_policy"],
++                                                             arrays["A_LL"]):
++                    raise ValueError(
++                        f"{path} has A_policy equal to A_LL, which is the pre-fix "
++                        "wiring under a post-fix label")
++            expected_banks = {"A_policy": ["learner", "comparator"],
++                              "A_ref": ["comparator", "comparator"],
++                              "A_LL": ["learner", "learner"]}
++            banks = meta.get("bank_ids")
++            if banks is not None:
++                for name, want in expected_banks.items():
++                    got = banks.get(name)
++                    if got is not None and list(got) != want:
++                        raise ValueError(
++                            f"{path} records {name} drawn from {got}, not {want}")
+             pids = [str(p) for p in arrays["prompt_ids"]]
+             A, Aref = arrays["A_policy"], arrays["A_ref"]
+             # r_bt is the scalar BT projection. The union contract uses direct
+@@ -560,6 +628,7 @@
+                           "learner_capped_fraction": capped / (len(pids) * POOL),
+                           "reference_skew_residual": skew,
+                           "seconds": time.monotonic() - split_start}
++        verify_pool_row_digests(pool, pids)
+         split_digests[split] = split_pool_digest(pool, pids)
+         write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({"split": split, "n_pairs": len(pids) * 28,
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_ut1.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_ut1.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_targets_uw1.py by build_panel_solvers.py
+-# -- do not edit by hand. source sha256 32d8a051c2f36bb19ac04ea6e0318a7571a874da3a061d37e081c8ecac1f7483
++# -- do not edit by hand. source sha256 43ad471fa90a19c5251aba12062030849fcbea802f08c5dfa34a16ba58634af9
+ # change: OBJECTIVES -> item0..item1, the UT panel's declared objective
+ #         count. The rubric text behind each slot is that panel's frozen
+ #         rubric, recorded in panel/ut_v1/freeze.json; slot k of two panels
+@@ -119,13 +119,52 @@
+         for role in roles:
+             for index in sorted(entry.get(role, {})):
+                 row = entry[role][index]
++                # Recompute from the text rather than trusting the stored
++                # field. A row whose response was edited while its cached
++                # response_sha256 was left alone used to produce an unchanged
++                # digest, which is exactly the binding this digest is for. This
++                # function stays a pure function of content and never raises;
++                # the integrity complaint belongs to verify_pool_row_digests,
++                # which the solve calls, so a diagnostic caller can still get a
++                # digest of what the rows actually say.
+                 identity = (str(pid), role, str(index),
+                             str(row.get("candidate_id", "")),
+-                            str(row.get("response_sha256")
+-                                or hashlib.sha256(
+-                                    str(row.get("response", "")).encode()).hexdigest()))
++                            hashlib.sha256(
++                                str(row.get("response", "")).encode("utf-8")).hexdigest())
+                 h.update(("\x1f".join(identity) + "\x1e").encode())
+     return h.hexdigest()
++
++
++def verify_pool_row_digests(pool, prompt_ids, roles=("learner", "comparator")):
++    """Refuse a pool row whose cached response_sha256 disagrees with its text.
++
++    Separated from split_pool_digest so that the digest is a pure function of
++    content while the pipeline still stops on an internally inconsistent pool.
++    load_pool checks each chunk's outer file hash, which catches a corrupted
++    file but not a row whose text was edited and whose cached digest was left
++    behind; that is the case this closes. Returns the number of rows checked.
++    """
++    import hashlib
++    checked = 0
++    for pid in sorted(prompt_ids):
++        entry = pool.get(pid)
++        if entry is None:
++            raise ValueError("split prompt %s is absent from the pool" % pid)
++        for role in roles:
++            for index in sorted(entry.get(role, {})):
++                row = entry[role][index]
++                claimed = row.get("response_sha256")
++                if not claimed:
++                    continue
++                actual = hashlib.sha256(
++                    str(row.get("response", "")).encode("utf-8")).hexdigest()
++                if str(claimed) != actual:
++                    raise ValueError(
++                        "pool row %s/%s/%s carries response_sha256 %s but its text hashes "
++                        "to %s; a stale cached digest is refused rather than hashed around"
++                        % (pid, role, index, claimed, actual))
++                checked += 1
++    return checked
+ 
+ 
+ def quantize_canonical_row(row):
+@@ -211,6 +250,35 @@
+             if file_hash(path) != meta["sha256"]:
+                 raise ValueError(f"Score chunk hash mismatch: {path}")
+             arrays = np.load(path, allow_pickle=True)
++            # The schema string is a declaration; this checks it. A shard that
++            # says lr_rr_v2 but whose A_policy is not its own A_LR, or whose
++            # A_ref is not its own A_RR, is mislabeled rather than merely old,
++            # and mislabeled is the case a version tag cannot catch on its own.
++            aliases = (("A_policy", "A_LR"), ("A_ref", "A_RR"))
++            if all(name in arrays.files for pair in aliases for name in pair):
++                for alias, semantic in aliases:
++                    if not np.array_equal(arrays[alias], arrays[semantic]):
++                        raise ValueError(
++                            f"{path} declares {required} but its {alias} is not its "
++                            f"{semantic}; the tensor roles do not match the schema it "
++                            "claims, so this shard cannot be solved as the declared game")
++                # A_LL must not be the policy game: if it were, the surplus would
++                # carry the sign defect the schema exists to rule out
++                if "A_LL" in arrays.files and np.array_equal(arrays["A_policy"],
++                                                             arrays["A_LL"]):
++                    raise ValueError(
++                        f"{path} has A_policy equal to A_LL, which is the pre-fix "
++                        "wiring under a post-fix label")
++            expected_banks = {"A_policy": ["learner", "comparator"],
++                              "A_ref": ["comparator", "comparator"],
++                              "A_LL": ["learner", "learner"]}
++            banks = meta.get("bank_ids")
++            if banks is not None:
++                for name, want in expected_banks.items():
++                    got = banks.get(name)
++                    if got is not None and list(got) != want:
++                        raise ValueError(
++                            f"{path} records {name} drawn from {got}, not {want}")
+             pids = [str(p) for p in arrays["prompt_ids"]]
+             A, Aref = arrays["A_policy"], arrays["A_ref"]
+             # r_bt is the scalar BT projection. The union contract uses direct
+@@ -560,6 +628,7 @@
+                           "learner_capped_fraction": capped / (len(pids) * POOL),
+                           "reference_skew_residual": skew,
+                           "seconds": time.monotonic() - split_start}
++        verify_pool_row_digests(pool, pids)
+         split_digests[split] = split_pool_digest(pool, pids)
+         write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({"split": split, "n_pairs": len(pids) * 28,
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1.py
+@@ -90,7 +90,7 @@
+ REQUIRED_TENSOR_ROLE_SCHEMA = "lr_rr_v2"
+ # The panel this module was generated for. build_panel_solvers.py rewrites it, so a
+ # US/UT/UW run records its own panel instead of the UF-4 label of the source file.
+-PANEL_LABEL = "UF-4"
++PANEL_LABEL = "UW1"
+ 
+ 
+ def split_pool_digest(pool, prompt_ids, roles=("learner", "comparator")):
+@@ -113,13 +113,52 @@
+         for role in roles:
+             for index in sorted(entry.get(role, {})):
+                 row = entry[role][index]
++                # Recompute from the text rather than trusting the stored
++                # field. A row whose response was edited while its cached
++                # response_sha256 was left alone used to produce an unchanged
++                # digest, which is exactly the binding this digest is for. This
++                # function stays a pure function of content and never raises;
++                # the integrity complaint belongs to verify_pool_row_digests,
++                # which the solve calls, so a diagnostic caller can still get a
++                # digest of what the rows actually say.
+                 identity = (str(pid), role, str(index),
+                             str(row.get("candidate_id", "")),
+-                            str(row.get("response_sha256")
+-                                or hashlib.sha256(
+-                                    str(row.get("response", "")).encode()).hexdigest()))
++                            hashlib.sha256(
++                                str(row.get("response", "")).encode("utf-8")).hexdigest())
+                 h.update(("\x1f".join(identity) + "\x1e").encode())
+     return h.hexdigest()
++
++
++def verify_pool_row_digests(pool, prompt_ids, roles=("learner", "comparator")):
++    """Refuse a pool row whose cached response_sha256 disagrees with its text.
++
++    Separated from split_pool_digest so that the digest is a pure function of
++    content while the pipeline still stops on an internally inconsistent pool.
++    load_pool checks each chunk's outer file hash, which catches a corrupted
++    file but not a row whose text was edited and whose cached digest was left
++    behind; that is the case this closes. Returns the number of rows checked.
++    """
++    import hashlib
++    checked = 0
++    for pid in sorted(prompt_ids):
++        entry = pool.get(pid)
++        if entry is None:
++            raise ValueError("split prompt %s is absent from the pool" % pid)
++        for role in roles:
++            for index in sorted(entry.get(role, {})):
++                row = entry[role][index]
++                claimed = row.get("response_sha256")
++                if not claimed:
++                    continue
++                actual = hashlib.sha256(
++                    str(row.get("response", "")).encode("utf-8")).hexdigest()
++                if str(claimed) != actual:
++                    raise ValueError(
++                        "pool row %s/%s/%s carries response_sha256 %s but its text hashes "
++                        "to %s; a stale cached digest is refused rather than hashed around"
++                        % (pid, role, index, claimed, actual))
++                checked += 1
++    return checked
+ 
+ 
+ def quantize_canonical_row(row):
+@@ -205,6 +244,35 @@
+             if file_hash(path) != meta["sha256"]:
+                 raise ValueError(f"Score chunk hash mismatch: {path}")
+             arrays = np.load(path, allow_pickle=True)
++            # The schema string is a declaration; this checks it. A shard that
++            # says lr_rr_v2 but whose A_policy is not its own A_LR, or whose
++            # A_ref is not its own A_RR, is mislabeled rather than merely old,
++            # and mislabeled is the case a version tag cannot catch on its own.
++            aliases = (("A_policy", "A_LR"), ("A_ref", "A_RR"))
++            if all(name in arrays.files for pair in aliases for name in pair):
++                for alias, semantic in aliases:
++                    if not np.array_equal(arrays[alias], arrays[semantic]):
++                        raise ValueError(
++                            f"{path} declares {required} but its {alias} is not its "
++                            f"{semantic}; the tensor roles do not match the schema it "
++                            "claims, so this shard cannot be solved as the declared game")
++                # A_LL must not be the policy game: if it were, the surplus would
++                # carry the sign defect the schema exists to rule out
++                if "A_LL" in arrays.files and np.array_equal(arrays["A_policy"],
++                                                             arrays["A_LL"]):
++                    raise ValueError(
++                        f"{path} has A_policy equal to A_LL, which is the pre-fix "
++                        "wiring under a post-fix label")
++            expected_banks = {"A_policy": ["learner", "comparator"],
++                              "A_ref": ["comparator", "comparator"],
++                              "A_LL": ["learner", "learner"]}
++            banks = meta.get("bank_ids")
++            if banks is not None:
++                for name, want in expected_banks.items():
++                    got = banks.get(name)
++                    if got is not None and list(got) != want:
++                        raise ValueError(
++                            f"{path} records {name} drawn from {got}, not {want}")
+             pids = [str(p) for p in arrays["prompt_ids"]]
+             A, Aref = arrays["A_policy"], arrays["A_ref"]
+             # r_bt is the scalar BT projection. The union contract uses direct
+@@ -554,6 +622,7 @@
+                           "learner_capped_fraction": capped / (len(pids) * POOL),
+                           "reference_skew_residual": skew,
+                           "seconds": time.monotonic() - split_start}
++        verify_pool_row_digests(pool, pids)
+         split_digests[split] = split_pool_digest(pool, pids)
+         write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({"split": split, "n_pairs": len(pids) * 28,
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1c.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw1c.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_targets_uw1.py by build_panel_solvers.py
+-# -- do not edit by hand. source sha256 32d8a051c2f36bb19ac04ea6e0318a7571a874da3a061d37e081c8ecac1f7483
++# -- do not edit by hand. source sha256 43ad471fa90a19c5251aba12062030849fcbea802f08c5dfa34a16ba58634af9
+ # change: OBJECTIVES -> item0..item3, the UW panel's declared objective
+ #         count. The rubric text behind each slot is that panel's frozen
+ #         rubric, recorded in panel/uw_v1cp/freeze.json; slot k of two panels
+@@ -119,13 +119,52 @@
+         for role in roles:
+             for index in sorted(entry.get(role, {})):
+                 row = entry[role][index]
++                # Recompute from the text rather than trusting the stored
++                # field. A row whose response was edited while its cached
++                # response_sha256 was left alone used to produce an unchanged
++                # digest, which is exactly the binding this digest is for. This
++                # function stays a pure function of content and never raises;
++                # the integrity complaint belongs to verify_pool_row_digests,
++                # which the solve calls, so a diagnostic caller can still get a
++                # digest of what the rows actually say.
+                 identity = (str(pid), role, str(index),
+                             str(row.get("candidate_id", "")),
+-                            str(row.get("response_sha256")
+-                                or hashlib.sha256(
+-                                    str(row.get("response", "")).encode()).hexdigest()))
++                            hashlib.sha256(
++                                str(row.get("response", "")).encode("utf-8")).hexdigest())
+                 h.update(("\x1f".join(identity) + "\x1e").encode())
+     return h.hexdigest()
++
++
++def verify_pool_row_digests(pool, prompt_ids, roles=("learner", "comparator")):
++    """Refuse a pool row whose cached response_sha256 disagrees with its text.
++
++    Separated from split_pool_digest so that the digest is a pure function of
++    content while the pipeline still stops on an internally inconsistent pool.
++    load_pool checks each chunk's outer file hash, which catches a corrupted
++    file but not a row whose text was edited and whose cached digest was left
++    behind; that is the case this closes. Returns the number of rows checked.
++    """
++    import hashlib
++    checked = 0
++    for pid in sorted(prompt_ids):
++        entry = pool.get(pid)
++        if entry is None:
++            raise ValueError("split prompt %s is absent from the pool" % pid)
++        for role in roles:
++            for index in sorted(entry.get(role, {})):
++                row = entry[role][index]
++                claimed = row.get("response_sha256")
++                if not claimed:
++                    continue
++                actual = hashlib.sha256(
++                    str(row.get("response", "")).encode("utf-8")).hexdigest()
++                if str(claimed) != actual:
++                    raise ValueError(
++                        "pool row %s/%s/%s carries response_sha256 %s but its text hashes "
++                        "to %s; a stale cached digest is refused rather than hashed around"
++                        % (pid, role, index, claimed, actual))
++                checked += 1
++    return checked
+ 
+ 
+ def quantize_canonical_row(row):
+@@ -211,6 +250,35 @@
+             if file_hash(path) != meta["sha256"]:
+                 raise ValueError(f"Score chunk hash mismatch: {path}")
+             arrays = np.load(path, allow_pickle=True)
++            # The schema string is a declaration; this checks it. A shard that
++            # says lr_rr_v2 but whose A_policy is not its own A_LR, or whose
++            # A_ref is not its own A_RR, is mislabeled rather than merely old,
++            # and mislabeled is the case a version tag cannot catch on its own.
++            aliases = (("A_policy", "A_LR"), ("A_ref", "A_RR"))
++            if all(name in arrays.files for pair in aliases for name in pair):
++                for alias, semantic in aliases:
++                    if not np.array_equal(arrays[alias], arrays[semantic]):
++                        raise ValueError(
++                            f"{path} declares {required} but its {alias} is not its "
++                            f"{semantic}; the tensor roles do not match the schema it "
++                            "claims, so this shard cannot be solved as the declared game")
++                # A_LL must not be the policy game: if it were, the surplus would
++                # carry the sign defect the schema exists to rule out
++                if "A_LL" in arrays.files and np.array_equal(arrays["A_policy"],
++                                                             arrays["A_LL"]):
++                    raise ValueError(
++                        f"{path} has A_policy equal to A_LL, which is the pre-fix "
++                        "wiring under a post-fix label")
++            expected_banks = {"A_policy": ["learner", "comparator"],
++                              "A_ref": ["comparator", "comparator"],
++                              "A_LL": ["learner", "learner"]}
++            banks = meta.get("bank_ids")
++            if banks is not None:
++                for name, want in expected_banks.items():
++                    got = banks.get(name)
++                    if got is not None and list(got) != want:
++                        raise ValueError(
++                            f"{path} records {name} drawn from {got}, not {want}")
+             pids = [str(p) for p in arrays["prompt_ids"]]
+             A, Aref = arrays["A_policy"], arrays["A_ref"]
+             # r_bt is the scalar BT projection. The union contract uses direct
+@@ -560,6 +628,7 @@
+                           "learner_capped_fraction": capped / (len(pids) * POOL),
+                           "reference_skew_residual": skew,
+                           "seconds": time.monotonic() - split_start}
++        verify_pool_row_digests(pool, pids)
+         split_digests[split] = split_pool_digest(pool, pids)
+         write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({"split": split, "n_pairs": len(pids) * 28,
+--- 97e03c0/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw3.py
++++ f0efbb5/analysis/sub_20260914/code_snapshot_20260917_union/solve_pros4_targets_uw3.py
+@@ -1,5 +1,5 @@
+ # Generated from solve_pros4_targets_uw1.py by build_panel_solvers.py
+-# -- do not edit by hand. source sha256 32d8a051c2f36bb19ac04ea6e0318a7571a874da3a061d37e081c8ecac1f7483
++# -- do not edit by hand. source sha256 43ad471fa90a19c5251aba12062030849fcbea802f08c5dfa34a16ba58634af9
+ # change: OBJECTIVES -> item0..item3, the UW panel's declared objective
+ #         count. The rubric text behind each slot is that panel's frozen
+ #         rubric, recorded in panel/uw_v3p/freeze.json; slot k of two panels
+@@ -119,13 +119,52 @@
+         for role in roles:
+             for index in sorted(entry.get(role, {})):
+                 row = entry[role][index]
++                # Recompute from the text rather than trusting the stored
++                # field. A row whose response was edited while its cached
++                # response_sha256 was left alone used to produce an unchanged
++                # digest, which is exactly the binding this digest is for. This
++                # function stays a pure function of content and never raises;
++                # the integrity complaint belongs to verify_pool_row_digests,
++                # which the solve calls, so a diagnostic caller can still get a
++                # digest of what the rows actually say.
+                 identity = (str(pid), role, str(index),
+                             str(row.get("candidate_id", "")),
+-                            str(row.get("response_sha256")
+-                                or hashlib.sha256(
+-                                    str(row.get("response", "")).encode()).hexdigest()))
++                            hashlib.sha256(
++                                str(row.get("response", "")).encode("utf-8")).hexdigest())
+                 h.update(("\x1f".join(identity) + "\x1e").encode())
+     return h.hexdigest()
++
++
++def verify_pool_row_digests(pool, prompt_ids, roles=("learner", "comparator")):
++    """Refuse a pool row whose cached response_sha256 disagrees with its text.
++
++    Separated from split_pool_digest so that the digest is a pure function of
++    content while the pipeline still stops on an internally inconsistent pool.
++    load_pool checks each chunk's outer file hash, which catches a corrupted
++    file but not a row whose text was edited and whose cached digest was left
++    behind; that is the case this closes. Returns the number of rows checked.
++    """
++    import hashlib
++    checked = 0
++    for pid in sorted(prompt_ids):
++        entry = pool.get(pid)
++        if entry is None:
++            raise ValueError("split prompt %s is absent from the pool" % pid)
++        for role in roles:
++            for index in sorted(entry.get(role, {})):
++                row = entry[role][index]
++                claimed = row.get("response_sha256")
++                if not claimed:
++                    continue
++                actual = hashlib.sha256(
++                    str(row.get("response", "")).encode("utf-8")).hexdigest()
++                if str(claimed) != actual:
++                    raise ValueError(
++                        "pool row %s/%s/%s carries response_sha256 %s but its text hashes "
++                        "to %s; a stale cached digest is refused rather than hashed around"
++                        % (pid, role, index, claimed, actual))
++                checked += 1
++    return checked
+ 
+ 
+ def quantize_canonical_row(row):
+@@ -211,6 +250,35 @@
+             if file_hash(path) != meta["sha256"]:
+                 raise ValueError(f"Score chunk hash mismatch: {path}")
+             arrays = np.load(path, allow_pickle=True)
++            # The schema string is a declaration; this checks it. A shard that
++            # says lr_rr_v2 but whose A_policy is not its own A_LR, or whose
++            # A_ref is not its own A_RR, is mislabeled rather than merely old,
++            # and mislabeled is the case a version tag cannot catch on its own.
++            aliases = (("A_policy", "A_LR"), ("A_ref", "A_RR"))
++            if all(name in arrays.files for pair in aliases for name in pair):
++                for alias, semantic in aliases:
++                    if not np.array_equal(arrays[alias], arrays[semantic]):
++                        raise ValueError(
++                            f"{path} declares {required} but its {alias} is not its "
++                            f"{semantic}; the tensor roles do not match the schema it "
++                            "claims, so this shard cannot be solved as the declared game")
++                # A_LL must not be the policy game: if it were, the surplus would
++                # carry the sign defect the schema exists to rule out
++                if "A_LL" in arrays.files and np.array_equal(arrays["A_policy"],
++                                                             arrays["A_LL"]):
++                    raise ValueError(
++                        f"{path} has A_policy equal to A_LL, which is the pre-fix "
++                        "wiring under a post-fix label")
++            expected_banks = {"A_policy": ["learner", "comparator"],
++                              "A_ref": ["comparator", "comparator"],
++                              "A_LL": ["learner", "learner"]}
++            banks = meta.get("bank_ids")
++            if banks is not None:
++                for name, want in expected_banks.items():
++                    got = banks.get(name)
++                    if got is not None and list(got) != want:
++                        raise ValueError(
++                            f"{path} records {name} drawn from {got}, not {want}")
+             pids = [str(p) for p in arrays["prompt_ids"]]
+             A, Aref = arrays["A_policy"], arrays["A_ref"]
+             # r_bt is the scalar BT projection. The union contract uses direct
+@@ -560,6 +628,7 @@
+                           "learner_capped_fraction": capped / (len(pids) * POOL),
+                           "reference_skew_residual": skew,
+                           "seconds": time.monotonic() - split_start}
++        verify_pool_row_digests(pool, pids)
+         split_digests[split] = split_pool_digest(pool, pids)
+         write_json(out / split / "complete.json", outputs[split])
+         print(json.dumps({"split": split, "n_pairs": len(pids) * 28,
+--- 97e03c0/scripts/nbpo/eval_game_value.py
++++ f0efbb5/scripts/nbpo/eval_game_value.py
+@@ -15,6 +15,17 @@
+ The legacy ``scripts/bpo/eval_bpo_surplus.py`` is a fixed-reference
+ (beta = infinity) diagnostic that clamps nonpositive surpluses; it is kept,
+ separately labeled, and is NOT this evaluator.
++
++SCOPE: this evaluator is GLOBAL, and deliberately so. Its margins are taken
++over the whole prompt batch, so the surplus it reports is a prompt-AVERAGED
++quantity and its minimum is a minimum over objectives, not over prompts. That is
++the right object for the shared-weight Global Nash control, whose multipliers are
++one vector for all prompts, and it is the wrong object for gating a prompt-wise
++arm: two prompts whose local surpluses are +.2 and -.1 average to +.05 and would
++pass, while the compromise failed on one of them. Do not reuse this to accept or
++reject a prompt-wise candidate. The prompt-wise gate is
++``analysis/sub_20260914/code_snapshot_20260917_union/nbpo_local_gate.py``, which
++builds one representation per prompt and applies its checks to the array.
+ """
+ from __future__ import annotations
+ 

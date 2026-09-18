@@ -1,0 +1,44 @@
+{
+  "runtime_utc": "2026-09-17T17:23:47.488752+00:00",
+  "current": {
+    "commit": "f0efbb5935a4f522b8335292d6927161b274b796",
+    "zip_sha256": "52d8b51a4691986a6e299f838b149116a034446b690ea816c38c4c278b23eab6",
+    "files": 2015,
+    "source": "/mnt/data/NBPO-main (1).zip"
+  },
+  "previous": {
+    "commit": "97e03c053e08892f72b68aec4203de071537ce5a",
+    "zip_sha256": "512259b037e9ea77a1457fb2b64350ad7150f74706783187e06008bc65f86622",
+    "files": 1993,
+    "source": "/mnt/data/NBPO-main(2).zip"
+  },
+  "paper_sha256": "c16f447ca05b757c7637fc9b1df8277c701870d4e1bf681f4eccfbc600cb0477",
+  "versions": {
+    "python": "3.13.5",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "torch": "2.10.0+cpu",
+    "pytest": "9.0.2"
+  },
+  "counts": {
+    "new_checks_results.json": {
+      "OPEN": 14,
+      "PASS": 17,
+      "OBSERVATION": 1
+    },
+    "regression_results.json": {
+      "PASS": 57,
+      "OPEN": 1
+    },
+    "prior_regression_results.json": {
+      "PASS": 14,
+      "REPRODUCED_MISMATCH": 1
+    }
+  },
+  "source_integrity": {
+    "archive_files_checked": 2015,
+    "changed": [],
+    "extra_files": []
+  },
+  "scope": "Uploaded ZIP only; CPU synthetic fixtures; cached log-probability gate replay; no live Git checkout, model downloads, real LLM training/forward, GPU, bf16/DDP, actual benchmark outputs or historical checkpoint provenance."
+}

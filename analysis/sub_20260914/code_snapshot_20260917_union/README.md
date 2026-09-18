@@ -147,6 +147,61 @@ stops the run.
 **C03: the UW1 base still labelled itself UF-4.** It is `UW1` now, and the
 generator's substitution anchor follows.
 
+## Fourth audit pass, 2026-09-18 (f0efbb5)
+
+Six items. One was a regression in the previous round's own fix, four were
+defects in the gate that round added, and one was the orchestration the gate
+still lacked.
+
+**The alias check rejected legitimate data (C01).** Requiring `A_policy` to
+differ numerically from `A_LL` was wrong: the three blocks CAN coincide on a real
+panel — a pool whose learner and comparator draws are judged identically gives
+`A_LL = A_LR = A_RR`, and such a shard still has a certified positive Nash
+solution. Semantic roles are carried by the names and the recorded bank ids, not
+by accidental inequality, so that condition is gone. The same check was also
+skippable: it sat behind `all(name in arrays.files ...)`, so a shard that simply
+omitted `A_LR` and `A_RR` bypassed it. All five arrays and the bank ids are now
+required outright, and finiteness, shapes and prompt cardinality are checked.
+
+**The gate's default was not the manuscript's predicate (D01).** Appendix H says,
+for the NBPO family, "Require every retained local surplus > 1e-8" — a universal
+quantifier, not a coverage fraction. The default `coverage_min=.5` promoted a
+candidate positive on half its prompts. There are now three named profiles:
+`paper-nbpo` (every local surplus over the tolerance), `paper-global` (aggregate
+surplus over the tolerance plus a finite dev nMSE, which is the contract the
+manuscript attaches to the control), and `coverage`, which is the relaxed
+diagnostic and says so in its own record.
+
+**A missing fit could promote (D02).** An empty trainer `log_history` left
+`fit=None`, which the acceptance rule read as "not False". An nMSE of negative
+infinity passed. A requested check that cannot be evaluated is now a rejection,
+the value must be finite and in `[0, nmse-max]`, and a `--nmse-from` supplied by
+the caller is enforced whatever the profile asks for — silently ignoring a
+requested check is the same defect as treating a missing one as a pass.
+
+**Decisions were not bound to the solved game (D03).** beta came from a flag, so
+a target certified at .05 was judged at the default .25 and accepted at +.035
+where its own beta gives -.146. beta is now read from the target's own
+`complete.json`, a disagreeing flag is refused, and a target with no manifest
+fails closed unless `--assume-beta` states the assumption, which is recorded as
+unverified. A candidate path with no weights was fingerprinted as the sha256 of
+nothing and could be promoted; it is now a recorded rejection.
+
+**The gate needed a pod path and assumed four shards (D04).** The helper import
+is resolved beside the file, then on the path, then at the historical directory,
+and is deferred so `--help` and the cached-log-probability mode work from a clean
+checkout. The shard count is inferred from the `shard*` directories and validated
+as `0..n-1`. The pod smoke check now exits non-zero when an assertion fails, and
+the acceptance evidence moved to `tests/test_nbpo_local_gate.py` and
+`tests/test_nbpo_stage_controller.py`, which are synthetic and need no `/work`.
+
+**Nothing invoked the gate (A04).** `nbpo_stage_controller.py` is the stage that
+does: train, locate the candidate and the certified monitoring subset, call the
+gate, and write a `stage.json` naming the policy the next stage must use — the
+candidate on acceptance, the parent on rejection, and the parent when no decision
+exists at all. It exits non-zero on rejection so a shell pipeline stops instead
+of continuing on a checkpoint that failed.
+
 ## The prompt-wise NBPO line
 
 The prompt-wise change is in the solver, not the trainer: NBPO's dual
@@ -363,8 +418,9 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `mtbench_generate.py` | `5f57d2c8740e2494` |
 | `mtbench_judge.py` | `1007bf7e9f74f674` |
 | `mtbench_judge_batch.py` | `733864ed29ad2ed8` |
-| `nbpo_local_gate.py` | `a5acfd5dbe44b483` |
-| `nbpo_local_gate_selftest.py` | `5d96083801cf0306` |
+| `nbpo_local_gate.py` | `2b4035e3154eed21` |
+| `nbpo_local_gate_selftest.py` | `09fcf4d7f03191e6` |
+| `nbpo_stage_controller.py` | `8891023538a01b5e` |
 | `paired_diff.py` | `8c02d7c6107a1add` |
 | `paired_eval_diff.py` | `d63433fd17d62928` |
 | `panel_eval_judge.py` | `43c34dc22a5fb653` |
@@ -372,14 +428,17 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `panel_eval_selftest.py` | `21e08fa423c944f8` |
 | `panel_mopo.py` | `52cc67fd9c38b839` |
 | `panel_solver_diag.py` | `7ac5b829389dc9f2` |
-| `panel_stage2.py` | `e0528503bf22fa97` |
+| `panel_stage2.py` | `28ae8080eca1e5c2` |
 | `patch_prosper.py` | `83b304f6529266af` |
 | `patch_solver_precision.py` | `876327e29824383f` |
 | `probe_feasible.py` | `1723afa0a22fd8e0` |
 | `probe_feasible_us1.py` | `3ea83b98426213d4` |
 | `probe_feasible_ut1.py` | `3d1dded1cc3ff48e` |
+| `probe_feasible_ut1c.py` | `0be5e27d72c6451c` |
 | `probe_feasible_uw1.py` | `53beb08ef84e4cd9` |
 | `probe_feasible_uw1c.py` | `31a0be3911903894` |
+| `probe_feasible_uw1cb1.py` | `273e5e8f452d7c16` |
+| `probe_feasible_uw1cb4.py` | `dd9b9027309b7665` |
 | `probe_feasible_uw3.py` | `acde1da41b4895dc` |
 | `probe_surrogate_cost.py` | `af89f21cf1e1d840` |
 | `prosper_targets.py` | `c5c56d17cd050e63` |
@@ -408,34 +467,47 @@ the pod and in the Hugging Face repositories; only code is snapshotted.
 | `setup_panel_eval.py` | `bb1b4f30b05cdf33` |
 | `solve_mopo_targets_us1.py` | `29ffdad4c60edf68` |
 | `solve_mopo_targets_ut1.py` | `d4d88c0f3240f98e` |
+| `solve_mopo_targets_ut1c.py` | `744e07206b747c71` |
 | `solve_pros.py` | `6437b4763d8bae50` |
 | `solve_pros4_prosper.py` | `4acef1091e95e5d1` |
 | `solve_pros4_prosper_us1.py` | `a424790acb05c120` |
 | `solve_pros4_prosper_ut1.py` | `f3f164f01e67691f` |
+| `solve_pros4_prosper_ut1c.py` | `9e1cc80125671b80` |
 | `solve_pros4_prosper_uw1.py` | `9bc12258adb0f362` |
 | `solve_pros4_prosper_uw1c.py` | `24813e435311a09d` |
+| `solve_pros4_prosper_uw1cb1.py` | `2edc2c418f552e20` |
+| `solve_pros4_prosper_uw1cb4.py` | `ac0f1c7d06ceb615` |
 | `solve_pros4_prosper_uw3.py` | `882ed6e6698420e4` |
 | `solve_pros4_prosper_v2.py` | `e5788f0897387777` |
 | `solve_pros4_pw_fixedref.py` | `7a9f2b4fc4820b7b` |
 | `solve_pros4_pw_fixedref_us1.py` | `f28d388b740106b6` |
 | `solve_pros4_pw_fixedref_ut1.py` | `93db4e6c6443b50e` |
+| `solve_pros4_pw_fixedref_ut1c.py` | `d7c9e9cc98d71e1b` |
 | `solve_pros4_pw_fixedref_uw1.py` | `154bdf73323a8782` |
 | `solve_pros4_pw_fixedref_uw1c.py` | `3ab9c86049b3617f` |
+| `solve_pros4_pw_fixedref_uw1cb1.py` | `b04f854628a0f212` |
+| `solve_pros4_pw_fixedref_uw1cb4.py` | `7f79084e548d62fb` |
 | `solve_pros4_pw_fixedref_uw3.py` | `96f091b8084e43cb` |
 | `solve_pros4_pw_fixedref_v2.py` | `e3fdc6beaa2a352c` |
 | `solve_pros4_pw_nbpo.py` | `1d9b0953162ca88f` |
 | `solve_pros4_pw_nbpo_us1.py` | `2ff143d2361e8492` |
 | `solve_pros4_pw_nbpo_ut1.py` | `459eabc33fd2a3cb` |
+| `solve_pros4_pw_nbpo_ut1c.py` | `ac03d2ddf943c3bc` |
 | `solve_pros4_pw_nbpo_uw1.py` | `d9b0fa546f1660d1` |
 | `solve_pros4_pw_nbpo_uw1c.py` | `5d7f022f99f3f300` |
+| `solve_pros4_pw_nbpo_uw1cb1.py` | `9dafcfe1c039a2fe` |
+| `solve_pros4_pw_nbpo_uw1cb4.py` | `e8847194c35fec09` |
 | `solve_pros4_pw_nbpo_uw3.py` | `95b3090e0b6be64c` |
 | `solve_pros4_pw_nbpo_v2.py` | `575eeff8d0f9a9a3` |
 | `solve_pros4_targets.py` | `dc9a8ac57dbbece5` |
-| `solve_pros4_targets_us1.py` | `001d378f0ddf3cd7` |
-| `solve_pros4_targets_ut1.py` | `dc71344084bdfa51` |
-| `solve_pros4_targets_uw1.py` | `43ad471fa90a19c5` |
-| `solve_pros4_targets_uw1c.py` | `f392ff5452639e5a` |
-| `solve_pros4_targets_uw3.py` | `a524b3d7e4f3774c` |
+| `solve_pros4_targets_us1.py` | `ae75ab38bd1e03a8` |
+| `solve_pros4_targets_ut1.py` | `5bc5a678d52c0db2` |
+| `solve_pros4_targets_ut1c.py` | `5d45cd83fff929ba` |
+| `solve_pros4_targets_uw1.py` | `299b1dc626d8b7ea` |
+| `solve_pros4_targets_uw1c.py` | `5440dd56f697ee4b` |
+| `solve_pros4_targets_uw1cb1.py` | `d2590d8d472e270e` |
+| `solve_pros4_targets_uw1cb4.py` | `81b12d2ef84fc2d2` |
+| `solve_pros4_targets_uw3.py` | `22e7abeb5e3c5f23` |
 | `solve_pros4_targets_v2.py` | `dc9a8ac57dbbece5` |
 | `solve_safe_prosper.py` | `b7f23de80f1d5a45` |
 | `solve_safe_targets.py` | `74e3181a39074b3c` |
